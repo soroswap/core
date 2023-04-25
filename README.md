@@ -1,15 +1,11 @@
-# soroban-examples <!-- omit in toc -->
+# Soroswap core Smart Contracts
 
-Example contracts for Soroban.
+## Upgrade from stellar remote
+```
+git remote add stellar https://github.com/stellar/soroban-examples
+git pull stellar main
+```
 
-Follow along with [The Documentation](https://soroban.stellar.org/docs/category/examples).
-
-Open a development environment on GitPod:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/stellar/soroban-examples)
-
-WARNING: These implementations have not been tested or audited. They are likely
-to have significant errors and security vulnerabilities. They should not be
-relied on for any purpose.
-
-Join us In the [Stellar Developers Discord server](https://discord.gg/stellardev)
+## Use Soroban Preview #8
+```
+```
