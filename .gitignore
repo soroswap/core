@@ -1,3 +1,6 @@
+*/Cargo.lock
+*/target
+
 /target/
 /target-tiny/
 /.sccache/
