@@ -5,10 +5,11 @@
 
 mod test;
 mod token;
+mod create;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
-use crate::token::create_contract;
+use crate::create::create_contract;
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
