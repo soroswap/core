@@ -8,7 +8,7 @@ mod token;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
-use token::create_contract;
+use crate::token::create_contract;
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
