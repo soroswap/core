@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{token, LiquidityPoolClient};
+use crate::{token, SoroswapPairClient};
 
 use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, IntoVal, Symbol};
 
@@ -14,8 +14,8 @@ fn create_liqpool_contract(
     token_wasm_hash: &BytesN<32>,
     token_a: &BytesN<32>,
     token_b: &BytesN<32>,
-) -> LiquidityPoolClient {
-    let liqpool = LiquidityPoolClient::new(e, &e.register_contract(None, crate::LiquidityPool {}));
+) -> SoroswapPairClient {
+    let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
     liqpool.initialize(token_wasm_hash, token_a, token_b);
     liqpool
 }
