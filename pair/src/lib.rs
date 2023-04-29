@@ -12,7 +12,7 @@ mod create;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
-use crate::create::create_contract;
+use create::create_contract;
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
