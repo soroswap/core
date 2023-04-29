@@ -4,13 +4,14 @@
 // TODO: Make Pair Trait
 // TODO: Tell when token is a call of another contract (like tokenA), and when it should be this PairToken
 // Own tokens functions to be imported: balance, mint, transfer, initialize
+// Client token functions: transfer
 
 mod test;
 mod token;
 mod create;
 
 use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
+use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 use crate::create::create_contract;
 
 #[derive(Clone, Copy)]
@@ -327,8 +328,8 @@ impl SoroswapPairTrait for SoroswapPair {
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
 
         // TOKEN: Client token
-        let token_a_client = token::Client::new(&e, &get_token_a(&e));
-        let token_b_client = token::Client::new(&e, &get_token_b(&e));
+        let token_a_client = TokenClient::new(&e, &get_token_a(&e));
+        let token_b_client = TokenClient::new(&e, &get_token_b(&e));
 
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
@@ -377,7 +378,7 @@ impl SoroswapPairTrait for SoroswapPair {
             get_token_a(&e)
         };
         // TOKEN: Client token
-        let sell_token_client = token::Client::new(&e, &sell_token);
+        let sell_token_client = TokenClient::new(&e, &sell_token);
         sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
