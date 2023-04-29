@@ -2,6 +2,8 @@
 
 // TODO: Implement the token interface in THIS contract
 // TODO: Make Pair Trait
+// TODO: Tell when token is a call of another contract (like tokenA), and when it should be this PairToken
+// Own tokens functions to be imported: balance, mint, transfer, initialize
 
 mod test;
 mod token;
@@ -78,6 +80,7 @@ fn get_reserve_b(e: &Env) -> i128 {
 }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
+    // TOKEN: own token function
     token::Client::new(e, &contract_id).balance(&e.current_contract_address())
 }
 
@@ -120,7 +123,8 @@ fn put_reserve_b(e: &Env, amount: i128) {
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
     let share_contract_id = get_token_share(e);
-
+    
+    // TOKEN: own token function
     token::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
     put_total_shares(e, total - amount);
 }
@@ -128,7 +132,7 @@ fn burn_shares(e: &Env, amount: i128) {
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
     let share_contract_id = get_token_share(e);
-
+    // TOKEN: own token function
     token::Client::new(e, &share_contract_id).mint(&to, &amount);
 
     put_total_shares(e, total + amount);
@@ -142,6 +146,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 // }
 
 fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
+    // TOKEN: own token function
     token::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
@@ -227,6 +232,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
+        // TOKEN: own initialize token function. 
         token::Client::new(&e, &share_contract_id).initialize(
             &e.current_contract_address(),
             &7u32,
@@ -320,6 +326,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // Calculate deposit amounts
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
 
+        // TOKEN: Client token
         let token_a_client = token::Client::new(&e, &get_token_a(&e));
         let token_b_client = token::Client::new(&e, &get_token_b(&e));
 
@@ -369,6 +376,7 @@ impl SoroswapPairTrait for SoroswapPair {
         } else {
             get_token_a(&e)
         };
+        // TOKEN: Client token
         let sell_token_client = token::Client::new(&e, &sell_token);
         sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
 
@@ -416,7 +424,9 @@ impl SoroswapPairTrait for SoroswapPair {
         to.require_auth();
 
         // First transfer the pool shares that need to be redeemed
+        // TOKEN: own token function
         let share_token_client = token::Client::new(&e, &get_token_share(&e));
+        // TOKEN: own token function
         share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
