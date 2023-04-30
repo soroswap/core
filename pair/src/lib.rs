@@ -7,7 +7,8 @@
 // Client token functions: transfer
 
 mod test;
-mod token;
+mod compiledtoken;
+mod newtoken;
 mod create;
 
 use num_integer::Roots;
@@ -82,7 +83,7 @@ fn get_reserve_b(e: &Env) -> i128 {
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
     // TOKEN: own token function
-    token::Client::new(e, &contract_id).balance(&e.current_contract_address())
+    compiledtoken::Client::new(e, &contract_id).balance(&e.current_contract_address())
 }
 
 fn get_balance_a(e: &Env) -> i128 {
@@ -126,7 +127,7 @@ fn burn_shares(e: &Env, amount: i128) {
     let share_contract_id = get_token_share(e);
     
     // TOKEN: own token function
-    token::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+    compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
     put_total_shares(e, total - amount);
 }
 
@@ -134,7 +135,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
     let share_contract_id = get_token_share(e);
     // TOKEN: own token function
-    token::Client::new(e, &share_contract_id).mint(&to, &amount);
+    compiledtoken::Client::new(e, &share_contract_id).mint(&to, &amount);
 
     put_total_shares(e, total + amount);
 }
@@ -148,7 +149,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 
 fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
     // TOKEN: own token function
-    token::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
+    compiledtoken::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
@@ -188,7 +189,7 @@ fn get_deposit_amounts(
 
 pub trait SoroswapPairTrait {
     // Sets the token contract addresses for this pool
-    fn initialize(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
+    fn initialize_pair(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
 
     // Returns the token contract address for the pool share token
     fn share_id(e: Env) -> BytesN<32>;
@@ -227,14 +228,14 @@ impl SoroswapPairTrait for SoroswapPair {
     //     token1 = _token1;
     // }
 
-    fn initialize(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>) {
+    fn initialize_pair(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
 
         let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
         // TOKEN: own initialize token function. 
-        token::Client::new(&e, &share_contract_id).initialize(
+        compiledtoken::Client::new(&e, &share_contract_id).initialize(
             &e.current_contract_address(),
             &7u32,
             &Bytes::from_slice(&e, b"Pool Share Token"),
@@ -426,7 +427,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // First transfer the pool shares that need to be redeemed
         // TOKEN: own token function
-        let share_token_client = token::Client::new(&e, &get_token_share(&e));
+        let share_token_client = compiledtoken::Client::new(&e, &get_token_share(&e));
         // TOKEN: own token function
         share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
 
