@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{token, SoroswapPairClient};
+use crate::{compiledtoken as token, SoroswapPairClient};
 
 use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, IntoVal, Symbol};
 
@@ -16,7 +16,7 @@ fn create_liqpool_contract(
     token_b: &BytesN<32>,
 ) -> SoroswapPairClient {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    liqpool.initialize(token_wasm_hash, token_a, token_b);
+    liqpool.initialize_pair(token_wasm_hash, token_a, token_b);
     liqpool
 }
 

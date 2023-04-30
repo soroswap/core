@@ -1,5 +1,5 @@
 [package]
-name = "soroban-token-contract"
+name = "sorobantokencontract"
 description = "Soroban standard token contract"
 version = "0.0.6"
 edition = "2021"
