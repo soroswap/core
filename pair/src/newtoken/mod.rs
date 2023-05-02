@@ -10,3 +10,5 @@ mod storage_types;
 mod test;
 
 pub use crate::newtoken::contract::TokenClient;
+pub use crate::newtoken::contract::Token;
+pub use crate::newtoken::contract::TokenTrait;
