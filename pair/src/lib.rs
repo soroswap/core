@@ -14,6 +14,8 @@ mod create;
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 use create::create_contract;
+use newtoken::{Token, TokenTrait};
+
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
@@ -84,6 +86,7 @@ fn get_reserve_b(e: &Env) -> i128 {
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
     // TOKEN: own token function
     compiledtoken::Client::new(e, &contract_id).balance(&e.current_contract_address())
+    //newtoken::Token::balance(&e.current_contract_address())
 }
 
 fn get_balance_a(e: &Env) -> i128 {
@@ -233,14 +236,28 @@ impl SoroswapPairTrait for SoroswapPair {
             panic!("token_a must be less than token_b");
         }
 
+
         let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
-        // TOKEN: own initialize token function. 
+        // Old Implementation:
         compiledtoken::Client::new(&e, &share_contract_id).initialize(
             &e.current_contract_address(),
             &7u32,
             &Bytes::from_slice(&e, b"Pool Share Token"),
             &Bytes::from_slice(&e, b"POOL"),
         );
+
+        // New Implementation:
+        // We will use the token function in this contract. For this we need to initialize this token
+        //fn initialize(e: Env, admin: Address, decimal: u32, name: Bytes, symbol: Bytes);
+        // TODO: Here we use e.clone() creates a new copy of the data and can be slower and use more memory than passing a reference.
+        // TODO: See alternatives:
+        Token::initialize(
+                e.clone(),
+                e.current_contract_address(),
+                7,
+                Bytes::from_slice(&e, b"Pool Share Token"),
+                Bytes::from_slice(&e, b"POOL"),
+            );
 
         put_token_a(&e, token_a);
         put_token_b(&e, token_b);
