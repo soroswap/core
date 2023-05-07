@@ -145,8 +145,17 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
     // function getPair(address token_a, address token_b) external view returns (address pair);
     fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address{
-        // TODO: Implement
-        e.current_contract_address()
+        /*
+        In this code, unwrap() is called twice. The first unwrap()
+        gets the Result<Map<Address, Address>, ConversionError> from
+        the Option<Result<Map<Address, Address>, ConversionError>>,
+        and the second unwrap() gets the Map<Address, Address> from the 
+        Result<Map<Address, Address>, ConversionError>. 
+        If either of these unwrap() calls fail because their respective
+         values are None or Err, the function will panic.*/
+         
+        let first_map = get_pairs_mapping(&e).get(token_a).unwrap().unwrap();
+        first_map.get(token_b).unwrap().unwrap()
     }
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
