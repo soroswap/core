@@ -11,21 +11,20 @@ fn create_token_contract(e: &Env, admin: &Address) -> token::Client {
 
 fn create_liqpool_contract(
     e: &Env,
-    token_wasm_hash: &BytesN<32>,
     token_a: &BytesN<32>,
     token_b: &BytesN<32>,
 ) -> SoroswapPairClient {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    liqpool.initialize_pair(token_wasm_hash, token_a, token_b);
+    liqpool.initialize_pair(token_a, token_b);
     liqpool
 }
 
-fn install_token_wasm(e: &Env) -> BytesN<32> {
-    soroban_sdk::contractimport!(
-        file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
-    );
-    e.install_contract_wasm(WASM)
-}
+// fn install_token_wasm(e: &Env) -> BytesN<32> {
+//     soroban_sdk::contractimport!(
+//         file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+//     );
+//     e.install_contract_wasm(WASM)
+// }
 
 #[test]
 fn test() {
@@ -43,7 +42,6 @@ fn test() {
     let user1 = Address::random(&e);
     let liqpool = create_liqpool_contract(
         &e,
-        &install_token_wasm(&e),
         &token1.contract_id,
         &token2.contract_id,
     );
