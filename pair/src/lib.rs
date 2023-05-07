@@ -84,8 +84,10 @@ fn get_reserve_b(e: &Env) -> i128 {
 }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
-    // TOKEN: own token function
+    // Old Implementation: Using token contract client
     compiledtoken::Client::new(e, &contract_id).balance(&e.current_contract_address())
+
+    // New Implementation: Using own token functions:
     //newtoken::Token::balance(&e.current_contract_address())
 }
 
@@ -129,16 +131,22 @@ fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
     let share_contract_id = get_token_share(e);
     
-    // TOKEN: own token function
-    compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+    // Old Implementation: Use pair token in another contract:
+     compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+
+    // New Implementation: Use own token functions:
+    // Token::burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(e, total - amount);
 }
 
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
     let share_contract_id = get_token_share(e);
-    // TOKEN: own token function
+    
+    // Old Implementation: Use pair token in another contract:
     compiledtoken::Client::new(e, &share_contract_id).mint(&to, &amount);
+    // New Implementation: Use own token functions:
+    Token::mint(e.clone(), to, amount);
 
     put_total_shares(e, total + amount);
 }
@@ -153,6 +161,9 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
     // TOKEN: own token function
     compiledtoken::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
+
+    // New Implementation: Use own token functions:
+    //Token::transfer(e.clone(), e.current_contract_address(), to, amount);
 }
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
@@ -443,10 +454,12 @@ impl SoroswapPairTrait for SoroswapPair {
         to.require_auth();
 
         // First transfer the pool shares that need to be redeemed
-        // TOKEN: own token function
+        // Old Implementation: Use client token contract
         let share_token_client = compiledtoken::Client::new(&e, &get_token_share(&e));
-        // TOKEN: own token function
         share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
+
+        // New Implementation: Use own token functions:
+        //Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
         let balance_shares = get_balance_shares(&e);
