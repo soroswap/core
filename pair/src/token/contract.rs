@@ -1,11 +1,11 @@
 //! This contract demonstrates a sample implementation of the Soroban token
 //! interface.
-use crate::newtoken::admin::{has_administrator, read_administrator, write_administrator};
-use crate::newtoken::allowance::{read_allowance, spend_allowance, write_allowance};
-use crate::newtoken::balance::{is_authorized, write_authorization};
-use crate::newtoken::balance::{read_balance, receive_balance, spend_balance};
-use crate::newtoken::event;
-use crate::newtoken::metadata::{
+use crate::token::admin::{has_administrator, read_administrator, write_administrator};
+use crate::token::allowance::{read_allowance, spend_allowance, write_allowance};
+use crate::token::balance::{is_authorized, write_authorization};
+use crate::token::balance::{read_balance, receive_balance, spend_balance};
+use crate::token::event;
+use crate::token::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
 use soroban_sdk::{contractimpl, Address, Bytes, Env};

@@ -1,4 +1,4 @@
-use crate::newtoken::storage_types::DataKey;
+use crate::token::storage_types::DataKey;
 use soroban_sdk::{Bytes, Env};
 
 pub fn read_decimal(e: &Env) -> u32 {
