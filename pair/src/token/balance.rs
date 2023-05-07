@@ -1,4 +1,4 @@
-use crate::newtoken::storage_types::DataKey;
+use crate::token::storage_types::DataKey;
 use soroban_sdk::{Address, Env};
 
 pub fn read_balance(e: &Env, addr: Address) -> i128 {

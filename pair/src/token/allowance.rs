@@ -1,4 +1,4 @@
-use crate::newtoken::storage_types::{AllowanceDataKey, DataKey};
+use crate::token::storage_types::{AllowanceDataKey, DataKey};
 use soroban_sdk::{Address, Env};
 
 pub fn read_allowance(e: &Env, from: Address, spender: Address) -> i128 {

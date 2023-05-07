@@ -7,13 +7,12 @@
 // Client token functions: transfer
 
 mod test;
-mod newtoken;
+mod token;
 mod create;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
-//use create::create_contract;
-use newtoken::{Token, TokenTrait};
+use token::{Token, TokenTrait};
 
 
 #[derive(Clone, Copy)]
