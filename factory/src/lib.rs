@@ -196,7 +196,7 @@ fn get_deposit_amounts(
     }
 }
 
-pub trait SoroswapPairTrait{
+pub trait SoroswapFactoryTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>);
 
@@ -223,10 +223,10 @@ pub trait SoroswapPairTrait{
     fn my_balance(e: Env, id: Address) -> i128;
 }
 
-struct SoroswapPair;
+struct SoroswapFactory;
 
 #[contractimpl]
-impl SoroswapPairTrait for SoroswapPair {
+impl SoroswapFactoryTrait for SoroswapFactory {
     // initialize
     // // Constructor. Can be constructed my any contract
     // constructor() public {
