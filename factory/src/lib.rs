@@ -33,9 +33,8 @@ impl TryFromVal<Env, DataKey> for RawVal {
     }
 }
 
-// let mut spend_left_per_token = Map::<BytesN<32>, i128>::new(&env);
-// spend_left_per_token: &mut Map<BytesN<32>, i128>,
-// mapping(address => mapping(address => address)) public getPair;
+// TODO: Implement event PairCreated(address indexed token0, address indexed token1, address pair, uint);
+
 
 fn get_fee_to(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
@@ -124,21 +123,18 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // feeTo is the recipient of the charge.
     // function feeTo() external view returns (address);
     fn fee_to(e: Env) -> Address {
-        // TODO: Implement
-        e.current_contract_address()
+        get_fee_to(&e)
     }
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
     fn fee_to_setter(e: Env) -> Address {
-        // TODO: Implement
-        e.current_contract_address()
+        get_fee_to_setter(&e)
     }
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
     fn all_pairs_length(e: Env) -> u32{
-        // TODO: all_pairs_length should be u32
         get_all_pairs(&e).len()
     }
 
@@ -153,7 +149,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         Result<Map<Address, Address>, ConversionError>. 
         If either of these unwrap() calls fail because their respective
          values are None or Err, the function will panic.*/
-         
+
         let first_map = get_pairs_mapping(&e).get(token_a).unwrap().unwrap();
         first_map.get(token_b).unwrap().unwrap()
     }
@@ -187,6 +183,25 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // function createPair(address token_a, address token_b) external returns (address pair);
     fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address{
         // TODO: Implement
+
+        /*
+        function createPair(address tokenA, address tokenB) external returns (address pair) {
+        require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
+        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
+        require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
+        bytes memory bytecode = type(UniswapV2Pair).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+        assembly {
+            pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+        }
+        IUniswapV2Pair(pair).initialize(token0, token1);
+        getPair[token0][token1] = pair;
+        getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        allPairs.push(pair);
+        emit PairCreated(token0, token1, pair, allPairs.length);
+        }
+        */
         e.current_contract_address()
     }
     
