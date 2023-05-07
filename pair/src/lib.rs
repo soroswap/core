@@ -126,23 +126,24 @@ fn put_reserve_b(e: &Env, amount: i128) {
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
-    //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-    //TokenClient::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+        // let share_contract_id = get_token_share(e);
+        // TokenClient::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
 
-    // New Implementation: Use own token functions:
+    // New Implementation: Use own Token:: functions:
     Token::burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(e, total - amount);
 }
 
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
-    //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-    //TokenClient::new(e, &share_contract_id).mint(&to, &amount);
-    // New Implementation: Use own token functions:
+        // let share_contract_id = get_token_share(e);
+        // TokenClient::new(e, &share_contract_id).mint(&to, &amount);
+    
+    // New Implementation: Use own Token:: functions:
     Token::mint(e.clone(), to, amount);
 
     put_total_shares(e, total + amount);
@@ -243,18 +244,16 @@ impl SoroswapPairTrait for SoroswapPair {
             panic!("token_a must be less than token_b");
         }
 
-        // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
-        // // Old Implementation:
-        // TokenClient::new(&e, &share_contract_id).initialize(
-        //     &e.current_contract_address(),
-        //     &7u32,
-        //     &Bytes::from_slice(&e, b"Pool Share Token"),
-        //     &Bytes::from_slice(&e, b"POOL"),
-        // );
+        // Old Implementation:
+            // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
+            // TokenClient::new(&e, &share_contract_id).initialize(
+            //     &e.current_contract_address(),
+            //     &7u32,
+            //     &Bytes::from_slice(&e, b"Pool Share Token"),
+            //     &Bytes::from_slice(&e, b"POOL"),
+            // );
 
-        // New Implementation:
-        // We will use the token function in this contract. For this we need to initialize this token
-        //fn initialize(e: Env, admin: Address, decimal: u32, name: Bytes, symbol: Bytes);
+        // New Implementation: Use own Token:: functions
         // TODO: Here we use e.clone() creates a new copy of the data and can be slower and use more memory than passing a reference.
         // TODO: See alternatives:
         Token::initialize(
@@ -352,7 +351,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // Calculate deposit amounts
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
 
-        // TOKEN: Client token
+        // TOKEN: Token Client
         let token_a_client = TokenClient::new(&e, &get_token_a(&e));
         let token_b_client = TokenClient::new(&e, &get_token_b(&e));
 
@@ -402,7 +401,7 @@ impl SoroswapPairTrait for SoroswapPair {
         } else {
             get_token_a(&e)
         };
-        // TOKEN: Client token
+        // TOKEN: Token Client
         let sell_token_client = TokenClient::new(&e, &sell_token);
         sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
 
@@ -449,12 +448,13 @@ impl SoroswapPairTrait for SoroswapPair {
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
         to.require_auth();
 
-        // First transfer the pool shares that need to be redeemed
-        // Old Implementation: Use client token contract
-        //let share_token_client = TokenClient::new(&e, &get_token_share(&e));
-        //share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
+        // First transfer the pool shares that need to be redeemed:
+        // Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
 
-        // 1. Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
+        // Old Implementation: Use client token contract
+            // let share_token_client = TokenClient::new(&e, &get_token_share(&e));
+            // share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
+
         // New Implementation: Use own token functions:
         Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
