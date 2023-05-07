@@ -114,10 +114,6 @@ fn put_token_b(e: &Env, contract_id: BytesN<32>) {
     e.storage().set(&DataKey::TokenB, &contract_id);
 }
 
-fn put_token_share(e: &Env, contract_id: BytesN<32>) {
-    e.storage().set(&DataKey::TokenShare, &contract_id);
-}
-
 fn put_total_shares(e: &Env, amount: i128) {
     e.storage().set(&DataKey::TotalShares, &amount)
 }
@@ -203,7 +199,7 @@ fn get_deposit_amounts(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
+    fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>);
 
     // Returns the token contract address for the pool share token
     fn share_id(e: Env) -> BytesN<32>;
@@ -244,7 +240,7 @@ impl SoroswapPairTrait for SoroswapPair {
     //     token1 = _token1;
     // }
 
-    fn initialize_pair(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>) {
+    fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
@@ -273,8 +269,6 @@ impl SoroswapPairTrait for SoroswapPair {
 
         put_token_a(&e, token_a);
         put_token_b(&e, token_b);
-//        put_token_share(&e, share_contract_id.try_into().unwrap());
-        //put_token_share(&e, share_contract_id);
         put_total_shares(&e, 0);
         put_reserve_a(&e, 0);
         put_reserve_b(&e, 0);
