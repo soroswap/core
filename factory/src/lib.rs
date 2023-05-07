@@ -127,8 +127,8 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
     fn all_pairs_length(e: Env) -> i128{
-        // TODO: Implement
-1
+        // TODO: all_pairs_length should be u32
+        get_all_pairs(&e).len().into()
     }
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
