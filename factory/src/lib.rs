@@ -11,7 +11,7 @@ mod test;
 mod create;
 
 //use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError, Vec}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
+use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError, Vec, Map}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 //use token::{Token, TokenTrait};
 
 #[derive(Clone, Copy)]
@@ -20,7 +20,8 @@ use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionErro
 pub enum DataKey {
     FeeTo = 0, // address public feeTo;
     FeeToSetter = 1, // address public feeToSetter;
-    AllPairs = 3, //  address[] public allPairs;
+    AllPairs = 2, //  address[] public allPairs;
+    PairsMapping = 3,
 
 }
 
@@ -34,6 +35,8 @@ impl TryFromVal<Env, DataKey> for RawVal {
 
 // let mut spend_left_per_token = Map::<BytesN<32>, i128>::new(&env);
 // spend_left_per_token: &mut Map<BytesN<32>, i128>,
+// mapping(address => mapping(address => address)) public getPair;
+
 fn get_fee_to(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
 }
@@ -46,6 +49,10 @@ fn get_all_pairs(e: &Env) -> Vec<Address> {
     e.storage().get_unchecked(&DataKey::AllPairs).unwrap()
 }
 
+fn get_pairs_mapping(e: &Env) -> Map<Address, Map<Address,Address>> {
+    e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
+}
+
 fn put_fee_to(e: &Env, to: Address) {
     e.storage().set(&DataKey::FeeTo, &to);
 }
@@ -56,6 +63,10 @@ fn put_fee_to_setter(e: &Env, setter: Address) {
 
 fn put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
     e.storage().set(&DataKey::AllPairs, &all_pairs);
+}
+
+fn put_pairs_mapping(e: &Env, pairs_mapping: Map<Address, Map<Address,Address>>) {
+    e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
 }
 
 
@@ -75,7 +86,7 @@ pub trait SoroswapFactoryTrait{
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
-    fn all_pairs_length(e: Env) -> i128;
+    fn all_pairs_length(e: Env) -> u32;
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
     // function getPair(address token_a, address token_b) external view returns (address pair);
@@ -83,7 +94,7 @@ pub trait SoroswapFactoryTrait{
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
-    fn all_pairs(e: Env, n: i128) -> Address;
+    fn all_pairs(e: Env, n: u32) -> Address;
 
     /*  *** State-Changing Functions: *** */
 
@@ -126,9 +137,9 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
-    fn all_pairs_length(e: Env) -> i128{
+    fn all_pairs_length(e: Env) -> u32{
         // TODO: all_pairs_length should be u32
-        get_all_pairs(&e).len().into()
+        get_all_pairs(&e).len()
     }
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
@@ -140,9 +151,9 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
-    fn all_pairs(e: Env, n: i128) -> Address{
-        // TODO: Implement
-        e.current_contract_address()
+    fn all_pairs(e: Env, n: u32) -> Address{
+        // TODO: Implement error if n does not exist
+        get_all_pairs(&e).get_unchecked(n).unwrap()
     }
 
     /*  *** State-Changing Functions: *** */
