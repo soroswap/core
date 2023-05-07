@@ -11,11 +11,41 @@ mod token;
 mod create;
 
 //use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Env}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
+use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 //use token::{Token, TokenTrait};
 
+#[derive(Clone, Copy)]
+#[repr(u32)]
 
-//#[repr(u32)]
+pub enum DataKey {
+    FeeTo = 0, // address public feeTo;
+    FeeToSetter = 1, // address public feeToSetter;
+}
+
+impl TryFromVal<Env, DataKey> for RawVal {
+    type Error = ConversionError;
+
+    fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
+        Ok((*v as u32).into())
+    }
+}
+
+fn get_fee_to(e: &Env) -> Address {
+    e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
+}
+
+fn get_fee_to_setter(e: &Env) -> Address {
+    e.storage().get_unchecked(&DataKey::FeeToSetter).unwrap()
+}
+
+fn put_fee_to(e: &Env, to: Address) {
+    e.storage().set(&DataKey::FeeTo, &to);
+}
+
+fn put_fee_to_setter(e: &Env, setter: Address) {
+    e.storage().set(&DataKey::FeeToSetter, &setter);
+}
+
 
 pub trait SoroswapFactoryTrait{
     /*  *** Read only functions: *** */
@@ -99,12 +129,18 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // function setFeeTo(address) external;
     fn set_fee_to(e: Env, to: Address){
-        // TODO: Implement
+        // TODO: Implement restriction
+        // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        
+        put_fee_to(&e, to);
     }
 
     // function setFeeToSetter(address) external;
     fn set_fee_to_setter(e: Env, setter: Address){
-        // TODO: Implement
+        // TODO: Implement restriction
+        // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
+        
+        put_fee_to(&e, setter);
     }
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
