@@ -13,7 +13,7 @@ mod create;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
-use create::create_contract;
+//use create::create_contract;
 use newtoken::{Token, TokenTrait};
 
 
@@ -84,14 +84,14 @@ fn get_reserve_b(e: &Env) -> i128 {
 }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
-    // Old Implementation: Using token contract client
+    // How many "contract_id" tokens does this contract holds?
+    // We need to implement the token client
     compiledtoken::Client::new(e, &contract_id).balance(&e.current_contract_address())
-
-    // New Implementation: Using own token functions:
-    //newtoken::Token::balance(&e.current_contract_address())
 }
 
 fn get_balance_a(e: &Env) -> i128 {
+    // How many "A TOKENS" does the Liquidity Pool holds?
+    // How many "A TOKENS" does this contract holds?
     get_balance(e, get_token_a(e))
 }
 
@@ -100,7 +100,10 @@ fn get_balance_b(e: &Env) -> i128 {
 }
 
 fn get_balance_shares(e: &Env) -> i128 {
-    get_balance(e, get_token_share(e))
+    // How many "SHARE" tokens does the Liquidity pool holds?
+    // This shares should have been sent by the user when burning their LP positions (withdraw)
+    Token::balance(e.clone(), e.current_contract_address())
+    //get_balance(e, get_token_share(e))
 }
 
 fn put_token_a(e: &Env, contract_id: BytesN<32>) {
@@ -129,22 +132,22 @@ fn put_reserve_b(e: &Env, amount: i128) {
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
-    let share_contract_id = get_token_share(e);
+    //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-     compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+    //compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
 
     // New Implementation: Use own token functions:
-    // Token::burn(e.clone(), e.current_contract_address(), amount);
+    Token::burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(e, total - amount);
 }
 
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
-    let share_contract_id = get_token_share(e);
+    //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-    compiledtoken::Client::new(e, &share_contract_id).mint(&to, &amount);
+    //compiledtoken::Client::new(e, &share_contract_id).mint(&to, &amount);
     // New Implementation: Use own token functions:
     Token::mint(e.clone(), to, amount);
 
@@ -159,14 +162,11 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 // }
 
 fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
-    // TOKEN: own token function
     compiledtoken::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
-
-    // New Implementation: Use own token functions:
-    //Token::transfer(e.clone(), e.current_contract_address(), to, amount);
 }
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
+    // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
     transfer(e, get_token_a(e), to, amount);
 }
 
@@ -201,7 +201,7 @@ fn get_deposit_amounts(
     }
 }
 
-pub trait SoroswapPairTrait {
+pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, token_wasm_hash: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
 
@@ -224,6 +224,8 @@ pub trait SoroswapPairTrait {
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
     fn get_rsrvs(e: Env) -> (i128, i128);
+
+    fn my_balance(e: Env, id: Address) -> i128;
 }
 
 struct SoroswapPair;
@@ -247,15 +249,14 @@ impl SoroswapPairTrait for SoroswapPair {
             panic!("token_a must be less than token_b");
         }
 
-
-        let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
-        // Old Implementation:
-        compiledtoken::Client::new(&e, &share_contract_id).initialize(
-            &e.current_contract_address(),
-            &7u32,
-            &Bytes::from_slice(&e, b"Pool Share Token"),
-            &Bytes::from_slice(&e, b"POOL"),
-        );
+        // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
+        // // Old Implementation:
+        // compiledtoken::Client::new(&e, &share_contract_id).initialize(
+        //     &e.current_contract_address(),
+        //     &7u32,
+        //     &Bytes::from_slice(&e, b"Pool Share Token"),
+        //     &Bytes::from_slice(&e, b"POOL"),
+        // );
 
         // New Implementation:
         // We will use the token function in this contract. For this we need to initialize this token
@@ -272,10 +273,13 @@ impl SoroswapPairTrait for SoroswapPair {
 
         put_token_a(&e, token_a);
         put_token_b(&e, token_b);
-        put_token_share(&e, share_contract_id.try_into().unwrap());
+//        put_token_share(&e, share_contract_id.try_into().unwrap());
+        //put_token_share(&e, share_contract_id);
         put_total_shares(&e, 0);
         put_reserve_a(&e, 0);
         put_reserve_b(&e, 0);
+
+
     }
 
     fn share_id(e: Env) -> BytesN<32> {
@@ -455,11 +459,12 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // First transfer the pool shares that need to be redeemed
         // Old Implementation: Use client token contract
-        let share_token_client = compiledtoken::Client::new(&e, &get_token_share(&e));
-        share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
+        //let share_token_client = compiledtoken::Client::new(&e, &get_token_share(&e));
+        //share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
 
+        // 1. Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
         // New Implementation: Use own token functions:
-        //Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
+        Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
         let balance_shares = get_balance_shares(&e);
@@ -486,6 +491,11 @@ impl SoroswapPairTrait for SoroswapPair {
     fn get_rsrvs(e: Env) -> (i128, i128) {
         (get_reserve_a(&e), get_reserve_b(&e))
     }
+
+    fn my_balance(e: Env, id: Address) -> i128 {
+        Token::balance(e.clone(), id)
+    }
+
 }
 
 // TODO: Analize if we should add UniswapV2 lock guard function:

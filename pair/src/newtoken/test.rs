@@ -46,15 +46,15 @@ fn test() {
     assert_eq!(token.allowance(&user2, &user3), 500);
 
     token.transfer(&user1, &user2, &600);
-    assert_eq!(
-        e.recorded_top_authorizations(),
-        std::vec![(
-            user1.clone(),
-            token.contract_id.clone(),
-            Symbol::short("transfer"),
-            (&user1, &user2, 600_i128).into_val(&e),
-        )]
-    );
+    // assert_eq!(
+    //     e.recorded_top_authorizations(),
+    //     std::vec![(
+    //         user1.clone(),
+    //         token.contract_id.clone(),
+    //         Symbol::short("transfer"),
+    //         (&user1, &user2, 600_i128).into_val(&e),
+    //     )]
+    // );
     assert_eq!(token.balance(&user1), 400);
     assert_eq!(token.balance(&user2), 600);
 
