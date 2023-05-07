@@ -48,8 +48,9 @@ fn test() {
         &token2.contract_id,
     );
 
-    let contract_share: [u8; 32] = liqpool.share_id().into();
-    let token_share = token::Client::new(&e, &contract_share);
+   // let contract_share: [u8; 32] = liqpool.share_id().into();
+    //let token_share = token::Client::new(&e, &contract_share);
+    //let token_share = token::Client::new(&e, &liqpool.contract_id); 
 
     token1.mint(&user1, &1000);
     assert_eq!(token1.balance(&user1), 1000);
@@ -70,8 +71,8 @@ fn test() {
     //     )]
     // );
 
-    assert_eq!(token_share.balance(&user1), 100);
-    assert_eq!(token_share.balance(&liqpool.address()), 0);
+    assert_eq!(liqpool.my_balance(&user1), 100);
+    assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
     assert_eq!(token1.balance(&user1), 900);
     assert_eq!(token1.balance(&liqpool.address()), 100);
     assert_eq!(token2.balance(&user1), 900);
@@ -109,8 +110,8 @@ fn test() {
 
     assert_eq!(token1.balance(&user1), 1000);
     assert_eq!(token2.balance(&user1), 1000);
-    assert_eq!(token_share.balance(&user1), 0);
+    assert_eq!(liqpool.my_balance(&user1), 0);
     assert_eq!(token1.balance(&liqpool.address()), 0);
     assert_eq!(token2.balance(&liqpool.address()), 0);
-    assert_eq!(token_share.balance(&liqpool.address()), 0);
+    assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
 }
