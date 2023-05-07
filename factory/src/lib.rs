@@ -7,11 +7,11 @@
 // Client token functions: transfer
 
 mod test;
-mod token;
+//mod token;
 mod create;
 
 //use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
+use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError, Vec}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 //use token::{Token, TokenTrait};
 
 #[derive(Clone, Copy)]
@@ -20,6 +20,8 @@ use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionErro
 pub enum DataKey {
     FeeTo = 0, // address public feeTo;
     FeeToSetter = 1, // address public feeToSetter;
+    AllPairs = 3, //  address[] public allPairs;
+
 }
 
 impl TryFromVal<Env, DataKey> for RawVal {
@@ -30,12 +32,18 @@ impl TryFromVal<Env, DataKey> for RawVal {
     }
 }
 
+// let mut spend_left_per_token = Map::<BytesN<32>, i128>::new(&env);
+// spend_left_per_token: &mut Map<BytesN<32>, i128>,
 fn get_fee_to(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
 }
 
 fn get_fee_to_setter(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeToSetter).unwrap()
+}
+
+fn get_all_pairs(e: &Env) -> Vec<Address> {
+    e.storage().get_unchecked(&DataKey::AllPairs).unwrap()
 }
 
 fn put_fee_to(e: &Env, to: Address) {
@@ -46,8 +54,15 @@ fn put_fee_to_setter(e: &Env, setter: Address) {
     e.storage().set(&DataKey::FeeToSetter, &setter);
 }
 
+fn put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
+    e.storage().set(&DataKey::AllPairs, &all_pairs);
+}
+
 
 pub trait SoroswapFactoryTrait{
+    // Sets the fee_to_setter address
+    fn initialize(e: Env, setter: Address);
+
     /*  *** Read only functions: *** */
 
     // feeTo is the recipient of the charge.
@@ -87,6 +102,11 @@ struct SoroswapFactory;
 
 #[contractimpl]
 impl SoroswapFactoryTrait for SoroswapFactory {
+    // Sets the fee_to_setter address
+    fn initialize(e: Env, setter: Address){
+        // TODO: This should be called only once, and by the contract creator
+        put_fee_to_setter(&e, setter);
+    }
 
     /*  *** Read only functions: *** */
 
@@ -108,7 +128,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // function allPairsLength() external view returns (uint);  
     fn all_pairs_length(e: Env) -> i128{
         // TODO: Implement
-        1
+1
     }
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
@@ -140,7 +160,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // TODO: Implement restriction
         // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         
-        put_fee_to(&e, setter);
+        put_fee_to_setter(&e, setter);
     }
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
