@@ -7,7 +7,6 @@
 // Client token functions: transfer
 
 mod test;
-mod compiledtoken;
 mod newtoken;
 mod create;
 
@@ -86,7 +85,7 @@ fn get_reserve_b(e: &Env) -> i128 {
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
     // How many "contract_id" tokens does this contract holds?
     // We need to implement the token client
-    compiledtoken::Client::new(e, &contract_id).balance(&e.current_contract_address())
+    TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
 }
 
 fn get_balance_a(e: &Env) -> i128 {
@@ -131,7 +130,7 @@ fn burn_shares(e: &Env, amount: i128) {
     //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-    //compiledtoken::Client::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
+    //TokenClient::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
 
     // New Implementation: Use own token functions:
     Token::burn(e.clone(), e.current_contract_address(), amount);
@@ -143,7 +142,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
     //let share_contract_id = get_token_share(e);
     
     // Old Implementation: Use pair token in another contract:
-    //compiledtoken::Client::new(e, &share_contract_id).mint(&to, &amount);
+    //TokenClient::new(e, &share_contract_id).mint(&to, &amount);
     // New Implementation: Use own token functions:
     Token::mint(e.clone(), to, amount);
 
@@ -158,7 +157,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 // }
 
 fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
-    compiledtoken::Client::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
+    TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
@@ -247,7 +246,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
         // // Old Implementation:
-        // compiledtoken::Client::new(&e, &share_contract_id).initialize(
+        // TokenClient::new(&e, &share_contract_id).initialize(
         //     &e.current_contract_address(),
         //     &7u32,
         //     &Bytes::from_slice(&e, b"Pool Share Token"),
@@ -453,7 +452,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // First transfer the pool shares that need to be redeemed
         // Old Implementation: Use client token contract
-        //let share_token_client = compiledtoken::Client::new(&e, &get_token_share(&e));
+        //let share_token_client = TokenClient::new(&e, &get_token_share(&e));
         //share_token_client.transfer(&to, &e.current_contract_address(), &share_amount);
 
         // 1. Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.

@@ -1,12 +1,12 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{compiledtoken as token, SoroswapPairClient};
+use crate::{SoroswapPairClient};
 
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, token::Client as TokenClient}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
-fn create_token_contract(e: &Env, admin: &Address) -> token::Client {
-    token::Client::new(&e, &e.register_stellar_asset_contract(admin.clone()))
+fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
+    TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
 fn create_liqpool_contract(
@@ -47,8 +47,8 @@ fn test() {
     );
 
    // let contract_share: [u8; 32] = liqpool.share_id().into();
-    //let token_share = token::Client::new(&e, &contract_share);
-    //let token_share = token::Client::new(&e, &liqpool.contract_id); 
+    //let token_share = TokenClient::new(&e, &contract_share);
+    //let token_share = TokenClient::new(&e, &liqpool.contract_id); 
 
     token1.mint(&user1, &1000);
     assert_eq!(token1.balance(&user1), 1000);
