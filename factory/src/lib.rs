@@ -197,30 +197,39 @@ fn get_deposit_amounts(
 }
 
 pub trait SoroswapFactoryTrait{
-    // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>);
+    /*  *** Read only functions: *** */
 
-    // Returns the token contract address for the pool share token
-    fn share_id(e: Env) -> BytesN<32>;
+    // feeTo is the recipient of the charge.
+    // function feeTo() external view returns (address);
+    fn fee_to(e: Env) -> Address;
 
-    // Deposits token_a and token_b. Also mints pool shares for the "to" Identifier. The amount minted
-    // is determined based on the difference between the reserves stored by this contract, and
-    // the actual balance of token_a and token_b for this contract.
-    fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
+    // The address allowed to change feeTo.
+    // function feeToSetter() external view returns (address);
+    fn fee_to_setter(e: Env) -> Address;
 
-    // If "buy_a" is true, the swap will buy token_a and sell token_b. This is flipped if "buy_a" is false.
-    // "out" is the amount being bought, with in_max being a safety to make sure you receive at least that amount.
-    // swap will transfer the selling token "to" to this contract, and then the contract will transfer the buying token to "to".
-    fn swap(e: Env, to: Address, buy_a: bool, out: i128, in_max: i128);
+    // Returns the total number of pairs created through the factory so far.
+    // function allPairsLength() external view returns (uint);  
+    fn all_pairs_length(e: Env) -> i128;
 
-    // transfers share_amount of pool share tokens to this contract, burns all pools share tokens in this contracts, and sends the
-    // corresponding amount of token_a and token_b to "to".
-    // Returns amount of both tokens withdrawn
-    fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
+    // Returns the address of the pair for tokenA and tokenB, if it has been created, else address(0) 
+    // function getPair(address tokenA, address tokenB) external view returns (address pair);
+    fn get_pair(e: Env, tokenA: Address, tokenB: Address) -> Address;
 
-    fn get_rsrvs(e: Env) -> (i128, i128);
+    // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
+    // function allPairs(uint) external view returns (address pair);
+    fn all_pairs(e: Env, n: i128) -> Address;
 
-    fn my_balance(e: Env, id: Address) -> i128;
+    /*  *** State-Changing Functions: *** */
+
+    // function setFeeTo(address) external;
+    fn set_fee_to(e: Env, to: Address);
+
+    // function setFeeToSetter(address) external;
+    fn set_fee_to_setter(e: Env, setter: Address);
+    
+    //Creates a pair for tokenA and tokenB if one doesn't exist already.
+    // function createPair(address tokenA, address tokenB) external returns (address pair);
+    fn create_pair(e: Env, tokenA: Address, tokenB: Address) -> Address;
 }
 
 struct SoroswapFactory;
