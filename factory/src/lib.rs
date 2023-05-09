@@ -12,7 +12,7 @@ mod create;
 mod pair;
 
 //use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError, Vec, Map}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
+use soroban_sdk::{contractimpl, Env, TryFromVal, RawVal, ConversionError, Vec, Map, BytesN}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 //use token::{Token, TokenTrait};
 use pair::create_contract;
 
@@ -23,7 +23,8 @@ pub enum DataKey {
     FeeTo = 0, // address public feeTo;
     FeeToSetter = 1, // address public feeToSetter;
     AllPairs = 2, //  address[] public allPairs;
-    PairsMapping = 3,
+    PairsMapping = 3, // Map of pairs
+    PairWashHash =4,
 
 }
 
@@ -38,23 +39,23 @@ impl TryFromVal<Env, DataKey> for RawVal {
 // TODO: Implement event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
 
-fn get_fee_to(e: &Env) -> Address {
+fn get_fee_to(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
 }
 
-fn get_fee_to_setter(e: &Env) -> Address {
+fn get_fee_to_setter(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::FeeToSetter).unwrap()
 }
 
-fn get_all_pairs(e: &Env) -> Vec<Address> {
+fn get_all_pairs(e: &Env) -> Vec<BytesN<32>> {
     e.storage().get_unchecked(&DataKey::AllPairs).unwrap()
 }
 
-fn get_pairs_mapping(e: &Env) -> Map<Address, Map<Address,Address>> {
+fn get_pairs_mapping(e: &Env) -> Map<BytesN<32>, Map<BytesN<32>,BytesN<32>>> {
     e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
 }
 
-fn get_pair_exists(e: &Env, token_a: Address, token_b: Address) -> bool {
+fn get_pair_exists(e: &Env, token_a: BytesN<32>, token_b: BytesN<32>) -> bool {
     // Get the pairs mapping
     let pairs_mapping = get_pairs_mapping(&e);
 
@@ -71,36 +72,49 @@ fn get_pair_exists(e: &Env, token_a: Address, token_b: Address) -> bool {
     false
 }
 
-fn put_fee_to(e: &Env, to: Address) {
+fn get_pair_wasm_hash(e: &Env) -> BytesN<32> {
+    e.storage().get_unchecked(&DataKey::PairWashHash).unwrap()
+}
+
+fn put_fee_to(e: &Env, to: BytesN<32>) {
     e.storage().set(&DataKey::FeeTo, &to);
 }
 
-fn put_fee_to_setter(e: &Env, setter: Address) {
+fn put_fee_to_setter(e: &Env, setter: BytesN<32>) {
     e.storage().set(&DataKey::FeeToSetter, &setter);
 }
 
-fn put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
+fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
     e.storage().set(&DataKey::AllPairs, &all_pairs);
 }
 
-fn put_pairs_mapping(e: &Env, pairs_mapping: Map<Address, Map<Address,Address>>) {
+fn put_pairs_mapping(e: &Env, pairs_mapping: Map<BytesN<32>, Map<BytesN<32>,BytesN<32>>>) {
     e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
 }
 
+fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
+    e.storage().set(&DataKey::PairWashHash, &pair_wasm_hash)
+}
+
+// fn address_to_bytes(address: BytesN<32>) -> BytesN<32> {
+//     let bytes = address.as_slice().to_vec();
+//     BytesN::from_slice(&bytes).unwrap()
+// }
+
 
 pub trait SoroswapFactoryTrait{
-    // Sets the fee_to_setter address
-    fn initialize(e: Env, setter: Address);
+    // Sets the fee_to_setter address and sets the pair_wasm_hash to create new pair contracts
+    fn initialize(e: Env, setter: BytesN<32>, pair_wasm_hash: BytesN<32>);
 
     /*  *** Read only functions: *** */
 
     // feeTo is the recipient of the charge.
     // function feeTo() external view returns (address);
-    fn fee_to(e: Env) -> Address;
+    fn fee_to(e: Env) -> BytesN<32>;
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
-    fn fee_to_setter(e: Env) -> Address;
+    fn fee_to_setter(e: Env) -> BytesN<32>;
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
@@ -108,26 +122,26 @@ pub trait SoroswapFactoryTrait{
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
     // function getPair(address token_a, address token_b) external view returns (address pair);
-    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address ;
+    fn get_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> BytesN<32> ;
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
-    fn all_pairs(e: Env, n: u32) -> Address;
+    fn all_pairs(e: Env, n: u32) -> BytesN<32>;
 
     // Returns a bool if a pair exists;
-    fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool;
+    fn pair_exists(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> bool;
 
     /*  *** State-Changing Functions: *** */
 
     // function setFeeTo(address) external;
-    fn set_fee_to(e: Env, to: Address);
+    fn set_fee_to(e: Env, to: BytesN<32>);
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: Address);
+    fn set_fee_to_setter(e: Env, setter: BytesN<32>);
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
-    fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address;
+    fn create_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> BytesN<32>;
 }
 
 struct SoroswapFactory;
@@ -135,22 +149,23 @@ struct SoroswapFactory;
 #[contractimpl]
 impl SoroswapFactoryTrait for SoroswapFactory {
     // Sets the fee_to_setter address
-    fn initialize(e: Env, setter: Address){
+    fn initialize(e: Env, setter: BytesN<32>, pair_wasm_hash: BytesN<32>){
         // TODO: This should be called only once, and by the contract creator
         put_fee_to_setter(&e, setter);
+        put_pair_wasm_hash(&e, pair_wasm_hash);
     }
 
     /*  *** Read only functions: *** */
 
     // feeTo is the recipient of the charge.
     // function feeTo() external view returns (address);
-    fn fee_to(e: Env) -> Address {
+    fn fee_to(e: Env) -> BytesN<32> {
         get_fee_to(&e)
     }
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
-    fn fee_to_setter(e: Env) -> Address {
+    fn fee_to_setter(e: Env) -> BytesN<32> {
         get_fee_to_setter(&e)
     }
 
@@ -161,7 +176,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else Panics
-    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address {
+    fn get_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> BytesN<32> {
         // Get the pairs mapping
         let pairs_mapping = get_pairs_mapping(&e);
     
@@ -188,19 +203,19 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
-    fn all_pairs(e: Env, n: u32) -> Address{
+    fn all_pairs(e: Env, n: u32) -> BytesN<32>{
         // TODO: Implement error if n does not exist
         get_all_pairs(&e).get_unchecked(n).unwrap()
     }
 
-    fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool {
+    fn pair_exists(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> bool {
         get_pair_exists(&e, token_a, token_b)
     }
 
     /*  *** State-Changing Functions: *** */
 
     // function setFeeTo(address) external;
-    fn set_fee_to(e: Env, to: Address){
+    fn set_fee_to(e: Env, to: BytesN<32>){
         // TODO: Implement restriction
         // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         
@@ -208,7 +223,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: Address){
+    fn set_fee_to_setter(e: Env, setter: BytesN<32>){
         // TODO: Implement restriction
         // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         
@@ -218,7 +233,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
     // token0 is guaranteed to be strictly less than token1 by sort order.
-    fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address{
+    fn create_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> BytesN<32>{
         // TODO: Implement
 
         /*
@@ -259,7 +274,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         //require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
 
         //require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        if get_pair_exists(&e, token_a, token_b){
+        if get_pair_exists(&e, token_a.clone(), token_b.clone()){
             panic!("SoroswapFactory: pair already exist between token_a and token_b");
         }
 
@@ -275,15 +290,23 @@ impl SoroswapFactoryTrait for SoroswapFactory {
             IUniswapV2Pair(pair).initialize(token0, token1);
         
         */
+        let pair_wasm_hash = get_pair_wasm_hash(&e);
+        let pair_contract_id = create_contract(&e, &pair_wasm_hash, &token_a, &token_b);
+        // token::Client::new(&e, &share_contract_id).initialize(
+        //     &e.current_contract_address(),
+        //     &7u32,
+        //     &Bytes::from_slice(&e, b"Pool Share Token"),
+        //     &Bytes::from_slice(&e, b"POOL"),
+        // );
 
         // getPair[token0][token1] = pair;
         //     getPair[token1][token0] = pair; // populate mapping in the reverse direction
         //     allPairs.push(pair);
         //     emit PairCreated(token0, token1, pair, allPairs.length);
 
+        pair_contract_id
 
 
-        e.current_contract_address()
     }
     
 
