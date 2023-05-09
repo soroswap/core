@@ -239,6 +239,7 @@ impl SoroswapPairTrait for SoroswapPair {
     //     token1 = _token1;
     // }
 
+    // TODO: Implement name for pairs depending on the tokens
     fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
