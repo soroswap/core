@@ -96,6 +96,17 @@ fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
     e.storage().set(&DataKey::PairWashHash, &pair_wasm_hash)
 }
 
+// //Pouplates the pair mapping
+// fn populate_mapping(e: &Env, token_a: BytesN<32>, token_b:BytesN<32>, pair: BytesN<32>){
+//     /*
+//     Solidity Inspiration:
+//         // getPair[token0][token1] = pair;
+//         // getPair[token1][token0] = pair; // populate mapping in the reverse direction
+//     */
+//     let pairs_mapping = get_pairs_mapping(&e);
+//     spend_left_per_token.set(context.contract.clone(), spend_left - spent);
+// }
+
 // fn address_to_bytes(address: BytesN<32>) -> BytesN<32> {
 //     let bytes = address.as_slice().to_vec();
 //     BytesN::from_slice(&bytes).unwrap()
@@ -292,12 +303,12 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         */
         let pair_wasm_hash = get_pair_wasm_hash(&e);
         let pair_contract_id = create_contract(&e, &pair_wasm_hash, &token_a, &token_b);
-        // token::Client::new(&e, &share_contract_id).initialize(
-        //     &e.current_contract_address(),
-        //     &7u32,
-        //     &Bytes::from_slice(&e, b"Pool Share Token"),
-        //     &Bytes::from_slice(&e, b"POOL"),
-        // );
+        // TODO: Implement name of the pair depending on the token names
+        pair::Client::new(&e, &pair_contract_id).initialize_pair(
+            &token_a,
+            &token_b);
+        
+        
 
         // getPair[token0][token1] = pair;
         //     getPair[token1][token0] = pair; // populate mapping in the reverse direction
