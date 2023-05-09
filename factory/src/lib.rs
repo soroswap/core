@@ -52,6 +52,23 @@ fn get_pairs_mapping(e: &Env) -> Map<Address, Map<Address,Address>> {
     e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
 }
 
+fn get_pair_exists(e: &Env, token_a: Address, token_b: Address) -> bool {
+    // Get the pairs mapping
+    let pairs_mapping = get_pairs_mapping(&e);
+
+    // Check if the first map exists for token_a
+    if let Some(first_map) = pairs_mapping.get(token_a) {
+        // Check if the second map exists for token_b
+        if let Some(_) = first_map.unwrap().get(token_b) {
+            // The pair exists
+            return true;
+        }
+    }
+
+    // The pair does not exist
+    false
+}
+
 fn put_fee_to(e: &Env, to: Address) {
     e.storage().set(&DataKey::FeeTo, &to);
 }
@@ -89,11 +106,14 @@ pub trait SoroswapFactoryTrait{
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
     // function getPair(address token_a, address token_b) external view returns (address pair);
-    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address;
+    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address ;
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
     fn all_pairs(e: Env, n: u32) -> Address;
+
+    // Returns a bool if a pair exists;
+    fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool;
 
     /*  *** State-Changing Functions: *** */
 
@@ -138,27 +158,41 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         get_all_pairs(&e).len()
     }
 
-    // Returns the address of the pair for token_a and token_b, if it has been created, else address(0) 
-    // function getPair(address token_a, address token_b) external view returns (address pair);
-    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address{
-        /*
-        In this code, unwrap() is called twice. The first unwrap()
-        gets the Result<Map<Address, Address>, ConversionError> from
-        the Option<Result<Map<Address, Address>, ConversionError>>,
-        and the second unwrap() gets the Map<Address, Address> from the 
-        Result<Map<Address, Address>, ConversionError>. 
-        If either of these unwrap() calls fail because their respective
-         values are None or Err, the function will panic.*/
-
-        let first_map = get_pairs_mapping(&e).get(token_a).unwrap().unwrap();
-        first_map.get(token_b).unwrap().unwrap()
+    // Returns the address of the pair for token_a and token_b, if it has been created, else Panics
+    fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address {
+        // Get the pairs mapping
+        let pairs_mapping = get_pairs_mapping(&e);
+    
+        // Get the first map for token_a
+        let first_map = match pairs_mapping.get(token_a) {
+            // If the first map exists, store it in the first_map variable
+            Some(map) => map,
+            // If the first map doesn't exist, panic with a custom error message
+            None => panic!("Pair does not exist"),
+        };
+    
+        // Get the pair address for token_a and token_b
+        let pair_address = match first_map.unwrap().get(token_b) {
+            // If the second map exists, store the address in the pair_address variable
+            Some(address) => address.unwrap(),
+            // If the second map doesn't exist, panic with a custom error message
+            None => panic!("Pair does not exist"),
+        };
+    
+        // Return the pair address
+        pair_address
     }
+
 
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
     fn all_pairs(e: Env, n: u32) -> Address{
         // TODO: Implement error if n does not exist
         get_all_pairs(&e).get_unchecked(n).unwrap()
+    }
+
+    fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool {
+        get_pair_exists(&e, token_a, token_b)
     }
 
     /*  *** State-Changing Functions: *** */
@@ -181,27 +215,51 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
+    // token0 is guaranteed to be strictly less than token1 by sort order.
     fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address{
         // TODO: Implement
 
         /*
         function createPair(address tokenA, address tokenB) external returns (address pair) {
-        require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
-        require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(UniswapV2Pair).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
-        assembly {
-            pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
-        }
-        IUniswapV2Pair(pair).initialize(token0, token1);
-        getPair[token0][token1] = pair;
-        getPair[token1][token0] = pair; // populate mapping in the reverse direction
-        allPairs.push(pair);
-        emit PairCreated(token0, token1, pair, allPairs.length);
+            require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
+            (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+            require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
+            require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
+            bytes memory bytecode = type(UniswapV2Pair).creationCode;
+            bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+            assembly {
+                pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+            }
+            IUniswapV2Pair(pair).initialize(token0, token1);
+            getPair[token0][token1] = pair;
+            getPair[token1][token0] = pair; // populate mapping in the reverse direction
+            allPairs.push(pair);
+            emit PairCreated(token0, token1, pair, allPairs.length);
         }
         */
+        //require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
+        if token_a == token_b {
+            panic!("SoroswapFactory: token_a and token_b have identical addresses");
+        }
+
+        // token0 is guaranteed to be strictly less than token1 by sort order.
+        //(address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        if token_a < token_b {
+            let token_0 = token_a.clone();
+            let token_1 = token_b.clone();
+        }
+        else {
+            let token_0 = token_b.clone();
+            let token_1 = token_a.clone();
+        }
+
+        // TODO: Implement restriction of any kind of zero address
+        //require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
+
+        //require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
+        if get_pair_exists(&e, token_a, token_b){
+            panic!("SoroswapFactory: pair already exist between token_a and token_b");
+        }
         e.current_contract_address()
     }
     
