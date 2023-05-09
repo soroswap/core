@@ -122,6 +122,18 @@ fn add_pair_to_mapping(
     put_pairs_mapping(e, pairs_mapping);
 }
 
+fn add_pair_to_all_pairs(e: &Env, pair_address: BytesN<32>) {
+    // Get the current `allPairs` vector from storage
+    let mut all_pairs = get_all_pairs(e);
+
+    // Push the new `pair_address` onto the vector
+    all_pairs.push(pair_address);
+
+    // Save the updated `allPairs` vector to storage
+    e.storage().set(&DataKey::AllPairs, &all_pairs);
+}
+
+
 
 // //Pouplates the pair mapping
 // fn populate_mapping(e: &Env, token_a: BytesN<32>, token_b:BytesN<32>, pair: BytesN<32>) {
@@ -339,20 +351,22 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         
         */
         let pair_wasm_hash = get_pair_wasm_hash(&e);
-        let pair_contract_id = create_contract(&e, &pair_wasm_hash, &token_a, &token_b);
+        let pair = create_contract(&e, &pair_wasm_hash, &token_a.clone(), &token_b.clone());
         // TODO: Implement name of the pair depending on the token names
-        pair::Client::new(&e, &pair_contract_id).initialize_pair(
+        pair::Client::new(&e, &pair).initialize_pair(
             &token_a,
             &token_b);
         
-        
-
         // getPair[token0][token1] = pair;
-        //     getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        // getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        add_pair_to_mapping(&e, token_a, token_b, pair.clone());
+        
         //     allPairs.push(pair);
+        add_pair_to_all_pairs(&e, pair.clone())
+        
         //     emit PairCreated(token0, token1, pair, allPairs.length);
 
-        pair_contract_id
+        pair
 
 
     }
