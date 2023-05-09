@@ -1,7 +1,6 @@
 #![no_std]
 
 mod test;
-mod create;
 mod pair;
 mod event;
 
