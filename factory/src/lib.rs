@@ -9,10 +9,12 @@
 mod test;
 //mod token;
 mod create;
+mod pair;
 
 //use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Env, TryFromVal, RawVal, ConversionError, Vec, Map}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
 //use token::{Token, TokenTrait};
+use pair::create_contract;
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
@@ -260,6 +262,27 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         if get_pair_exists(&e, token_a, token_b){
             panic!("SoroswapFactory: pair already exist between token_a and token_b");
         }
+
+        /* 
+        // Creation of the contract:
+        // Code in Solidity
+
+        bytes memory bytecode = type(UniswapV2Pair).creationCode;
+            bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+            assembly {
+                pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+            }
+            IUniswapV2Pair(pair).initialize(token0, token1);
+        
+        */
+
+        // getPair[token0][token1] = pair;
+        //     getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        //     allPairs.push(pair);
+        //     emit PairCreated(token0, token1, pair, allPairs.length);
+
+
+
         e.current_contract_address()
     }
     
