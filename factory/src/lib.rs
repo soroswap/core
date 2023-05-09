@@ -97,14 +97,36 @@ fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
 }
 
 // //Pouplates the pair mapping
-// fn populate_mapping(e: &Env, token_a: BytesN<32>, token_b:BytesN<32>, pair: BytesN<32>){
+// fn populate_mapping(e: &Env, token_a: BytesN<32>, token_b:BytesN<32>, pair: BytesN<32>) {
 //     /*
 //     Solidity Inspiration:
 //         // getPair[token0][token1] = pair;
 //         // getPair[token1][token0] = pair; // populate mapping in the reverse direction
 //     */
-//     let pairs_mapping = get_pairs_mapping(&e);
-//     spend_left_per_token.set(context.contract.clone(), spend_left - spent);
+//     //let pairs_mapping = get_pairs_mapping(&e);
+//     //spend_left_per_token.set(context.contract.clone(), spend_left - spent);
+
+    
+//         let mut pairs_mapping = get_pairs_mapping(&e);
+    
+//         // Update mapping for token_a and token_b
+//         let mut token_a_map = pairs_mapping.get(token_a).unwrap_or_else(|| {
+//             let new_map = Map::new(e);
+//             pairs_mapping.set(token_a.clone(), new_map.clone());
+//             new_map
+//         });
+//         token_a_map.set(token_b.clone(), pair.clone());
+    
+//         // Update mapping for token_b and token_a
+//         let mut token_b_map = pairs_mapping.get(&token_b).unwrap_or_else(|| {
+//             let new_map = Map::new(e);
+//             pairs_mapping.set(token_b.clone(), new_map.clone());
+//             new_map
+//         });
+//         token_b_map.set(token_b.clone(), pair.clone());
+    
+//         put_pairs_mapping(&e, pairs_mapping);
+    
 // }
 
 // fn address_to_bytes(address: BytesN<32>) -> BytesN<32> {
