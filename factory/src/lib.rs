@@ -10,6 +10,8 @@ mod test;
 //mod token;
 mod create;
 mod pair;
+mod event;
+
 
 //use num_integer::Roots;
 use soroban_sdk::{contractimpl, Env, TryFromVal, RawVal, ConversionError, Vec, Map, BytesN}; //Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
@@ -321,21 +323,23 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
         // token0 is guaranteed to be strictly less than token1 by sort order.
         //(address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        let token_0;
+        let token_1;
         if token_a < token_b {
-            let token_0 = token_a.clone();
-            let token_1 = token_b.clone();
+            token_0 = token_a;
+            token_1 = token_b;
         }
         else {
-            let token_0 = token_b.clone();
-            let token_1 = token_a.clone();
+            token_0 = token_b;
+            token_1 = token_a;
         }
 
         // TODO: Implement restriction of any kind of zero address
         //require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
 
         //require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
-        if get_pair_exists(&e, token_a.clone(), token_b.clone()){
-            panic!("SoroswapFactory: pair already exist between token_a and token_b");
+        if get_pair_exists(&e, token_0.clone(), token_1.clone()){
+            panic!("SoroswapFactory: pair already exist between token_0 and token_1");
         }
 
         /* 
@@ -351,21 +355,22 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         
         */
         let pair_wasm_hash = get_pair_wasm_hash(&e);
-        let pair = create_contract(&e, &pair_wasm_hash, &token_a.clone(), &token_b.clone());
+        let pair = create_contract(&e, &pair_wasm_hash, &token_0.clone(), &token_1.clone());
         // TODO: Implement name of the pair depending on the token names
         pair::Client::new(&e, &pair).initialize_pair(
-            &token_a,
-            &token_b);
+            &token_0,
+            &token_1);
         
         // getPair[token0][token1] = pair;
         // getPair[token1][token0] = pair; // populate mapping in the reverse direction
-        add_pair_to_mapping(&e, token_a, token_b, pair.clone());
+        add_pair_to_mapping(&e, token_0.clone(), token_1.clone(), pair.clone());
         
-        //     allPairs.push(pair);
-        add_pair_to_all_pairs(&e, pair.clone())
-        
-        //     emit PairCreated(token0, token1, pair, allPairs.length);
+        // allPairs.push(pair);
+        add_pair_to_all_pairs(&e, pair.clone());
 
+        // emit PairCreated(token0, token1, pair, allPairs.length);
+        
+        event::pair_created(&e, token_0, token_1, pair.clone(), get_all_pairs(&e).len());
         pair
 
 
