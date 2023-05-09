@@ -51,7 +51,7 @@ fn get_all_pairs(e: &Env) -> Vec<BytesN<32>> {
     e.storage().get_unchecked(&DataKey::AllPairs).unwrap()
 }
 
-fn get_pairs_mapping(e: &Env) -> Map<BytesN<32>, Map<BytesN<32>,BytesN<32>>> {
+fn get_pairs_mapping(e: &Env) -> Map<(BytesN<32>, BytesN<32>), BytesN<32>> {
     e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
 }
 
@@ -59,16 +59,23 @@ fn get_pair_exists(e: &Env, token_a: BytesN<32>, token_b: BytesN<32>) -> bool {
     // Get the pairs mapping
     let pairs_mapping = get_pairs_mapping(&e);
 
-    // Check if the first map exists for token_a
-    if let Some(first_map) = pairs_mapping.get(token_a) {
-        // Check if the second map exists for token_b
-        if let Some(_) = first_map.unwrap().get(token_b) {
-            // The pair exists
-            return true;
-        }
+    // Create a tuple of (BytesN<32>, BytesN<32>) to use as the key
+    let pair_key = (token_a.clone(), token_b.clone());
+
+    // Check if the pair exists with the first key:
+    if pairs_mapping.contains_key(pair_key) {
+        // If it does, return true
+        return true;
     }
 
-    // The pair does not exist
+    // Check the other way around:
+    let otherway_key = (token_b.clone(), token_a.clone());
+    if pairs_mapping.contains_key(otherway_key) {
+        // If it does, return true
+        return true;
+    }
+
+    // If neither key exists, return false
     false
 }
 
@@ -88,13 +95,33 @@ fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
     e.storage().set(&DataKey::AllPairs, &all_pairs);
 }
 
-fn put_pairs_mapping(e: &Env, pairs_mapping: Map<BytesN<32>, Map<BytesN<32>,BytesN<32>>>) {
+fn put_pairs_mapping(e: &Env, pairs_mapping: Map<(BytesN<32>, BytesN<32>), BytesN<32>>) {
     e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
 }
 
 fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
     e.storage().set(&DataKey::PairWashHash, &pair_wasm_hash)
 }
+
+fn add_pair_to_mapping(
+    e: &Env,
+    token_a: BytesN<32>,
+    token_b: BytesN<32>,
+    pair: BytesN<32>,
+) {
+    // Get the pairs mapping
+    let mut pairs_mapping = get_pairs_mapping(e);
+    // Create a tuple of (BytesN<32>, BytesN<32>) for the first pair key
+    let pair_key_a = (token_a.clone(), token_b.clone());
+    // Create a tuple of (BytesN<32>, BytesN<32>) for the second pair key
+    let pair_key_b = (token_b, token_a);
+    // Insert the pair address for both keys into the pairs mapping
+    pairs_mapping.set(pair_key_a, pair.clone());
+    pairs_mapping.set(pair_key_b, pair);
+    // Update the pairs mapping in storage
+    put_pairs_mapping(e, pairs_mapping);
+}
+
 
 // //Pouplates the pair mapping
 // fn populate_mapping(e: &Env, token_a: BytesN<32>, token_b:BytesN<32>, pair: BytesN<32>) {
@@ -210,26 +237,14 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else Panics
     fn get_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) -> BytesN<32> {
-        // Get the pairs mapping
+        // Get the mapping of pairs from storage in the current environment.
         let pairs_mapping = get_pairs_mapping(&e);
-    
-        // Get the first map for token_a
-        let first_map = match pairs_mapping.get(token_a) {
-            // If the first map exists, store it in the first_map variable
-            Some(map) => map,
-            // If the first map doesn't exist, panic with a custom error message
-            None => panic!("Pair does not exist"),
-        };
-    
-        // Get the pair address for token_a and token_b
-        let pair_address = match first_map.unwrap().get(token_b) {
-            // If the second map exists, store the address in the pair_address variable
-            Some(address) => address.unwrap(),
-            // If the second map doesn't exist, panic with a custom error message
-            None => panic!("Pair does not exist"),
-        };
-    
-        // Return the pair address
+        // Create a tuple of (BytesN<32>, BytesN<32>) using the two input addresses to use as the key.
+        let pair_key = (token_a.clone(), token_b.clone());
+        // Get the value from the pairs mapping using the pair_key as the key.
+        // Unwrap the result of the get() method twice to get the actual value of the pair_address.
+        let pair_address = pairs_mapping.get(pair_key).unwrap().unwrap();
+        // Return the pair address.
         pair_address
     }
 
