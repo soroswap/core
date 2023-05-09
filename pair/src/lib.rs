@@ -1,11 +1,5 @@
 #![no_std]
 
-// TODO: Implement the token interface in THIS contract
-// TODO: Make Pair Trait
-// TODO: Tell when token is a call of another contract (like tokenA), and when it should be this PairToken
-// Own tokens functions to be imported: balance, mint, transfer, initialize
-// Client token functions: transfer
-
 mod test;
 mod token;
 mod create;
@@ -17,29 +11,27 @@ use token::{Token, TokenTrait};
 
 #[derive(Clone, Copy)]
 #[repr(u32)]
-// TODO: Analize UniswapV2 Minimum Liquidity
+/*
+TODO: Analize UniswapV2
     // uint public constant MINIMUM_LIQUIDITY = 10**3;
-// TODO: Analize
     // bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
-
-pub enum DataKey {
-    // TODO: Add Factory: 
-        //address public factory;
-    TokenA = 0, // address public token0;
-    TokenB = 1, // address public token1;
-    TokenShare = 2, // TODO: Delete when implementing the token interface
-    TotalShares = 3, // TODO: Delete when implementing the token interface
-    ReserveA = 4, //uint112 private reserve0;
-    ReserveB = 5, // uint112 private reserve1;
-
-// TODO: Analize:
     // uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
-
     // uint public price0CumulativeLast;
     // uint public price1CumulativeLast;
     // uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
-}
 
+TODO: Analize reentrancy attack guard?
+*/
+    
+pub enum DataKey {
+    Token0 = 0, // address public token0;
+    Token1 = 1, // address public token1;
+    Reserve0 = 2, //uint112 private reserve0;
+    Reserve1 = 3, // uint112 private reserve1;
+    Factory = 4, 
+    TokenShare = 5, // TODO: Delete when implementing the token interface
+    TotalShares = 6, // TODO: Delete when implementing the token interface
+}
 
 
 impl TryFromVal<Env, DataKey> for RawVal {
@@ -51,11 +43,11 @@ impl TryFromVal<Env, DataKey> for RawVal {
 }
 
 fn get_token_a(e: &Env) -> BytesN<32> {
-    e.storage().get_unchecked(&DataKey::TokenA).unwrap()
+    e.storage().get_unchecked(&DataKey::Token0).unwrap()
 }
 
 fn get_token_b(e: &Env) -> BytesN<32> {
-    e.storage().get_unchecked(&DataKey::TokenB).unwrap()
+    e.storage().get_unchecked(&DataKey::Token1).unwrap()
 }
 
 fn get_token_share(e: &Env) -> BytesN<32> {
@@ -74,11 +66,11 @@ fn get_total_shares(e: &Env) -> i128 {
 // }
 
 fn get_reserve_a(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::ReserveA).unwrap()
+    e.storage().get_unchecked(&DataKey::Reserve0).unwrap()
 }
 
 fn get_reserve_b(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::ReserveB).unwrap()
+    e.storage().get_unchecked(&DataKey::Reserve1).unwrap()
 }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
@@ -105,11 +97,11 @@ fn get_balance_shares(e: &Env) -> i128 {
 }
 
 fn put_token_a(e: &Env, contract_id: BytesN<32>) {
-    e.storage().set(&DataKey::TokenA, &contract_id);
+    e.storage().set(&DataKey::Token0, &contract_id);
 }
 
 fn put_token_b(e: &Env, contract_id: BytesN<32>) {
-    e.storage().set(&DataKey::TokenB, &contract_id);
+    e.storage().set(&DataKey::Token1, &contract_id);
 }
 
 fn put_total_shares(e: &Env, amount: i128) {
@@ -117,11 +109,11 @@ fn put_total_shares(e: &Env, amount: i128) {
 }
 
 fn put_reserve_a(e: &Env, amount: i128) {
-    e.storage().set(&DataKey::ReserveA, &amount)
+    e.storage().set(&DataKey::Reserve0, &amount)
 }
 
 fn put_reserve_b(e: &Env, amount: i128) {
-    e.storage().set(&DataKey::ReserveB, &amount)
+    e.storage().set(&DataKey::Reserve1, &amount)
 }
 
 fn burn_shares(e: &Env, amount: i128) {
