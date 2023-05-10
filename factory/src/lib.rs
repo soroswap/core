@@ -5,7 +5,15 @@ mod pair;
 mod event;
 
 
-use soroban_sdk::{contractimpl, Env, TryFromVal, RawVal, ConversionError, Vec, Map, BytesN};
+use soroban_sdk::{  contractimpl, 
+                    Env, 
+                    TryFromVal, 
+                    RawVal, 
+                    ConversionError, 
+                    Vec, 
+                    Map, 
+                    BytesN,
+                    Address};
 use pair::create_contract;
 
 #[derive(Clone, Copy)]
@@ -33,7 +41,7 @@ fn get_fee_to(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
 }
 
-fn get_fee_to_setter(e: &Env) -> BytesN<32> {
+fn get_fee_to_setter(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeToSetter).unwrap()
 }
 
@@ -79,7 +87,7 @@ fn put_fee_to(e: &Env, to: BytesN<32>) {
     e.storage().set(&DataKey::FeeTo, &to);
 }
 
-fn put_fee_to_setter(e: &Env, setter: BytesN<32>) {
+fn put_fee_to_setter(e: &Env, setter: Address) {
     e.storage().set(&DataKey::FeeToSetter, &setter);
 }
 
@@ -126,7 +134,7 @@ fn add_pair_to_all_pairs(e: &Env, pair_address: BytesN<32>) {
 
 pub trait SoroswapFactoryTrait{
     // Sets the fee_to_setter address and sets the pair_wasm_hash to create new pair contracts
-    fn initialize(e: Env, setter: BytesN<32>, pair_wasm_hash: BytesN<32>);
+    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>);
 
     /*  *** Read only functions: *** */
 
@@ -136,7 +144,7 @@ pub trait SoroswapFactoryTrait{
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
-    fn fee_to_setter(e: Env) -> BytesN<32>;
+    fn fee_to_setter(e: Env) -> Address;
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
@@ -159,7 +167,7 @@ pub trait SoroswapFactoryTrait{
     fn set_fee_to(e: Env, to: BytesN<32>);
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: BytesN<32>);
+    fn set_fee_to_setter(e: Env, setter: Address);
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
@@ -168,10 +176,10 @@ pub trait SoroswapFactoryTrait{
 
 struct SoroswapFactory;
 
-#[contractimpl]
+#[contractimpl] 
 impl SoroswapFactoryTrait for SoroswapFactory {
     // Sets the fee_to_setter address
-    fn initialize(e: Env, setter: BytesN<32>, pair_wasm_hash: BytesN<32>){
+    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>){
         // TODO: This should be called only once, and by the contract creator
         put_fee_to_setter(&e, setter);
         put_pair_wasm_hash(&e, pair_wasm_hash);
@@ -187,7 +195,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
-    fn fee_to_setter(e: Env) -> BytesN<32> {
+    fn fee_to_setter(e: Env) -> Address {
         get_fee_to_setter(&e)
     }
 
@@ -233,7 +241,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: BytesN<32>){
+    fn set_fee_to_setter(e: Env, setter: Address){
         // TODO: Implement restriction
         // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
         
