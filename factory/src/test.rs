@@ -163,14 +163,22 @@ fn test() {
     //      - token_0 is correct
     //      - token_1 is correct
 
+    // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
     let pair_client = pair::Client::new(&e, &pair_address);
+    // expect(await pair.factory()).to.eq(factory.address)
     assert_eq!(pair_client.factory(), Address::from_contract_id(&factory.contract_id));
 
+    
 
-    // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
-    // expect(await pair.factory()).to.eq(factory.address)
     // expect(await pair.token0()).to.eq(TEST_ADDRESSES[0])
     // expect(await pair.token1()).to.eq(TEST_ADDRESSES[1])
+    // Before comparing the token_0 and token_1 saved in the pair contract, we need
+    // to be sure if they are in the correct order
+    if &token_1.contract_id < &token_0.contract_id {
+        std::mem::swap(&mut token_0, &mut token_1);
+    }
+    assert_eq!(&pair_client.token_0(), &token_0.contract_id);
+    assert_eq!(&pair_client.token_1(), &token_1.contract_id);
 
 }
 
