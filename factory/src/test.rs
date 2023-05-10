@@ -14,15 +14,7 @@ fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
-// fn create_pair_contract(
-//     e: &Env,
-//     token_a: &BytesN<32>,
-//     token_b: &BytesN<32>,
-// ) -> SoroswapPairClient {
-//     let pair = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-//     pair.initialize_pair(token_a, token_b);
-//     pair
-// }
+
 
 fn create_factory_contract(
     e: &Env,
@@ -50,6 +42,10 @@ fn test() {
     
     let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
 
+    let create_pair = |e: &Env, token_0: &BytesN<32>, token_1: &BytesN<32>| {
+        factory.create_pair(&token_0, &token_1);
+    };
+
     /*
     expect(await factory.feeTo()).to.eq(AddressZero)
     expect(await factory.feeToSetter()).to.eq(wallet.address)
@@ -65,8 +61,10 @@ fn test() {
     //assert_eq!(factory.fee_to(), ZERO_ADDRESS);
     
     // Create two tokens in order to create a pair using the factory
-    let mut token0 = create_token_contract(&e, &admin);
-    let mut token1 = create_token_contract(&e, &admin);
+    let mut token_0 = create_token_contract(&e, &admin);
+    let mut token_1 = create_token_contract(&e, &admin);
+
+    create_pair(&e, &token_0.contract_id, &token_1.contract_id);
 
 
 
