@@ -42,7 +42,7 @@ impl TryFromVal<Env, DataKey> for RawVal {
     }
 }
 
-fn get_factory(e: &Env) -> BytesN<32> {
+fn get_factory(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::Factory).unwrap()
 }
 
@@ -100,7 +100,7 @@ fn get_balance_shares(e: &Env) -> i128 {
     //get_balance(e, get_token_share(e))
 }
 
-fn put_factory(e: &Env, factory: BytesN<32>) {
+fn put_factory(e: &Env, factory: Address) {
     e.storage().set(&DataKey::Factory, &factory);
 }
 
@@ -198,7 +198,7 @@ fn get_deposit_amounts(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
+    fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>);
 
     // Returns the token contract address for the pool share token
     fn share_id(e: Env) -> BytesN<32>;
@@ -222,7 +222,7 @@ pub trait SoroswapPairTrait{
 
     fn my_balance(e: Env, id: Address) -> i128;
 
-    fn factory(e: Env) -> BytesN<32>;
+    fn factory(e: Env) -> Address;
 }
 
 struct SoroswapPair;
@@ -242,7 +242,7 @@ impl SoroswapPairTrait for SoroswapPair {
     // }
 
     // TODO: Implement name for pairs depending on the tokens
-    fn initialize_pair(e: Env, factory: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>) {
+    fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
@@ -281,7 +281,7 @@ impl SoroswapPairTrait for SoroswapPair {
         get_token_share(&e)
     }
 
-    fn factory(e: Env) -> BytesN<32> {
+    fn factory(e: Env) -> Address {
         get_factory(&e)
     }
 
