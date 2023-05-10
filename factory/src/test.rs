@@ -16,10 +16,10 @@ fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
 fn create_factory_contract(
     e: &Env,
     setter: &Address,
-    pair_wasm_hash: BytesN<32>
+    pair_wasm_hash: &BytesN<32>
 ) -> SoroswapFactoryClient {
     let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
-    factory.initialize(&setter, &pair_wasm_hash);
+    factory.initialize(&setter, pair_wasm_hash);
     factory
 }
 
@@ -30,25 +30,68 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
     e.install_contract_wasm(WASM)
 }
 
-fn guess_contract_address(
+// fn guess_contract_address(
+//     e: &Env,
+//     pair_wasm_hash: &BytesN<32>,
+//     token_a: &BytesN<32>,
+//     token_b: &BytesN<32>,
+// ) -> BytesN<32> {
+//     // Create a new Bytes instance using the current environment
+//     let token_0;
+//     let token_1;
+
+//     if token_a < token_b {
+//         token_0 = token_a;
+//         token_1 = token_b;
+//     }
+//     else {
+//         token_0 = token_b;
+//         token_1 = token_a;
+//     }
+//     let mut salt = Bytes::new(e);
+
+//     // Append the bytes of token_a and token_b to the salt
+//     salt.append(&token_0.clone().into());
+//     salt.append(&token_1.clone().into());
+
+//     // Hash the salt using SHA256 to generate a new BytesN<32> value
+//     let salt = e.crypto().sha256(&salt);
+
+//     // Return the hash without deploying the contract
+//     salt
+// }
+
+/*
+Function that will guess the contract address.
+Currently is not working as expected.
+TODO: Fix
+*/
+pub fn guess_contract_address(
     e: &Env,
-    pair_wasm_hash: &BytesN<32>,
+    factory: &BytesN<32>,
     token_a: &BytesN<32>,
     token_b: &BytesN<32>,
 ) -> BytesN<32> {
-    // Create a new Bytes instance using the current environment
+    let token_0;
+    let token_1;
+    if token_a < token_b {
+        token_0 = token_a;
+        token_1 = token_b;
+    }
+    else {
+        token_0 = token_b;
+        token_1 = token_a;
+    }
     let mut salt = Bytes::new(e);
-
-    // Append the bytes of token_a and token_b to the salt
-    salt.append(&token_a.clone().into());
-    salt.append(&token_b.clone().into());
-
-    // Hash the salt using SHA256 to generate a new BytesN<32> value
-    let salt = e.crypto().sha256(&salt);
-
-    // Return the hash without deploying the contract
-    salt
+    salt.append(&factory.clone().into());
+    salt.append(&token_0.clone().into());
+    salt.append(&token_1.clone().into());
+    let salt_hash = e.crypto().sha256(&salt);
+    // let contract_address = Address::try_from(&salt_hash.as_ref()[12..]);
+    // contract_address.unwrap_or_else(|_| BytesN::zero())
+    salt_hash
 }
+
 
 fn create_pair( e: &Env,
                 factory: &SoroswapFactoryClient,
@@ -66,7 +109,7 @@ fn test() {
     let mut admin = Address::random(&e);
     let mut fake_admin = Address::random(&e);
     
-    let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
+    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
 
     
 
@@ -91,6 +134,19 @@ fn test() {
     create_pair(&e, &factory, &token_0.contract_id, &token_1.contract_id);
 
     // TODO: Test the created pair address:
+    let pair_expected_address = guess_contract_address( &e,
+                                                        &factory.contract_id, 
+                                                        &token_1.contract_id, 
+                                                        &token_0.contract_id);
+    let pair_address = factory.get_pair(&token_0.contract_id, &token_1.contract_id);
+    let pair_address_inverted = factory.get_pair(&token_1.contract_id, &token_0.contract_id);
+
+
+    assert_eq!(&pair_address, &pair_address_inverted);
+    
+    // TODO: fix the guess_contract_address function and uncomment the following line
+    //assert_eq!(&pair_expected_address, &pair_address);
+
     // expect(await factory.getPair(...tokens)).to.eq(create2Address)
     // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address)
 
@@ -121,7 +177,7 @@ fn test() {
 fn test_double_same_pair_not_possible() {
     let e: Env = Default::default();
     let mut admin = Address::random(&e);    
-    let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
+    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
     let mut token_0 = create_token_contract(&e, &admin);
     let mut token_1 = create_token_contract(&e, &admin);
 
@@ -139,7 +195,7 @@ fn test_double_same_pair_not_possible() {
 fn test_double_inverse_pair_not_possible() {
     let e: Env = Default::default();
     let mut admin = Address::random(&e);    
-    let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
+    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
     let mut token_0 = create_token_contract(&e, &admin);
     let mut token_1 = create_token_contract(&e, &admin);
 
