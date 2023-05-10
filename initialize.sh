@@ -46,23 +46,27 @@ fi
 TOKEN_ADMIN_SECRET="$(soroban config identity show token-admin)"
 TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
+echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
+
 # TODO: Remove this once we can use `soroban config identity` from webpack.
 echo "$TOKEN_ADMIN_SECRET" > .soroban/token_admin_secret
 echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot
-curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS" >/dev/null
+curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
 
 ARGS="--network $NETWORK --source token-admin"
-
+echo "Using ARGS: $ARGS"
 echo Wrap two Stellar asset
 mkdir -p .soroban
-TOKEN_0_ID=$(soroban lab token wrap $ARGS --asset "TOKEN0:$TOKEN_ADMIN_ADDRESS")
-TOKEN_1_ID=$(soroban lab token wrap $ARGS --asset "TOKEN1:$TOKEN_ADMIN_ADDRESS")
+echo "Wrapping TOKENA:$TOKEN_ADMIN_ADDRESS"
+TOKEN_A_ID=$(soroban lab token wrap $ARGS --asset "TOKENA:$TOKEN_ADMIN_ADDRESS")
+echo "token_0 was wrapped succesfully with TOKEN_A_ID: $TOKEN_A_ID"
 
-echo "token_0 was wrapped succesfully with TOKEN_0_ID: $TOKEN_0_ID"
-echo "token_1 was wrapped succesfully with TOKEN_1_ID: $TOKEN_1_ID"
+echo "Wrapping TOKENB:$TOKEN_ADMIN_ADDRESS"
+TOKEN_B_ID=$(soroban lab token wrap $ARGS --asset "TOKENB:$TOKEN_ADMIN_ADDRESS")
+echo "token_1 was wrapped succesfully with TOKEN_B_ID: $TOKEN_B_ID"
 
 
 echo -n "$TOKEN_0_ID" > .soroban/token_0_id
