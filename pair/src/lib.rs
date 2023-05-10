@@ -46,11 +46,11 @@ fn get_factory(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::Factory).unwrap()
 }
 
-fn get_token_a(e: &Env) -> BytesN<32> {
+fn get_token_0(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::Token0).unwrap()
 }
 
-fn get_token_b(e: &Env) -> BytesN<32> {
+fn get_token_1(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::Token1).unwrap()
 }
 
@@ -86,11 +86,11 @@ fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
 fn get_balance_a(e: &Env) -> i128 {
     // How many "A TOKENS" does the Liquidity Pool holds?
     // How many "A TOKENS" does this contract holds?
-    get_balance(e, get_token_a(e))
+    get_balance(e, get_token_0(e))
 }
 
 fn get_balance_b(e: &Env) -> i128 {
-    get_balance(e, get_token_b(e))
+    get_balance(e, get_token_1(e))
 }
 
 fn get_balance_shares(e: &Env) -> i128 {
@@ -162,11 +162,11 @@ fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
     // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
-    transfer(e, get_token_a(e), to, amount);
+    transfer(e, get_token_0(e), to, amount);
 }
 
 fn transfer_b(e: &Env, to: Address, amount: i128) {
-    transfer(e, get_token_b(e), to, amount);
+    transfer(e, get_token_1(e), to, amount);
 }
 
 fn get_deposit_amounts(
@@ -202,6 +202,9 @@ pub trait SoroswapPairTrait{
 
     // Returns the token contract address for the pool share token
     fn share_id(e: Env) -> BytesN<32>;
+
+    fn token_0(e: Env) -> BytesN<32>;
+    fn token_1(e: Env) -> BytesN<32>;
 
     // Deposits token_a and token_b. Also mints pool shares for the "to" Identifier. The amount minted
     // is determined based on the difference between the reserves stored by this contract, and
@@ -280,6 +283,16 @@ impl SoroswapPairTrait for SoroswapPair {
     fn share_id(e: Env) -> BytesN<32> {
         get_token_share(&e)
     }
+
+    fn token_0(e: Env) -> BytesN<32> {
+        get_token_0(&e)
+    }
+
+    fn token_1(e: Env) -> BytesN<32> {
+        get_token_1(&e)
+    }
+
+    
 
     fn factory(e: Env) -> Address {
         get_factory(&e)
@@ -360,8 +373,8 @@ impl SoroswapPairTrait for SoroswapPair {
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
 
         // TOKEN: Token Client
-        let token_a_client = TokenClient::new(&e, &get_token_a(&e));
-        let token_b_client = TokenClient::new(&e, &get_token_b(&e));
+        let token_a_client = TokenClient::new(&e, &get_token_0(&e));
+        let token_b_client = TokenClient::new(&e, &get_token_1(&e));
 
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
@@ -405,9 +418,9 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // Transfer the amount being sold to the contract
         let sell_token = if buy_a {
-            get_token_b(&e)
+            get_token_1(&e)
         } else {
-            get_token_a(&e)
+            get_token_0(&e)
         };
         // TOKEN: Token Client
         let sell_token_client = TokenClient::new(&e, &sell_token);
