@@ -4,7 +4,10 @@ extern crate std;
 use crate::{SoroswapFactoryClient};
 // use crate::{SoroswapPairClient};
 
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
+use soroban_sdk::{testutils::Address as _,
+                Address, 
+                BytesN, 
+                Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
 
 // fn create_pair_contract(
@@ -27,19 +30,22 @@ fn create_factory_contract(
     factory
 }
 
-// fn install_token_wasm(e: &Env) -> BytesN<32> {
-//     soroban_sdk::contractimport!(
-//         file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
-//     );
-//     e.install_contract_wasm(WASM)
-// }
+fn pair_token_wasm(e: &Env) -> BytesN<32> {
+    soroban_sdk::contractimport!(
+        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+    );
+    e.install_contract_wasm(WASM)
+}
 
 #[test]
 fn test() {
     let e: Env = Default::default();
 
-    let mut admin1 = Address::random(&e);
-    let mut admin2 = Address::random(&e);
+    let mut admin = Address::random(&e);
+   // let mut admin2 = Address::random(&e);
+
+    let admin_account_id = Address::account_id(&admin).unwrap();
+    let mut factory = create_factory_contract(&e, admin_account_id, &pair_token_wasm);
 
     // let mut token1 = create_token_contract(&e, &admin1);
     // let mut token2 = create_token_contract(&e, &admin2);
