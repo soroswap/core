@@ -42,6 +42,10 @@ impl TryFromVal<Env, DataKey> for RawVal {
     }
 }
 
+fn factory(e: &Env) -> BytesN<32> {
+    e.storage().get_unchecked(&DataKey::Factory).unwrap()
+}
+
 fn get_token_a(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::Token0).unwrap()
 }
@@ -94,6 +98,10 @@ fn get_balance_shares(e: &Env) -> i128 {
     // This shares should have been sent by the user when burning their LP positions (withdraw)
     Token::balance(e.clone(), e.current_contract_address())
     //get_balance(e, get_token_share(e))
+}
+
+fn put_factory(e: &Env, factory: BytesN<32>) {
+    e.storage().set(&DataKey::Factory, &factory);
 }
 
 fn put_token_a(e: &Env, contract_id: BytesN<32>) {
@@ -190,7 +198,7 @@ fn get_deposit_amounts(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>);
+    fn initialize_pair(e: Env, factory: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>);
 
     // Returns the token contract address for the pool share token
     fn share_id(e: Env) -> BytesN<32>;
@@ -232,10 +240,11 @@ impl SoroswapPairTrait for SoroswapPair {
     // }
 
     // TODO: Implement name for pairs depending on the tokens
-    fn initialize_pair(e: Env, token_a: BytesN<32>, token_b: BytesN<32>) {
+    fn initialize_pair(e: Env, factory: BytesN<32>, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
+        put_factory(&e, factory);
 
         // Old Implementation:
             // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
