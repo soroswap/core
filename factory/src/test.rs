@@ -90,6 +90,17 @@ fn test() {
 
     create_pair(&e, &factory, &token_0.contract_id, &token_1.contract_id);
 
+    // TODO: Test the created pair address:
+    // expect(await factory.getPair(...tokens)).to.eq(create2Address)
+    // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address)
+
+    // TODO: Test that the first all_pairs is the created address
+    // expect(await factory.allPairs(0)).to.eq(create2Address)
+
+    // TODO: Test that all_pairs_length now is equal to 1
+    // expect(await factory.allPairsLength()).to.eq(1)
+    assert_eq!(factory.all_pairs_length(), 1);
+
 
 
     // let mut token1 = create_token_contract(&e, &admin1);
@@ -174,6 +185,7 @@ fn test() {
 }
 
 // Creating the same pair again should fail
+// await expect(factory.createPair(...tokens)).to.be.reverted // UniswapV2: PAIR_EXISTS
 #[test]
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_same_pair_not_possible() {
@@ -190,6 +202,8 @@ fn test_double_same_pair_not_possible() {
 }
 
 // Creating the same pair again (but in inverse order) should also fail
+// await expect(factory.createPair(...tokens.slice().reverse())).to.be.reverted // UniswapV2: PAIR_EXISTS
+
 #[test]
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_inverse_pair_not_possible() {
@@ -201,6 +215,9 @@ fn test_double_inverse_pair_not_possible() {
 
     factory.create_pair(&token_0.contract_id, &token_1.contract_id);
 
-    // Second creation of same pair should fail
+    // Second creation of same pair (but now in reverse order) should fail
     factory.create_pair(&token_1.contract_id, &token_0.contract_id);
 }
+
+// TODO: Test: Should panic when other account tries to change the fee_to
+// TODO: Test: Should panic when other account tries to change the fee_to_setter
