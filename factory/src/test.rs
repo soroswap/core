@@ -2,28 +2,28 @@
 extern crate std;
 
 use crate::{SoroswapFactoryClient};
-use crate::{SoroswapPairClient};
+// use crate::{SoroswapPairClient};
 
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, token::Client as TokenClient}; // TODO; add when testing authorizations: IntoVal, Symbol};
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
 
-fn create_pair_contract(
-    e: &Env,
-    token_a: &BytesN<32>,
-    token_b: &BytesN<32>,
-) -> SoroswapPairClient {
-    let pair = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    pair.initialize_pair(token_a, token_b);
-    pair
-}
+// fn create_pair_contract(
+//     e: &Env,
+//     token_a: &BytesN<32>,
+//     token_b: &BytesN<32>,
+// ) -> SoroswapPairClient {
+//     let pair = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
+//     pair.initialize_pair(token_a, token_b);
+//     pair
+// }
 
 fn create_factory_contract(
     e: &Env,
     setter: BytesN<32>,
     pair_wasm_hash: BytesN<32>
 ) -> SoroswapFactoryClient {
-    let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    factory.initialize(setter, pair_wasm_hash);
+    let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
+    factory.initialize(&setter, &pair_wasm_hash);
     factory
 }
 
@@ -41,8 +41,8 @@ fn test() {
     let mut admin1 = Address::random(&e);
     let mut admin2 = Address::random(&e);
 
-    let mut token1 = create_token_contract(&e, &admin1);
-    let mut token2 = create_token_contract(&e, &admin2);
+    // let mut token1 = create_token_contract(&e, &admin1);
+    // let mut token2 = create_token_contract(&e, &admin2);
 //     if &token2.contract_id < &token1.contract_id {
 //         std::mem::swap(&mut token1, &mut token2);
 //         std::mem::swap(&mut admin1, &mut admin2);
