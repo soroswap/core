@@ -49,7 +49,11 @@ fn get_all_pairs(e: &Env) -> Vec<BytesN<32>> {
     e.storage().get(&DataKey::AllPairs).unwrap_or(Ok(Vec::new(&e))).unwrap()
 }
 fn get_pairs_mapping(e: &Env) -> Map<(BytesN<32>, BytesN<32>), BytesN<32>> {
-    e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
+    // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
+    e.storage()
+        .get(&DataKey::PairsMapping)
+        .unwrap_or_else(|| Ok(Map::new(&e)))
+        .unwrap()
 }
 
 fn get_pair_exists(e: &Env, token_a: BytesN<32>, token_b: BytesN<32>) -> bool {
