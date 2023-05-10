@@ -297,6 +297,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         let pair = create_contract(&e, &pair_wasm_hash, &token_0.clone(), &token_1.clone());
         // TODO: Implement name of the pair depending on the token names
         pair::Client::new(&e, &pair).initialize_pair(
+            &e.current_contract_address(),
             &token_0,
             &token_1);
         
