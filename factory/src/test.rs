@@ -93,7 +93,7 @@ pub fn guess_contract_address(
 }
 
 
-fn create_pair( e: &Env,
+fn create_pair(
                 factory: &SoroswapFactoryClient,
                 token_0: &BytesN<32>,
                 token_1: &BytesN<32>) {
@@ -106,10 +106,10 @@ fn create_pair( e: &Env,
 fn test() {
     let e: Env = Default::default();
 
-    let mut admin = Address::random(&e);
-    let mut fake_admin = Address::random(&e);
+    let admin = Address::random(&e);
+    let fake_admin = Address::random(&e);
     
-    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
 
     
 
@@ -131,9 +131,9 @@ fn test() {
     let mut token_0 = create_token_contract(&e, &admin);
     let mut token_1 = create_token_contract(&e, &admin);
 
-    create_pair(&e, &factory, &token_0.contract_id, &token_1.contract_id);
+    create_pair(&factory, &token_0.contract_id, &token_1.contract_id);
 
-    let pair_expected_address = guess_contract_address( &e,
+    let _pair_expected_address = guess_contract_address( &e,
                                                         &factory.contract_id, 
                                                         &token_1.contract_id, 
                                                         &token_0.contract_id);
@@ -188,10 +188,10 @@ fn test() {
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_same_pair_not_possible() {
     let e: Env = Default::default();
-    let mut admin = Address::random(&e);    
-    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
-    let mut token_0 = create_token_contract(&e, &admin);
-    let mut token_1 = create_token_contract(&e, &admin);
+    let admin = Address::random(&e);    
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
+    let token_0 = create_token_contract(&e, &admin);
+    let token_1 = create_token_contract(&e, &admin);
 
     factory.create_pair(&token_0.contract_id, &token_1.contract_id);
 
@@ -206,10 +206,10 @@ fn test_double_same_pair_not_possible() {
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_inverse_pair_not_possible() {
     let e: Env = Default::default();
-    let mut admin = Address::random(&e);    
-    let mut factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
-    let mut token_0 = create_token_contract(&e, &admin);
-    let mut token_1 = create_token_contract(&e, &admin);
+    let admin = Address::random(&e);    
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
+    let token_0 = create_token_contract(&e, &admin);
+    let token_1 = create_token_contract(&e, &admin);
 
     factory.create_pair(&token_0.contract_id, &token_1.contract_id);
 
