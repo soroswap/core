@@ -1,20 +1,17 @@
 #![cfg(test)]
 extern crate std;
-
 use crate::{SoroswapFactoryClient};
-// use crate::{SoroswapPairClient};
 
 use soroban_sdk::{testutils::Address as _,
                 Address, 
                 BytesN, 
                 Env,
-                token::Client as TokenClient}; // TODO; add when testing authorizations: IntoVal, Symbol};
+                token::Client as TokenClient,
+                Bytes}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
 fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
-
-
 
 fn create_factory_contract(
     e: &Env,
@@ -31,6 +28,26 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
         file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
     );
     e.install_contract_wasm(WASM)
+}
+
+fn guess_contract_address(
+    e: &Env,
+    pair_wasm_hash: &BytesN<32>,
+    token_a: &BytesN<32>,
+    token_b: &BytesN<32>,
+) -> BytesN<32> {
+    // Create a new Bytes instance using the current environment
+    let mut salt = Bytes::new(e);
+
+    // Append the bytes of token_a and token_b to the salt
+    salt.append(&token_a.clone().into());
+    salt.append(&token_b.clone().into());
+
+    // Hash the salt using SHA256 to generate a new BytesN<32> value
+    let salt = e.crypto().sha256(&salt);
+
+    // Return the hash without deploying the contract
+    salt
 }
 
 fn create_pair( e: &Env,
