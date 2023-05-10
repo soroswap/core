@@ -1,6 +1,6 @@
 #![cfg(test)]
 extern crate std;
-use crate::{SoroswapFactoryClient};
+use crate::{pair, SoroswapFactoryClient};
 
 use soroban_sdk::{testutils::Address as _,
                 Address, 
@@ -125,7 +125,7 @@ fn test() {
     assert_eq!(factory.all_pairs_length(), 0);
 
     // TODO: Implement kind-of zero address to test:
-    //assert_eq!(factory.fee_to(), ZERO_ADDRESS);
+    // assert_eq!(factory.fee_to(), ZERO_ADDRESS);
     
     // Create two tokens in order to create a pair using the factory
     let mut token_0 = create_token_contract(&e, &admin);
@@ -133,7 +133,6 @@ fn test() {
 
     create_pair(&e, &factory, &token_0.contract_id, &token_1.contract_id);
 
-    // TODO: Test the created pair address:
     let pair_expected_address = guess_contract_address( &e,
                                                         &factory.contract_id, 
                                                         &token_1.contract_id, 
@@ -142,18 +141,19 @@ fn test() {
     let pair_address_inverted = factory.get_pair(&token_1.contract_id, &token_0.contract_id);
 
 
+    // expect(await factory.getPair(...tokens)).to.eq(create2Address)
+    // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address)
     assert_eq!(&pair_address, &pair_address_inverted);
     
     // TODO: fix the guess_contract_address function and uncomment the following line
-    //assert_eq!(&pair_expected_address, &pair_address);
+    //  assert_eq!(&pair_expected_address, &pair_address);
 
-    // expect(await factory.getPair(...tokens)).to.eq(create2Address)
-    // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address)
+    // expect(await factory.allPairs(0)).to.eq(create2Address)   
+    // TODO: fix the guess_contract_address function and uncomment the following line
+    // assert_eq!(&factory.all_pairs(&0), &pair_expected_address);
+    assert_eq!(&factory.all_pairs(&0), &pair_address);
 
-    // TODO: Test that the first all_pairs is the created address
-    // expect(await factory.allPairs(0)).to.eq(create2Address)
-
-    // TODO: Test that all_pairs_length now is equal to 1
+    // Test that all_pairs_length now is equal to 1
     // expect(await factory.allPairsLength()).to.eq(1)
     assert_eq!(factory.all_pairs_length(), 1);
 
@@ -162,6 +162,8 @@ fn test() {
     //      - has the factory address correctly
     //      - token_0 is correct
     //      - token_1 is correct
+
+    let pair_client = pair::Client::new(&e, &pair_address);
 
     // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
     // expect(await pair.factory()).to.eq(factory.address)
