@@ -11,13 +11,15 @@ fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
 
 fn create_pair_contract(
     e: &Env,
+    factory: &BytesN<32>,
     token_a: &BytesN<32>,
     token_b: &BytesN<32>,
 ) -> SoroswapPairClient {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    liqpool.initialize_pair(token_a, token_b);
+    liqpool.initialize_pair(factory, token_a, token_b);
     liqpool
 }
+
 
 #[test]
 fn test() {
@@ -35,6 +37,7 @@ fn test() {
     let user = Address::random(&e);
     let liqpool = create_pair_contract(
         &e,
+        &token0.contract_id,
         &token0.contract_id,
         &token1.contract_id,
     );
