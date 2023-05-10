@@ -164,6 +164,8 @@ fn test() {
     //      - token_1 is correct
 
     let pair_client = pair::Client::new(&e, &pair_address);
+    assert_eq!(pair_client.factory(), Address::from_contract_id(&factory.contract_id));
+
 
     // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
     // expect(await pair.factory()).to.eq(factory.address)
