@@ -42,7 +42,7 @@ impl TryFromVal<Env, DataKey> for RawVal {
     }
 }
 
-fn factory(e: &Env) -> BytesN<32> {
+fn get_factory(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::Factory).unwrap()
 }
 
@@ -221,6 +221,8 @@ pub trait SoroswapPairTrait{
     fn get_rsrvs(e: Env) -> (i128, i128);
 
     fn my_balance(e: Env, id: Address) -> i128;
+
+    fn factory(e: Env) -> BytesN<32>;
 }
 
 struct SoroswapPair;
@@ -277,6 +279,10 @@ impl SoroswapPairTrait for SoroswapPair {
 
     fn share_id(e: Env) -> BytesN<32> {
         get_token_share(&e)
+    }
+
+    fn factory(e: Env) -> BytesN<32> {
+        get_factory(&e)
     }
 
 // // update reserves and, on the first call per block, price accumulators
