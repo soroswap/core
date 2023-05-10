@@ -92,7 +92,7 @@ fn put_fee_to_setter(e: &Env,   setter: &Address) {
     e.storage().set(&DataKey::FeeToSetter, setter);
 }
 
-fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
+fn _put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
     e.storage().set(&DataKey::AllPairs, &all_pairs);
 }
 
