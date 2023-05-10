@@ -7,8 +7,12 @@ use crate::{SoroswapFactoryClient};
 use soroban_sdk::{testutils::Address as _,
                 Address, 
                 BytesN, 
-                Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
+                Env,
+                token::Client as TokenClient}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
+fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
+    TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
+}
 
 // fn create_pair_contract(
 //     e: &Env,
@@ -59,9 +63,10 @@ fn test() {
 
     // TODO: Implement kind-of zero address to test:
     //assert_eq!(factory.fee_to(), ZERO_ADDRESS);
-
     
-
+    // Create two tokens in order to create a pair using the factory
+    let mut token0 = create_token_contract(&e, &admin);
+    let mut token1 = create_token_contract(&e, &admin);
 
 
 
