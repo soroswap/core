@@ -43,6 +43,7 @@ fn test() {
 
     let mut admin = Address::random(&e);
     let mut fake_admin = Address::random(&e);
+    
     let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
 
     /*
@@ -55,6 +56,11 @@ fn test() {
     assert_eq!(factory.fee_to_setter(), admin);
     assert_ne!(factory.fee_to_setter(), fake_admin);
     assert_eq!(factory.all_pairs_length(), 0);
+
+    // TODO: Implement kind-of zero address to test:
+    //assert_eq!(factory.fee_to(), ZERO_ADDRESS);
+
+    
 
 
 
