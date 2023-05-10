@@ -1,4 +1,30 @@
-echo "1. Running a soroban-precview docker container"
+#!/bin/bash
+
+set -e
+
+case "$1" in
+standalone)
+    echo "Using standalone network"
+    ARGS="--standalone --enable-core-artificially-accelerate-time-for-testing"
+    ;;
+futurenet)
+    echo "Using Futurenet network"
+    ARGS="--futurenet"
+    ;;
+*)
+    echo "Usage: $0 standalone|futurenet"
+    exit 1
+    ;;
+esac
+
+shift
+
+echo "1. Creating docker soroban network"
+(docker network inspect soroban-network -f '{{.Id}}' 2>/dev/null) \
+  || docker network create soroban-network
+
+
+echo "2. Running a soroban-precview docker container"
 previewVersion="8"
 
 echo "Searching for a previous soroban-preview docker container"
@@ -12,26 +38,21 @@ else
 fi
 
 currentDir=$(pwd)
-docker run --volume  ${currentDir}:/workspace \
-           --name soroban-preview-8 \
-           --interactive \
-           --tty \
-           -p 8001:8000 \
-           --detach \
-           --ipc=host \
-           --network soroban-network \
-           esteblock/soroban-preview:8
-
-
-echo "2. Running a stellar quickstart docker container"
+docker run -dti \
+  --volume ${currentDir}:/workspace \
+  --name soroban-preview-${previewVersion} \
+  -p 8001:8000 \
+  --ipc=host \
+  --network soroban-network \
+  esteblock/soroban-preview:${previewVersion}
 
 # Run the stellar quickstart image
 docker run --rm -ti \
-  --platform linux/amd64 \
   --name stellar \
   --network soroban-network \
   -p 8000:8000 \
-  stellar/quickstart:soroban-dev@sha256:81c23da078c90d0ba220f8fc93414d0ea44608adc616988930529c58df278739 \
+  stellar/quickstart:soroban-dev@sha256:a057ec6f06c6702c005693f8265ed1261e901b153a754e97cf18b0962257e872 \
   $ARGS \
   --enable-soroban-rpc \
-  --protocol-version 20 
+  --protocol-version 20 \
+  "$@" # Pass through args from the CLI

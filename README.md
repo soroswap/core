@@ -4,7 +4,7 @@
  
 1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:8 Docker containers
 ```
-bash quickstart.sh
+bash quickstart.sh standalone
 ```
 With this, a `stellar` container and a `soroban-preview-8` will run, sharing the `soroban-network` network in Docker
 
