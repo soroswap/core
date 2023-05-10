@@ -38,9 +38,11 @@ fn get_fee_to_setter(e: &Env) -> BytesN<32> {
 }
 
 fn get_all_pairs(e: &Env) -> Vec<BytesN<32>> {
-    e.storage().get_unchecked(&DataKey::AllPairs).unwrap()
+    match e.storage().get_unchecked(&DataKey::AllPairs) {
+        Ok(Some(v)) => v,
+        _ => Vec::new(&e),
+    }
 }
-
 fn get_pairs_mapping(e: &Env) -> Map<(BytesN<32>, BytesN<32>), BytesN<32>> {
     e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
 }
@@ -81,9 +83,9 @@ fn put_fee_to_setter(e: &Env, setter: BytesN<32>) {
     e.storage().set(&DataKey::FeeToSetter, &setter);
 }
 
-fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
-    e.storage().set(&DataKey::AllPairs, &all_pairs);
-}
+// fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
+//     e.storage().set(&DataKey::AllPairs, &all_pairs);
+// }
 
 fn put_pairs_mapping(e: &Env, pairs_mapping: Map<(BytesN<32>, BytesN<32>), BytesN<32>>) {
     e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
@@ -116,7 +118,7 @@ fn add_pair_to_all_pairs(e: &Env, pair_address: BytesN<32>) {
     // Get the current `allPairs` vector from storage
     let mut all_pairs = get_all_pairs(e);
     // Push the new `pair_address` onto the vector
-    all_pairs.push(pair_address);
+    all_pairs.push_back(pair_address);
     // Save the updated `allPairs` vector to storage
     e.storage().set(&DataKey::AllPairs, &all_pairs);
 }
