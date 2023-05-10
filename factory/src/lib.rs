@@ -88,8 +88,8 @@ fn put_fee_to(e: &Env, to: BytesN<32>) {
     e.storage().set(&DataKey::FeeTo, &to);
 }
 
-fn put_fee_to_setter(e: &Env, setter: Address) {
-    e.storage().set(&DataKey::FeeToSetter, &setter);
+fn put_fee_to_setter(e: &Env,   setter: &Address) {
+    e.storage().set(&DataKey::FeeToSetter, setter);
 }
 
 fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
@@ -168,7 +168,7 @@ pub trait SoroswapFactoryTrait{
     fn set_fee_to(e: Env, to: BytesN<32>);
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: Address);
+    fn set_fee_to_setter(e: Env, new_setter: Address);
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
@@ -182,7 +182,11 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // Sets the fee_to_setter address
     fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>){
         // TODO: This should be called only once, and by the contract creator
-        put_fee_to_setter(&e, setter);
+        // if has_administrator(&e) {
+        //     panic!("already initialized")
+        // }
+        // write_administrator(&e, &admin);
+        put_fee_to_setter(&e, &setter);
         put_pair_wasm_hash(&e, pair_wasm_hash);
     }
 
@@ -235,18 +239,16 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // function setFeeTo(address) external;
     fn set_fee_to(e: Env, to: BytesN<32>){
-        // TODO: Implement restriction
-        // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
-        
+        let setter = get_fee_to_setter(&e);
+        setter.require_auth();
         put_fee_to(&e, to);
     }
 
     // function setFeeToSetter(address) external;
-    fn set_fee_to_setter(e: Env, setter: Address){
-        // TODO: Implement restriction
-        // require(msg.sender == feeToSetter, 'UniswapV2: FORBIDDEN');
-        
-        put_fee_to_setter(&e, setter);
+    fn set_fee_to_setter(e: Env, new_setter: Address){
+        let setter = get_fee_to_setter(&e);
+        setter.require_auth();
+        put_fee_to_setter(&e, &new_setter);
     }
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
