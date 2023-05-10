@@ -22,7 +22,7 @@ use soroban_sdk::{testutils::Address as _,
 
 fn create_factory_contract(
     e: &Env,
-    setter: BytesN<32>,
+    setter: Address,
     pair_wasm_hash: BytesN<32>
 ) -> SoroswapFactoryClient {
     let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
@@ -44,8 +44,7 @@ fn test() {
     let mut admin = Address::random(&e);
    // let mut admin2 = Address::random(&e);
 
-    let admin_account_id = Address::account_id(&admin).unwrap();
-    let mut factory = create_factory_contract(&e, admin_account_id, &pair_token_wasm);
+    let mut factory = create_factory_contract(&e, admin, pair_token_wasm(&e));
 
     // let mut token1 = create_token_contract(&e, &admin1);
     // let mut token2 = create_token_contract(&e, &admin2);
