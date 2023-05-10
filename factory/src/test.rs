@@ -33,6 +33,32 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
     e.install_contract_wasm(WASM)
 }
 
+fn create_pair( e: &Env,
+                factory: &SoroswapFactoryClient,
+                token_0: &BytesN<32>,
+                token_1: &BytesN<32>) {
+    factory.create_pair(&token_0, &token_1);
+    
+    // TODO: Test the event emmited
+
+    // TODO: Expect to panic when trying to create the same pair
+    // await expect(factory.createPair(...tokens)).to.be.reverted // UniswapV2: PAIR_EXISTS
+    // SoroswapFactory: pair already exist between token_0 and token_1
+    //factory.create_pair(&token_0, &token_1);
+
+
+
+    // await expect(factory.createPair(...tokens.slice().reverse())).to.be.reverted // UniswapV2: PAIR_EXISTS
+    // expect(await factory.getPair(...tokens)).to.eq(create2Address)
+    // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address)
+    // expect(await factory.allPairs(0)).to.eq(create2Address)
+    // expect(await factory.allPairsLength()).to.eq(1)
+    // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
+    // expect(await pair.factory()).to.eq(factory.address)
+    // expect(await pair.token0()).to.eq(TEST_ADDRESSES[0])
+    // expect(await pair.token1()).to.eq(TEST_ADDRESSES[1])
+}
+
 #[test]
 fn test() {
     let e: Env = Default::default();
@@ -42,9 +68,7 @@ fn test() {
     
     let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
 
-    let create_pair = |e: &Env, token_0: &BytesN<32>, token_1: &BytesN<32>| {
-        factory.create_pair(&token_0, &token_1);
-    };
+    
 
     /*
     expect(await factory.feeTo()).to.eq(AddressZero)
@@ -64,7 +88,7 @@ fn test() {
     let mut token_0 = create_token_contract(&e, &admin);
     let mut token_1 = create_token_contract(&e, &admin);
 
-    create_pair(&e, &token_0.contract_id, &token_1.contract_id);
+    create_pair(&e, &factory, &token_0.contract_id, &token_1.contract_id);
 
 
 
@@ -76,7 +100,7 @@ fn test() {
 //     }
 //     let user1 = Address::random(&e);
 //     let liqpool = create_liqpool_contract(
-//         &e,
+//         &e, 
 //         &token1.contract_id,
 //         &token2.contract_id,
 //     );
@@ -147,4 +171,36 @@ fn test() {
 //     assert_eq!(token1.balance(&liqpool.address()), 0);
 //     assert_eq!(token2.balance(&liqpool.address()), 0);
 //     assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
+}
+
+// Creating the same pair again should fail
+#[test]
+#[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
+fn test_double_same_pair_not_possible() {
+    let e: Env = Default::default();
+    let mut admin = Address::random(&e);    
+    let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
+    let mut token_0 = create_token_contract(&e, &admin);
+    let mut token_1 = create_token_contract(&e, &admin);
+
+    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+
+    // Second creation of same pair should fail
+    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+}
+
+// Creating the same pair again (but in inverse order) should also fail
+#[test]
+#[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
+fn test_double_inverse_pair_not_possible() {
+    let e: Env = Default::default();
+    let mut admin = Address::random(&e);    
+    let mut factory = create_factory_contract(&e, &admin, pair_token_wasm(&e));
+    let mut token_0 = create_token_contract(&e, &admin);
+    let mut token_1 = create_token_contract(&e, &admin);
+
+    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+
+    // Second creation of same pair should fail
+    factory.create_pair(&token_1.contract_id, &token_0.contract_id);
 }
