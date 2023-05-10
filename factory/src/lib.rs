@@ -46,10 +46,7 @@ fn get_fee_to_setter(e: &Env) -> Address {
 }
 
 fn get_all_pairs(e: &Env) -> Vec<BytesN<32>> {
-    match e.storage().get_unchecked(&DataKey::AllPairs) {
-        Ok(Some(v)) => v,
-        _ => Vec::new(&e),
-    }
+    e.storage().get(&DataKey::AllPairs).unwrap_or(Ok(Vec::new(&e))).unwrap()
 }
 fn get_pairs_mapping(e: &Env) -> Map<(BytesN<32>, BytesN<32>), BytesN<32>> {
     e.storage().get_unchecked(&DataKey::PairsMapping).unwrap()
@@ -91,9 +88,9 @@ fn put_fee_to_setter(e: &Env, setter: Address) {
     e.storage().set(&DataKey::FeeToSetter, &setter);
 }
 
-// fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
-//     e.storage().set(&DataKey::AllPairs, &all_pairs);
-// }
+fn put_all_pairs(e: &Env, all_pairs: Vec<BytesN<32>>) {
+    e.storage().set(&DataKey::AllPairs, &all_pairs);
+}
 
 fn put_pairs_mapping(e: &Env, pairs_mapping: Map<(BytesN<32>, BytesN<32>), BytesN<32>>) {
     e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
