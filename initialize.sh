@@ -47,7 +47,8 @@ TOKEN_ADMIN_SECRET="$(soroban config identity show token-admin)"
 TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
 echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
-
+echo "--"
+echo "--"
 # TODO: Remove this once we can use `soroban config identity` from webpack.
 echo "$TOKEN_ADMIN_SECRET" > .soroban/token_admin_secret
 echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
@@ -60,41 +61,48 @@ ARGS="--network $NETWORK --source token-admin"
 echo "Using ARGS: $ARGS"
 echo Wrap two Stellar asset
 mkdir -p .soroban
+echo "--"
+echo "--"
 echo "Wrapping TOKENA:$TOKEN_ADMIN_ADDRESS"
 TOKEN_A_ID=$(soroban lab token wrap $ARGS --asset "TOKENA:$TOKEN_ADMIN_ADDRESS")
 echo "token_0 was wrapped succesfully with TOKEN_A_ID: $TOKEN_A_ID"
+echo "--"
+echo "--"
 
 echo "Wrapping TOKENB:$TOKEN_ADMIN_ADDRESS"
 TOKEN_B_ID=$(soroban lab token wrap $ARGS --asset "TOKENB:$TOKEN_ADMIN_ADDRESS")
 echo "token_1 was wrapped succesfully with TOKEN_B_ID: $TOKEN_B_ID"
-
+echo "--"
+echo "--"
 
 echo -n "$TOKEN_0_ID" > .soroban/token_0_id
 echo -n "$TOKEN_0_ID" > .soroban/token_1_id
 
-# echo Build the crowdfund contract
-# make build
+echo Build the SoroswapPair and SoroswapFactory contract
+make build
+FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+PAIR_WASM="factory/target/wasm32-unknown-unknown/release/pair_factory_contract.wasm"
 
-# echo Deploy the crowdfund contract
-# CROWDFUND_ID="$(
-#   soroban contract deploy $ARGS \
-#     --wasm target/wasm32-unknown-unknown/release/soroban_crowdfund_contract.wasm
-# )"
-# echo "$CROWDFUND_ID" > .soroban/crowdfund_id
+echo Deploy the SoroswapFactory contract
 
-# echo "Contract deployed succesfully with ID: $CROWDFUND_ID"
+FACTORY_ID="$(
+  soroban contract deploy $ARGS \
+    --wasm $FACTORY_WASM
+)"
+echo "$FACTORY_ID" > .soroban/factory_id
 
-# echo "Initialize the crowdfund contract"
-# deadline="$(($(date +"%s") + 86400))"
-# soroban contract invoke \
-#   $ARGS \
-#   --wasm target/wasm32-unknown-unknown/release/soroban_crowdfund_contract.wasm \
-#   --id "$CROWDFUND_ID" \
-#   -- \
-#   initialize \
-#   --recipient "$TOKEN_ADMIN_ADDRESS" \
-#   --deadline "$deadline" \
-#   --target_amount "1000000000" \
-#   --token "$TOKEN_ID"
+echo "SoroswapFactory deployed succesfully with FACTORY_ID: $FACTORY_ID"
+
+echo "Initialize the SoroswapFactory contract"
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  initialize \
+  --setter "$TOKEN_ADMIN_ADDRESS" \
+  --pair_wasm_hash "$PAIR_WASM" 
 
 # echo "Done"
+
+ setter: Address, pair_wasm_hash: BytesN<32>
