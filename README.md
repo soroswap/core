@@ -20,6 +20,13 @@ make build
 ```
 If you ran this command in the `/workspace` path, this will compile both contracts
 
+# Run the script
+```
+bash quickstart.sh standalone
+bash run.sh
+bash intialize.sh standalone
+```
+
 
 
 ## Upgrade from stellar remote
