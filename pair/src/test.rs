@@ -1,9 +1,9 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{SoroswapPairClient};
+use crate::{TokenClient, SoroswapPairClient};
 
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, token::Client as TokenClient}; // TODO; add when testing authorizations: IntoVal, Symbol};
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
 
 fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
