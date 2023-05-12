@@ -5,8 +5,8 @@ mod token;
 mod create;
 
 use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal, token::Client as TokenClient};
-use token::{Token, TokenTrait};
+use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
+use token::{Token, TokenTrait, TokenClient};
 
 
 #[derive(Clone, Copy)]
