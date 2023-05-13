@@ -6,7 +6,7 @@ mod create;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
-use token::{Token, TokenTrait, TokenClient};
+use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 
 
 #[derive(Clone, Copy)]
@@ -132,7 +132,7 @@ fn burn_shares(e: &Env, amount: i128) {
         // TokenClient::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
 
     // New Implementation: Use own Token:: functions:
-    Token::burn(e.clone(), e.current_contract_address(), amount);
+    internal_burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(e, total - amount);
 }
 
@@ -144,7 +144,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
         // TokenClient::new(e, &share_contract_id).mint(&to, &amount);
     
     // New Implementation: Use own Token:: functions:
-    Token::mint(e.clone(),e.current_contract_address(), to, amount);
+        internal_mint(e.clone(), to, amount);
 
     put_total_shares(e, total + amount);
 }
