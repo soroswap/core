@@ -1,13 +1,21 @@
 #![cfg(test)]
 extern crate std;
-use crate::{pair, SoroswapFactoryClient};
+mod token {
+    soroban_sdk::contractimport!(file = "../soroban_token_contract.wasm");
+    pub type TokenClient = Client;
+}
 
 use soroban_sdk::{testutils::Address as _,
-                Address, 
-                BytesN, 
-                Env,
-                token::Client as TokenClient,
-                Bytes}; // TODO; add when testing authorizations: IntoVal, Symbol};
+    Address, 
+    BytesN, 
+    Env,
+    Bytes,
+    IntoVal,
+    Symbol};
+
+    use crate::{pair, SoroswapFactoryClient};
+use token::TokenClient;
+
 
 fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
@@ -108,10 +116,9 @@ fn test() {
 
     let admin = Address::random(&e);
     let fake_admin = Address::random(&e);
+    let new_admin = Address::random(&e);
     
-    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
-
-    
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e)); 
 
     /*
     expect(await factory.feeTo()).to.eq(AddressZero)
@@ -123,6 +130,38 @@ fn test() {
     assert_eq!(factory.fee_to_setter(), admin);
     assert_ne!(factory.fee_to_setter(), fake_admin);
     assert_eq!(factory.all_pairs_length(), 0);
+
+    // if the admin changes the fee_to_setter, test require_auth
+    factory.set_fee_to_setter(&new_admin);
+
+    assert_eq!(
+        e.recorded_top_authorizations(),
+        std::vec![(
+            admin.clone(),
+            factory.contract_id.clone(),
+            Symbol::new(&e, "set_fee_to_setter"),
+            (new_admin.clone(),).into_val(&e)
+        )]
+    );
+    assert_eq!(factory.fee_to_setter(), new_admin);
+    assert_ne!(factory.fee_to_setter(), admin);
+
+    // The new admin changes the fee_to to he the factory itself
+    // This is just to not to create a dummy BytesN<32>
+    factory.set_fee_to(&factory.contract_id);
+    assert_eq!(
+        e.recorded_top_authorizations(),
+        std::vec![(
+            new_admin.clone(),
+            factory.contract_id.clone(),
+            Symbol::new(&e, "set_fee_to"),
+            (factory.contract_id.clone(),).into_val(&e)
+        )]
+    );
+    assert_eq!(factory.fee_to(), factory.contract_id);
+
+
+
 
     // TODO: Implement kind-of zero address to test:
     // assert_eq!(factory.fee_to(), ZERO_ADDRESS);
@@ -166,7 +205,7 @@ fn test() {
     // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
     let pair_client = pair::Client::new(&e, &pair_address);
     // expect(await pair.factory()).to.eq(factory.address)
-    assert_eq!(pair_client.factory(), Address::from_contract_id(&factory.contract_id));
+    assert_eq!(pair_client.factory(), Address::from_contract_id(&e, &factory.contract_id));
 
     
 
@@ -182,8 +221,8 @@ fn test() {
 
 }
 
-// Creating the same pair again should fail
-// await expect(factory.createPair(...tokens)).to.be.reverted // UniswapV2: PAIR_EXISTS
+//Creating the same pair again should fail
+//  await expect(factory.createPair(...tokens)).to.be.reverted // UniswapV2: PAIR_EXISTS
 #[test]
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_same_pair_not_possible() {
