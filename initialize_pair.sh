@@ -67,7 +67,7 @@ echo "--"
 echo "--"
 
 PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-TOKEN_WASM="token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+TOKEN_WASM="soroban_token_contract.wasm"
 #TOKEN_WASM="soroban_token_spec.wasm"
 
 
