@@ -4,14 +4,18 @@ extern crate std;
 use crate::{SoroswapPairClient};
 
 mod token {
-    soroban_sdk::contractimport!(file = "../soroban_token_spec.wasm");
+    soroban_sdk::contractimport!(file = "../soroban_token_contract.wasm");
     pub type TokenClient = Client;
 }
 
 use token::TokenClient;
 
 
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env}; // TODO; add when testing authorizations: IntoVal, Symbol};
+use soroban_sdk::{  testutils::Address as _,
+                    Address, 
+                    BytesN, 
+                    Env,
+                    IntoVal, Symbol};
 
 fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
@@ -58,16 +62,15 @@ fn test() {
 
     liqpool.deposit(&user, &100, &100, &100, &100);
    
-    // TODO: Implement authorization tests after changing everything to own token
-    // assert_eq!(
-    //     e.recorded_top_authorizations(),
-    //     std::vec![(
-    //         user.clone(),
-    //         liqpool.contract_id.clone(),
-    //         Symbol::short("deposit"),
-    //         (&user, 100_i128, 100_i128, 100_i128, 100_i128).into_val(&e)
-    //     )]
-    // );
+    assert_eq!(
+        e.recorded_top_authorizations(),
+        std::vec![(
+            user.clone(),
+            liqpool.contract_id.clone(),
+            Symbol::short("deposit"),
+            (&user, 100_i128, 100_i128, 100_i128, 100_i128).into_val(&e)
+        )]
+    );
 
     assert_eq!(liqpool.my_balance(&user), 100);
     assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
@@ -77,16 +80,16 @@ fn test() {
     assert_eq!(token1.balance(&liqpool.address()), 100);
 
     liqpool.swap(&user, &false, &49, &100);
-    // TODO: Implement authorization tests after changing everything to own token
-    // assert_eq!(
-    //     e.recorded_top_authorizations(),
-    //     std::vec![(
-    //         user.clone(),
-    //         liqpool.contract_id.clone(),
-    //         Symbol::short("swap"),
-    //         (&user, false, 49_i128, 100_i128).into_val(&e)
-    //     )]
-    // );
+
+    assert_eq!(
+        e.recorded_top_authorizations(),
+        std::vec![(
+            user.clone(),
+            liqpool.contract_id.clone(),
+            Symbol::short("swap"),
+            (&user, false, 49_i128, 100_i128).into_val(&e)
+        )]
+    );
 
     assert_eq!(token0.balance(&user), 803);
     assert_eq!(token0.balance(&liqpool.address()), 197);
@@ -95,16 +98,15 @@ fn test() {
 
     liqpool.withdraw(&user, &100, &197, &51);
 
-    // // TODO: Implement authorization tests after changing everything to own token
-    // // assert_eq!(
-    // //     e.recorded_top_authorizations(),
-    // //     std::vec![(
-    // //         user.clone(),
-    // //         liqpool.contract_id.clone(),
-    // //         Symbol::short("withdraw"),
-    // //         (&user, 100_i128, 197_i128, 51_i128).into_val(&e)
-    // //     )]
-    // // );
+    assert_eq!(
+        e.recorded_top_authorizations(),
+        std::vec![(
+            user.clone(),
+            liqpool.contract_id.clone(),
+            Symbol::short("withdraw"),
+            (&user, 100_i128, 197_i128, 51_i128).into_val(&e)
+        )]
+    );
 
     assert_eq!(token0.balance(&user), 1000);
     assert_eq!(token1.balance(&user), 1000);
