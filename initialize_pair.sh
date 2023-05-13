@@ -402,6 +402,74 @@ soroban contract invoke \
   -- \
   swap \
   --to "$USER_ADDRESS" \
-  --buy_a "false" \
   --out 49 \
   --in_max 100 
+
+
+
+echo Now the user should have:
+echo 803 units of TOKEN_A
+echo "Check user\'s TOKEN_A balance"
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM\
+  --id $TOKEN_A_ID \
+  -- \
+  balance \
+  --id $USER_ADDRESS
+
+echo 949 units of TOKEN_B
+echo "Check user\'s TOKEN_B balance"
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM\
+  --id $TOKEN_B_ID \
+  -- \
+  balance \
+  --id $USER_ADDRESS
+
+echo And the Pair contract should hold:
+PAIR_CONTRACT_ADDRESS="{\"address\": {\"contract\":\"$PAIR_ID\"}}"
+
+echo 197 tokens of TOKEN_A
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM\
+  --id $TOKEN_A_ID \
+  -- \
+  balance \
+  --id "$PAIR_CONTRACT_ADDRESS"
+
+echo 51 tokens of TOKEN_B
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM\
+  --id $TOKEN_B_ID \
+  -- \
+  balance \
+  --id "$PAIR_CONTRACT_ADDRESS"
+
+
+echo "---"
+echo "---"
+echo "---"
+echo "---"
+echo "WITHDRAW: The final step"
+
+echo "Calling: 
+    fn withdraw(  e: Env,
+                  to: Address,
+                  share_amount: i128, 
+                  min_a: i128, 
+                  min_b: i128) -> (i128, i128) {"
+
+soroban contract invoke \
+  $ARGS_USER \
+  --wasm $PAIR_WASM \
+  --id $PAIR_ID \
+  -- \
+  withdraw \
+  --to "$USER_ADDRESS" \
+  --share_amount 100 \
+  --min_a 197 \
+  --min_b 51 
