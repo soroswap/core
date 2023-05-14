@@ -3,6 +3,8 @@
 ## 1. Environment Preparation:
  
 1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:8 Docker containers
+Currently, Soroswap Protocol supports PREVIEW-8:
+Here you can choose to use an `standalone` or `futurenet` instance 
 ```
 bash quickstart.sh standalone
 ```
@@ -20,42 +22,32 @@ make build
 ```
 If you ran this command in the `/workspace` path, this will compile both contracts
 
-# Run the script
+## 3.- Run rust test
+1.- Run tests of the Pair contract:
 ```
-bash quickstart.sh standalone
-bash run.sh
-bash intialize.sh standalone
+cd pair
+make test
 ```
-
-
-
-## Upgrade from stellar remote
+2.- Run tests of the Factory contract:
 ```
-git remote add stellar https://github.com/stellar/soroban-examples
-git pull stellar main
+cd factory
+make test
 ```
 
-## Use Soroban Preview #8
-```
-currentDir=$(pwd)
+## 4.- Experiment the Pair and the Factory contract using the soroban CLI
 
-docker run --volume  ${currentDir}:/workspace \
-           --name soroban-preview-8 \
-           --interactive \
-           --tty \
-           -p 8001:8000 \
-           --detach \
-           --ipc=host \
-           --network soroban-network \
-           esteblock/soroban-preview:8
+A full tutorial has been written showing in detail, step-by-step how to experiment with these contracts using the soroban CLI
 
-```
+Check it in: [docs.soroswap.finance](https://docs.soroswap.finance/), on a [6 chapters dev.to tutorial: ](https://dev.to/esteblock/series/22986) or directly on the [soroswap/docs repo](https://github.com/soroswap/docs)
 
+If you want to go fast to the soroban CLI experiment, just run:
+
+To test the Pair contract, nside the `soroban-preview-8` container run:
 ```bash
-  docker exec soroban-preview-8 make build
+bash intialize_pair.sh standalone
 ```
 
-Or enter inside the docker container and run commands there
+To test the Pair contract, nside the `soroban-preview-8` container run:
 ```bash
-docker exec -it soroban-preview-8 bash
+bash intialize_factory.sh standalone
 ```
