@@ -399,7 +399,7 @@ soroban contract invoke \
 
 echo "Deposit these tokens into the Pool contract"
 echo "This will be called by the user"
-ARGS_USER="--network standalone --source user"
+ARGS_USER="--network $NETWORK --source user"
 echo "Hence we use ARG_USER: $ARGS_USER"
 
 echo Fund user account from friendbot
@@ -601,11 +601,7 @@ soroban contract invoke \
 
 
 
-
-
-
-
-ARGS="--network standalone --source token-admin"
+ARGS="--network $NETWORK --source token-admin"
 FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
 PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
 FACTORY_ID=$(cat .soroban/factory_id)
@@ -614,7 +610,8 @@ PAIR_ID=$(cat .soroban/pair_id)
 TOKEN_ADMIN_ADDRESS=$(cat .soroban/token_admin_address)
 TOKEN_A_ID=$(cat .soroban/token_a_id)
 TOKEN_B_ID=$(cat .soroban/token_b_id)
-ARGS_USER="--network standalone --source user"
+ARGS_USER="--network $NETWORK --source user"
+USER_ADDRESS=$(cat .soroban/user_address)
 
 
 echo Using:

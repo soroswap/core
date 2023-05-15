@@ -2,7 +2,8 @@
 
 set -e
 
-NETWORK="$1"
+NETWORK="futurenet"
+FACTORY_ID="1486c77ba3a9639226dbbe64d1ac6f73a7dd6122201c6bc335d382981ec566b4"
 
 # If soroban-cli is called inside the soroban-preview docker containter,
 # it can call the stellar standalone container just using its name "stellar"
@@ -14,22 +15,9 @@ NETWORK="$1"
 
 SOROBAN_RPC_URL="$SOROBAN_RPC_HOST/soroban/rpc"
 
-case "$1" in
-standalone)
-  echo "Using standalone network"
-  SOROBAN_NETWORK_PASSPHRASE="Standalone Network ; February 2017"
-  FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
-  ;;
-futurenet)
-  echo "Using Futurenet network"
-  SOROBAN_NETWORK_PASSPHRASE="Test SDF Future Network ; October 2022"
-  FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
-  ;;
-*)
-  echo "Usage: $0 standalone|futurenet"
-  exit 1
-  ;;
-esac
+echo "Using Futurenet network"
+SOROBAN_NETWORK_PASSPHRASE="Test SDF Future Network ; October 2022"
+FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
 
 #if !(soroban config network ls | grep "$NETWORK" 2>&1 >/dev/null); then
 # Always set a net configuration 
@@ -66,9 +54,7 @@ mkdir -p .soroban
 echo "--"
 echo "--"
 
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
 TOKEN_WASM="soroban_token_contract.wasm"
-#TOKEN_WASM="soroban_token_spec.wasm"
 
 
 echo Deploying TOKEN_A
@@ -154,47 +140,150 @@ echo Current TOKEN_B_ID: $TOKEN_B_ID
 echo -n "$TOKEN_A_ID" > .soroban/token_a_id
 echo -n "$TOKEN_B_ID" > .soroban/token_b_id
 
-echo Build the SoroswapPair contract
-cd pair
-make build
-cd ..
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+echo Build the SoroswapPair and SoroswapFactory contract
+  make build
+  FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+  PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+  echo "--"
+  echo "--"
+
+  echo "--"
+  echo "--"
+
+  echo "--"
+  echo "--"
+
+  echo "--"
+  echo "--"
+
+  echo "--"
+  echo "--"
+
+  echo "--"
+  echo "--"
+
+
+
+echo "Create a pair using the SoroswapFactory contract, token_a and token_b"
+PAIR_ID=$(soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  create_pair \
+  --token_a "$TOKEN_A_ID" \
+  --token_b "$TOKEN_B_ID" )
+# Assuming the variable PAIR_ID contains the returned ID with apostrophes
+PAIR_ID=$(echo $PAIR_ID | tr -d '"')
+echo Pair created succesfully with PAIR_ID=$PAIR_ID
+echo $PAIR_ID > .soroban/pair_id
+
 echo "--"
 echo "--"
 
-echo Deploy the Pair 
-PAIR_ID="$(
-soroban contract deploy $ARGS \
-  --wasm $PAIR_WASM
-)"
-echo "$PAIR_ID" > .soroban/pair_wasm_hash
-echo "SoroswapPair deployed succesfully with PAIR_ID: $PAIR_ID"
-echo "--"
-echo "--"
 
+echo How many pairs already exist??
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  all_pairs_length \
 
-echo "Initialize the Pair contract using the Admin address as Factory"
-echo "Calling: 
-fn initialize_pair( e: Env
-                    factory: Address,
-                    token_a: BytesN<32>,
-                    token_b: BytesN<32>);
-"
+echo We should be able to get the same PAIR_ID calling to get_pair function:
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  get_pair \
+  --token_a "$TOKEN_A_ID" \
+  --token_b "$TOKEN_B_ID" 
+
+echo Also if we ask for the inverse order
+
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  get_pair \
+  --token_a "$TOKEN_B_ID" \
+  --token_b "$TOKEN_A_ID" 
+
+echo "---"
+echo "---"
+echo "---"
+echo "---"
+echo "-- Now we will test functions calling the Pair contract"
+
+echo Lets see if the token adddresses in the Pair contract are correct
+echo Lets ask for token_0 -- TOKEN_A_ID -- 
+echo We have TOKEN_A_ID = $TOKEN_A_ID
 
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM \
   --id $PAIR_ID \
   -- \
-  initialize_pair \
-  --factory "$TOKEN_ADMIN_ADDRESS" \
+  token_0 
+
+echo "---"
+echo "---"
+
+
+echo Lets see if the token adddresses in the Pair contract are correct
+echo Lets ask for token_1 -- TOKEN_B_ID -- 
+echo We have TOKEN_B_ID = $TOKEN_B_ID
+
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM \
+  --id $PAIR_ID \
+  -- \
+  token_1 
+
+echo "---"
+echo "---"
+echo Now lets test the created Pair. 
+
+
+echo "---"
+echo "---"
+
+
+echo Finally::: check that if we try to create the same pair, the contract will panic:
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  create_pair \
   --token_a "$TOKEN_A_ID" \
   --token_b "$TOKEN_B_ID" 
 
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  create_pair \
+  --token_a "$TOKEN_B_ID" \
+  --token_b "$TOKEN_A_ID" 
 
 
-echo "--"
-echo "--"
+
+
+echo "---"
+echo "---"
+
+echo "---"
+echo "---"
+
+echo "---"
+echo "---"
+
+
 
 echo In the following we are going to use a new USER account:
   echo Creating the user identity
@@ -205,6 +294,7 @@ echo In the following we are going to use a new USER account:
   echo "$USER_SECRET" > .soroban/user_secret
   echo "$USER_ADDRESS" > .soroban/user_address
   
+
 
 
 echo "Mint 1000 units of token A user -- calling from TOKEN_ADMIN"
@@ -282,17 +372,6 @@ Calling:
 
 
 "
-
-
-ARGS="--network $NETWORK --source token-admin"
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-PAIR_ID=$(cat .soroban/pair_wasm_hash)
-TOKEN_ADMIN_ADDRESS=$(cat .soroban/token_admin_address)
-USER_ADDRESS=$(cat .soroban/user_address)
-TOKEN_A_ID=$(cat .soroban/token_a_id)
-TOKEN_B_ID=$(cat .soroban/token_b_id)
-ARGS_USER="--network $NETWORK --source user"
-
 
 echo In the next we will use:
 echo ARGS = $ARGS
