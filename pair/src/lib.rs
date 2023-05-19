@@ -448,11 +448,6 @@ impl SoroswapPairTrait for SoroswapPair {
         // First transfer the pool shares that need to be redeemed:
         // Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
 
-        // Old Implementation: Use client token contract
-            // let share_token_client = TokenClient::new(&e, &get_token_share(&e));
-            // share_token_client.xfer(&to, &e.current_contract_address(), &share_amount);
-
-        // New Implementation: Use own token functions:
         Token::xfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
