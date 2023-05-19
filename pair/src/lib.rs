@@ -9,10 +9,12 @@ use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, Ra
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy)] 
 #[repr(u32)]
 /*
 TODO: Analize UniswapV2
+    // Use kind of SafeMath?
+    // using UQ112x112 for uint224;
     // uint public constant MINIMUM_LIQUIDITY = 10**3;
     // bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
     // uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
@@ -21,6 +23,14 @@ TODO: Analize UniswapV2
     // uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
 
 TODO: Analize reentrancy attack guard?
+
+    uint private unlocked = 1;
+    modifier lock() {
+        require(unlocked == 1, 'UniswapV2: LOCKED');
+        unlocked = 0;
+        _;
+        unlocked = 1;
+    }
 */
     
 pub enum DataKey {
@@ -29,8 +39,7 @@ pub enum DataKey {
     Reserve0 = 2, //uint112 private reserve0;
     Reserve1 = 3, // uint112 private reserve1;
     Factory = 4, 
-    TokenShare = 5, // TODO: Delete when implementing the token interface
-    TotalShares = 6, // TODO: Delete when implementing the token interface
+    TotalShares = 5, // TODO: Delete when implementing the token interface
 }
 
 
@@ -52,10 +61,6 @@ fn get_token_0(e: &Env) -> BytesN<32> {
 
 fn get_token_1(e: &Env) -> BytesN<32> {
     e.storage().get_unchecked(&DataKey::Token1).unwrap()
-}
-
-fn get_token_share(e: &Env) -> BytesN<32> {
-    e.storage().get_unchecked(&DataKey::TokenShare).unwrap()
 }
 
 fn get_total_shares(e: &Env) -> i128 {
@@ -97,7 +102,6 @@ fn get_balance_shares(e: &Env) -> i128 {
     // How many "SHARE" tokens does the Liquidity pool holds?
     // This shares should have been sent by the user when burning their LP positions (withdraw)
     Token::balance(e.clone(), e.current_contract_address())
-    //get_balance(e, get_token_share(e))
 }
 
 fn put_factory(e: &Env, factory: Address) {
@@ -126,26 +130,13 @@ fn put_reserve_b(e: &Env, amount: i128) {
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
-    
-    // Old Implementation: Use pair token in another contract:
-        // let share_contract_id = get_token_share(e);
-        // TokenClient::new(e, &share_contract_id).burn(&e.current_contract_address(), &amount);
-
-    // New Implementation: Use own Token:: functions:
     internal_burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(e, total - amount);
 }
 
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
-    
-    // Old Implementation: Use pair token in another contract:
-        // let share_contract_id = get_token_share(e);
-        // TokenClient::new(e, &share_contract_id).mint(&to, &amount);
-    
-    // New Implementation: Use own Token:: functions:
-        internal_mint(e.clone(), to, amount);
-
+    internal_mint(e.clone(), to, amount);
     put_total_shares(e, total + amount);
 }
 
@@ -200,9 +191,6 @@ pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>);
 
-    // Returns the token contract address for the pool share token
-    fn share_id(e: Env) -> BytesN<32>;
-
     fn token_0(e: Env) -> BytesN<32>;
     fn token_1(e: Env) -> BytesN<32>;
 
@@ -245,24 +233,13 @@ impl SoroswapPairTrait for SoroswapPair {
     // }
 
     // TODO: Implement name for pairs depending on the tokens
+    // TODO: This cannot be called again
     fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
         put_factory(&e, factory);
 
-        // Old Implementation:
-            // let share_contract_id = create_contract(&e, &token_wasm_hash, &token_a, &token_b);
-            // TokenClient::new(&e, &share_contract_id).initialize(
-            //     &e.current_contract_address(),
-            //     &7u32,
-            //     &Bytes::from_slice(&e, b"Pool Share Token"),
-            //     &Bytes::from_slice(&e, b"POOL"),
-            // );
-
-        // New Implementation: Use own Token:: functions
-        // TODO: Here we use e.clone() creates a new copy of the data and can be slower and use more memory than passing a reference.
-        // TODO: See alternatives:
         Token::initialize(
                 e.clone(),
                 e.current_contract_address(),
@@ -280,9 +257,6 @@ impl SoroswapPairTrait for SoroswapPair {
 
     }
 
-    fn share_id(e: Env) -> BytesN<32> {
-        get_token_share(&e)
-    }
 
     fn token_0(e: Env) -> BytesN<32> {
         get_token_0(&e)
@@ -298,6 +272,7 @@ impl SoroswapPairTrait for SoroswapPair {
         get_factory(&e)
     }
 
+// TODO: Analize Uniswap V2
 // // update reserves and, on the first call per block, price accumulators
 // function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
 //     require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
@@ -466,6 +441,7 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
 // Check UniswapV2 burn function
+// TODO: In UniswapV2 this is called burn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
         to.require_auth();
 
@@ -522,7 +498,7 @@ impl SoroswapPairTrait for SoroswapPair {
     //     unlocked = 1;
     // }
 
-// Todo: Analize if we should add UniswapV2 Events: 
+// TODO: Analize if we should add UniswapV2 Events: 
 // event Mint(address indexed sender, uint amount0, uint amount1);
 // event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
 // event Swap(
