@@ -1,16 +1,16 @@
-use soroban_sdk::{Env, Symbol, BytesN, Address};
+use soroban_sdk::{Env, Symbol, Address};
 
 //  event Mint(address indexed sender, uint amount0, uint amount1);
-pub(crate) fn mint(e: &Env, sender: Address, amount_0: u32, amount_1: u32) {
-    let topics = (Symbol::new(e, "mint"), sender, amount_0);
+pub(crate) fn deposit(e: &Env, sender: Address, amount_0: i128, amount_1: i128) {
+    let topics = (Symbol::new(e, "deposit"), sender, amount_0);
     e.events().publish(topics, amount_1);
 }
-
-// event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-pub(crate) fn burn(e: &Env, sender: Address, amount_0: u32, amount_1: u32, to: Address) {
-    let topics = (Symbol::new(e, "burn"), sender, amount_0, amount_1);
-    e.events().publish(topics, to);
-}
+ 
+// // event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
+// pub(crate) fn burn(e: &Env, sender: Address, amount_0: u32, amount_1: u32, to: Address) {
+//     let topics = (Symbol::new(e, "burn"), sender, amount_0, amount_1);
+//     e.events().publish(topics, to);
+// }
 
 /*
 event Swap(
@@ -23,25 +23,25 @@ event Swap(
  );
 */
 
-pub(crate) fn swap(
-    e: &Env,
-    sender: Address,
-    amount_0_in: u32,
-    amount_1_in: u32,
-    amount_0_out: u32,
-    amount_1_out: u32,
-    to: Address,
-) {
-    let topics = (
-        Symbol::new(e, "swap"),
-        sender,
-        amount_0_in,
-        amount_1_in,
-        amount_0_out,
-        amount_1_out
-    );
-    e.events().publish(topics, to);
-}
+// pub(crate) fn swap(
+//     e: &Env,
+//     sender: Address,
+//     amount_0_in: u32,
+//     amount_1_in: u32,
+//     amount_0_out: u32,
+//     amount_1_out: u32,
+//     to: Address,
+// ) {
+//     let topics = (
+//         Symbol::new(e, "swap"),
+//         sender,
+//         amount_0_in,
+//         amount_1_in,
+//         amount_0_out,
+//         amount_1_out
+//     );
+//     e.events().publish(topics, to);
+// }
 
 
 
