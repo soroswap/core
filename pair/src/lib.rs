@@ -467,10 +467,12 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         burn_shares(&e, balance_shares);
-        transfer_a(&e, to.clone(), out_a);
-        transfer_b(&e, to, out_b);
+        transfer_a(&e, to.clone(), out_a.clone());
+        transfer_b(&e, to.clone(), out_b.clone());
         put_reserve_a(&e, balance_a - out_a);
         put_reserve_b(&e, balance_b - out_b);
+
+        event::withdraw(&e, to.clone(), out_a, out_b, to);
 
         (out_a, out_b)
     }
