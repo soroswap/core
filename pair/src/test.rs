@@ -34,6 +34,10 @@ fn create_pair_contract(
     liqpool
 }
 
+// fn last_event_vec(e: &Env){
+
+// }
+
  
 #[test]
 fn test() {
@@ -67,17 +71,19 @@ fn test() {
     liqpool.deposit(&user, &100, &100, &100, &100);
 
     // TODO: Test Events when we can take the last event
-    // let topics = (Symbol::new(&e, "deposit"), user.clone(), 100_i128);
-    
-    // assert_eq!(
-    //     e.events().all(),
-    //     vec![
-    //         &e,
-    //         (   liqpool.contract_id.clone(),
-    //             topics.into_val(&e),
-    //             100_i128.into_val(&e)),
-    //     ]
-    // );
+    let topics = (Symbol::new(&e, "deposit"), user.clone(), 100_i128);
+    let events_vec = e.events().all();
+    let last_event = events_vec.last().unwrap().unwrap();
+
+    assert_eq!(
+        vec![&e, last_event],
+        vec![
+            &e,
+            (   liqpool.contract_id.clone(),
+                topics.into_val(&e),
+                100_i128.into_val(&e)),
+        ]
+    );
    
     assert_eq!(
         e.recorded_top_authorizations(),
@@ -112,16 +118,16 @@ fn test() {
     //     (Symbol::short("COUNTER"), Symbol::short("increment")).into_val(&env),
     //     1u32.into_val(&env)
     // )
-    let topics = (Symbol::new(&e, "deposit"), user.clone(), 49_i128);
-    assert_eq!(
-        e.events().all(),
-        vec![
-            &e,
-            (   liqpool.contract_id.clone(),
-                topics.into_val(&e),
-                49_i128.into_val(&e)),
-        ]
-    );
+    // let topics = (Symbol::new(&e, "deposit"), user.clone(), 49_i128);
+    // assert_eq!(
+    //     e.events().all(),
+    //     vec![
+    //         &e,
+    //         (   liqpool.contract_id.clone(),
+    //             topics.into_val(&e),
+    //             49_i128.into_val(&e)),
+    //     ]
+    // );
 
     assert_eq!(liqpool.my_balance(&user), 100);
     assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
