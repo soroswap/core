@@ -12,6 +12,8 @@ use token::TokenClient;
 
 
 use soroban_sdk::{  testutils::Events,
+                    Vec,
+                    RawVal,
                     vec,
                     testutils::Address as _,
                     Address, 
@@ -34,9 +36,9 @@ fn create_pair_contract(
     liqpool
 }
 
-// fn last_event_vec(e: &Env){
-
-// }
+fn last_event_vec(e: &Env) -> Vec<(BytesN<32>, Vec<RawVal>, RawVal)>{
+    vec![&e, e.events().all().last().unwrap().unwrap()]
+}
 
  
 #[test]
@@ -72,11 +74,9 @@ fn test() {
 
     // TODO: Test Events when we can take the last event
     let topics = (Symbol::new(&e, "deposit"), user.clone(), 100_i128);
-    let events_vec = e.events().all();
-    let last_event = events_vec.last().unwrap().unwrap();
 
     assert_eq!(
-        vec![&e, last_event],
+        last_event_vec(&e),
         vec![
             &e,
             (   liqpool.contract_id.clone(),
