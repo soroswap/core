@@ -3,6 +3,7 @@
 mod test;
 mod token;
 mod create;
+mod event;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
@@ -367,9 +368,11 @@ impl SoroswapPairTrait for SoroswapPair {
             (balance_a * balance_b).sqrt()
         };
 
-        mint_shares(&e, to, new_total_shares - total_shares);
+        mint_shares(&e, to.clone(), new_total_shares - total_shares);
         put_reserve_a(&e, balance_a);
         put_reserve_b(&e, balance_b);
+
+        event::deposit(&e, to, amounts.0, amounts.1);
     }
 
 // Check UniswapV2 swap function
