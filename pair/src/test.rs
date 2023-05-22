@@ -72,17 +72,14 @@ fn test() {
 
     liqpool.deposit(&user, &100, &100, &100, &100);
 
-    // TODO: Test Events when we can take the last event
+    // Testing the "deposit" event
     let topics = (Symbol::new(&e, "deposit"), user.clone(), 100_i128);
-
     assert_eq!(
         last_event_vec(&e),
-        vec![
-            &e,
-            (   liqpool.contract_id.clone(),
-                topics.into_val(&e),
-                100_i128.into_val(&e)),
-        ]
+        vec![&e, (  liqpool.contract_id.clone(),
+                    topics.into_val(&e),
+                    100_i128.into_val(&e)),
+            ]
     );
    
     assert_eq!(
@@ -95,40 +92,6 @@ fn test() {
         )]
     );
 
-    // // Test the event:
-
-    // assert_eq!(
-    //     e.events().all(),
-    //     vec![
-    //         &e,
-    //         (
-    //             liqpool.contract_id.clone(),
-    //             (Symbol::short("mint"), &user, 49_i128.into_val(&e)).into_val(&e),
-    //             49_i128.into_val(&e)
-    //         )
-    //     ]
-    // );
-
-
-    // let topics = (Symbol::new(e, "mint"), sender, amount_0);
-    // e.events().publish(topics, amount_1);
-
-    // (
-    //     contract_id.clone(),
-    //     (Symbol::short("COUNTER"), Symbol::short("increment")).into_val(&env),
-    //     1u32.into_val(&env)
-    // )
-    // let topics = (Symbol::new(&e, "deposit"), user.clone(), 49_i128);
-    // assert_eq!(
-    //     e.events().all(),
-    //     vec![
-    //         &e,
-    //         (   liqpool.contract_id.clone(),
-    //             topics.into_val(&e),
-    //             49_i128.into_val(&e)),
-    //     ]
-    // );
-
     assert_eq!(liqpool.my_balance(&user), 100);
     assert_eq!(liqpool.my_balance(&liqpool.address()), 0);
     assert_eq!(token0.balance(&user), 900);
@@ -136,6 +99,7 @@ fn test() {
     assert_eq!(token1.balance(&user), 900);
     assert_eq!(token1.balance(&liqpool.address()), 100);
 
+    // Testing SWAP
     liqpool.swap(&user, &false, &49, &100);
 
     // Test to.require_auth();
@@ -154,8 +118,21 @@ fn test() {
     assert_eq!(token1.balance(&user), 949);
     assert_eq!(token1.balance(&liqpool.address()), 51);
 
+
+    // Testing WITHDRAW
     liqpool.withdraw(&user, &100, &197, &51);
 
+    // Testing the "withdraw" event
+    let topics = (Symbol::new(&e, "withdraw"), user.clone(), 197_i128, 51_i128);
+    assert_eq!(
+        last_event_vec(&e),
+        vec![&e, (  liqpool.contract_id.clone(),
+                    topics.into_val(&e),
+                    user.clone().into_val(&e)),
+            ]
+    );
+
+    // Testing to.require_auth();
     assert_eq!(
         e.recorded_top_authorizations(),
         std::vec![(

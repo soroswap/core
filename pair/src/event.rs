@@ -1,16 +1,15 @@
 use soroban_sdk::{Env, Symbol, Address};
 
-//  event Mint(address indexed sender, uint amount0, uint amount1);
 pub(crate) fn deposit(e: &Env, sender: Address, amount_0: i128, amount_1: i128) {
     let topics = (Symbol::new(e, "deposit"), sender, amount_0);
     e.events().publish(topics, amount_1);
 }
  
-// // event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-// pub(crate) fn burn(e: &Env, sender: Address, amount_0: u32, amount_1: u32, to: Address) {
-//     let topics = (Symbol::new(e, "burn"), sender, amount_0, amount_1);
-//     e.events().publish(topics, to);
-// }
+// event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
+pub(crate) fn withdraw(e: &Env, sender: Address, amount_0: i128, amount_1: i128, to: Address) {
+    let topics = (Symbol::new(e, "withdraw"), sender, amount_0, amount_1);
+    e.events().publish(topics, to);
+}
 
 /*
 event Swap(
