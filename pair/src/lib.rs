@@ -173,14 +173,16 @@ fn get_deposit_amounts(
         return (desired_a, desired_b);
     }
 
-    let amount_b = desired_a * reserve_b / reserve_a;
+    //let amount_b = desired_a * reserve_b / reserve_a;
+    let amount_b = desired_a.checked_mul(reserve_b).unwrap() / reserve_a;
     if amount_b <= desired_b {
         if amount_b < min_b {
             panic!("amount_b less than min")
         }
         (desired_a, amount_b)
     } else {
-        let amount_a = desired_b * reserve_a / reserve_b;
+        //let amount_a = desired_b * reserve_a / reserve_b;
+        let amount_a = desired_b.checked_mul(reserve_a).unwrap() / reserve_b;
         if amount_a > desired_a || desired_a < min_a {
             panic!("amount_a invalid")
         }
@@ -361,11 +363,13 @@ impl SoroswapPairTrait for SoroswapPair {
 
         let zero = 0;
         let new_total_shares = if reserve_a > zero && reserve_b > zero {
-            let shares_a = (balance_a * total_shares) / reserve_a;
-            let shares_b = (balance_b * total_shares) / reserve_b;
+            // let shares_a = (balance_a * total_shares) / reserve_a;
+            // let shares_b = (balance_b * total_shares) / reserve_b;
+            let shares_a = (balance_a.checked_mul(total_shares).unwrap()) / reserve_a;
+            let shares_b = (balance_b.checked_mul(total_shares).unwrap()) / reserve_b;
             shares_a.min(shares_b)
         } else {
-            (balance_a * balance_b).sqrt()
+            (balance_a.checked_mul(balance_b).unwrap()).sqrt()
         };
 
         mint_shares(&e, to.clone(), new_total_shares - total_shares);
@@ -387,9 +391,9 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         // First calculate how much needs to be sold to buy amount out from the pool
-        let n = reserve_sell * out * 1000;
-        let d = (reserve_buy - out) * 997;
-        let sell_amount = (n / d) + 1;
+        let n = reserve_sell.checked_mul(out).unwrap().checked_mul(1000).unwrap();
+        let d = (reserve_buy - out).checked_mul(997).unwrap();
+        let sell_amount = (n / d).checked_add(1).unwrap();
         if sell_amount > in_max {
             panic!("in amount is over max")
         }
@@ -408,28 +412,34 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // residue_numerator and residue_denominator are the amount that the invariant considers after
         // deducting the fee, scaled up by 1000 to avoid fractions
-        let residue_numerator = 997;
-        let residue_denominator = 1000;
+        let residue_numerator: i128 = 997;
+        let residue_denominator: i128 = 1000;
         let zero = 0;
 
         let new_invariant_factor = |balance: i128, reserve: i128, out: i128| {
             let delta = balance - reserve - out;
             let adj_delta = if delta > zero {
-                residue_numerator * delta
+                //residue_numerator * delta
+                residue_numerator.checked_mul(delta).unwrap()
             } else {
-                residue_denominator * delta
+              //  residue_denominator * delta
+                residue_denominator.checked_mul(delta).unwrap()
             };
-            residue_denominator * reserve + adj_delta
+            //residue_denominator * reserve + adj_delta
+            residue_denominator.checked_mul(reserve).unwrap().checked_add(adj_delta).unwrap()
         };
 
         let (out_a, out_b) = if buy_a { (out, 0) } else { (0, out) };
 
         let new_inv_a = new_invariant_factor(balance_a, reserve_a, out_a);
         let new_inv_b = new_invariant_factor(balance_b, reserve_b, out_b);
-        let old_inv_a = residue_denominator * reserve_a;
-        let old_inv_b = residue_denominator * reserve_b;
+        //let old_inv_a = residue_denominator * reserve_a;
+        let old_inv_a = residue_denominator.checked_mul(reserve_a).unwrap();
+        //let old_inv_b = residue_denominator * reserve_b;
+        let old_inv_b = residue_denominator.checked_mul(reserve_b).unwrap();
 
-        if new_inv_a * new_inv_b < old_inv_a * old_inv_b {
+        // if new_inv_a * new_inv_b < old_inv_a  * old_inv_b {
+        if new_inv_a.checked_mul(new_inv_b).unwrap() < old_inv_a.checked_mul(old_inv_b).unwrap() {
             panic!("constant product invariant does not hold");
         }
 
@@ -459,8 +469,10 @@ impl SoroswapPairTrait for SoroswapPair {
         let total_shares = get_total_shares(&e);
 
         // Now calculate the withdraw amounts
-        let out_a = (balance_a * balance_shares) / total_shares;
-        let out_b = (balance_b * balance_shares) / total_shares;
+        // let out_a = (balance_a * balance_shares) / total_shares;
+        // let out_b = (balance_b * balance_shares) / total_shares;
+        let out_a = (balance_a.checked_mul(balance_shares).unwrap()) / total_shares;
+        let out_b = (balance_b.checked_mul(balance_shares).unwrap()) / total_shares;
 
         if out_a < min_a || out_b < min_b {
             panic!("min not satisfied");
