@@ -1,11 +1,13 @@
 use soroban_sdk::{Env, Symbol, Address};
 
+const PAIR: Symbol = Symbol::short("PAIR");
+
+
 pub(crate) fn deposit(e: &Env, sender: Address, amount_0: i128, amount_1: i128) {
-    let topics = (Symbol::new(e, "deposit"), sender, amount_0);
-    e.events().publish(topics, amount_1);
+    let topics = (PAIR, Symbol::new(e, "deposit"));
+    e.events().publish(topics, (sender, amount_0, amount_1));
 }
  
-// event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
 pub(crate) fn withdraw(e: &Env, sender: Address, amount_0: i128, amount_1: i128, to: Address) {
     let topics = (Symbol::new(e, "withdraw"), sender, amount_0, amount_1);
     e.events().publish(topics, to);
@@ -25,21 +27,21 @@ event Swap(
 // pub(crate) fn swap(
 //     e: &Env,
 //     sender: Address,
-//     amount_0_in: u32,
-//     amount_1_in: u32,
-//     amount_0_out: u32,
-//     amount_1_out: u32,
+//     amount_0_in: i128,
+//     // amount_1_in: i128,
+//     //amount_0_out: i128,
+//     amount_1_out: i128,
 //     to: Address,
 // ) {
 //     let topics = (
 //         Symbol::new(e, "swap"),
 //         sender,
-//         amount_0_in,
-//         amount_1_in,
-//         amount_0_out,
+//         //amount_0_in,
+//         // amount_1_in,
+//         //amount_0_out,
 //         amount_1_out
 //     );
-//     e.events().publish(topics, to);
+//     e.events().publish(topics, (amount_0_in, amount_0_in, amount_0_in,  to));
 // }
 
 
