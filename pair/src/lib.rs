@@ -122,10 +122,16 @@ fn put_total_shares(e: &Env, amount: i128) {
 }
 
 fn put_reserve_a(e: &Env, amount: i128) {
+    if amount < 0 {
+        panic!("put_reserve_a: amount cannot be negative")
+    }
     e.storage().set(&DataKey::Reserve0, &amount)
 }
 
 fn put_reserve_b(e: &Env, amount: i128) {
+    if amount < 0 {
+        panic!("put_reserve_a: amount cannot be negative")
+    }
     e.storage().set(&DataKey::Reserve1, &amount)
 }
 
@@ -174,8 +180,9 @@ fn get_deposit_amounts(
         return (desired_a, desired_b);
     }
 
-    //let amount_b = desired_a * reserve_b / reserve_a;
-    let amount_b = desired_a.checked_mul(reserve_b).unwrap() / reserve_a;
+    //let amount_b = desired_a * reserve_b
+    reserve_a;
+    let amount_b = desired_a.checked_mul(reserve_b).unwrap().checked_div(reserve_a).unwrap();
     if amount_b <= desired_b {
         if amount_b < min_b {
             panic!("amount_b less than min")
@@ -183,7 +190,7 @@ fn get_deposit_amounts(
         (desired_a, amount_b)
     } else {
         //let amount_a = desired_b * reserve_a / reserve_b;
-        let amount_a = desired_b.checked_mul(reserve_a).unwrap() / reserve_b;
+        let amount_a = desired_b.checked_mul(reserve_a).unwrap().checked_div(reserve_b).unwrap();
         if amount_a > desired_a || desired_a < min_a {
             panic!("amount_a invalid")
         }
@@ -366,8 +373,8 @@ impl SoroswapPairTrait for SoroswapPair {
         let new_total_shares = if reserve_a > zero && reserve_b > zero {
             // let shares_a = (balance_a * total_shares) / reserve_a;
             // let shares_b = (balance_b * total_shares) / reserve_b;
-            let shares_a = (balance_a.checked_mul(total_shares).unwrap()) / reserve_a;
-            let shares_b = (balance_b.checked_mul(total_shares).unwrap()) / reserve_b;
+            let shares_a = (balance_a.checked_mul(total_shares).unwrap()).checked_div(reserve_a).unwrap();
+            let shares_b = (balance_b.checked_mul(total_shares).unwrap()).checked_div(reserve_b).unwrap();
             shares_a.min(shares_b)
         } else {
             (balance_a.checked_mul(balance_b).unwrap()).sqrt()
@@ -394,7 +401,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // First calculate how much needs to be sold to buy amount out from the pool
         let n = reserve_sell.checked_mul(out).unwrap().checked_mul(1000).unwrap();
         let d = (reserve_buy - out).checked_mul(997).unwrap();
-        let sell_amount = (n / d).checked_add(1).unwrap();
+        let sell_amount = (n.checked_div(d).unwrap()).checked_add(1).unwrap();
         if sell_amount > in_max {
             panic!("in amount is over max")
         }
@@ -450,6 +457,7 @@ impl SoroswapPairTrait for SoroswapPair {
             transfer_b(&e, to, out_b);
         }
 
+        // Checks if not negative in put_reserve_a and put_reserve_b
         put_reserve_a(&e, balance_a - out_a);
         put_reserve_b(&e, balance_b - out_b);
     }
@@ -472,8 +480,10 @@ impl SoroswapPairTrait for SoroswapPair {
         // Now calculate the withdraw amounts
         // let out_a = (balance_a * balance_shares) / total_shares;
         // let out_b = (balance_b * balance_shares) / total_shares;
-        let out_a = (balance_a.checked_mul(balance_shares).unwrap()) / total_shares;
-        let out_b = (balance_b.checked_mul(balance_shares).unwrap()) / total_shares;
+        let out_a = (balance_a.checked_mul(balance_shares).unwrap())
+        total_shares;
+        let out_b = (balance_b.checked_mul(balance_shares).unwrap())
+        total_shares;
 
         if out_a < min_a || out_b < min_b {
             panic!("min not satisfied");
