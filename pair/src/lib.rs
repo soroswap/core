@@ -138,7 +138,8 @@ fn burn_shares(e: &Env, amount: i128) {
 fn mint_shares(e: &Env, to: Address, amount: i128) {
     let total = get_total_shares(e);
     internal_mint(e.clone(), to, amount);
-    put_total_shares(e, total + amount);
+    //put_total_shares(e, total + amount);
+    put_total_shares(e, total.checked_add(amount).unwrap());
 }
 
 
