@@ -4,11 +4,12 @@ mod test;
 mod token;
 mod create;
 mod event;
+mod factory;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
-
+use factory::{FactoryClient};
 
 #[derive(Clone, Copy)] 
 #[repr(u32)]
@@ -229,6 +230,8 @@ pub trait SoroswapPairTrait{
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
+    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool;
+
     fn get_reserves(e: Env) -> (i128, i128, i128);
 
     fn my_balance(e: Env, id: Address) -> i128;
@@ -264,7 +267,7 @@ impl SoroswapPairTrait for SoroswapPair {
                 e.clone(),
                 e.current_contract_address(),
                 7,
-                Bytes::from_slice(&e, b"Soroswap"),
+                Bytes::from_slice(&e, b"Soroswap Pair Token"),
                 Bytes::from_slice(&e, b"SOROSWAP-LP"),
             );
 
@@ -286,77 +289,9 @@ impl SoroswapPairTrait for SoroswapPair {
         get_token_1(&e)
     }
 
-    
-
     fn factory(e: Env) -> Address {
         get_factory(&e)
     }
-
-// TODO: Analize Uniswap V2
-// // update reserves and, on the first call per block, price accumulators
-// function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-//     require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
-//     uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-//     uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-//     if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
-//         // * never overflows, and + overflow is desired
-//         price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-//         price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;
-//     }
-//     reserve0 = uint112(balance0);
-//     reserve1 = uint112(balance1);
-//     blockTimestampLast = blockTimestamp;
-//     emit Sync(reserve0, reserve1);
-// }
-
-// // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-// function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
-//     address feeTo = IUniswapV2Factory(factory).feeTo();
-//     feeOn = feeTo != address(0);
-//     uint _kLast = kLast; // gas savings
-//     if (feeOn) {
-//         if (_kLast != 0) {
-//             uint rootK = Math.sqrt(uint(_reserve0).mul(_reserve1));
-//             uint rootKLast = Math.sqrt(_kLast);
-//             if (rootK > rootKLast) {
-//                 uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-//                 uint denominator = rootK.mul(5).add(rootKLast);
-//                 uint liquidity = numerator / denominator;
-//                 if (liquidity > 0) _mint(feeTo, liquidity);
-//             }
-//         }
-//     } else if (_kLast != 0) {
-//         kLast = 0;
-//     }
-// }
-
-
-// The deposit function in UniswapV2Pair is called "mint"
-
-//  // this low-level function should be called from a contract which performs important safety checks
-//  function mint(address to) external lock returns (uint liquidity) {
-//     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-//     uint balance0 = IERC20(token0).balanceOf(address(this));
-//     uint balance1 = IERC20(token1).balanceOf(address(this));
-//     uint amount0 = balance0.sub(_reserve0);
-//     uint amount1 = balance1.sub(_reserve1);
-
-//     bool feeOn = _mintFee(_reserve0, _reserve1);
-//     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-//     if (_totalSupply == 0) {
-//         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
-//        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-//     } else {
-//         liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
-//     }
-//     require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
-//     _mint(to, liquidity);
-
-//     _update(balance0, balance1, _reserve0, _reserve1);
-//     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
-//     emit Mint(msg.sender, amount0, amount1);
-// }
-
 
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
         // Depositor needs to authorize the deposit
@@ -506,6 +441,10 @@ impl SoroswapPairTrait for SoroswapPair {
         event::withdraw(&e, to.clone(), out_a, out_b, to);
 
         (out_a, out_b)
+    }
+
+    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
+        true
     }
 
     fn get_reserves(e: Env) -> (i128, i128, i128) {
