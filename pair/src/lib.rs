@@ -42,7 +42,6 @@ pub enum DataKey {
     Factory = 4, 
     TotalShares = 5, // TODO: Delete when implementing the token interface,
     BlockTimestampLast = 6, // accessible via getReserves
-    //ledger_timestamp = env.ledger().timestamp();
 
 }
 
@@ -86,9 +85,9 @@ fn get_reserve_b(e: &Env) -> i128 {
     e.storage().get_unchecked(&DataKey::Reserve1).unwrap()
 }
 
-// fn get_block_timestamp_last(e: &Env) -> i128 {
-//     e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
-// }
+fn get_block_timestamp_last(e: &Env) -> i128 {
+    e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
+}
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
     // How many "contract_id" tokens does this contract holds?
@@ -140,6 +139,10 @@ fn put_reserve_b(e: &Env, amount: i128) {
         panic!("put_reserve_a: amount cannot be negative")
     }
     e.storage().set(&DataKey::Reserve1, &amount)
+}
+
+fn put_block_timestamp_last(e: &Env) {
+    e.storage().set(&DataKey::BlockTimestampLast, &e.ledger().timestamp());
 }
 
 fn burn_shares(e: &Env, amount: i128) {
@@ -226,7 +229,7 @@ pub trait SoroswapPairTrait{
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
-    fn get_rsrvs(e: Env) -> (i128, i128);
+    fn get_reserves(e: Env) -> (i128, i128, i128);
 
     fn my_balance(e: Env, id: Address) -> i128;
 
@@ -505,8 +508,8 @@ impl SoroswapPairTrait for SoroswapPair {
         (out_a, out_b)
     }
 
-    fn get_rsrvs(e: Env) -> (i128, i128) {
-        (get_reserve_a(&e), get_reserve_b(&e))
+    fn get_reserves(e: Env) -> (i128, i128, i128) {
+        (get_reserve_a(&e), get_reserve_b(&e), get_block_timestamp_last(&e))
     }
 
     fn my_balance(e: Env, id: Address) -> i128 {
