@@ -264,8 +264,8 @@ impl SoroswapPairTrait for SoroswapPair {
                 e.clone(),
                 e.current_contract_address(),
                 7,
-                Bytes::from_slice(&e, b"Pool Share Token"),
-                Bytes::from_slice(&e, b"POOL"),
+                Bytes::from_slice(&e, b"Soroswap"),
+                Bytes::from_slice(&e, b"SOROSWAP-LP"),
             );
 
         put_token_a(&e, token_a);
