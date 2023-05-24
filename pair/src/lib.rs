@@ -43,6 +43,7 @@ pub enum DataKey {
     Factory = 4, 
     TotalShares = 5, // TODO: Delete when implementing the token interface,
     BlockTimestampLast = 6, // accessible via getReserves
+    KLast = 7
 
 }
 
@@ -88,6 +89,10 @@ fn get_reserve_b(e: &Env) -> i128 {
 
 fn get_block_timestamp_last(e: &Env) -> i128 {
     e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
+}
+
+fn get_klast(e: &Env) -> i128 {
+    e.storage().get_unchecked(&DataKey::KLast).unwrap()
 }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
@@ -144,6 +149,10 @@ fn put_reserve_b(e: &Env, amount: i128) {
 
 fn put_block_timestamp_last(e: &Env) {
     e.storage().set(&DataKey::BlockTimestampLast, &e.ledger().timestamp());
+}
+
+fn put_klast(e: &Env, klast: i128) {
+    e.storage().set(&DataKey::KLast, &klast);
 }
 
 fn burn_shares(e: &Env, amount: i128) {
@@ -444,6 +453,12 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
+        // TODO: Currently using get_token_0; need to use get_factory
+        // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
+        let factory = get_token_0(&e);
+        let fee_to = FactoryClient::new(&e, &factory).fee_to();
+        let fee_on = FactoryClient::new(&e, &factory).fee_on();
+
         true
     }
 
