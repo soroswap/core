@@ -217,6 +217,70 @@ fn get_deposit_amounts(
     }
 }
 
+
+    //  // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
+    //  function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
+    //     address feeTo = IUniswapV2Factory(factory).feeTo();
+    //     feeOn = feeTo != address(0);
+    //     uint _kLast = kLast; // gas savings
+    //     if (feeOn) {
+    //         if (_kLast != 0) {
+    //             uint rootK = Math.sqrt(uint(_reserve0).mul(_reserve1));
+    //             uint rootKLast = Math.sqrt(_kLast);
+    //             if (rootK > rootKLast) {
+    //                 uint numerator = totalSupply.mul(rootK.sub(rootKLast));
+    //                 uint denominator = rootK.mul(5).add(rootKLast);
+    //                 uint liquidity = numerator / denominator;
+    //                 if (liquidity > 0) _mint(feeTo, liquidity);
+    //             }
+    //         }
+    //     } else if (_kLast != 0) {
+    //         kLast = 0;
+    //     }
+    // }
+
+
+
+    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
+        // TODO: Add tests
+
+        // TODO: Currently using get_token_0; need to use get_factory
+        // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
+        let factory = get_token_0(&e);
+        let factory_address = get_factory(&e);
+        let fee_to = FactoryClient::new(&e, &factory).fee_to();
+        let fee_on = FactoryClient::new(&e, &factory).fee_on();
+        let klast = get_klast(&e);
+
+        if fee_on{
+            if klast != 0 {
+                let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+                let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
+                let root_klast = (klast).sqrt();
+                if root_k > root_klast{
+                    // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
+                    let total_shares = get_total_shares(&e);
+                    let numerator = total_shares.checked_mul(root_k - root_klast).unwrap();
+            
+                    // uint denominator = rootK.mul(5).add(rootKLast);
+                    let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
+                    // uint liquidity = numerator / denominator;
+
+                    let liquidity = numerator.checked_div(denominator).unwrap();
+
+                    // if (liquidity > 0) _mint(feeTo, liquidity);
+                    if liquidity > 0 {
+                        mint_shares(&e, fee_to,    liquidity);
+                    }
+                }
+            }
+        } else if klast != 0{
+            put_klast(&e, 0);
+        }
+
+        fee_on
+    }
+
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>);
@@ -238,8 +302,6 @@ pub trait SoroswapPairTrait{
     // corresponding amount of token_a and token_b to "to".
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
-
-    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool;
 
     fn get_reserves(e: Env) -> (i128, i128, i128);
 
@@ -450,46 +512,6 @@ impl SoroswapPairTrait for SoroswapPair {
         event::withdraw(&e, to.clone(), out_a, out_b, to);
 
         (out_a, out_b)
-    }
-
-    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
-        // TODO: Add tests
-        
-        // TODO: Currently using get_token_0; need to use get_factory
-        // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
-        let factory = get_token_0(&e);
-        let factory_address = get_factory(&e);
-        let fee_to = FactoryClient::new(&e, &factory).fee_to();
-        let fee_on = FactoryClient::new(&e, &factory).fee_on();
-        let klast = get_klast(&e);
-
-        if fee_on{
-            if klast != 0 {
-                let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-                let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
-                let root_klast = (klast).sqrt();
-                if root_k > root_klast{
-                    // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    let total_shares = get_total_shares(&e);
-                    let numerator = total_shares.checked_mul(root_k - root_klast).unwrap();
-            
-                    // uint denominator = rootK.mul(5).add(rootKLast);
-                    let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
-                    // uint liquidity = numerator / denominator;
-
-                    let liquidity = numerator.checked_div(denominator).unwrap();
-
-                    // if (liquidity > 0) _mint(feeTo, liquidity);
-                    if liquidity > 0 {
-                        mint_shares(&e, fee_to,    liquidity);
-                    }
-                }
-            }
-        } else if klast != 0{
-            put_klast(&e, 0);
-        }
-
-        fee_on
     }
 
     fn get_reserves(e: Env) -> (i128, i128, i128) {
