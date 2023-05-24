@@ -40,7 +40,10 @@ pub enum DataKey {
     Reserve0 = 2, //uint112 private reserve0;
     Reserve1 = 3, // uint112 private reserve1;
     Factory = 4, 
-    TotalShares = 5, // TODO: Delete when implementing the token interface
+    TotalShares = 5, // TODO: Delete when implementing the token interface,
+    BlockTimestampLast = 6, // accessible via getReserves
+    //ledger_timestamp = env.ledger().timestamp();
+
 }
 
 
@@ -82,6 +85,10 @@ fn get_reserve_a(e: &Env) -> i128 {
 fn get_reserve_b(e: &Env) -> i128 {
     e.storage().get_unchecked(&DataKey::Reserve1).unwrap()
 }
+
+// fn get_block_timestamp_last(e: &Env) -> i128 {
+//     e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
+// }
 
 fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
     // How many "contract_id" tokens does this contract holds?
@@ -181,7 +188,6 @@ fn get_deposit_amounts(
     }
 
     //let amount_b = desired_a * reserve_b
-    reserve_a;
     let amount_b = desired_a.checked_mul(reserve_b).unwrap().checked_div(reserve_a).unwrap();
     if amount_b <= desired_b {
         if amount_b < min_b {
@@ -480,10 +486,8 @@ impl SoroswapPairTrait for SoroswapPair {
         // Now calculate the withdraw amounts
         // let out_a = (balance_a * balance_shares) / total_shares;
         // let out_b = (balance_b * balance_shares) / total_shares;
-        let out_a = (balance_a.checked_mul(balance_shares).unwrap())
-        total_shares;
-        let out_b = (balance_b.checked_mul(balance_shares).unwrap())
-        total_shares;
+        let out_a = (balance_a.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
+        let out_b = (balance_b.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
 
         if out_a < min_a || out_b < min_b {
             panic!("min not satisfied");
@@ -492,6 +496,7 @@ impl SoroswapPairTrait for SoroswapPair {
         burn_shares(&e, balance_shares);
         transfer_a(&e, to.clone(), out_a.clone());
         transfer_b(&e, to.clone(), out_b.clone());
+        // Checks if not negative in put_reserve_a and put_reserve_b
         put_reserve_a(&e, balance_a - out_a);
         put_reserve_b(&e, balance_b - out_b);
 
