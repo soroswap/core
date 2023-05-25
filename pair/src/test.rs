@@ -104,6 +104,16 @@ fn test() {
     // Testing SWAP
     liqpool.swap(&user, &false, &49, &100);
 
+    // Testing the "deposit" event
+    // topics: (PAIR, Symbol::new(e, "swap"), sender);
+    let topics = (PAIR, Symbol::new(&e, "swap"), user.clone());
+    // data: (amount_0_in, amount_1_in, amount_0_out,amount_1_out,  to)
+    let data = (97_i128, 0_i128, 0_i128, 49_i128, user.clone());
+    assert_eq!(last_event_vec(&e),
+                vec![&e,    (liqpool.contract_id.clone(),
+                            topics.into_val(&e),
+                            data.into_val(&e))]);
+
     // Test to.require_auth();
     assert_eq!(
         e.recorded_top_authorizations(),

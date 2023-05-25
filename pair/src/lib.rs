@@ -452,10 +452,11 @@ impl SoroswapPairTrait for SoroswapPair {
             residue_denominator.checked_mul(reserve).unwrap().checked_add(adj_delta).unwrap()
         };
 
-        let (out_a, out_b) = if buy_a { (out, 0) } else { (0, out) };
+        let (amount_0_in, amount_1_in) = if buy_a { (0, sell_amount) } else { (sell_amount, 0) };
+        let (amount_0_out, amount_1_out) = if buy_a { (out, 0) } else { (0, out) };
 
-        let new_inv_a = new_invariant_factor(balance_a, reserve_a, out_a);
-        let new_inv_b = new_invariant_factor(balance_b, reserve_b, out_b);
+        let new_inv_a = new_invariant_factor(balance_a, reserve_a, amount_0_out);
+        let new_inv_b = new_invariant_factor(balance_b, reserve_b, amount_1_out);
         //let old_inv_a = residue_denominator * reserve_a;
         let old_inv_a = residue_denominator.checked_mul(reserve_a).unwrap();
         //let old_inv_b = residue_denominator * reserve_b;
@@ -467,14 +468,15 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         if buy_a {
-            transfer_a(&e, to, out_a);
+            transfer_a(&e, to.clone(), amount_0_out);
         } else {
-            transfer_b(&e, to, out_b);
+            transfer_b(&e, to.clone(), amount_1_out);
         }
 
         // Checks if not negative in put_reserve_a and put_reserve_b
-        put_reserve_a(&e, balance_a - out_a);
-        put_reserve_b(&e, balance_b - out_b);
+        put_reserve_a(&e, balance_a - amount_0_out);
+        put_reserve_b(&e, balance_b - amount_1_out);
+        event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
     }
 
 // Check UniswapV2 burn function
