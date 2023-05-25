@@ -134,6 +134,16 @@ fn test() {
     // Testing WITHDRAW
     liqpool.withdraw(&user, &100, &197, &51);
 
+    // Testing the "withdraw" event
+    // topics: (PAIR, Symbol::new(e, "withdraw"), sender);
+    let topics = (PAIR, Symbol::new(&e, "withdraw"), user.clone());
+    // data: (amount_0, amount_1, to)
+    let data = (197_i128, 51_i128, user.clone());
+    assert_eq!(last_event_vec(&e),
+                vec![&e,    (liqpool.contract_id.clone(),
+                            topics.into_val(&e),
+                            data.into_val(&e))]);
+
     // // Testing the "withdraw" event
     // let topics = (Symbol::new(&e, "withdraw"), user.clone(), 197_i128, 51_i128);
     // assert_eq!(
