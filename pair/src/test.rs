@@ -19,7 +19,8 @@ use soroban_sdk::{  testutils::Events,
                     Address, 
                     BytesN, 
                     Env,
-                    IntoVal, Symbol};
+                    IntoVal, Symbol,
+                    events::Topics};
 
 fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
@@ -40,9 +41,11 @@ fn last_event_vec(e: &Env) -> Vec<(BytesN<32>, Vec<RawVal>, RawVal)>{
     vec![&e, e.events().all().last().unwrap().unwrap()]
 }
 
- 
+
 #[test]
 fn test() {
+    const PAIR: Symbol = Symbol::short("PAIR");
+
     let e: Env = Default::default();
 
     let mut admin0 = Address::random(&e);
@@ -72,16 +75,14 @@ fn test() {
 
     liqpool.deposit(&user, &100, &100, &100, &100);
 
-    // // Testing the "deposit" event
-    // const PAIR: Symbol = Symbol::short("PAIR");
-    // let topics = (PAIR, Symbol::new(&e, "deposit"));//, user.clone(), 100_i128);
-    // assert_eq!(
-    //     last_event_vec(&e),
-    //     vec![&e, (  liqpool.contract_id.clone(),
-    //                 topics.into_val(&e),
-    //                 (user.clone(), 100_i128, 10_i128).into_val(&e)),
-    //         ]
-    // );
+    // Testing the "deposit" event
+    // topics = (PAIR, Symbol::new(e, "deposit"), sender);
+    let topics = (PAIR, Symbol::new(&e, "deposit"), user.clone());
+    let data = (100_i128, 100_i128);
+    assert_eq!(last_event_vec(&e),
+                vec![&e,    (liqpool.contract_id.clone(),
+                            topics.into_val(&e),
+                            data.into_val(&e))]);
    
     assert_eq!(
         e.recorded_top_authorizations(),
