@@ -40,6 +40,7 @@ pub(crate) fn swap(
 
 
 // event Sync(uint112 reserve0, uint112 reserve1);
+// TODO: TEST
 pub(crate) fn sync(e: &Env, reserve_0: u32, reserve_1: u32) {
     let topics = (PAIR, Symbol::new(e, "sync"));
     e.events().publish(topics, (reserve_0, reserve_1));
