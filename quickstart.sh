@@ -1,5 +1,7 @@
 #!/bin/bash
 
+previewVersion="9"
+
 set -e
 
 case "$1" in
@@ -25,7 +27,6 @@ echo "1. Creating docker soroban network"
 
 
 echo "2. Running a soroban-precview docker container"
-previewVersion="8"
 
 echo "Searching for a previous soroban-preview docker container"
 containerID=$(docker ps --filter=`name=soroban-preview-${previewVersion}` --all --quiet)

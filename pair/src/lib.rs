@@ -7,7 +7,7 @@ mod event;
 mod factory;
 
 use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Bytes, BytesN, ConversionError, Env, RawVal, TryFromVal};
+use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, TryFromVal};
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 use factory::{FactoryClient};
 
@@ -60,11 +60,11 @@ fn get_factory(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::Factory).unwrap()
 }
 
-fn get_token_0(e: &Env) -> BytesN<32> {
+fn get_token_0(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::Token0).unwrap()
 }
 
-fn get_token_1(e: &Env) -> BytesN<32> {
+fn get_token_1(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::Token1).unwrap()
 }
 
@@ -95,7 +95,7 @@ fn get_klast(e: &Env) -> i128 {
     e.storage().get_unchecked(&DataKey::KLast).unwrap()
 }
 
-fn get_balance(e: &Env, contract_id: BytesN<32>) -> i128 {
+fn get_balance(e: &Env, contract_id: Address) -> i128 {
     // How many "contract_id" tokens does this contract holds?
     // We need to implement the token client
     TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
@@ -121,11 +121,11 @@ fn put_factory(e: &Env, factory: Address) {
     e.storage().set(&DataKey::Factory, &factory);
 }
 
-fn put_token_a(e: &Env, contract_id: BytesN<32>) {
+fn put_token_a(e: &Env, contract_id: Address) {
     e.storage().set(&DataKey::Token0, &contract_id);
 }
 
-fn put_token_b(e: &Env, contract_id: BytesN<32>) {
+fn put_token_b(e: &Env, contract_id: Address) {
     e.storage().set(&DataKey::Token1, &contract_id);
 }
 
@@ -175,7 +175,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 //     require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
 // }
 
-fn transfer(e: &Env, contract_id: BytesN<32>, to: Address, amount: i128) {
+fn transfer(e: &Env, contract_id: Address, to: Address, amount: i128) {
     TokenClient::new(e, &contract_id).xfer(&e.current_contract_address(), &to, &amount);
 }
 
@@ -283,10 +283,10 @@ fn get_deposit_amounts(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>);
+    fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address);
 
-    fn token_0(e: Env) -> BytesN<32>;
-    fn token_1(e: Env) -> BytesN<32>;
+    fn token_0(e: Env) -> Address;
+    fn token_1(e: Env) -> Address;
 
     // Deposits token_a and token_b. Also mints pool shares for the "to" Identifier. The amount minted
     // is determined based on the difference between the reserves stored by this contract, and
@@ -328,7 +328,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
     // TODO: Implement name for pairs depending on the tokens
     // TODO: This cannot be called again
-    fn initialize_pair(e: Env, factory: Address, token_a: BytesN<32>, token_b: BytesN<32>) {
+    fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address) {
         if token_a >= token_b {
             panic!("token_a must be less than token_b");
         }
@@ -352,11 +352,11 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
 
-    fn token_0(e: Env) -> BytesN<32> {
+    fn token_0(e: Env) -> Address {
         get_token_0(&e)
     }
 
-    fn token_1(e: Env) -> BytesN<32> {
+    fn token_1(e: Env) -> Address {
         get_token_1(&e)
     }
 
@@ -368,7 +368,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // Depositor needs to authorize the deposit
         to.require_auth();
 
-        let (reserve_a, reserve_b) = (get_reserve_0(&e), get_reserve_1(&e));
+        let (reserve_a, reserve_b) = (get_reserve_0(&e), get_reserve_1(&e)); 
 
         // Calculate deposit amounts
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
