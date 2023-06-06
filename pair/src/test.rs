@@ -47,6 +47,8 @@ fn test() {
 
     let e: Env = Default::default();
 
+    e.mock_all_auths();
+
     let mut admin0 = Address::random(&e);
     let mut admin1 = Address::random(&e);
 
@@ -65,10 +67,10 @@ fn test() {
     );
 
 
-    token0.mint(&admin0, &user, &1000);
+    token0.mint(&user, &1000);
     assert_eq!(token0.balance(&user), 1000);
 
-    token1.mint(&admin1, &user, &1000);
+    token1.mint(&user, &1000);
     assert_eq!(token1.balance(&user), 1000);
 
 

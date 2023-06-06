@@ -176,7 +176,7 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 // }
 
 fn transfer(e: &Env, contract_id: Address, to: Address, amount: i128) {
-    TokenClient::new(e, &contract_id).xfer(&e.current_contract_address(), &to, &amount);
+    TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
 fn transfer_a(e: &Env, to: Address, amount: i128) {
@@ -377,8 +377,8 @@ impl SoroswapPairTrait for SoroswapPair {
         let token_a_client = TokenClient::new(&e, &get_token_0(&e));
         let token_b_client = TokenClient::new(&e, &get_token_1(&e));
 
-        token_a_client.xfer(&to, &e.current_contract_address(), &amounts.0);
-        token_b_client.xfer(&to, &e.current_contract_address(), &amounts.1);
+        token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
+        token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
 
         // Now calculate how many new pool shares to mint
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
@@ -429,7 +429,7 @@ impl SoroswapPairTrait for SoroswapPair {
         };
         // TOKEN: Token Client
         let sell_token_client = TokenClient::new(&e, &sell_token);
-        sell_token_client.xfer(&to, &e.current_contract_address(), &sell_amount);
+        sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
 
@@ -487,7 +487,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // First transfer the pool shares that need to be redeemed:
         // Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
 
-        Token::xfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
+        Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
         let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
         let balance_shares = get_balance_shares(&e);

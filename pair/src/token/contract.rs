@@ -25,9 +25,9 @@ pub trait TokenTrait {
 
     fn authorized(e: Env, id: Address) -> bool;
 
-    fn xfer(e: Env, from: Address, to: Address, amount: i128);
+    fn transfer(e: Env, from: Address, to: Address, amount: i128);
 
-    fn xfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128);
+    fn transfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128);
 
     fn burn(e: Env, from: Address, amount: i128);
 
@@ -113,7 +113,7 @@ impl TokenTrait for Token {
         is_authorized(&e, id)
     }
 
-    fn xfer(e: Env, from: Address, to: Address, amount: i128) {
+    fn transfer(e: Env, from: Address, to: Address, amount: i128) {
         //from.require_auth();
 
         check_nonnegative_amount(amount);
@@ -122,7 +122,7 @@ impl TokenTrait for Token {
         event::transfer(&e, from, to, amount);
     }
 
-    fn xfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128) {
+    fn transfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128) {
         spender.require_auth();
 
         check_nonnegative_amount(amount);
