@@ -1,1 +1,1 @@
-docker exec -it soroban-preview-8 bash
+docker exec -it soroban-preview-9 bash
