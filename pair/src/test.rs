@@ -40,7 +40,6 @@ fn last_event_vec(e: &Env) -> Vec<(Address, Vec<RawVal>, RawVal)>{
     vec![&e, e.events().all().last().unwrap().unwrap()]
 }
 
-
 #[test]
 fn test() {
     const PAIR: Symbol = Symbol::short("PAIR");
@@ -92,6 +91,18 @@ fn test() {
             liqpool.address.clone(),
             Symbol::short("deposit"),
             (&user, 100_i128, 100_i128, 100_i128, 100_i128).into_val(&e)
+        ),
+        (
+            user.clone(),
+            token0.address.clone(),
+            Symbol::short("transfer"),
+            (&user, &liqpool.address, 100_i128).into_val(&e)//from, to, amount
+        ),
+        (
+            user.clone(),
+            token1.address.clone(),
+            Symbol::short("transfer"),
+            (&user, &liqpool.address, 100_i128).into_val(&e)
         )]
     );
 
@@ -123,6 +134,12 @@ fn test() {
             liqpool.address.clone(),
             Symbol::short("swap"),
             (&user, false, 49_i128, 100_i128).into_val(&e)
+        ),
+        (
+            user.clone(),
+            token0.address.clone(),
+            Symbol::short("transfer"),
+            (&user, &liqpool.address, 97_i128).into_val(&e)//from, to, amount
         )]
     );
 
