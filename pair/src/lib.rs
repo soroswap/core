@@ -158,7 +158,7 @@ fn put_klast(e: &Env, klast: i128) {
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
     internal_burn(e.clone(), e.current_contract_address(), amount);
-    put_total_shares(e, total - amount);
+    put_total_shares(e, total.checked_sub(amount).unwrap());
 }
 
 fn mint_shares(e: &Env, to: Address, amount: i128) {
@@ -260,7 +260,7 @@ fn get_deposit_amounts(
                 if root_k > root_klast{
                     // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
                     let total_shares = get_total_shares(&e);
-                    let numerator = total_shares.checked_mul(root_k - root_klast).unwrap();
+                    let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
             
                     // uint denominator = rootK.mul(5).add(rootKLast);
                     let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
@@ -395,7 +395,7 @@ impl SoroswapPairTrait for SoroswapPair {
             (balance_a.checked_mul(balance_b).unwrap()).sqrt()
         };
 
-        mint_shares(&e, to.clone(), new_total_shares - total_shares);
+        mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
         put_reserve_a(&e, balance_a);
         put_reserve_b(&e, balance_b);
 
@@ -415,7 +415,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // First calculate how much needs to be sold to buy amount out from the pool
         let n = reserve_sell.checked_mul(out).unwrap().checked_mul(1000).unwrap();
-        let d = (reserve_buy - out).checked_mul(997).unwrap();
+        let d = (reserve_buy.checked_sub(out).unwrap()).checked_mul(997).unwrap();
         let sell_amount = (n.checked_div(d).unwrap()).checked_add(1).unwrap();
         if sell_amount > in_max {
             panic!("in amount is over max")
@@ -440,7 +440,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let zero = 0;
 
         let new_invariant_factor = |balance: i128, reserve: i128, out: i128| {
-            let delta = balance - reserve - out;
+            let delta = balance.checked_sub(reserve).unwrap().checked_sub(out).unwrap();
             let adj_delta = if delta > zero {
                 //residue_numerator * delta
                 residue_numerator.checked_mul(delta).unwrap()
@@ -474,8 +474,8 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         // Checks if not negative in put_reserve_a and put_reserve_b
-        put_reserve_a(&e, balance_a - amount_0_out);
-        put_reserve_b(&e, balance_b - amount_1_out);
+        put_reserve_a(&e, balance_a.checked_sub(amount_0_out).unwrap());
+        put_reserve_b(&e, balance_b.checked_sub(amount_1_out).unwrap());
         event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
     }
 
@@ -508,8 +508,8 @@ impl SoroswapPairTrait for SoroswapPair {
         transfer_a(&e, to.clone(), out_a.clone());
         transfer_b(&e, to.clone(), out_b.clone());
         // Checks if not negative in put_reserve_a and put_reserve_b
-        put_reserve_a(&e, balance_a - out_a);
-        put_reserve_b(&e, balance_b - out_b);
+        put_reserve_a(&e, balance_a.checked_sub(out_a).unwrap());
+        put_reserve_b(&e, balance_b.checked_sub(out_b).unwrap());
 
         event::withdraw(&e, to.clone(), out_a, out_b, to);
 
