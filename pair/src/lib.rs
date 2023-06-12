@@ -301,7 +301,7 @@ fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
 }
 
 //function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
+fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
     // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
     
     // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
@@ -340,8 +340,8 @@ fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u
     }
     // reserve0 = uint112(balance0);
     // reserve1 = uint112(balance1);
-    put_reserve_0(&e,balance_0);
-    put_reserve_1(&e,balance_1);
+    put_reserve_0(&e, balance_0);
+    put_reserve_1(&e, balance_1);
 
     // blockTimestampLast = blockTimestamp;
     put_block_timestamp_last(&e, block_timestamp);
@@ -434,64 +434,66 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     
-    //     uint balance0 = IERC20(token0).balanceOf(address(this));
-    //     uint balance1 = IERC20(token1).balanceOf(address(this));
-    //     uint amount0 = balance0.sub(_reserve0);
-    //     uint amount1 = balance1.sub(_reserve1);
-    
-    //     bool feeOn = _mintFee(_reserve0, _reserve1);
-    //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-    //     if (_totalSupply == 0) {
-    //         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
-    //        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-    //     } else {
-    //         liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
-    //     }
-    //     require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
-    //     _mint(to, liquidity);
-    
-    //     _update(balance0, balance1, _reserve0, _reserve1);
-    //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
-    //     emit Mint(msg.sender, amount0, amount1);
-    // }
-    
     // function mint(address to) external lock returns (uint liquidity) {
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
         // Depositor needs to authorize the deposit
         to.require_auth();
 
         //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
-        let (reserve_a, reserve_b) = (get_reserve_0(&e), get_reserve_1(&e)); 
+        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
+
+        // TODO: Implement this after creating the SoroswapRouter. For now tokens are being sent here using auth
+        //     uint balance0 = IERC20(token0).balanceOf(address(this));
+        //     uint balance1 = IERC20(token1).balanceOf(address(this));
+        //     uint amount0 = balance0.sub(_reserve0);
+        //     uint amount1 = balance1.sub(_reserve1);
 
         // Calculate deposit amounts
-        let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_a, reserve_b);
-
+        let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_0, reserve_1);
         // TOKEN: Token Client
         let token_a_client = TokenClient::new(&e, &get_token_0(&e));
         let token_b_client = TokenClient::new(&e, &get_token_1(&e));
-
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
 
+        // TODO: Implement:
+        //     bool feeOn = _mintFee(_reserve0, _reserve1);
+
+        //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
+        //     if (_totalSupply == 0) {
+        //         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
+        //        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+        //     } else {
+        //         liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
+        //     }
+        //     require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
+        //     _mint(to, liquidity);
+
         // Now calculate how many new pool shares to mint
-        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
+        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let total_shares = get_total_shares(&e);
 
         let zero = 0;
-        let new_total_shares = if reserve_a > zero && reserve_b > zero {
-            // let shares_a = (balance_a * total_shares) / reserve_a;
-            // let shares_b = (balance_b * total_shares) / reserve_b;
-            let shares_a = (balance_a.checked_mul(total_shares).unwrap()).checked_div(reserve_a).unwrap();
-            let shares_b = (balance_b.checked_mul(total_shares).unwrap()).checked_div(reserve_b).unwrap();
+        let new_total_shares = if reserve_0 > zero && reserve_1 > zero {
+            // let shares_a = (balance_0 * total_shares) / reserve_0;
+            // let shares_b = (balance_1 * total_shares) / reserve_1;
+            let shares_a = (balance_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
+            let shares_b = (balance_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
             shares_a.min(shares_b)
         } else {
-            (balance_a.checked_mul(balance_b).unwrap()).sqrt()
+            (balance_0.checked_mul(balance_1).unwrap()).sqrt()
         };
-
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
-        put_reserve_0(&e, balance_a);
-        put_reserve_1(&e, balance_b);
 
+        //     _update(balance0, balance1, _reserve0, _reserve1);
+        //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        
+        put_reserve_0(&e, balance_0);
+        put_reserve_1(&e, balance_1);
+        // TODO: replace last two lines with the following
+        //update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        
+        // emit Mint(msg.sender, amount0, amount1);
         event::deposit(&e, to, amounts.0, amounts.1);
     }
 
