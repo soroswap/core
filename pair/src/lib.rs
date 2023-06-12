@@ -5,6 +5,7 @@ mod token;
 mod create;
 mod event;
 mod factory;
+mod uq64x64;
 
 use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, TryFromVal};
@@ -42,8 +43,10 @@ pub enum DataKey {
     Reserve1 = 3, // uint112 private reserve1;
     Factory = 4, 
     TotalShares = 5, // TODO: Delete when implementing the token interface,
-    BlockTimestampLast = 6, // accessible via getReserves
-    KLast = 7
+    BlockTimestampLast = 6, // accessible via getReserves,
+    Price0CumulativeLast = 7, // uint public price0CumulativeLast;
+    Price1CumulativeLast = 8, // uint public price1CumulativeLast;
+    KLast = 9
 
 }
 
@@ -89,6 +92,14 @@ fn get_reserve_1(e: &Env) -> i128 {
 
 fn get_block_timestamp_last(e: &Env) -> u64 {
     e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
+}
+
+fn get_price_0_cumulative_last(e: &Env) -> u128 {
+    e.storage().get_unchecked(&DataKey::Price0CumulativeLast).unwrap()
+}
+
+fn get_price_1_cumulative_last(e: &Env) -> u128 {
+    e.storage().get_unchecked(&DataKey::Price0CumulativeLast).unwrap()
 }
 
 fn get_klast(e: &Env) -> i128 {
@@ -147,8 +158,16 @@ fn put_reserve_b(e: &Env, amount: i128) {
     e.storage().set(&DataKey::Reserve1, &amount)
 }
 
-fn put_block_timestamp_last(e: &Env) {
-    e.storage().set(&DataKey::BlockTimestampLast, &e.ledger().timestamp());
+fn put_block_timestamp_last(e: &Env, block_timestamp_last: u64) {
+    e.storage().set(&DataKey::BlockTimestampLast, &block_timestamp_last);
+}
+
+fn put_price_0_cumulative_last(e: &Env, price_0_cumulative_last: u128) {
+    e.storage().set(&DataKey::Price0CumulativeLast, &price_0_cumulative_last);
+}
+
+fn put_price_1_cumulative_last(e: &Env, price_1_cumulative_last: u128) {
+    e.storage().set(&DataKey::Price0CumulativeLast, &price_1_cumulative_last);
 }
 
 fn put_klast(e: &Env, klast: i128) {
@@ -282,7 +301,7 @@ fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
 }
 
 //function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: i128, reserve_1: i128) {
+fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
     // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
     
     // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
@@ -298,24 +317,37 @@ fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: i128, reserve_1: 
     }
 
     // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-    // In Uniswap this is done for gas usa optimization in Solidity. This will overflow in the year 2106. 
+    // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
     // For Soroswap we can use u64, and will overflow in the year 2554,
 
     let block_timestamp: u64 = e.ledger().timestamp();
+    let block_timestamp_last: u64 = get_block_timestamp_last(&e);
 
     // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-    let time_elapsed: u64 = block_timestamp - get_block_timestamp_last(&e);
+    let time_elapsed: u64 = block_timestamp - block_timestamp_last;
 
     // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
     if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
         //     // * never overflows, and + overflow is desired
         //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;    
+        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed; 
+        
+        let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
+        let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
+        // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
+        put_price_0_cumulative_last(&e, price_0_cumulative_last + uq64x64::fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
+        put_price_1_cumulative_last(&e, price_1_cumulative_last + uq64x64::fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
     }
     // reserve0 = uint112(balance0);
     // reserve1 = uint112(balance1);
+    put_reserve_a(&e,balance_0);
+    put_reserve_b(&e,balance_1);
+
     // blockTimestampLast = blockTimestamp;
+    put_block_timestamp_last(&e, block_timestamp);
+
     // emit Sync(reserve0, reserve1);
+    event::sync(&e, reserve_0, reserve_1);
 }
 
 pub trait SoroswapPairTrait{
