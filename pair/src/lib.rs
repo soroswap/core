@@ -87,7 +87,7 @@ fn get_reserve_1(e: &Env) -> i128 {
     e.storage().get_unchecked(&DataKey::Reserve1).unwrap()
 }
 
-fn get_block_timestamp_last(e: &Env) -> i128 {
+fn get_block_timestamp_last(e: &Env) -> u64 {
     e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
 }
 
@@ -241,45 +241,82 @@ fn get_deposit_amounts(
 
 
 
-    fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
-        // TODO: Add tests
+fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
+    // TODO: Add tests
 
-        // TODO: Currently using get_token_0; need to use get_factory
-        // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
-        let factory = get_token_0(&e);
-        let factory_address = get_factory(&e);
-        let fee_to = FactoryClient::new(&e, &factory).fee_to();
-        let fee_on = FactoryClient::new(&e, &factory).fee_on();
-        let klast = get_klast(&e);
+    // TODO: Currently using get_token_0; need to use get_factory
+    // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
+    let factory = get_token_0(&e);
+    let factory_address = get_factory(&e);
+    let fee_to = FactoryClient::new(&e, &factory).fee_to();
+    let fee_on = FactoryClient::new(&e, &factory).fee_on();
+    let klast = get_klast(&e);
 
-        if fee_on{
-            if klast != 0 {
-                let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-                let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
-                let root_klast = (klast).sqrt();
-                if root_k > root_klast{
-                    // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    let total_shares = get_total_shares(&e);
-                    let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
-            
-                    // uint denominator = rootK.mul(5).add(rootKLast);
-                    let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
-                    // uint liquidity = numerator / denominator;
+    if fee_on{
+        if klast != 0 {
+            let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+            let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
+            let root_klast = (klast).sqrt();
+            if root_k > root_klast{
+                // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
+                let total_shares = get_total_shares(&e);
+                let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
+        
+                // uint denominator = rootK.mul(5).add(rootKLast);
+                let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
+                // uint liquidity = numerator / denominator;
 
-                    let liquidity = numerator.checked_div(denominator).unwrap();
+                let liquidity = numerator.checked_div(denominator).unwrap();
 
-                    // if (liquidity > 0) _mint(feeTo, liquidity);
-                    if liquidity > 0 {
-                        mint_shares(&e, fee_to,    liquidity);
-                    }
+                // if (liquidity > 0) _mint(feeTo, liquidity);
+                if liquidity > 0 {
+                    mint_shares(&e, fee_to,    liquidity);
                 }
             }
-        } else if klast != 0{
-            put_klast(&e, 0);
         }
-
-        fee_on
+    } else if klast != 0{
+        put_klast(&e, 0);
     }
+
+    fee_on
+}
+
+//function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
+fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: i128, reserve_1: i128) {
+    // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
+    
+    // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
+    // This is becase u64 will be used to calculate the price as a UQ64x64
+    let u_64_max: u64 = u64::MAX;
+    let u_64_max_into_i128: i128 = u_64_max.into();
+
+    if balance_0 > u_64_max_into_i128 {
+        panic!("Soroswap: OVERFLOW")
+    }
+    if balance_1 > u_64_max_into_i128 {
+        panic!("Soroswap: OVERFLOW")
+    }
+
+    // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+    // In Uniswap this is done for gas usa optimization in Solidity. This will overflow in the year 2106. 
+    // For Soroswap we can use u64, and will overflow in the year 2554,
+
+    let block_timestamp: u64 = e.ledger().timestamp();
+
+    // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
+    let time_elapsed: u64 = block_timestamp - get_block_timestamp_last(&e);
+
+    // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
+    if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
+        //     // * never overflows, and + overflow is desired
+        //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
+        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed;    
+    }
+    // reserve0 = uint112(balance0);
+    // reserve1 = uint112(balance1);
+    // blockTimestampLast = blockTimestamp;
+    // emit Sync(reserve0, reserve1);
+}
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
@@ -303,7 +340,7 @@ pub trait SoroswapPairTrait{
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
-    fn get_reserves(e: Env) -> (i128, i128, i128);
+    fn get_reserves(e: Env) -> (i128, i128, u64);
 
     fn my_balance(e: Env, id: Address) -> i128;
 
@@ -516,13 +553,15 @@ impl SoroswapPairTrait for SoroswapPair {
         (out_a, out_b)
     }
 
-    fn get_reserves(e: Env) -> (i128, i128, i128) {
+    fn get_reserves(e: Env) -> (i128, i128, u64) {
         (get_reserve_0(&e), get_reserve_0(&e), get_block_timestamp_last(&e))
     }
 
     fn my_balance(e: Env, id: Address) -> i128 {
         Token::balance(e.clone(), id)
     }
+
+    
 
 }
 
