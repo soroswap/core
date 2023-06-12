@@ -112,13 +112,13 @@ fn get_balance(e: &Env, contract_id: Address) -> i128 {
     TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
 }
 
-fn get_balance_a(e: &Env) -> i128 {
+fn get_balance_0(e: &Env) -> i128 {
     // How many "A TOKENS" does the Liquidity Pool holds?
     // How many "A TOKENS" does this contract holds?
     get_balance(e, get_token_0(e))
 }
 
-fn get_balance_b(e: &Env) -> i128 {
+fn get_balance_1(e: &Env) -> i128 {
     get_balance(e, get_token_1(e))
 }
 
@@ -132,11 +132,11 @@ fn put_factory(e: &Env, factory: Address) {
     e.storage().set(&DataKey::Factory, &factory);
 }
 
-fn put_token_a(e: &Env, contract_id: Address) {
+fn put_token_0(e: &Env, contract_id: Address) {
     e.storage().set(&DataKey::Token0, &contract_id);
 }
 
-fn put_token_b(e: &Env, contract_id: Address) {
+fn put_token_1(e: &Env, contract_id: Address) {
     e.storage().set(&DataKey::Token1, &contract_id);
 }
 
@@ -144,16 +144,16 @@ fn put_total_shares(e: &Env, amount: i128) {
     e.storage().set(&DataKey::TotalShares, &amount)
 }
 
-fn put_reserve_a(e: &Env, amount: i128) {
+fn put_reserve_0(e: &Env, amount: i128) {
     if amount < 0 {
-        panic!("put_reserve_a: amount cannot be negative")
+        panic!("put_reserve_0: amount cannot be negative")
     }
     e.storage().set(&DataKey::Reserve0, &amount)
 }
 
-fn put_reserve_b(e: &Env, amount: i128) {
+fn put_reserve_1(e: &Env, amount: i128) {
     if amount < 0 {
-        panic!("put_reserve_a: amount cannot be negative")
+        panic!("put_reserve_1: amount cannot be negative")
     }
     e.storage().set(&DataKey::Reserve1, &amount)
 }
@@ -198,12 +198,12 @@ fn transfer(e: &Env, contract_id: Address, to: Address, amount: i128) {
     TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
-fn transfer_a(e: &Env, to: Address, amount: i128) {
+fn transfer_0(e: &Env, to: Address, amount: i128) {
     // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
     transfer(e, get_token_0(e), to, amount);
 }
 
-fn transfer_b(e: &Env, to: Address, amount: i128) {
+fn transfer_1(e: &Env, to: Address, amount: i128) {
     transfer(e, get_token_1(e), to, amount);
 }
 
@@ -340,8 +340,8 @@ fn update(e: Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u
     }
     // reserve0 = uint112(balance0);
     // reserve1 = uint112(balance1);
-    put_reserve_a(&e,balance_0);
-    put_reserve_b(&e,balance_1);
+    put_reserve_0(&e,balance_0);
+    put_reserve_1(&e,balance_1);
 
     // blockTimestampLast = blockTimestamp;
     put_block_timestamp_last(&e, block_timestamp);
@@ -411,11 +411,11 @@ impl SoroswapPairTrait for SoroswapPair {
                 Bytes::from_slice(&e, b"SOROSWAP-LP"),
             );
 
-        put_token_a(&e, token_a);
-        put_token_b(&e, token_b);
+        put_token_0(&e, token_a);
+        put_token_1(&e, token_b);
         put_total_shares(&e, 0);
-        put_reserve_a(&e, 0);
-        put_reserve_b(&e, 0);
+        put_reserve_0(&e, 0);
+        put_reserve_1(&e, 0);
 
 
     }
@@ -433,10 +433,34 @@ impl SoroswapPairTrait for SoroswapPair {
         get_factory(&e)
     }
 
+    
+    //     uint balance0 = IERC20(token0).balanceOf(address(this));
+    //     uint balance1 = IERC20(token1).balanceOf(address(this));
+    //     uint amount0 = balance0.sub(_reserve0);
+    //     uint amount1 = balance1.sub(_reserve1);
+    
+    //     bool feeOn = _mintFee(_reserve0, _reserve1);
+    //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
+    //     if (_totalSupply == 0) {
+    //         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
+    //        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+    //     } else {
+    //         liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
+    //     }
+    //     require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
+    //     _mint(to, liquidity);
+    
+    //     _update(balance0, balance1, _reserve0, _reserve1);
+    //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+    //     emit Mint(msg.sender, amount0, amount1);
+    // }
+    
+    // function mint(address to) external lock returns (uint liquidity) {
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
         // Depositor needs to authorize the deposit
         to.require_auth();
 
+        //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (reserve_a, reserve_b) = (get_reserve_0(&e), get_reserve_1(&e)); 
 
         // Calculate deposit amounts
@@ -450,7 +474,7 @@ impl SoroswapPairTrait for SoroswapPair {
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
 
         // Now calculate how many new pool shares to mint
-        let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
+        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
         let total_shares = get_total_shares(&e);
 
         let zero = 0;
@@ -465,8 +489,8 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
-        put_reserve_a(&e, balance_a);
-        put_reserve_b(&e, balance_b);
+        put_reserve_0(&e, balance_a);
+        put_reserve_1(&e, balance_b);
 
         event::deposit(&e, to, amounts.0, amounts.1);
     }
@@ -500,7 +524,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let sell_token_client = TokenClient::new(&e, &sell_token);
         sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
 
-        let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
+        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
 
         // residue_numerator and residue_denominator are the amount that the invariant considers after
         // deducting the fee, scaled up by 1000 to avoid fractions
@@ -537,14 +561,14 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         if buy_a {
-            transfer_a(&e, to.clone(), amount_0_out);
+            transfer_0(&e, to.clone(), amount_0_out);
         } else {
-            transfer_b(&e, to.clone(), amount_1_out);
+            transfer_1(&e, to.clone(), amount_1_out);
         }
 
-        // Checks if not negative in put_reserve_a and put_reserve_b
-        put_reserve_a(&e, balance_a.checked_sub(amount_0_out).unwrap());
-        put_reserve_b(&e, balance_b.checked_sub(amount_1_out).unwrap());
+        // Checks if not negative in put_reserve_0 and put_reserve_1
+        put_reserve_0(&e, balance_a.checked_sub(amount_0_out).unwrap());
+        put_reserve_1(&e, balance_b.checked_sub(amount_1_out).unwrap());
         event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
     }
 
@@ -558,7 +582,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
-        let (balance_a, balance_b) = (get_balance_a(&e), get_balance_b(&e));
+        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
         let balance_shares = get_balance_shares(&e);
 
         let total_shares = get_total_shares(&e);
@@ -574,11 +598,11 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         burn_shares(&e, balance_shares);
-        transfer_a(&e, to.clone(), out_a.clone());
-        transfer_b(&e, to.clone(), out_b.clone());
-        // Checks if not negative in put_reserve_a and put_reserve_b
-        put_reserve_a(&e, balance_a.checked_sub(out_a).unwrap());
-        put_reserve_b(&e, balance_b.checked_sub(out_b).unwrap());
+        transfer_0(&e, to.clone(), out_a.clone());
+        transfer_1(&e, to.clone(), out_b.clone());
+        // Checks if not negative in put_reserve_0 and put_reserve_1
+        put_reserve_0(&e, balance_a.checked_sub(out_a).unwrap());
+        put_reserve_1(&e, balance_b.checked_sub(out_b).unwrap());
 
         event::withdraw(&e, to.clone(), out_a, out_b, to);
 
@@ -608,18 +632,6 @@ impl SoroswapPairTrait for SoroswapPair {
     //     unlocked = 1;
     // }
 
-// TODO: Analize if we should add UniswapV2 Events: 
-// event Mint(address indexed sender, uint amount0, uint amount1);
-// event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
-// event Swap(
-//     address indexed sender,
-//     uint amount0In,
-//     uint amount1In,
-//     uint amount0Out,
-//     uint amount1Out,
-//     address indexed to
-// );
-// event Sync(uint112 reserve0, uint112 reserve1);
 
 
 // TODO: Analize if we should add UniswapV2 skim and sync functions:
