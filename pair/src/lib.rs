@@ -260,13 +260,10 @@ fn get_deposit_amounts(
 
 
 
-fn mint_fee(e: Env, reserve_0: i128, reserve_1: i128) -> bool{
+fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     // TODO: Add tests
 
-    // TODO: Currently using get_token_0; need to use get_factory
-    // Waiting for https://github.com/stellar/rs-soroban-sdk/pull/947
-    let factory = get_token_0(&e);
-    let factory_address = get_factory(&e);
+    let factory = get_factory(&e);
     let fee_to = FactoryClient::new(&e, &factory).fee_to();
     let fee_on = FactoryClient::new(&e, &factory).fee_on();
     let klast = get_klast(&e);
@@ -458,6 +455,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // TODO: Implement:
         //     bool feeOn = _mintFee(_reserve0, _reserve1);
+        let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
 
         //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         //     if (_totalSupply == 0) {
