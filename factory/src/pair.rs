@@ -1,7 +1,7 @@
 
 // Import necessary types from the Soroban SDK
 #![allow(unused)]
-use soroban_sdk::{Bytes, BytesN, Env};
+use soroban_sdk::{xdr::ToXdr, Address, Bytes, BytesN, Env};
 
 // Import the Soroban Token contract from its WASM file
 soroban_sdk::contractimport!(
@@ -10,7 +10,7 @@ soroban_sdk::contractimport!(
 
 // Define a function to create a new contract instance
 pub fn create_contract(
-    /*
+    /*  
         Overall, this function is designed to create a new contract
         instance on the blockchain with the given pair_wasm_hash
         value and a unique salt value generated from the token_a and
@@ -25,16 +25,16 @@ pub fn create_contract(
 
     e: &Env, // Pass in the current environment as an argument
     pair_wasm_hash: &BytesN<32>, // Pass in the hash of the token contract's WASM file
-    token_a: &BytesN<32>, // Pass in the hash of the first token
-    token_b: &BytesN<32>, // Pass in the hash of the second token
-) -> BytesN<32> { // Return the hash of the newly created contract as a BytesN<32> value
+    token_a: &Address, // Pass in the hash of the first token
+    token_b: &Address, // Pass in the hash of the second token
+) -> Address { // Return the hash of the newly created contract as a Address value
 
     // Create a new Bytes instance using the current environment
     let mut salt = Bytes::new(e);
     
     // Append the bytes of token_a and token_b to the salt
-    salt.append(&token_a.clone().into());
-    salt.append(&token_b.clone().into());
+    salt.append(&token_a.to_xdr(e));
+    salt.append(&token_b.to_xdr(e));
 
     // Hash the salt using SHA256 to generate a new BytesN<32> value
     let salt = e.crypto().sha256(&salt);
