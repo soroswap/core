@@ -2,10 +2,11 @@
 extern crate std;
 mod token {
     soroban_sdk::contractimport!(file = "../soroban_token_contract.wasm");
-    pub type TokenClient = Client;
+    pub type TokenClient<'a> = Client<'a>;
 }
 
 use soroban_sdk::{testutils::Address as _,
+    xdr::ToXdr,
     Address, 
     BytesN, 
     Env,
@@ -17,15 +18,15 @@ use soroban_sdk::{testutils::Address as _,
 use token::TokenClient;
 
 
-fn create_token_contract(e: &Env, admin: &Address) -> TokenClient {
+fn create_token_contract<'a>(e: &'a Env, admin: &'a Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
-fn create_factory_contract(
-    e: &Env,
-    setter: &Address,
-    pair_wasm_hash: &BytesN<32>
-) -> SoroswapFactoryClient {
+fn create_factory_contract<'a>(
+    e: &'a Env,
+    setter: &'a Address,
+    pair_wasm_hash: &'a BytesN<32>
+) -> SoroswapFactoryClient<'a> {
     let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
     factory.initialize(&setter, pair_wasm_hash);
     factory
@@ -76,9 +77,9 @@ TODO: Fix
 */
 pub fn guess_contract_address(
     e: &Env,
-    factory: &BytesN<32>,
-    token_a: &BytesN<32>,
-    token_b: &BytesN<32>,
+    factory: &Address,
+    token_a: &Address,
+    token_b: &Address,
 ) -> BytesN<32> {
     let token_0;
     let token_1;
@@ -91,9 +92,9 @@ pub fn guess_contract_address(
         token_1 = token_a;
     }
     let mut salt = Bytes::new(e);
-    salt.append(&factory.clone().into());
-    salt.append(&token_0.clone().into());
-    salt.append(&token_1.clone().into());
+    salt.append(&factory.to_xdr(e));
+    salt.append(&token_0.to_xdr(e));
+    salt.append(&token_1.to_xdr(e));
     let salt_hash = e.crypto().sha256(&salt);
     // let contract_address = Address::try_from(&salt_hash.as_ref()[12..]);
     // contract_address.unwrap_or_else(|_| BytesN::zero())
@@ -103,8 +104,8 @@ pub fn guess_contract_address(
 
 fn create_pair(
                 factory: &SoroswapFactoryClient,
-                token_0: &BytesN<32>,
-                token_1: &BytesN<32>) {
+                token_0: &Address,
+                token_1: &Address) {
     factory.create_pair(&token_0, &token_1);
     
     // TODO: Test the event emmited
@@ -113,12 +114,14 @@ fn create_pair(
 #[test]
 fn test() {
     let e: Env = Default::default();
+    e.mock_all_auths();
 
     let admin = Address::random(&e);
     let fake_admin = Address::random(&e);
     let new_admin = Address::random(&e);
     
-    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e)); 
+    let pair_token_wasm_binding = pair_token_wasm(&e);  
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm_binding);
 
     /*
     expect(await factory.feeTo()).to.eq(AddressZero)
@@ -130,15 +133,16 @@ fn test() {
     assert_eq!(factory.fee_to_setter(), admin);
     assert_ne!(factory.fee_to_setter(), fake_admin);
     assert_eq!(factory.all_pairs_length(), 0);
+    assert_eq!(factory.fees_enabled(), false);
 
     // if the admin changes the fee_to_setter, test require_auth
     factory.set_fee_to_setter(&new_admin);
 
     assert_eq!(
-        e.recorded_top_authorizations(),
-        std::vec![(
+        e.auths(),
+        [(
             admin.clone(),
-            factory.contract_id.clone(),
+            factory.address.clone(),
             Symbol::new(&e, "set_fee_to_setter"),
             (new_admin.clone(),).into_val(&e)
         )]
@@ -146,19 +150,36 @@ fn test() {
     assert_eq!(factory.fee_to_setter(), new_admin);
     assert_ne!(factory.fee_to_setter(), admin);
 
+
+     // if the new_admin changes the fees_enabled, test require_auth
+     factory.set_fees_enabled(&true);
+
+     assert_eq!(
+         e.auths(),
+         [(
+             new_admin.clone(),
+             factory.address.clone(),
+             Symbol::new(&e, "set_fees_enabled"),
+             (true,).into_val(&e)
+         )]
+     );
+     assert_eq!(factory.fees_enabled(), true);
+     
+
+
     // The new admin changes the fee_to to he the factory itself
     // This is just to not to create a dummy BytesN<32>
-    factory.set_fee_to(&factory.contract_id);
+    factory.set_fee_to(&factory.address);
     assert_eq!(
-        e.recorded_top_authorizations(),
-        std::vec![(
+        e.auths(),
+        [(
             new_admin.clone(),
-            factory.contract_id.clone(),
+            factory.address.clone(),
             Symbol::new(&e, "set_fee_to"),
-            (factory.contract_id.clone(),).into_val(&e)
+            (factory.address.clone(),).into_val(&e)
         )]
     );
-    assert_eq!(factory.fee_to(), factory.contract_id);
+    assert_eq!(factory.fee_to(), factory.address);
 
 
 
@@ -170,14 +191,14 @@ fn test() {
     let mut token_0 = create_token_contract(&e, &admin);
     let mut token_1 = create_token_contract(&e, &admin);
 
-    create_pair(&factory, &token_0.contract_id, &token_1.contract_id);
+    create_pair(&factory, &token_0.address, &token_1.address);
 
     let _pair_expected_address = guess_contract_address( &e,
-                                                        &factory.contract_id, 
-                                                        &token_1.contract_id, 
-                                                        &token_0.contract_id);
-    let pair_address = factory.get_pair(&token_0.contract_id, &token_1.contract_id);
-    let pair_address_inverted = factory.get_pair(&token_1.contract_id, &token_0.contract_id);
+                                                        &factory.address, 
+                                                        &token_1.address, 
+                                                        &token_0.address);
+    let pair_address = factory.get_pair(&token_0.address, &token_1.address);
+    let pair_address_inverted = factory.get_pair(&token_1.address, &token_0.address);
 
 
     // expect(await factory.getPair(...tokens)).to.eq(create2Address)
@@ -205,7 +226,7 @@ fn test() {
     // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider)
     let pair_client = pair::Client::new(&e, &pair_address);
     // expect(await pair.factory()).to.eq(factory.address)
-    assert_eq!(pair_client.factory(), Address::from_contract_id(&e, &factory.contract_id));
+    assert_eq!(pair_client.factory(), factory.address);
 
     
 
@@ -213,11 +234,11 @@ fn test() {
     // expect(await pair.token1()).to.eq(TEST_ADDRESSES[1])
     // Before comparing the token_0 and token_1 saved in the pair contract, we need
     // to be sure if they are in the correct order
-    if &token_1.contract_id < &token_0.contract_id {
+    if &token_1.address < &token_0.address {
         std::mem::swap(&mut token_0, &mut token_1);
     }
-    assert_eq!(&pair_client.token_0(), &token_0.contract_id);
-    assert_eq!(&pair_client.token_1(), &token_1.contract_id);
+    assert_eq!(&pair_client.token_0(), &token_0.address);
+    assert_eq!(&pair_client.token_1(), &token_1.address);
 
 }
 
@@ -227,15 +248,16 @@ fn test() {
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_same_pair_not_possible() {
     let e: Env = Default::default();
-    let admin = Address::random(&e);    
-    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
+    let admin = Address::random(&e);  
+    let pair_token_wasm_binding = pair_token_wasm(&e);  
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm_binding);
     let token_0 = create_token_contract(&e, &admin);
     let token_1 = create_token_contract(&e, &admin);
 
-    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+    factory.create_pair(&token_0.address, &token_1.address);
 
     // Second creation of same pair should fail
-    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+    factory.create_pair(&token_0.address, &token_1.address);
 }
 
 // Creating the same pair again (but in inverse order) should also fail
@@ -246,14 +268,15 @@ fn test_double_same_pair_not_possible() {
 fn test_double_inverse_pair_not_possible() {
     let e: Env = Default::default();
     let admin = Address::random(&e);    
-    let factory = create_factory_contract(&e, &admin, &pair_token_wasm(&e));
+    let pair_token_wasm_binding = pair_token_wasm(&e);  
+    let factory = create_factory_contract(&e, &admin, &pair_token_wasm_binding);
     let token_0 = create_token_contract(&e, &admin);
     let token_1 = create_token_contract(&e, &admin);
 
-    factory.create_pair(&token_0.contract_id, &token_1.contract_id);
+    factory.create_pair(&token_0.address, &token_1.address);
 
     // Second creation of same pair (but now in reverse order) should fail
-    factory.create_pair(&token_1.contract_id, &token_0.contract_id);
+    factory.create_pair(&token_1.address, &token_0.address);
 }
 
 // TODO: Test: Should panic when other account tries to change the fee_to
