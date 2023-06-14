@@ -25,6 +25,7 @@ pub enum DataKey {
     AllPairs = 2, //  address[] public allPairs;
     PairsMapping = 3, // Map of pairs
     PairWasmHash =4,
+    FeesEnabled = 5, // bool is taking fees?
 
 }
 
@@ -39,6 +40,15 @@ impl TryFromVal<Env, DataKey> for RawVal {
 
 fn get_fee_to(e: &Env) -> Address {
     e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
+}
+
+fn get_fees_enabled(e: &Env) -> bool {
+    let key = DataKey::FeesEnabled;
+    if let Some(state) = e.storage().get(&key) {
+        state.unwrap()
+    } else {
+        false // By default fees are not enabled
+    }
 }
 
 fn get_fee_to_setter(e: &Env) -> Address {
@@ -90,6 +100,10 @@ fn put_fee_to(e: &Env, to: Address) {
 
 fn put_fee_to_setter(e: &Env,   setter: &Address) {
     e.storage().set(&DataKey::FeeToSetter, setter);
+}
+
+fn put_fees_enabled(e: &Env,   is_enabled: &bool) {
+    e.storage().set(&DataKey::FeesEnabled, is_enabled);
 }
 
 fn _put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
@@ -147,6 +161,8 @@ pub trait SoroswapFactoryTrait{
     // function feeToSetter() external view returns (address);
     fn fee_to_setter(e: Env) -> Address;
 
+    fn fees_enabled(e: Env) -> bool;
+
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);  
     fn all_pairs_length(e: Env) -> u32;
@@ -169,6 +185,8 @@ pub trait SoroswapFactoryTrait{
 
     // function setFeeToSetter(address) external;
     fn set_fee_to_setter(e: Env, new_setter: Address);
+
+    fn set_fees_enabled(e: Env, is_enabled: bool);
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
@@ -202,6 +220,10 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // function feeToSetter() external view returns (address);
     fn fee_to_setter(e: Env) -> Address {
         get_fee_to_setter(&e)
+    }
+
+    fn fees_enabled(e: Env) -> bool {
+        get_fees_enabled(&e)
     }
 
     // Returns the total number of pairs created through the factory so far.
@@ -249,6 +271,10 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
         put_fee_to_setter(&e, &new_setter);
+    }
+
+    fn set_fees_enabled(e: Env, is_enabled: bool) {
+        put_fees_enabled(&e,&is_enabled)
     }
     
     //Creates a pair for token_a and token_b if one doesn't exist already.
