@@ -274,6 +274,8 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     fn set_fees_enabled(e: Env, is_enabled: bool) {
+        let setter = get_fee_to_setter(&e);
+        setter.require_auth();
         put_fees_enabled(&e,&is_enabled)
     }
     
