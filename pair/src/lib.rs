@@ -103,7 +103,11 @@ fn get_price_1_cumulative_last(e: &Env) -> u128 {
 }
 
 fn get_klast(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::KLast).unwrap()
+    if let Some(klast) = e.storage().get(&DataKey::KLast) {
+        klast.unwrap()
+    } else {
+        0
+    }
 }
 
 fn get_balance(e: &Env, contract_id: Address) -> i128 {
@@ -215,6 +219,7 @@ fn get_deposit_amounts(
     reserve_a: i128,
     reserve_b: i128,
 ) -> (i128, i128) {
+    // Compare it with UniswapV2 Router
     if reserve_a == 0 && reserve_b == 0 {
         return (desired_a, desired_b);
     }
@@ -258,17 +263,24 @@ fn get_deposit_amounts(
     //     }
     // }
 
-
+/*
+        accumulated fees are collected only when liquidity is deposited
+        or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
+        to the fee beneficiary, immediately before any tokens are minted or burned 
+*/
 
 fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
-    // TODO: Add tests
-
     let factory = get_factory(&e);
-    let fee_to = FactoryClient::new(&e, &factory).fee_to();
-    let fee_on = FactoryClient::new(&e, &factory).fee_on();
+    let factory_client = FactoryClient::new(&e, &factory);
+    
+    //  address feeTo = IUniswapV2Factory(factory).feeTo();
+    //  feeOn = feeTo != address(0);
+    let fee_on = factory_client.fees_enabled();
     let klast = get_klast(&e);
-
+    
     if fee_on{
+        let fee_to: Address = factory_client.fee_to();
+
         if klast != 0 {
             let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
             let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
@@ -282,11 +294,11 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
                 let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
                 // uint liquidity = numerator / denominator;
 
-                let liquidity = numerator.checked_div(denominator).unwrap();
+                let liquidity_pool_shares_fees = numerator.checked_div(denominator).unwrap();
 
                 // if (liquidity > 0) _mint(feeTo, liquidity);
-                if liquidity > 0 {
-                    mint_shares(&e, fee_to,    liquidity);
+                if liquidity_pool_shares_fees > 0 {
+                    mint_shares(&e, fee_to,    liquidity_pool_shares_fees);
                 }
             }
         }
@@ -445,19 +457,26 @@ impl SoroswapPairTrait for SoroswapPair {
         //     uint amount0 = balance0.sub(_reserve0);
         //     uint amount1 = balance1.sub(_reserve1);
 
-        // Calculate deposit amounts
+        // Calculate deposit amounts --> compare it with UniswapV2Router
         let amounts = get_deposit_amounts(desired_a, min_a, desired_b, min_b, reserve_0, reserve_1);
-        // TOKEN: Token Client
         let token_a_client = TokenClient::new(&e, &get_token_0(&e));
         let token_b_client = TokenClient::new(&e, &get_token_1(&e));
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
 
-        // TODO: Implement:
-        //     bool feeOn = _mintFee(_reserve0, _reserve1);
-        let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
+        // Minting new pool shares:
+        /*
+        accumulated fees are collected only when liquidity is deposited
+        or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
+        to the fee beneficiary, immediately before any tokens are minted or burned 
+        mint_fee function will send this accuulated fees if it's the case and will return fee_on if it's the case
+        */
 
+        //  bool feeOn = _mintFee(_reserve0, _reserve1);
+        let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
+        let total_shares = get_total_shares(&e);
+
         //     if (_totalSupply == 0) {
         //         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
         //        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
@@ -469,8 +488,12 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // Now calculate how many new pool shares to mint
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let total_shares = get_total_shares(&e);
 
+        /*
+        UniswapV2Pair copares wether totalSupply==0 in order to send the "first" LP with sqrt(x*y)
+        This is because UniswapV2Pair mints a MINIMUM_LIQUIDITY to the zero address in order to permanently lock it forever.
+
+        */
         let zero = 0;
         let new_total_shares = if reserve_0 > zero && reserve_1 > zero {
             // let shares_a = (balance_0 * total_shares) / reserve_0;

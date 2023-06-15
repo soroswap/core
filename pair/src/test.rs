@@ -8,8 +8,17 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 
-use token::TokenClient;
+mod factory {
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    pub type SoroswapFactoryClient<'a> = Client<'a>;
+}
 
+
+use token::TokenClient;
+use factory::SoroswapFactoryClient;
+//use factory::SoroswapFactory;
+
+use crate::test::factory::WASM;
 
 use soroban_sdk::{  testutils::Events,
                     Vec,
@@ -24,6 +33,26 @@ use soroban_sdk::{  testutils::Events,
 fn create_token_contract<'a>(e: &'a Env, admin: &'a Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
+
+fn create_factory_contract<'a>(
+    e: &'a Env,
+    setter: &'a Address,
+    pair_wasm_hash: &'a BytesN<32>
+) -> SoroswapFactoryClient<'a> {
+    let factory_address = &e.register_contract_wasm(None, factory::WASM);
+    let factory = SoroswapFactoryClient::new(e, factory_address);
+    factory.initialize(&setter, pair_wasm_hash);
+    factory.set_fee_to(&setter);
+    factory
+}
+
+fn pair_token_wasm(e: &Env) -> BytesN<32> {
+    soroban_sdk::contractimport!(
+        file = "./target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+    );
+    e.install_contract_wasm(WASM)
+}
+
 
 fn create_pair_contract<'a>(
     e: &'a Env,
@@ -57,10 +86,15 @@ fn test() {
         std::mem::swap(&mut token0, &mut token1);
         std::mem::swap(&mut admin0.clone(), &mut admin1.clone());
     }
+
+    let pair_token_wasm_binding = pair_token_wasm(&e);  
+    let factory = create_factory_contract(&e, &admin0, &pair_token_wasm_binding);
+
+
     let user = Address::random(&e);
     let liqpool = create_pair_contract(
         &e,
-        &admin0,
+        &factory.address,
         &token0.address,
         &token1.address,
     );
