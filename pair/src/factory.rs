@@ -8,7 +8,7 @@ const DUMMY: Symbol = Symbol::short("DUMMY");
 pub trait FactoryTrait {
 
     fn fee_to(e: Env) -> Address;
-    fn fee_on(e: Env) -> bool;
+    fn fees_enabled(e: Env) -> bool;
 }
 
 pub struct Factory;
@@ -20,7 +20,7 @@ impl FactoryTrait for Factory {
         e.storage().get(&DUMMY).unwrap().unwrap()
     }
 
-    fn fee_on(e: Env) -> bool {
+    fn fees_enabled(e: Env) -> bool {
         true
     }
 }
