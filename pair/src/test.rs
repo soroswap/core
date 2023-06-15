@@ -140,8 +140,9 @@ fn test() {
         )]
     );
 
-    assert_eq!(liqpool.my_balance(&user), 1000000000);
-    assert_eq!(liqpool.my_balance(&liqpool.address), 0);
+    assert_eq!(liqpool.my_balance(&user), 999999000);
+    // We lock forever the minimum_liquidity (1000) in the LP contract itself
+    assert_eq!(liqpool.my_balance(&liqpool.address), 1000);
     assert_eq!(token0.balance(&user), 9000000000);
     assert_eq!(token0.balance(&liqpool.address), 1000000000);
     assert_eq!(token1.balance(&user), 9000000000);
@@ -183,7 +184,9 @@ fn test() {
     assert_eq!(token1.balance(&liqpool.address), 510000000);
 
 
-    // // Testing WITHDRAW
+   // assert_eq!(liqpool.my_balance(&liqpool.address), 0);
+}
+  // // Testing WITHDRAW
     // liqpool.withdraw(&user, &1000000000, &1970000000, &510000000);
 
     // // Testing the "withdraw" event
@@ -222,5 +225,4 @@ fn test() {
     // assert_eq!(liqpool.my_balance(&user), 0);
     // assert_eq!(token0.balance(&liqpool.address), 0);
     // assert_eq!(token1.balance(&liqpool.address), 0);
-    // assert_eq!(liqpool.my_balance(&liqpool.address), 0);
-}
+   
