@@ -495,13 +495,19 @@ impl SoroswapPairTrait for SoroswapPair {
 
         */
         let zero = 0;
-        let new_total_shares = if reserve_0 > zero && reserve_1 > zero {
+        let new_total_shares = if total_shares > zero {
             // let shares_a = (balance_0 * total_shares) / reserve_0;
             // let shares_b = (balance_1 * total_shares) / reserve_1;
             let shares_a = (balance_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
             let shares_b = (balance_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
             shares_a.min(shares_b)
         } else {
+            // Block the minimum liquidity forever in this same contract
+            //UniswapV2 sends it to the zero address, we send it to this same contract that cannot send it to anyone
+            // let minimum_liquidity: i128 = 1000;
+            // mint_shares(&e, &e.current_contract_address(), new_total_shares.checked_sub(total_shares).unwrap());    
+            // ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
+
             (balance_0.checked_mul(balance_1).unwrap()).sqrt()
         };
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
