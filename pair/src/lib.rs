@@ -448,7 +448,6 @@ impl SoroswapPairTrait for SoroswapPair {
         // Depositor needs to authorize the deposit
         to.require_auth();
 
-        //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
 
         // TODO: Implement this after creating the SoroswapRouter. For now tokens are being sent here using auth
@@ -464,51 +463,24 @@ impl SoroswapPairTrait for SoroswapPair {
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
         token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
 
-        // Minting new pool shares:
-        /*
-        accumulated fees are collected only when liquidity is deposited
-        or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
-        to the fee beneficiary, immediately before any tokens are minted or burned 
-        mint_fee function will send this accuulated fees if it's the case and will return fee_on if it's the case
-        */
+        
 
-        //  bool feeOn = _mintFee(_reserve0, _reserve1);
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-        //     uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
-
-        //     if (_totalSupply == 0) {
-        //         liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
-        //        _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
-        //     } else {
-        //         liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
-        //     }
-        //     require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
-        //     _mint(to, liquidity);
 
         // Now calculate how many new pool shares to mint
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-
-        /*
-        UniswapV2Pair copares wether totalSupply==0 in order to send the "first" LP with sqrt(x*y)
-        This is because UniswapV2Pair mints a MINIMUM_LIQUIDITY to the zero address in order to permanently lock it forever.
-
-        */
-        let zero = 0;
+        let zero = 0; 
         let new_total_shares = if total_shares > zero {
-            // let shares_a = (balance_0 * total_shares) / reserve_0;
-            // let shares_b = (balance_1 * total_shares) / reserve_1;
             let shares_a = (balance_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
             let shares_b = (balance_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
             shares_a.min(shares_b)
         } else {
-            // Block the minimum liquidity forever in this same contract
-            //UniswapV2 sends it to the zero address, we send it to this same contract that cannot send it to anyone
-            // let minimum_liquidity: i128 = 1000;
-            // mint_shares(&e, &e.current_contract_address(), new_total_shares.checked_sub(total_shares).unwrap());    
-            // ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
+            // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
+            let minimum_liquidity: i128 = 1000;
+            mint_shares(&e, e.current_contract_address(), minimum_liquidity);    
+            ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
 
-            (balance_0.checked_mul(balance_1).unwrap()).sqrt()
         };
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
 
