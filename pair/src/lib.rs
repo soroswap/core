@@ -451,7 +451,6 @@ impl SoroswapPairTrait for SoroswapPair {
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
         // Depositor needs to authorize the deposit
         to.require_auth();
-
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
 
         // TODO: Implement this after creating the SoroswapRouter. For now tokens are being sent here using auth
@@ -465,9 +464,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let token_a_client = TokenClient::new(&e, &get_token_0(&e));
         let token_b_client = TokenClient::new(&e, &get_token_1(&e));
         token_a_client.transfer(&to, &e.current_contract_address(), &amounts.0);
-        token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1);
-
-        
+        token_b_client.transfer(&to, &e.current_contract_address(), &amounts.1); 
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         let total_shares = get_total_shares(&e);
@@ -484,21 +481,15 @@ impl SoroswapPairTrait for SoroswapPair {
             let minimum_liquidity: i128 = 1000;
             mint_shares(&e, e.current_contract_address(), minimum_liquidity);    
             ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
-
         };  
-        mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
 
-        //     _update(balance0, balance1, _reserve0, _reserve1);
+        mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
-        //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
-        // update reserve_0 and reserve_1
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-        
-        // emit Mint(msg.sender, amount0, amount1);
         event::deposit(&e, to, amounts.0, amounts.1);
     }
 
