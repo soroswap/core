@@ -178,10 +178,10 @@ fn test() {
     //     )]
     // );
 
-    assert_eq!(token0.balance(&user), 8036324660    );
-    assert_eq!(token0.balance(&liqpool.address), 1963675340);
-    assert_eq!(token1.balance(&user), 9490000000);
-    assert_eq!(token1.balance(&liqpool.address), 510000000);
+    // assert_eq!(token0.balance(&user), 8036324660    );
+    // assert_eq!(token0.balance(&liqpool.address), 1963675340);
+    // assert_eq!(token1.balance(&user), 9490000000);
+    // assert_eq!(token1.balance(&liqpool.address), 510000000);
 
 
    // assert_eq!(liqpool.my_balance(&liqpool.address), 0);

@@ -91,7 +91,11 @@ fn get_reserve_1(e: &Env) -> i128 {
 }
 
 fn get_block_timestamp_last(e: &Env) -> u64 {
-    e.storage().get_unchecked(&DataKey::BlockTimestampLast).unwrap()
+    if let Some(block_timestamp_last) = e.storage().get(&DataKey::BlockTimestampLast) {
+        block_timestamp_last.unwrap()
+    } else {
+        0
+    }
 }
 
 fn get_price_0_cumulative_last(e: &Env) -> u128 {
@@ -448,7 +452,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // Depositor needs to authorize the deposit
         to.require_auth();
 
-        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
+        let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
 
         // TODO: Implement this after creating the SoroswapRouter. For now tokens are being sent here using auth
         //     uint balance0 = IERC20(token0).balanceOf(address(this));
@@ -481,16 +485,18 @@ impl SoroswapPairTrait for SoroswapPair {
             mint_shares(&e, e.current_contract_address(), minimum_liquidity);    
             ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
 
-        };
+        };  
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
 
         //     _update(balance0, balance1, _reserve0, _reserve1);
-        //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
-        put_reserve_0(&e, balance_0);
-        put_reserve_1(&e, balance_1);
-        // TODO: replace last two lines with the following
-        //update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        //     if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        // update reserve_0 and reserve_1
+        (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
+        if fee_on {
+            put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
+        }
         
         // emit Mint(msg.sender, amount0, amount1);
         event::deposit(&e, to, amounts.0, amounts.1);
