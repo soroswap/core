@@ -99,18 +99,17 @@ fn test() {
         &token1.address,
     );
 
+    let factor = 10000000; // we will use 7 decimals
 
-    token0.mint(&user, &10000000000);
-    assert_eq!(token0.balance(&user), 10000000000);
+    token0.mint(&user, &(1000 * factor));
+    assert_eq!(token0.balance(&user), &(1000 * factor));
 
-    token1.mint(&user, &10000000000);
-    assert_eq!(token1.balance(&user), 10000000000);
+    token1.mint(&user, &&(1000 * factor));
+    assert_eq!(token1.balance(&user), &(1000 * factor));
 
 
-    liqpool.deposit(&user, &1000000000, &1000000000, &1000000000, &1000000000);
+    liqpool.deposit(&user, &(100 * factor), &(100 * factor), &(100 * factor), &(100 * factor));
 
-    // Testing the "deposit" event
-    // topics = (PAIR, Symbol::new(e, "deposit"), sender);
     let topics = (PAIR, Symbol::new(&e, "deposit"), user.clone());
     let data = (1000000000_i128, 1000000000_i128);
     assert_eq!(last_event_vec(&e),
@@ -143,13 +142,20 @@ fn test() {
     assert_eq!(liqpool.my_balance(&user), 999999000);
     // We lock forever the minimum_liquidity (1000) in the LP contract itself
     assert_eq!(liqpool.my_balance(&liqpool.address), 1000);
-    assert_eq!(token0.balance(&user), 9000000000);
-    assert_eq!(token0.balance(&liqpool.address), 1000000000);
-    assert_eq!(token1.balance(&user), 9000000000);
-    assert_eq!(token1.balance(&liqpool.address), 1000000000);
+    assert_eq!(token0.balance(&user), 900 * factor);
+    assert_eq!(token0.balance(&liqpool.address), 100 * factor);
+    assert_eq!(token1.balance(&user), 900 * factor);
+    assert_eq!(token1.balance(&liqpool.address), 100 * factor);
+
+    // testt klast still 0
+    // test fee_to not received any fee yet
+    // put_price_0_cumulative_last, put_price_1_cumulative_last
+    // put_reserve_0, put_reserve_1
+    // put_block_timestamp_last
+    // event::sync
 
     // Testing SWAP
-    liqpool.swap(&user, &false, &490000000, &1000000000);
+    liqpool.swap(&user, &false, &490000000, &(100 * factor));
 
     // // Testing the "deposit" event
     // // topics: (PAIR, Symbol::new(e, "swap"), sender);
@@ -187,7 +193,7 @@ fn test() {
    // assert_eq!(liqpool.my_balance(&liqpool.address), 0);
 }
   // // Testing WITHDRAW
-    // liqpool.withdraw(&user, &1000000000, &1970000000, &510000000);
+    // liqpool.withdraw(&user, &(100 * factor), &1970000000, &510000000);
 
     // // Testing the "withdraw" event
     // // topics: (PAIR, Symbol::new(e, "withdraw"), sender);
@@ -220,8 +226,8 @@ fn test() {
     //     )]
     // );
 
-    // assert_eq!(token0.balance(&user), 10000000000);
-    // assert_eq!(token1.balance(&user), 10000000000);
+    // assert_eq!(token0.balance(&user), &(1000 * factor));
+    // assert_eq!(token1.balance(&user), &(1000 * factor));
     // assert_eq!(liqpool.my_balance(&user), 0);
     // assert_eq!(token0.balance(&liqpool.address), 0);
     // assert_eq!(token1.balance(&liqpool.address), 0);
