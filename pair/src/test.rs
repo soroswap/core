@@ -14,6 +14,8 @@ mod factory {
 }
 
 
+use crate::uq64x64::{fraction, encode, decode_with_7_decimals as decode_uq64x64_with_7_decimals};
+
 use token::TokenClient;
 use factory::SoroswapFactoryClient;
 //use factory::SoroswapFactory;
@@ -118,7 +120,7 @@ fn test() {
     assert_eq!(token_1.balance(&user), 1000 * factor);
 
     // Testing the deposit function:
-    let init_time = 12345;
+    let mut init_time = 12345;
     e.ledger().set(LedgerInfo {
         timestamp: init_time,
         protocol_version: 1,
@@ -176,7 +178,7 @@ fn test() {
 
 
     // Now, let's deposit again in order to have Cumulative Prices.
-    let passed_time = 54321;
+    let mut passed_time = 54321;
     e.ledger().set(LedgerInfo {
         timestamp: passed_time + init_time,
         protocol_version: 1,
@@ -193,55 +195,114 @@ fn test() {
     assert_eq!(token_1.balance(&user), 800 * factor);
     assert_eq!(token_1.balance(&liqpool.address), 200 * factor);
     assert_eq!(liqpool.get_reserves(), (200 * factor, 200 * factor,passed_time + init_time));
-    let uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
-    let uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
+    let mut uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
+    let mut uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
     let decimals_u128: u128 = 10000000;
-    let passed_time_u128: u128 = passed_time.into();
-    let expected_price_cumulative_last_decoded: u128 = 1*passed_time_u128*decimals_u128;
+    let mut passed_time_u128: u128 = passed_time.into();
+    let mut expected_price_cumulative_last_decoded: u128 = 1*passed_time_u128*decimals_u128;
 
-    assert_eq!(liqpool.decode_uq64x64_with_7_decimals(&uq64x64_price_0_cumulative_last), expected_price_cumulative_last_decoded);
-    assert_eq!(liqpool.decode_uq64x64_with_7_decimals(&uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
+    assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_0_cumulative_last), expected_price_cumulative_last_decoded);
+    assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
 
 
     // TODO: Test event::sync, do it with last_n_events function
 
     // Testing SWAP
-    liqpool.swap(&user, &false, &490000000, &(100 * factor));
+    // The user wants to buy 49 units of token_1, paying maximum 66 units of token_0
 
-    // // Testing the "deposit" event
-    // // topics: (PAIR, Symbol::new(e, "swap"), sender);
-    // let topics = (PAIR, Symbol::new(&e, "swap"), user.clone());
-    // // data: (amount_0_in, amount_1_in, amount_0_out,amount_1_out,  to)
-    // let data = (970000000_i128, 0_i128, 0_i128, 490000000_i128, user.clone());
-    // assert_eq!(last_event_vec(&e),
-    //             vec![&e,    (liqpool.address.clone(),
-    //                         topics.into_val(&e),
-    //                         data.into_val(&e))]);
+    init_time = passed_time + init_time;
+    passed_time = 9876;
 
-    // // Test to.require_auth();
-    // assert_eq!(
-    //     e.auths(),
-    //     [(
-    //         user.clone(),
-    //         liqpool.address.clone(),
-    //         Symbol::short("swap"),
-    //         (&user, false, 490000000_i128, 1000000000_i128).into_val(&e)
-    //     ),
-    //     (
-    //         user.clone(),
-    //         token_0.address.clone(),
-    //         Symbol::short("transfer"),
-    //         (&user, &liqpool.address, 970000000_i128).into_val(&e)//from, to, amount
-    //     )]
-    // );
+    e.ledger().set(LedgerInfo {
+        timestamp: init_time + passed_time,
+        protocol_version: 1,
+        sequence_number: 10,
+        network_id: Default::default(),
+        base_reserve: 10,
+    });
 
-    // assert_eq!(token_0.balance(&user), 8036324660    );
-    // assert_eq!(token_0.balance(&liqpool.address), 1963675340);
-    // assert_eq!(token_1.balance(&user), 9490000000);
-    // assert_eq!(token_1.balance(&liqpool.address), 510000000);
+    liqpool.swap(&user, &false, &(49 * factor), &(66 * factor));
+    
+    let y_out = 49*factor;
+    let x_in =(1000*200*factor*49*factor)/((200-49)*factor*997)+1;
+    let new_balance_user = (800*factor)-x_in;
+
+    // Testing the "deposit" event
+    let topics = (PAIR, Symbol::new(&e, "swap"), user.clone());
+    // data: (amount_0_in, amount_1_in, amount_0_out,amount_1_out,  to)
+    let data = (x_in, 0_i128, 0_i128, y_out, user.clone());
+    assert_eq!(last_event_vec(&e),
+                vec![&e,    (liqpool.address.clone(),
+                            topics.into_val(&e),
+                            data.into_val(&e))]);
+
+    // Test to.require_auth();
+    assert_eq!(
+        e.auths(),
+        [(
+            user.clone(),
+            liqpool.address.clone(),
+            Symbol::short("swap"),
+            (&user, false, 490000000_i128, 660000000_i128).into_val(&e)
+        ),
+        (
+            user.clone(),
+            token_0.address.clone(),
+            Symbol::short("transfer"),
+            (&user, &liqpool.address, x_in).into_val(&e)//from, to, amount
+        )]
+    );
+
+    // Token that was bought
+    assert_eq!(token_1.balance(&user), (800+49)*factor);
+    assert_eq!(token_1.balance(&liqpool.address), (200-49)*factor);
+    assert_eq!(token_0.balance(&user), new_balance_user);
+    assert_eq!(token_0.balance(&liqpool.address), (200*factor)+x_in);
+    assert_eq!(liqpool.my_balance(&liqpool.address), 1000);
+    assert_eq!(liqpool.k_last(), 0);
+    // Test fee_to has not yet received any fee
+    assert_eq!(liqpool.my_balance(&admin_0), 0);
+    let expected_reserve_0 = 200 * factor + x_in;
+    let expected_reserve_1 = 200 * factor - y_out;
+    assert_eq!(liqpool.get_reserves(), (expected_reserve_0, expected_reserve_1,passed_time + init_time));
+
+    uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
+    uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
+    let passed_time_u128: u128 = passed_time.into();
+    let expected_price_cumulative_last_decoded: u128 = expected_price_cumulative_last_decoded + 1*passed_time_u128*decimals_u128;
+
+    assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_0_cumulative_last), expected_price_cumulative_last_decoded);
+    assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
 
 
-   // assert_eq!(liqpool.my_balance(&liqpool.address), 0);
+    // Test cumulative prices
+    // // We will swap again to test that the price has changed and it's correctly added in cumulative price
+    // init_time = passed_time + init_time;
+    // passed_time = 1029;
+    // let passed_time_u128: u128 = 1029;
+
+    // e.ledger().set(LedgerInfo {
+    //     timestamp: init_time + passed_time,
+    //     protocol_version: 1,
+    //     sequence_number: 10,
+    //     network_id: Default::default(),
+    //     base_reserve: 10,
+    // });
+
+    // let encoded_price_0_multiplied_by_time = fraction(expected_reserve_0.try_into().unwrap(), expected_reserve_1.try_into().unwrap())*passed_time_u128;
+    // let encoded_price_1_multiplied_by_time = fraction(expected_reserve_1.try_into().unwrap(), expected_reserve_0.try_into().unwrap())*passed_time_u128;
+    
+    // liqpool.swap(&user, &false, &(10 * factor), &(100 * factor));
+    
+    // let expected_price_0_cumulative_last_encoded: u128 = uq64x64_price_0_cumulative_last + encoded_price_0_multiplied_by_time;
+    // let expected_price_1_cumulative_last_encoded: u128 = uq64x64_price_1_cumulative_last+ encoded_price_1_multiplied_by_time;
+    
+    // let new_uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
+    // let new_uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
+    // assert_eq!(new_uq64x64_price_0_cumulative_last, expected_price_1_cumulative_last_encoded);
+    // assert_eq!(new_uq64x64_price_1_cumulative_last, expected_price_1_cumulative_last_encoded);
+
+
 }
   // // Testing WITHDRAW
     // liqpool.withdraw(&user, &(100 * factor), &1970000000, &510000000);
