@@ -228,24 +228,24 @@ fn get_deposit_amounts(
     min_a: i128,
     desired_b: i128,
     min_b: i128,
-    reserve_a: i128,
-    reserve_b: i128,
+    reserve_0: i128,
+    reserve_1: i128,
 ) -> (i128, i128) {
     // Compare it with UniswapV2 Router
-    if reserve_a == 0 && reserve_b == 0 {
+    if reserve_0 == 0 && reserve_1 == 0 {
         return (desired_a, desired_b);
     }
 
-    //let amount_b = desired_a * reserve_b
-    let amount_b = desired_a.checked_mul(reserve_b).unwrap().checked_div(reserve_a).unwrap();
+    //let amount_b = desired_a * reserve_1
+    let amount_b = desired_a.checked_mul(reserve_1).unwrap().checked_div(reserve_0).unwrap();
     if amount_b <= desired_b {
         if amount_b < min_b {
             panic!("amount_b less than min")
         }
         (desired_a, amount_b)
     } else {
-        //let amount_a = desired_b * reserve_a / reserve_b;
-        let amount_a = desired_b.checked_mul(reserve_a).unwrap().checked_div(reserve_b).unwrap();
+        //let amount_a = desired_b * reserve_0 / reserve_1;
+        let amount_a = desired_b.checked_mul(reserve_0).unwrap().checked_div(reserve_1).unwrap();
         if amount_a > desired_a || desired_a < min_a {
             panic!("amount_a invalid")
         }
@@ -383,9 +383,9 @@ pub trait SoroswapPairTrait{
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
 
     // If "buy_a" is true, the swap will buy token_a and sell token_b. This is flipped if "buy_a" is false.
-    // "out" is the amount being bought, with in_max being a safety to make sure you receive at least that amount.
+    // "out" is the amount being bought, with amount_in_max being a safety to make sure you receive at least that amount.
     // swap will transfer the selling token "to" to this contract, and then the contract will transfer the buying token to "to".
-    fn swap(e: Env, to: Address, buy_a: bool, out: i128, in_max: i128);
+    fn swap(e: Env, to: Address, buy_a: bool, amount_out: i128, amount_in_max: i128);
 
     // transfers share_amount of pool share tokens to this contract, burns all pools share tokens in this contracts, and sends the
     // corresponding amount of token_a and token_b to "to".
@@ -502,36 +502,43 @@ impl SoroswapPairTrait for SoroswapPair {
         event::deposit(&e, to, amounts.0, amounts.1);
     }
 
-// Check UniswapV2 swap function
-    fn swap(e: Env, to: Address, buy_a: bool, out: i128, in_max: i128) {
+
+    fn swap(e: Env, to: Address, buy_0: bool, amount_out: i128, amount_in_max: i128) {
         to.require_auth();
 
-        let (reserve_a, reserve_b) = (get_reserve_0(&e), get_reserve_1(&e));
-        let (reserve_sell, reserve_buy) = if buy_a {
-            (reserve_b, reserve_a)
-        } else {
-            (reserve_a, reserve_b)
-        };
+        /*
+        UniswapV2 implements 2 things that Soroswap it's not going to implement for now:
+        1.- FlashSwaps. Soroban is not allowing reentrancy for the momennt. So no data as a parameter.
+        2.- uint amount0Out as parameter. Soroswap will impleent all the logig in the Router contract.
 
-        // First calculate how much needs to be sold to buy amount out from the pool
-        let n = reserve_sell.checked_mul(out).unwrap().checked_mul(1000).unwrap();
-        let d = (reserve_buy.checked_sub(out).unwrap()).checked_mul(997).unwrap();
-        let sell_amount = (n.checked_div(d).unwrap()).checked_add(1).unwrap();
-        if sell_amount > in_max {
-            panic!("in amount is over max")
-        }
-
-        // Transfer the amount being sold to the contract
-        let sell_token = if buy_a {
-            get_token_1(&e)
+        All this logic will change in this contract when the Router contract is implemented
+        */
+        
+        if amount_out <= 0 { panic!("insufficient output amount") }
+        if to == get_token_0(&e) || to == get_token_1(&e) {panic!("invalid to")}
+        
+        
+        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+        let (reserve_in, reserve_out) = if buy_0 {
+            (reserve_1, reserve_0)
         } else {
-            get_token_0(&e)
+            (reserve_0, reserve_1)
         };
-        // TOKEN: Token Client
+        
+        // First calculate how much needs to be sold to buy amount amount_out from the pool
+        let n = reserve_in.checked_mul(amount_out).unwrap().checked_mul(1000).unwrap();
+        let d = (reserve_out.checked_sub(amount_out).unwrap()).checked_mul(997).unwrap();
+        let amount_in = (n.checked_div(d).unwrap()).checked_add(1).unwrap();
+
+        if amount_in > amount_in_max {panic!("amount in is over max") }
+        if amount_in <= 0 { panic!("insufficient input amount")}
+        
+        // Transfer the amount_in being sold to the contract
+        let sell_token = if buy_0 { get_token_1(&e) } else { get_token_0(&e) };
         let sell_token_client = TokenClient::new(&e, &sell_token);
-        sell_token_client.transfer(&to, &e.current_contract_address(), &sell_amount);
+        sell_token_client.transfer(&to, &e.current_contract_address(), &amount_in);
 
-        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
+        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
         // residue_numerator and residue_denominator are the amount that the invariant considers after
         // deducting the fee, scaled up by 1000 to avoid fractions
@@ -539,8 +546,8 @@ impl SoroswapPairTrait for SoroswapPair {
         let residue_denominator: i128 = 1000;
         let zero = 0;
 
-        let new_invariant_factor = |balance: i128, reserve: i128, out: i128| {
-            let delta = balance.checked_sub(reserve).unwrap().checked_sub(out).unwrap();
+        let new_invariant_factor = |balance: i128, reserve: i128, amount_out: i128| {
+            let delta = balance.checked_sub(reserve).unwrap().checked_sub(amount_out).unwrap();
             let adj_delta = if delta > zero {
                 //residue_numerator * delta
                 residue_numerator.checked_mul(delta).unwrap()
@@ -552,30 +559,30 @@ impl SoroswapPairTrait for SoroswapPair {
             residue_denominator.checked_mul(reserve).unwrap().checked_add(adj_delta).unwrap()
         };
 
-        let (amount_0_in, amount_1_in) = if buy_a { (0, sell_amount) } else { (sell_amount, 0) };
-        let (amount_0_out, amount_1_out) = if buy_a { (out, 0) } else { (0, out) };
+        let (amount_0_in, amount_1_in) = if buy_0 { (0, amount_in) } else { (amount_in, 0) };
+        let (amount_0_out, amount_1_out) = if buy_0 { (amount_out, 0) } else { (0, amount_out) };
 
-        let new_inv_a = new_invariant_factor(balance_a, reserve_a, amount_0_out);
-        let new_inv_b = new_invariant_factor(balance_b, reserve_b, amount_1_out);
-        //let old_inv_a = residue_denominator * reserve_a;
-        let old_inv_a = residue_denominator.checked_mul(reserve_a).unwrap();
-        //let old_inv_b = residue_denominator * reserve_b;
-        let old_inv_b = residue_denominator.checked_mul(reserve_b).unwrap();
+        let new_inv_a = new_invariant_factor(balance_0, reserve_0, amount_0_out);
+        let new_inv_b = new_invariant_factor(balance_1, reserve_1, amount_1_out);
+        //let old_inv_a = residue_denominator * reserve_0;
+        let old_inv_a = residue_denominator.checked_mul(reserve_0).unwrap();
+        //let old_inv_b = residue_denominator * reserve_1;
+        let old_inv_b = residue_denominator.checked_mul(reserve_1).unwrap();
 
         // if new_inv_a * new_inv_b < old_inv_a  * old_inv_b {
         if new_inv_a.checked_mul(new_inv_b).unwrap() < old_inv_a.checked_mul(old_inv_b).unwrap() {
             panic!("constant product invariant does not hold");
         }
 
-        if buy_a {
+        if buy_0 {
             transfer_0(&e, to.clone(), amount_0_out);
         } else {
             transfer_1(&e, to.clone(), amount_1_out);
         }
 
-        // Checks if not negative in put_reserve_0 and put_reserve_1
-        put_reserve_0(&e, balance_a.checked_sub(amount_0_out).unwrap());
-        put_reserve_1(&e, balance_b.checked_sub(amount_1_out).unwrap());
+        let new_balance_0 = balance_0.checked_sub(amount_0_out).unwrap();
+        let new_balance_1 = balance_1.checked_sub(amount_1_out).unwrap();
+        update(&e, new_balance_0, new_balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
     }
 
@@ -589,16 +596,16 @@ impl SoroswapPairTrait for SoroswapPair {
 
         Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
 
-        let (balance_a, balance_b) = (get_balance_0(&e), get_balance_1(&e));
+        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let balance_shares = get_balance_shares(&e);
 
         let total_shares = get_total_shares(&e);
 
         // Now calculate the withdraw amounts
-        // let out_a = (balance_a * balance_shares) / total_shares;
-        // let out_b = (balance_b * balance_shares) / total_shares;
-        let out_a = (balance_a.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
-        let out_b = (balance_b.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
+        // let out_a = (balance_0 * balance_shares) / total_shares;
+        // let out_b = (balance_1 * balance_shares) / total_shares;
+        let out_a = (balance_0.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
+        let out_b = (balance_1.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
 
         if out_a < min_a || out_b < min_b {
             panic!("min not satisfied");
@@ -608,8 +615,8 @@ impl SoroswapPairTrait for SoroswapPair {
         transfer_0(&e, to.clone(), out_a.clone());
         transfer_1(&e, to.clone(), out_b.clone());
         // Checks if not negative in put_reserve_0 and put_reserve_1
-        put_reserve_0(&e, balance_a.checked_sub(out_a).unwrap());
-        put_reserve_1(&e, balance_b.checked_sub(out_b).unwrap());
+        put_reserve_0(&e, balance_0.checked_sub(out_a).unwrap());
+        put_reserve_1(&e, balance_1.checked_sub(out_b).unwrap());
 
         event::withdraw(&e, to.clone(), out_a, out_b, to);
 
