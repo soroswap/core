@@ -69,11 +69,6 @@ fn last_event_vec(e: &Env) -> Vec<(Address, Vec<RawVal>, RawVal)>{
     vec![&e, e.events().all().last().unwrap().unwrap()]
 }
 
-// fn last_n_events_vec(e: &Env, n: usize) -> Vec<(Address, Vec<RawVal>, RawVal)> {
-//     let events = e.events().all().iter().rev().take(n).collect::<Vec<_>>();
-//     vec![&e, events]
-// }
-
 const PAIR: Symbol = Symbol::short("PAIR");
 
 #[test]
@@ -171,14 +166,12 @@ fn test() {
     assert_eq!(token_1.balance(&user), 900 * factor);
     assert_eq!(token_1.balance(&liqpool.address), 100 * factor);
 
-    // Testing that k_last is still 0 (fee not yet on)
     assert_eq!(liqpool.k_last(), 0);
     // Test fee_to has not yet received any fee
     assert_eq!(liqpool.my_balance(&admin_0), 0);
     // The first deposit, we don't have yet any price accumulated, this will be on the second deposit
     assert_eq!(liqpool.price_0_cumulative_last(), 0);
     assert_eq!(liqpool.price_1_cumulative_last(), 0);
-    // put_reserve_0, put_reserve_1
     assert_eq!(liqpool.get_reserves(), (100 * factor, 100 * factor,init_time));
 
 
@@ -210,7 +203,7 @@ fn test() {
     assert_eq!(liqpool.decode_uq64x64_with_7_decimals(&uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
 
 
-    // event::sync
+    // TODO: Test event::sync, do it with last_n_events function
 
     // Testing SWAP
     liqpool.swap(&user, &false, &490000000, &(100 * factor));
