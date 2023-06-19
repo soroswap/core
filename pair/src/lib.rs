@@ -99,11 +99,19 @@ fn get_block_timestamp_last(e: &Env) -> u64 {
 }
 
 fn get_price_0_cumulative_last(e: &Env) -> u128 {
-    e.storage().get_unchecked(&DataKey::Price0CumulativeLast).unwrap()
+    if let Some(price) = e.storage().get(&DataKey::Price0CumulativeLast) {
+        price.unwrap()
+    } else {
+        0
+    }
 }
 
 fn get_price_1_cumulative_last(e: &Env) -> u128 {
-    e.storage().get_unchecked(&DataKey::Price0CumulativeLast).unwrap()
+    if let Some(price) = e.storage().get(&DataKey::Price1CumulativeLast) {
+        price.unwrap()
+    } else {
+        0
+    }
 }
 
 fn get_klast(e: &Env) -> i128 {
@@ -175,7 +183,7 @@ fn put_price_0_cumulative_last(e: &Env, price_0_cumulative_last: u128) {
 }
 
 fn put_price_1_cumulative_last(e: &Env, price_1_cumulative_last: u128) {
-    e.storage().set(&DataKey::Price0CumulativeLast, &price_1_cumulative_last);
+    e.storage().set(&DataKey::Price1CumulativeLast, &price_1_cumulative_last);
 }
 
 fn put_klast(e: &Env, klast: i128) {
@@ -276,7 +284,6 @@ fn get_deposit_amounts(
 fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     let factory = get_factory(&e);
     let factory_client = FactoryClient::new(&e, &factory);
-    
     //  address feeTo = IUniswapV2Factory(factory).feeTo();
     //  feeOn = feeTo != address(0);
     let fee_on = factory_client.fees_enabled();
@@ -386,10 +393,12 @@ pub trait SoroswapPairTrait{
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
     fn get_reserves(e: Env) -> (i128, i128, u64);
-
     fn my_balance(e: Env, id: Address) -> i128;
-
     fn factory(e: Env) -> Address;
+    fn k_last(e: Env) -> i128;
+    fn price_0_cumulative_last(e: Env) -> u128;
+    fn price_1_cumulative_last(e: Env) -> u128;
+    fn decode_uq64x64_with_7_decimals(e: Env, x: u128) -> u128;
 }
 
 struct SoroswapPair;
@@ -608,13 +617,27 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     fn get_reserves(e: Env) -> (i128, i128, u64) {
-        (get_reserve_0(&e), get_reserve_0(&e), get_block_timestamp_last(&e))
+        (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
     }
 
     fn my_balance(e: Env, id: Address) -> i128 {
         Token::balance(e.clone(), id)
     }
 
+    fn k_last(e: Env) -> i128 {
+        get_klast(&e)
+    }
+
+    fn price_0_cumulative_last(e: Env) -> u128 {
+        get_price_0_cumulative_last(&e)
+    }
+    fn price_1_cumulative_last(e: Env) -> u128 {
+        get_price_1_cumulative_last(&e)
+    }
+
+    fn decode_uq64x64_with_7_decimals(e: Env, x: u128) -> u128 {
+        uq64x64::decode_with_7_decimals(x)
+    }
     
 
 }

@@ -20,7 +20,7 @@ use factory::SoroswapFactoryClient;
 
 use crate::test::factory::WASM;
 
-use soroban_sdk::{  testutils::Events,
+use soroban_sdk::{  testutils::{Events, Ledger, LedgerInfo},
                     Vec,
                     RawVal,
                     vec,
@@ -69,44 +69,68 @@ fn last_event_vec(e: &Env) -> Vec<(Address, Vec<RawVal>, RawVal)>{
     vec![&e, e.events().all().last().unwrap().unwrap()]
 }
 
+// fn last_n_events_vec(e: &Env, n: usize) -> Vec<(Address, Vec<RawVal>, RawVal)> {
+//     let events = e.events().all().iter().rev().take(n).collect::<Vec<_>>();
+//     vec![&e, events]
+// }
+
+const PAIR: Symbol = Symbol::short("PAIR");
+
 #[test]
 fn test() {
-    const PAIR: Symbol = Symbol::short("PAIR");
-
     let e: Env = Default::default();
-
     e.mock_all_auths();
-
-    let mut admin0 = Address::random(&e);
+    
+    let user = Address::random(&e);
+    let mut admin_0 = Address::random(&e);
     let mut admin1 = Address::random(&e);
-
-    let mut token0 = create_token_contract(&e, &admin0);
-    let mut token1 = create_token_contract(&e, &admin1);
-    if &token1.address.contract_id() < &token0.address.contract_id() {
-        std::mem::swap(&mut token0, &mut token1);
-        std::mem::swap(&mut admin0.clone(), &mut admin1.clone());
+    let mut token_0 = create_token_contract(&e, &admin_0);
+    let mut token_1 = create_token_contract(&e, &admin1);
+    if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        std::mem::swap(&mut token_0, &mut token_1);
+        std::mem::swap(&mut admin_0.clone(), &mut admin1.clone());
     }
 
     let pair_token_wasm_binding = pair_token_wasm(&e);  
-    let factory = create_factory_contract(&e, &admin0, &pair_token_wasm_binding);
+    let factory = create_factory_contract(&e, &admin_0, &pair_token_wasm_binding);
 
+    // Test factory initial values:
+    assert_eq!(factory.fee_to(), admin_0);
+    assert_eq!(factory.fee_to_setter(), admin_0);
+    assert_eq!(factory.fees_enabled(), false);
 
-    let user = Address::random(&e);
     let liqpool = create_pair_contract(
         &e,
         &factory.address,
-        &token0.address,
-        &token1.address,
+        &token_0.address,
+        &token_1.address,
     );
+
+    // Test liqpool initial values:
+    assert_eq!(liqpool.token_0(), token_0.address);
+    assert_eq!(liqpool.token_1(), token_1.address);
+    assert_eq!(liqpool.factory(), factory.address);
+    assert_eq!(liqpool.get_reserves(), (0,0,0));
+    assert_eq!(liqpool.k_last(), 0);
+    assert_eq!(liqpool.price_0_cumulative_last(), 0);
+    assert_eq!(liqpool.price_1_cumulative_last(), 0);
 
     let factor = 10000000; // we will use 7 decimals
 
-    token0.mint(&user, &(1000 * factor));
-    assert_eq!(token0.balance(&user), &(1000 * factor));
+    token_0.mint(&user, &(1000 * factor));
+    assert_eq!(token_0.balance(&user), 1000 * factor);
+    token_1.mint(&user, &&(1000 * factor));
+    assert_eq!(token_1.balance(&user), 1000 * factor);
 
-    token1.mint(&user, &&(1000 * factor));
-    assert_eq!(token1.balance(&user), &(1000 * factor));
-
+    // Testing the deposit function:
+    let init_time = 12345;
+    e.ledger().set(LedgerInfo {
+        timestamp: init_time,
+        protocol_version: 1,
+        sequence_number: 10,
+        network_id: Default::default(),
+        base_reserve: 10,
+    });
 
     liqpool.deposit(&user, &(100 * factor), &(100 * factor), &(100 * factor), &(100 * factor));
 
@@ -127,13 +151,13 @@ fn test() {
         ),
         (
             user.clone(),
-            token0.address.clone(),
+            token_0.address.clone(),
             Symbol::short("transfer"),
             (&user, &liqpool.address, 1000000000_i128).into_val(&e)//from, to, amount
         ),
         (
             user.clone(),
-            token1.address.clone(),
+            token_1.address.clone(),
             Symbol::short("transfer"),
             (&user, &liqpool.address, 1000000000_i128).into_val(&e)
         )]
@@ -142,16 +166,50 @@ fn test() {
     assert_eq!(liqpool.my_balance(&user), 999999000);
     // We lock forever the minimum_liquidity (1000) in the LP contract itself
     assert_eq!(liqpool.my_balance(&liqpool.address), 1000);
-    assert_eq!(token0.balance(&user), 900 * factor);
-    assert_eq!(token0.balance(&liqpool.address), 100 * factor);
-    assert_eq!(token1.balance(&user), 900 * factor);
-    assert_eq!(token1.balance(&liqpool.address), 100 * factor);
+    assert_eq!(token_0.balance(&user), 900 * factor);
+    assert_eq!(token_0.balance(&liqpool.address), 100 * factor);
+    assert_eq!(token_1.balance(&user), 900 * factor);
+    assert_eq!(token_1.balance(&liqpool.address), 100 * factor);
 
-    // testt klast still 0
-    // test fee_to not received any fee yet
-    // put_price_0_cumulative_last, put_price_1_cumulative_last
+    // Testing that k_last is still 0 (fee not yet on)
+    assert_eq!(liqpool.k_last(), 0);
+    // Test fee_to has not yet received any fee
+    assert_eq!(liqpool.my_balance(&admin_0), 0);
+    // The first deposit, we don't have yet any price accumulated, this will be on the second deposit
+    assert_eq!(liqpool.price_0_cumulative_last(), 0);
+    assert_eq!(liqpool.price_1_cumulative_last(), 0);
     // put_reserve_0, put_reserve_1
-    // put_block_timestamp_last
+    assert_eq!(liqpool.get_reserves(), (100 * factor, 100 * factor,init_time));
+
+
+    // Now, let's deposit again in order to have Cumulative Prices.
+    let passed_time = 54321;
+    e.ledger().set(LedgerInfo {
+        timestamp: passed_time + init_time,
+        protocol_version: 1,
+        sequence_number: 10,
+        network_id: Default::default(),
+        base_reserve: 10,
+    });
+
+    liqpool.deposit(&user, &(100 * factor), &(100 * factor), &(100 * factor), &(100 * factor));
+    assert_eq!(liqpool.my_balance(&user), 100 * factor + 999999000);
+    assert_eq!(liqpool.my_balance(&liqpool.address), 1000);
+    assert_eq!(token_0.balance(&user), 800 * factor);
+    assert_eq!(token_0.balance(&liqpool.address), 200 * factor);
+    assert_eq!(token_1.balance(&user), 800 * factor);
+    assert_eq!(token_1.balance(&liqpool.address), 200 * factor);
+    assert_eq!(liqpool.get_reserves(), (200 * factor, 200 * factor,passed_time + init_time));
+    let uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
+    let uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
+    let decimals_u128: u128 = 10000000;
+    let passed_time_u128: u128 = passed_time.into();
+    let expected_price_cumulative_last_decoded: u128 = 1*passed_time_u128*decimals_u128;
+
+    assert_eq!(liqpool.decode_uq64x64_with_7_decimals(&uq64x64_price_0_cumulative_last), expected_price_cumulative_last_decoded);
+    assert_eq!(liqpool.decode_uq64x64_with_7_decimals(&uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
+
+
     // event::sync
 
     // Testing SWAP
@@ -178,16 +236,16 @@ fn test() {
     //     ),
     //     (
     //         user.clone(),
-    //         token0.address.clone(),
+    //         token_0.address.clone(),
     //         Symbol::short("transfer"),
     //         (&user, &liqpool.address, 970000000_i128).into_val(&e)//from, to, amount
     //     )]
     // );
 
-    // assert_eq!(token0.balance(&user), 8036324660    );
-    // assert_eq!(token0.balance(&liqpool.address), 1963675340);
-    // assert_eq!(token1.balance(&user), 9490000000);
-    // assert_eq!(token1.balance(&liqpool.address), 510000000);
+    // assert_eq!(token_0.balance(&user), 8036324660    );
+    // assert_eq!(token_0.balance(&liqpool.address), 1963675340);
+    // assert_eq!(token_1.balance(&user), 9490000000);
+    // assert_eq!(token_1.balance(&liqpool.address), 510000000);
 
 
    // assert_eq!(liqpool.my_balance(&liqpool.address), 0);
@@ -226,9 +284,9 @@ fn test() {
     //     )]
     // );
 
-    // assert_eq!(token0.balance(&user), &(1000 * factor));
-    // assert_eq!(token1.balance(&user), &(1000 * factor));
+    // assert_eq!(token_0.balance(&user), &(1000 * factor));
+    // assert_eq!(token_1.balance(&user), &(1000 * factor));
     // assert_eq!(liqpool.my_balance(&user), 0);
-    // assert_eq!(token0.balance(&liqpool.address), 0);
-    // assert_eq!(token1.balance(&liqpool.address), 0);
+    // assert_eq!(token_0.balance(&liqpool.address), 0);
+    // assert_eq!(token_1.balance(&liqpool.address), 0);
    
