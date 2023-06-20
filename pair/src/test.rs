@@ -347,4 +347,29 @@ fn test() {
     assert_eq!(token_1.balance(&user), user_token_1_balance + expected_user_out_token_1);
     assert_eq!(liqpool.my_balance(&user), 0);
 
+    // Testing the skim function:
+    let pair_token_0_balance = token_0.balance(&liqpool.address);
+    let pair_token_1_balance = token_1.balance(&liqpool.address);
+    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    assert_eq!(pair_token_0_balance, reserve_0);
+    assert_eq!(pair_token_1_balance, reserve_1);
+
+    let user_2 = Address::random(&e);
+    assert_eq!(token_0.balance(&user_2), 0);
+    assert_eq!(token_1.balance(&user_2), 0);
+    token_0.mint(&liqpool.address, &(30 * factor));
+    token_1.mint(&liqpool.address, &(40 * factor));
+    assert_eq!(token_0.balance(&liqpool.address), reserve_0 + (30 * factor));
+    assert_eq!(token_1.balance(&liqpool.address), reserve_1 + (40 * factor));
+
+    liqpool.skim(&user_2);
+    assert_eq!(token_0.balance(&user_2), (30 * factor));
+    assert_eq!(token_1.balance(&user_2), (40 * factor));
+    assert_eq!(token_0.balance(&liqpool.address), reserve_0);
+    assert_eq!(token_1.balance(&liqpool.address), reserve_1);
+
+
+    
+
+
 }
