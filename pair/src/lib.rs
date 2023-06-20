@@ -374,6 +374,7 @@ pub trait SoroswapPairTrait{
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
     fn skim(e: Env, to: Address);
+    fn sync(e: Env);
 
     fn get_reserves(e: Env) -> (i128, i128, u64);
     fn my_balance(e: Env, id: Address) -> i128;
@@ -640,11 +641,12 @@ impl SoroswapPairTrait for SoroswapPair {
         transfer_token_1_from_pair(&e, to, balance_1.checked_sub(reserve_1).unwrap());
     }
 
-    // // force reserves to match balances
-    // function sync() external lock {
-    //     _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
-    // }
-
+    // force reserves to match balances
+    fn sync(e: Env) {
+        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
+        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+    }
 
     fn get_reserves(e: Env) -> (i128, i128, u64) {
         (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
@@ -686,15 +688,5 @@ impl SoroswapPairTrait for SoroswapPair {
 
 
 // TODO: Analize if we should add UniswapV2 skim and sync functions:
-    // // force balances to match reserves
-    // function skim(address to) external lock {
-    //     address _token0 = token0; // gas savings
-    //     address _token1 = token1; // gas savings
-    //     _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)).sub(reserve0));
-    //     _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)).sub(reserve1));
-    // }
-
-    // // force reserves to match balances
-    // function sync() external lock {
-    //     _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
-    // }
+   
+   
