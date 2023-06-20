@@ -8,9 +8,16 @@ pub(crate) fn deposit(e: &Env, sender: Address, amount_0: i128, amount_1: i128) 
     e.events().publish(topics, (amount_0, amount_1));
 }
  
-pub(crate) fn withdraw(e: &Env, sender: Address, amount_0: i128, amount_1: i128, to: Address) {
+pub(crate) fn withdraw(
+    e: &Env,
+    sender: Address,
+    shares_burnt: i128,
+    amount_0: i128,
+    amount_1: i128,
+    to: Address
+) {
     let topics = (PAIR, Symbol::new(e, "withdraw"), sender);
-    e.events().publish(topics, (amount_0, amount_1, to));
+    e.events().publish(topics, (shares_burnt, amount_0, amount_1, to));
 }
 
 /*
