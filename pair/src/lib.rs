@@ -217,12 +217,12 @@ fn transfer(e: &Env, contract_id: Address, to: Address, amount: i128) {
     TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
-fn transfer_0(e: &Env, to: Address, amount: i128) {
+fn transfer_token_0_from_pair(e: &Env, to: Address, amount: i128) {
     // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
     transfer(e, get_token_0(e), to, amount);
 }
 
-fn transfer_1(e: &Env, to: Address, amount: i128) {
+fn transfer_token_1_from_pair(e: &Env, to: Address, amount: i128) {
     transfer(e, get_token_1(e), to, amount);
 }
 
@@ -372,6 +372,8 @@ pub trait SoroswapPairTrait{
     // corresponding amount of token_a and token_b to "to".
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
+
+    fn skim(e: Env, to: Address);
 
     fn get_reserves(e: Env) -> (i128, i128, u64);
     fn my_balance(e: Env, id: Address) -> i128;
@@ -556,9 +558,9 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         if buy_0 {
-            transfer_0(&e, to.clone(), amount_0_out);
+            transfer_token_0_from_pair(&e, to.clone(), amount_0_out);
         } else {
-            transfer_1(&e, to.clone(), amount_1_out);
+            transfer_token_1_from_pair(&e, to.clone(), amount_1_out);
         }
 
         let new_balance_0 = balance_0.checked_sub(amount_0_out).unwrap();
@@ -567,8 +569,6 @@ impl SoroswapPairTrait for SoroswapPair {
         event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
     }
 
-// Check UniswapV2 burn function
-// TODO: In UniswapV2 this is called burn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
         to.require_auth();
         // We get the original reserves before the action:
@@ -613,8 +613,8 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // _burn(address(this), liquidity);
         burn_shares(&e, user_sent_shares);
-        transfer_0(&e, to.clone(), out_0.clone());
-        transfer_1(&e, to.clone(), out_1.clone());
+        transfer_token_0_from_pair(&e, to.clone(), out_0.clone());
+        transfer_token_1_from_pair(&e, to.clone(), out_1.clone());
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
         // _update(balance0, balance1, _reserve0, _reserve1);
@@ -631,6 +631,20 @@ impl SoroswapPairTrait for SoroswapPair {
       
         (out_0, out_1)
     }
+
+    // force balances to match reserves
+    fn skim(e: Env, to: Address) {
+        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
+        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+        transfer_token_0_from_pair(&e, to.clone(), balance_0.checked_sub(reserve_0).unwrap());
+        transfer_token_1_from_pair(&e, to, balance_1.checked_sub(reserve_1).unwrap());
+    }
+
+    // // force reserves to match balances
+    // function sync() external lock {
+    //     _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), reserve0, reserve1);
+    // }
+
 
     fn get_reserves(e: Env) -> (i128, i128, u64) {
         (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
