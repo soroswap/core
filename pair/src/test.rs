@@ -368,6 +368,31 @@ fn test() {
     assert_eq!(token_0.balance(&liqpool.address), reserve_0);
     assert_eq!(token_1.balance(&liqpool.address), reserve_1);
 
+    // Testing the sync function
+    // force reserves to match balances
+    let pair_token_0_balance = token_0.balance(&liqpool.address);
+    let pair_token_1_balance = token_1.balance(&liqpool.address);
+    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    assert_eq!(pair_token_0_balance, reserve_0);
+    assert_eq!(pair_token_1_balance, reserve_1);
+
+    token_0.mint(&liqpool.address, &(30 * factor));
+    token_1.mint(&liqpool.address, &(40 * factor));
+    assert_eq!(token_0.balance(&liqpool.address), reserve_0 + (30 * factor));
+    assert_eq!(token_1.balance(&liqpool.address), reserve_1 + (40 * factor));
+
+    liqpool.sync();
+    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    assert_eq!(token_0.balance(&liqpool.address), reserve_0);
+    assert_eq!(token_1.balance(&liqpool.address), reserve_1);
+
+
+
+
+
+
+
+
 
     
 
