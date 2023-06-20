@@ -12,6 +12,8 @@ use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, Tr
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 use factory::{FactoryClient};
 
+static MINIMUM_LIQUIDITY: i128 = 1000;
+
 #[derive(Clone, Copy)] 
 #[repr(u32)]
 /*
@@ -35,7 +37,8 @@ TODO: Analize reentrancy attack guard?
         unlocked = 1;
     }
 */
-    
+
+
 pub enum DataKey {
     Token0 = 0, // address public token0;
     Token1 = 1, // address public token1;
@@ -253,28 +256,6 @@ fn get_deposit_amounts(
     }
 }
 
-
-    //  // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    //  function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
-    //     address feeTo = IUniswapV2Factory(factory).feeTo();
-    //     feeOn = feeTo != address(0);
-    //     uint _kLast = kLast; // gas savings
-    //     if (feeOn) {
-    //         if (_kLast != 0) {
-    //             uint rootK = Math.sqrt(uint(_reserve0).mul(_reserve1));
-    //             uint rootKLast = Math.sqrt(_kLast);
-    //             if (rootK > rootKLast) {
-    //                 uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-    //                 uint denominator = rootK.mul(5).add(rootKLast);
-    //                 uint liquidity = numerator / denominator;
-    //                 if (liquidity > 0) _mint(feeTo, liquidity);
-    //             }
-    //         }
-    //     } else if (_kLast != 0) {
-    //         kLast = 0;
-    //     }
-    // }
-
 /*
         accumulated fees are collected only when liquidity is deposited
         or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
@@ -394,11 +375,11 @@ pub trait SoroswapPairTrait{
 
     fn get_reserves(e: Env) -> (i128, i128, u64);
     fn my_balance(e: Env, id: Address) -> i128;
+    fn total_shares(e: Env) -> i128;
     fn factory(e: Env) -> Address;
     fn k_last(e: Env) -> i128;
     fn price_0_cumulative_last(e: Env) -> u128;
     fn price_1_cumulative_last(e: Env) -> u128;
-    fn decode_uq64x64_with_7_decimals(e: Env, x: u128) -> u128;
 }
 
 struct SoroswapPair;
@@ -487,9 +468,9 @@ impl SoroswapPairTrait for SoroswapPair {
             shares_a.min(shares_b)
         } else {
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
-            let minimum_liquidity: i128 = 1000;
-            mint_shares(&e, e.current_contract_address(), minimum_liquidity);    
-            ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(minimum_liquidity).unwrap()
+            
+            mint_shares(&e, e.current_contract_address(), MINIMUM_LIQUIDITY);    
+            ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         };  
 
         mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
@@ -590,41 +571,73 @@ impl SoroswapPairTrait for SoroswapPair {
 // TODO: In UniswapV2 this is called burn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
         to.require_auth();
-
-        // First transfer the pool shares that need to be redeemed:
-        // Transfer from the user the "share_amounts" pool shares that it needs to be redeeemed.
-
+        // We get the original reserves before the action:
+        // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+        let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+        
+        /*
+        For now we are sending the pair token to the contract here.
+        This will change with a Router contract that will send the tokens to us.
+        */
         Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
+        // address _token0 = token0;                                // gas savings
+        // address _token1 = token1;                                // gas savings
+        // uint balance0 = IERC20(_token0).balanceOf(address(this));
+        // uint balance1 = IERC20(_token1).balanceOf(address(this));
+        // uint liquidity = balanceOf[address(this)];
+        let (mut balance_0, mut balance_1) = (get_balance_0(&e), get_balance_1(&e));
+        let user_sent_shares = get_balance_shares(&e).checked_sub(MINIMUM_LIQUIDITY).unwrap();
+        
+        // bool feeOn = _mintFee(_reserve0, _reserve1);
+        let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
 
-        let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let balance_shares = get_balance_shares(&e);
-
+        // uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
 
-        // Now calculate the withdraw amounts
-        // let out_a = (balance_0 * balance_shares) / total_shares;
-        // let out_b = (balance_1 * balance_shares) / total_shares;
-        let out_a = (balance_0.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
-        let out_b = (balance_1.checked_mul(balance_shares).unwrap()).checked_div(total_shares).unwrap();
+        // amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
+        // amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
+        // require(amount0 > 0 && amount1 > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
 
-        if out_a < min_a || out_b < min_b {
+        // Now calculate the withdraw amounts
+        let out_0 = (balance_0.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
+        let out_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
+
+        if out_0 <= 0 || out_1 <= 0 {
+            panic!("insufficient amount_0 or amount_1");
+        }
+
+        // TODO: In the next iteration this should be in the Router contract
+        if out_0 < min_a || out_1 < min_b {
             panic!("min not satisfied");
         }
 
-        burn_shares(&e, balance_shares);
-        transfer_0(&e, to.clone(), out_a.clone());
-        transfer_1(&e, to.clone(), out_b.clone());
-        // Checks if not negative in put_reserve_0 and put_reserve_1
-        put_reserve_0(&e, balance_0.checked_sub(out_a).unwrap());
-        put_reserve_1(&e, balance_1.checked_sub(out_b).unwrap());
+        // _burn(address(this), liquidity);
+        burn_shares(&e, user_sent_shares);
+        transfer_0(&e, to.clone(), out_0.clone());
+        transfer_1(&e, to.clone(), out_1.clone());
+        (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        event::withdraw(&e, to.clone(), out_a, out_b, to);
+        // _update(balance0, balance1, _reserve0, _reserve1);
+        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        // Update reserve_0 and reserve_1 after being updated in update() function:
+        (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
+        // if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
+        if fee_on {
+            put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
+        }
 
-        (out_a, out_b)
+         // emit Burn(msg.sender, amount0, amount1, to);
+        event::withdraw(&e, to.clone(), user_sent_shares, out_0, out_1, to);
+      
+        (out_0, out_1)
     }
 
     fn get_reserves(e: Env) -> (i128, i128, u64) {
         (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
+    }
+
+    fn total_shares(e: Env) -> i128 {
+        get_total_shares(&e)
     }
 
     fn my_balance(e: Env, id: Address) -> i128 {
@@ -640,10 +653,6 @@ impl SoroswapPairTrait for SoroswapPair {
     }
     fn price_1_cumulative_last(e: Env) -> u128 {
         get_price_1_cumulative_last(&e)
-    }
-
-    fn decode_uq64x64_with_7_decimals(e: Env, x: u128) -> u128 {
-        uq64x64::decode_with_7_decimals(x)
     }
     
 

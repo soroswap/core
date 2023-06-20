@@ -302,45 +302,49 @@ fn test() {
     // assert_eq!(new_uq64x64_price_0_cumulative_last, expected_price_1_cumulative_last_encoded);
     // assert_eq!(new_uq64x64_price_1_cumulative_last, expected_price_1_cumulative_last_encoded);
 
+    // Testing WITHDRAW
+    let pair_token_0_balance = token_0.balance(&liqpool.address);
+    let pair_token_1_balance = token_1.balance(&liqpool.address);
+    let user_token_0_balance = token_0.balance(&user);
+    let user_token_1_balance = token_1.balance(&user);
+    let MINIMUM_LIQUIDITY = 1000;
+    let mut total_shares = liqpool.total_shares();
+    let total_user_shares = liqpool.my_balance(&user);
+    let expected_user_out_token_0 = (pair_token_0_balance* total_user_shares) / total_shares;
+    let expected_user_out_token_1 = (pair_token_1_balance* total_user_shares) / total_shares;
+    let expected_locked_token_0 = pair_token_0_balance - expected_user_out_token_0;
+    let expected_locked_token_1 = pair_token_1_balance - expected_user_out_token_1;
+
+    assert_eq!(total_user_shares, (100 * factor + 999999000));
+
+    liqpool.withdraw(&user, &total_user_shares, &0, &0);
+
+    // Testing to.require_auth();
+    assert_eq!(
+        e.auths(),
+        [(
+            user.clone(),
+            liqpool.address.clone(),
+            Symbol::short("withdraw"),
+            (&user, total_user_shares, 0_i128, 0_i128).into_val(&e)
+        )]
+    );
+
+    // Testing the "withdraw" event
+    // topics: (PAIR, Symbol::new(e, "withdraw"), sender);
+    let topics = (PAIR, Symbol::new(&e, "withdraw"), user.clone());
+    // data: (shares_burnt, amount_0, amount_1, to)
+    let data = (total_user_shares, expected_user_out_token_0, expected_user_out_token_1, user.clone());
+    assert_eq!(last_event_vec(&e),
+                vec![&e,    (liqpool.address.clone(),
+                            topics.into_val(&e),
+                            data.into_val(&e))]);
+
+    assert_eq!(token_1.balance(&liqpool.address), expected_locked_token_1);
+    assert_eq!(token_0.balance(&liqpool.address), expected_locked_token_0);
+    assert_eq!(liqpool.total_shares(), MINIMUM_LIQUIDITY);
+    assert_eq!(token_0.balance(&user), user_token_0_balance + expected_user_out_token_0);
+    assert_eq!(token_1.balance(&user), user_token_1_balance + expected_user_out_token_1);
+    assert_eq!(liqpool.my_balance(&user), 0);
 
 }
-  // // Testing WITHDRAW
-    // liqpool.withdraw(&user, &(100 * factor), &1970000000, &510000000);
-
-    // // Testing the "withdraw" event
-    // // topics: (PAIR, Symbol::new(e, "withdraw"), sender);
-    // let topics = (PAIR, Symbol::new(&e, "withdraw"), user.clone());
-    // // data: (amount_0, amount_1, to)
-    // let data = (1970000000_i128, 510000000_i128, user.clone());
-    // assert_eq!(last_event_vec(&e),
-    //             vec![&e,    (liqpool.address.clone(),
-    //                         topics.into_val(&e),
-    //                         data.into_val(&e))]);
-
-    // // // Testing the "withdraw" event
-    // // let topics = (Symbol::new(&e, "withdraw"), user.clone(), 1970000000_i128, 510000000_i128);
-    // // assert_eq!(
-    // //     last_event_vec(&e),
-    // //     vec![&e, (  liqpool.address.clone(),
-    // //                 topics.into_val(&e),
-    // //                 user.clone().into_val(&e)),
-    // //         ]
-    // // );
-
-    // // Testing to.require_auth();
-    // assert_eq!(
-    //     e.auths(),
-    //     [(
-    //         user.clone(),
-    //         liqpool.address.clone(),
-    //         Symbol::short("withdraw"),
-    //         (&user, 1000000000_i128, 1970000000_i128, 510000000_i128).into_val(&e)
-    //     )]
-    // );
-
-    // assert_eq!(token_0.balance(&user), &(1000 * factor));
-    // assert_eq!(token_1.balance(&user), &(1000 * factor));
-    // assert_eq!(liqpool.my_balance(&user), 0);
-    // assert_eq!(token_0.balance(&liqpool.address), 0);
-    // assert_eq!(token_1.balance(&liqpool.address), 0);
-   
