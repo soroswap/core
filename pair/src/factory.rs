@@ -20,7 +20,7 @@ impl FactoryTrait for Factory {
         e.storage().get(&DUMMY).unwrap().unwrap()
     }
 
-    fn fees_enabled(e: Env) -> bool {
+    fn fees_enabled(_e: Env) -> bool {
         true
     }
 }
