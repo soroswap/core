@@ -269,12 +269,11 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     //  feeOn = feeTo != address(0);
     let fee_on = factory_client.fees_enabled();
     let klast = get_klast(&e);
-    
+     
     if fee_on{
         let fee_to: Address = factory_client.fee_to();
 
         if klast != 0 {
-            let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
             let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
             let root_klast = (klast).sqrt();
             if root_k > root_klast{
