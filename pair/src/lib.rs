@@ -355,9 +355,6 @@ pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address);
 
-    fn token_0(e: Env) -> Address;
-    fn token_1(e: Env) -> Address;
-
     // Deposits token_a and token_b. Also mints pool shares for the "to" Identifier. The amount minted
     // is determined based on the difference between the reserves stored by this contract, and
     // the actual balance of token_a and token_b for this contract.
@@ -373,34 +370,38 @@ pub trait SoroswapPairTrait{
     // Returns amount of both tokens withdrawn
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
 
+    // transfers the excess token balances from the pair to the specified to address, 
+    // ensuring that the balances match the reserves by subtracting the reserve amounts 
+    // from the current balances.
     fn skim(e: Env, to: Address);
+
+    // updates the reserves of the pair to match the current token balances.
+    // It retrieves the balances and reserves from the environment, then calls the update
+    // function to synchronize the reserves with the balances.
     fn sync(e: Env);
 
-    fn get_reserves(e: Env) -> (i128, i128, u64);
-    fn my_balance(e: Env, id: Address) -> i128;
-    fn total_shares(e: Env) -> i128;
+    fn token_0(e: Env) -> Address;
+    fn token_1(e: Env) -> Address;
     fn factory(e: Env) -> Address;
+
     fn k_last(e: Env) -> i128;
+
     fn price_0_cumulative_last(e: Env) -> u128;
     fn price_1_cumulative_last(e: Env) -> u128;
+
+    fn get_reserves(e: Env) -> (i128, i128, u64);
+
+    // TODO: Just use the token "balance" function
+    fn my_balance(e: Env, id: Address) -> i128;
+    // TODO: Analize using "total_supply"
+    fn total_shares(e: Env) -> i128;
 }
 
 struct SoroswapPair;
 
 #[contractimpl]
 impl SoroswapPairTrait for SoroswapPair {
-    // initialize
-    // // Constructor. Can be constructed my any contract
-    // constructor() public {
-    //     factory = msg.sender;
-    // }
-    // // called once by the factory at time of deployment
-    // function initialize(address _token0, address _token1) external {
-    //     require(msg.sender == factory, 'UniswapV2: FORBIDDEN'); // sufficient check
-    //     token0 = _token0;
-    //     token1 = _token1; 
-    // }
-
+    
     // TODO: Implement name for pairs depending on the tokens
     // TODO: This cannot be called again
     fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address) {
@@ -439,8 +440,6 @@ impl SoroswapPairTrait for SoroswapPair {
         get_factory(&e)
     }
 
-    
-    // function mint(address to) external lock returns (uint liquidity) {
     fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
         // Depositor needs to authorize the deposit
         to.require_auth();
@@ -573,7 +572,6 @@ impl SoroswapPairTrait for SoroswapPair {
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
         to.require_auth();
         // We get the original reserves before the action:
-        // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         
         /*
@@ -594,10 +592,6 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
-
-        // amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
-        // amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
-        // require(amount0 > 0 && amount1 > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
 
         // Now calculate the withdraw amounts
         let out_0 = (balance_0.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
@@ -627,7 +621,6 @@ impl SoroswapPairTrait for SoroswapPair {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
 
-         // emit Burn(msg.sender, amount0, amount1, to);
         event::withdraw(&e, to.clone(), user_sent_shares, out_0, out_1, to);
       
         (out_0, out_1)
@@ -673,20 +666,3 @@ impl SoroswapPairTrait for SoroswapPair {
     
 
 }
-
-// TODO: Analize if we should add UniswapV2 lock guard function:
-
-    // // Reentrancy attack guard
-    // uint private unlocked = 1;
-    // modifier lock() {
-    //     require(unlocked == 1, 'UniswapV2: LOCKED');
-    //     unlocked = 0;
-    //     _;
-    //     unlocked = 1;
-    // }
-
-
-
-// TODO: Analize if we should add UniswapV2 skim and sync functions:
-   
-   
