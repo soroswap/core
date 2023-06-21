@@ -208,8 +208,6 @@ fn test() {
     // TODO: Test event::sync, do it with last_n_events function
 
     // Testing SWAP
-    // The user wants to buy 49 units of token_1, paying maximum 66 units of token_0
-
     init_time = passed_time + init_time;
     passed_time = 9876;
 
@@ -275,7 +273,7 @@ fn test() {
     assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
 
 
-    // Test cumulative prices
+    // TODO: Test cumulative prices
     // // We will swap again to test that the price has changed and it's correctly added in cumulative price
     // init_time = passed_time + init_time;
     // passed_time = 1029;
@@ -388,7 +386,8 @@ fn test() {
 
 
 
-
+    // TODO: Test when fee is on.
+    // Test: 
 
 
 
