@@ -60,19 +60,16 @@ curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
 
 ARGS="--network $NETWORK --source token-admin"
 echo "Using ARGS: $ARGS"
-echo Wrap two Stellar asset
+echo "--" 
+echo "--"
+
 mkdir -p .soroban
 
-echo "--"
-echo "--"
-
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
 TOKEN_WASM="soroban_token_contract.wasm"
-#TOKEN_WASM="soroban_token_spec.wasm"
-
-
+ 
 echo Deploying TOKEN_A
-  TOKEN_A_ID="$(
+
+TOKEN_A_ID="$(
   soroban contract deploy $ARGS \
     --wasm $TOKEN_WASM
   )"
@@ -150,15 +147,25 @@ echo Current TOKEN_B_ID: $TOKEN_B_ID
   echo "--"
   echo "--"
 
+# TODO, remove this when https://github.com/stellar/soroban-tools/issues/661 is resolved.
+TOKEN_A_ADDRESS="$(node ./address_workaround.js $TOKEN_A_ID)"
+TOKEN_B_ADDRESS="$(node ./address_workaround.js $TOKEN_B_ID)"
 
 echo -n "$TOKEN_A_ID" > .soroban/token_a_id
 echo -n "$TOKEN_B_ID" > .soroban/token_b_id
+echo -n "$TOKEN_A_ADDRESS" > .soroban/token_a_address
+echo -n "$TOKEN_B_ADDRESS" > .soroban/token_b_address
 
 echo Build the SoroswapPair contract
 cd pair
 make build
 cd ..
+cd factory
+make build
+cd  ..
 PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+
 echo "--"
 echo "--"
 
@@ -172,13 +179,46 @@ echo "SoroswapPair deployed succesfully with PAIR_ID: $PAIR_ID"
 echo "--"
 echo "--"
 
+echo Deploy the Factory 
+FACTORY_ID="$(
+soroban contract deploy $ARGS \
+  --wasm $FACTORY_WASM
+)"
+
+FACTORY_ADDRESS="$(node ./address_workaround.js $FACTORY_ID)"
+
+echo "$FACTORY_WASM" > .soroban/factory_wasm_hash
+echo "SoroswapFactory deployed succesfully with FACTORY_ID: $FACTORY_ID"
+echo "SoroswapFactory deployed succesfully with FACTORY_ADDRESS: $FACTORY_ADDRESS"
+
+echo "--"
+echo "--"
+
+echo "Initialize the Factory contract using the Admin address as Setter"
+echo "Calling: 
+fn initialize(e: Env,
+                  setter: Address, 
+                  pair_wasm_hash: BytesN<32>)
+"
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM \
+  --id $FACTORY_ID \
+  -- \
+  initialize \
+  --setter "$TOKEN_ADMIN_ADDRESS" \
+  --pair_wasm_hash "$PAIR_ID"
+echo "--"
+echo "--"
+
+
 
 echo "Initialize the Pair contract using the Admin address as Factory"
 echo "Calling: 
-fn initialize_pair( e: Env
-                    factory: Address,
-                    token_a: BytesN<32>,
-                    token_b: BytesN<32>);
+fn initialize_pair(e: Env,
+                  factory: Address, 
+                  token_a: Address, 
+                  token_b: Address)
 "
 
 soroban contract invoke \
@@ -187,12 +227,9 @@ soroban contract invoke \
   --id $PAIR_ID \
   -- \
   initialize_pair \
-  --factory "$TOKEN_ADMIN_ADDRESS" \
-  --token_a "$TOKEN_A_ID" \
-  --token_b "$TOKEN_B_ID" 
-
-
-
+  --factory "$FACTORY_ADDRESS" \
+  --token_a "$TOKEN_A_ADDRESS" \
+  --token_b "$TOKEN_B_ADDRESS" 
 echo "--"
 echo "--"
 
@@ -207,7 +244,7 @@ echo In the following we are going to use a new USER account:
   
 
 
-echo "Mint 1000 units of token A user -- calling from TOKEN_ADMIN"
+echo "Mint 10000000000 units of token A user -- calling from TOKEN_ADMIN"
 
 soroban contract invoke \
   $ARGS \
@@ -215,11 +252,10 @@ soroban contract invoke \
   --id $TOKEN_A_ID \
   -- \
   mint \
-  --admin "$TOKEN_ADMIN_ADDRESS" \
   --to "$USER_ADDRESS" \
-  --amount "1000" 
+  --amount "10000000000" 
 
-echo "Mint 1000 units of token B to user"
+echo "Mint 10000000000 units of token B to user"
 
 soroban contract invoke \
   $ARGS \
@@ -227,12 +263,11 @@ soroban contract invoke \
   --id $TOKEN_B_ID \
   -- \
   mint \
-  --admin "$TOKEN_ADMIN_ADDRESS" \
   --to "$USER_ADDRESS" \
-  --amount "1000" 
+  --amount "10000000000" 
 
 
-echo "Check that user has 1000 units of each token"
+echo "Check that user has 10000000000 units of each token"
 echo "Check TOKEN_A"
 soroban contract invoke \
   $ARGS \
@@ -252,13 +287,13 @@ soroban contract invoke \
   --id $USER_ADDRESS
 
 
-echo "test get_rsrvs"
+echo "test get_reserves"
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
   --id $PAIR_ID \
   -- \
-  get_rsrvs
+  get_reserves
 
 
 echo "Deposit these tokens into the Pool contract"
@@ -313,13 +348,32 @@ soroban contract invoke \
   -- \
   deposit \
   --to "$USER_ADDRESS" \
-  --desired_a 100 \
-  --min_a 100 \
-  --desired_b 100 \
-  --min_b 100
+  --desired_a 1000000000 \
+  --min_a 1000000000 \
+  --desired_b 1000000000 \
+  --min_b 1000000000
 
-echo Check that the user pair tokens balance is 100
+echo Check that the user pair tokens balance is 1000000000
 
+
+echo "Check asdadasdasdasd"
+soroban contract invoke \
+  $ARGS \
+  --wasm $FACTORY_WASM\
+  --id $FACTORY_ID \
+  -- \
+  fees_enabled 
+
+echo FACTORY_ID = $FACTORY_ID
+
+
+echo "Check factory address in pair contract"
+soroban contract invoke \
+  $ARGS \
+  --wasm $PAIR_WASM\
+  --id $PAIR_ID \
+  -- \
+  factory 
 
 echo "Check PAIR_ID"
 soroban contract invoke \
@@ -354,7 +408,7 @@ soroban contract invoke \
 echo And the Pair contract should hold:
 PAIR_CONTRACT_ADDRESS="{\"address\": {\"contract\":\"$PAIR_ID\"}}"
 
-echo 100 tokens of TOKEN_A
+echo 1000000000 tokens of TOKEN_A
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
@@ -363,7 +417,7 @@ soroban contract invoke \
   balance \
   --id "$PAIR_CONTRACT_ADDRESS"
 
-echo 100 tokens of TOKEN_B
+echo 1000000000 tokens of TOKEN_B
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
@@ -402,8 +456,10 @@ soroban contract invoke \
   -- \
   swap \
   --to "$USER_ADDRESS" \
-  --out 49 \
-  --in_max 100 
+  --buy_a "false,
+  --amount_out
+  --amount_out 49 \
+  --in_max 1000000000 
 
 
 
@@ -470,6 +526,6 @@ soroban contract invoke \
   -- \
   withdraw \
   --to "$USER_ADDRESS" \
-  --share_amount 100 \
+  --share_amount 1000000000 \
   --min_a 197 \
   --min_b 51 
