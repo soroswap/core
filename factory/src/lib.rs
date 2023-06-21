@@ -206,6 +206,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // write_administrator(&e, &admin);
         put_fee_to_setter(&e, &setter);
         put_pair_wasm_hash(&e, pair_wasm_hash);
+        Self::set_fee_to(e, setter)
     }
 
     /*  *** Read only functions: *** */
