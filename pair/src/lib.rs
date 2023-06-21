@@ -11,6 +11,7 @@ use num_integer::Roots;
 use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, TryFromVal};
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 use factory::{FactoryClient};
+use uq64x64::fraction;
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
 
@@ -335,8 +336,8 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
         let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
         let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
         // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
-        put_price_0_cumulative_last(&e, price_0_cumulative_last + uq64x64::fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
-        put_price_1_cumulative_last(&e, price_1_cumulative_last + uq64x64::fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
+        put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
+        put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
     }
     // reserve0 = uint112(balance0);
     // reserve1 = uint112(balance1);

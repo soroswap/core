@@ -13,14 +13,8 @@ mod factory {
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 
-
-use crate::uq64x64::{fraction, encode, decode_with_7_decimals as decode_uq64x64_with_7_decimals};
-
 use token::TokenClient;
 use factory::SoroswapFactoryClient;
-//use factory::SoroswapFactory;
-
-use crate::test::factory::WASM;
 
 use soroban_sdk::{  testutils::{Events, Ledger, LedgerInfo},
                     Vec,
@@ -31,6 +25,23 @@ use soroban_sdk::{  testutils::{Events, Ledger, LedgerInfo},
                     BytesN, 
                     Env,
                     IntoVal, Symbol};
+
+
+// decode a UQ112x112 into a u128 with 7 decimals of precision
+fn decode_uq64x64_with_7_decimals(x: u128) -> u128 {
+    /*
+    Inspired by https://github.com/compound-finance/open-oracle/blob/d0a0d0301bff08457d9dfc5861080d3124d079cd/contracts/Uniswap/UniswapLib.sol#L27
+    and https://ethereum.stackexchange.com/questions/113130/what-does-decode112with18-do
+    
+    to get close to: (x * 1e7) / 2^64 without risk of overflowing we do:
+    = (x) * (2**log2(1e7)) / 2^64
+    = (x) / (2 ** (64 - log2(1e7)))
+    ≈ (x) / (1.8446744073709551616 × 10^12 )
+    ≈ (x) / 1844674407370
+    */
+
+    x / 1844674407370
+}
 
 fn create_token_contract<'a>(e: &'a Env, admin: &'a Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
@@ -79,13 +90,13 @@ fn test() {
     e.mock_all_auths();
     
     let user = Address::random(&e);
-    let mut admin_0 = Address::random(&e);
-    let mut admin1 = Address::random(&e);
+    let admin_0 = Address::random(&e);
+    let admin_1 = Address::random(&e);
     let mut token_0 = create_token_contract(&e, &admin_0);
-    let mut token_1 = create_token_contract(&e, &admin1);
+    let mut token_1 = create_token_contract(&e, &admin_1);
     if &token_1.address.contract_id() < &token_0.address.contract_id() {
         std::mem::swap(&mut token_0, &mut token_1);
-        std::mem::swap(&mut admin_0.clone(), &mut admin1.clone());
+        std::mem::swap(&mut admin_0.clone(), &mut admin_1.clone());
     }
 
     let pair_token_wasm_binding = pair_token_wasm(&e);  
@@ -198,8 +209,8 @@ fn test() {
     let mut uq64x64_price_0_cumulative_last = liqpool.price_0_cumulative_last();
     let mut uq64x64_price_1_cumulative_last = liqpool.price_1_cumulative_last();
     let decimals_u128: u128 = 10000000;
-    let mut passed_time_u128: u128 = passed_time.into();
-    let mut expected_price_cumulative_last_decoded: u128 = 1*passed_time_u128*decimals_u128;
+    let passed_time_u128: u128 = passed_time.into();
+    let expected_price_cumulative_last_decoded: u128 = 1*passed_time_u128*decimals_u128;
 
     assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_0_cumulative_last), expected_price_cumulative_last_decoded);
     assert_eq!(decode_uq64x64_with_7_decimals(uq64x64_price_1_cumulative_last), expected_price_cumulative_last_decoded);
@@ -305,8 +316,8 @@ fn test() {
     let pair_token_1_balance = token_1.balance(&liqpool.address);
     let user_token_0_balance = token_0.balance(&user);
     let user_token_1_balance = token_1.balance(&user);
-    let MINIMUM_LIQUIDITY = 1000;
-    let mut total_shares = liqpool.total_shares();
+    let minimum_liquidity = 1000;
+    let total_shares = liqpool.total_shares();
     let total_user_shares = liqpool.my_balance(&user);
     let expected_user_out_token_0 = (pair_token_0_balance* total_user_shares) / total_shares;
     let expected_user_out_token_1 = (pair_token_1_balance* total_user_shares) / total_shares;
@@ -340,7 +351,7 @@ fn test() {
 
     assert_eq!(token_1.balance(&liqpool.address), expected_locked_token_1);
     assert_eq!(token_0.balance(&liqpool.address), expected_locked_token_0);
-    assert_eq!(liqpool.total_shares(), MINIMUM_LIQUIDITY);
+    assert_eq!(liqpool.total_shares(), minimum_liquidity);
     assert_eq!(token_0.balance(&user), user_token_0_balance + expected_user_out_token_0);
     assert_eq!(token_1.balance(&user), user_token_1_balance + expected_user_out_token_1);
     assert_eq!(liqpool.my_balance(&user), 0);
@@ -348,7 +359,7 @@ fn test() {
     // Testing the skim function:
     let pair_token_0_balance = token_0.balance(&liqpool.address);
     let pair_token_1_balance = token_1.balance(&liqpool.address);
-    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    let (reserve_0, reserve_1, _last_block) = liqpool.get_reserves();
     assert_eq!(pair_token_0_balance, reserve_0);
     assert_eq!(pair_token_1_balance, reserve_1);
 
@@ -370,7 +381,7 @@ fn test() {
     // force reserves to match balances
     let pair_token_0_balance = token_0.balance(&liqpool.address);
     let pair_token_1_balance = token_1.balance(&liqpool.address);
-    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    let (reserve_0, reserve_1, _last_block) = liqpool.get_reserves();
     assert_eq!(pair_token_0_balance, reserve_0);
     assert_eq!(pair_token_1_balance, reserve_1);
 
@@ -380,7 +391,7 @@ fn test() {
     assert_eq!(token_1.balance(&liqpool.address), reserve_1 + (40 * factor));
 
     liqpool.sync();
-    let (reserve_0, reserve_1, last_block) = liqpool.get_reserves();
+    let (reserve_0, reserve_1, _last_block) = liqpool.get_reserves();
     assert_eq!(token_0.balance(&liqpool.address), reserve_0);
     assert_eq!(token_1.balance(&liqpool.address), reserve_1);
 
