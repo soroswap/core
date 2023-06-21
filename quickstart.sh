@@ -1,13 +1,13 @@
 #!/bin/bash
 
 previewVersion="9"
-
+ 
 set -e
 
 case "$1" in
 standalone)
     echo "Using standalone network"
-    ARGS="--standalone --enable-core-artificially-accelerate-time-for-testing"
+    ARGS="--standalone"
     ;;
 futurenet)
     echo "Using Futurenet network"
@@ -52,7 +52,7 @@ docker run --rm -ti \
   --name stellar \
   --network soroban-network \
   -p 8000:8000 \
-  stellar/quickstart:soroban-dev@sha256:a057ec6f06c6702c005693f8265ed1261e901b153a754e97cf18b0962257e872 \
+  stellar/quickstart:soroban-dev@sha256:57e8ab498bfa14c65595fbb01cb94b1cdee9637ef2e6634e59d54f6958c05bdb \
   $ARGS \
   --enable-soroban-rpc \
   --protocol-version 20 \
