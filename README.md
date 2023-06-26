@@ -1,14 +1,32 @@
 # Soroswap core Smart Contracts
 
+## 0. Too long to read?
+In one terminal
+```
+bash quickstart.sh standalone
+```
+In another terminal
+```
+bash run.sh
+```
+Run any command you want. Here are some examples:
+```
+bash initialize.sh standalone
+bash initialize_pair.sh standalone
+bash initialize_factory.sh standalone
+cd pair && make && make test
+cd factory && make && make test
+```
+
 ## 1. Environment Preparation:
  
-1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:8 Docker containers
-Currently, Soroswap Protocol supports PREVIEW-8:
+1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:9 Docker containers
+Currently, Soroswap Protocol supports PREVIEW-9:
 Here you can choose to use an `standalone` or `futurenet` instance 
 ```
 bash quickstart.sh standalone
 ```
-With this, a `stellar` container and a `soroban-preview-8` will run, sharing the `soroban-network` network in Docker
+With this, a `stellar` container and a `soroban-preview-9` will run, sharing the `soroban-network` network in Docker
 
 2.- Run a terminal of the soroban-preview
 ```
@@ -42,12 +60,12 @@ Check it in: [docs.soroswap.finance](https://docs.soroswap.finance/), on a [6 ch
 
 If you want to go fast to the soroban CLI experiment, just run:
 
-To test the Pair contract, nside the `soroban-preview-8` container run:
+To test the Pair contract, inside the `soroban-preview-9` container run:
 ```bash
 bash intialize_pair.sh standalone
 ```
 
-To test the Pair contract, nside the `soroban-preview-8` container run:
+To test the Pair contract, inside the `soroban-preview-9` container run:
 ```bash
 bash intialize_factory.sh standalone
 ```
