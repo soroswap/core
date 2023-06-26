@@ -66,10 +66,10 @@ If you want to go fast to the soroban CLI experiment, just run:
 
 To test the Pair contract, inside the `soroban-preview-9` container run:
 ```bash
-bash intialize_pair.sh standalone
+bash initialize_pair.sh standalone
 ```
 
 To test the Pair contract, inside the `soroban-preview-9` container run:
 ```bash
-bash intialize_factory.sh standalone
+bash initialize_factory.sh standalone
 ```
