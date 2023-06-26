@@ -1,6 +1,10 @@
 # Soroswap core Smart Contracts
 
 ## 0. Too long to read?
+Install:
+```
+yarn
+```
 In one terminal
 ```
 bash quickstart.sh standalone
