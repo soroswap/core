@@ -454,14 +454,14 @@ soroban contract invoke \
   -- \
   swap \
   --to "$USER_ADDRESS" \
-  --amount_out 49 \
+  --amount_out 490000000 \
   --amount_in_max 1000000000 
 
 ## Here we don't set any --buy_0 "false"... it will take it as false
 
 
 echo Now the user should have:
-echo 803 units of TOKEN_A
+echo 8036324660 units of TOKEN_A
 echo "Check user\'s TOKEN_A balance"
 soroban contract invoke \
   $ARGS \
@@ -471,7 +471,7 @@ soroban contract invoke \
   balance \
   --id $USER_ADDRESS
 
-echo 949 units of TOKEN_B
+echo 9490000000 units of TOKEN_B
 echo "Check user\'s TOKEN_B balance"
 soroban contract invoke \
   $ARGS \
@@ -484,7 +484,7 @@ soroban contract invoke \
 echo And the Pair contract should hold:
 PAIR_CONTRACT_ADDRESS="{\"address\": {\"contract\":\"$PAIR_ID\"}}"
 
-echo 197 tokens of TOKEN_A
+echo 1963675340 tokens of TOKEN_A
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
@@ -493,7 +493,7 @@ soroban contract invoke \
   balance \
   --id "$PAIR_CONTRACT_ADDRESS"
 
-echo 51 tokens of TOKEN_B
+echo 510000000 tokens of TOKEN_B
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
@@ -523,6 +523,6 @@ soroban contract invoke \
   -- \
   withdraw \
   --to "$USER_ADDRESS" \
-  --share_amount 1000000000 \
-  --min_a 197 \
-  --min_b 51 
+  --share_amount 999999000 \
+  --min_a 0 \
+  --min_b 0 
