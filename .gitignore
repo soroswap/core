@@ -4,3 +4,4 @@
 /.sccache/
 .DS_Store
 .soroban
+node_modules/
