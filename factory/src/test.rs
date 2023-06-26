@@ -248,6 +248,7 @@ fn test() {
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_same_pair_not_possible() {
     let e: Env = Default::default();
+    e.mock_all_auths();
     let admin = Address::random(&e);  
     let pair_token_wasm_binding = pair_token_wasm(&e);  
     let factory = create_factory_contract(&e, &admin, &pair_token_wasm_binding);
@@ -267,6 +268,7 @@ fn test_double_same_pair_not_possible() {
 #[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
 fn test_double_inverse_pair_not_possible() {
     let e: Env = Default::default();
+    e.mock_all_auths();
     let admin = Address::random(&e);    
     let pair_token_wasm_binding = pair_token_wasm(&e);  
     let factory = create_factory_contract(&e, &admin, &pair_token_wasm_binding);
