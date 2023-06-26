@@ -54,7 +54,7 @@ mkdir -p .soroban
 echo "--"
 echo "--"
 
-TOKEN_WASM="soroban_token_contract.wasm"
+TOKEN_WASM="token/soroban_token_contract.wasm"
 
 
 echo Deploying TOKEN_A

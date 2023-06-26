@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate std;
 mod token {
-    soroban_sdk::contractimport!(file = "../soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 
