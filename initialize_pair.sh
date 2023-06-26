@@ -355,8 +355,6 @@ soroban contract invoke \
 
 echo Check that the user pair tokens balance is 1000000000
 
-
-echo "Check asdadasdasdasd"
 soroban contract invoke \
   $ARGS \
   --wasm $FACTORY_WASM\
@@ -427,7 +425,7 @@ soroban contract invoke \
   --id "$PAIR_CONTRACT_ADDRESS"
 
 
-echo And none of its own tokens -- the pair tokens --
+echo "The pair contract should hold 1,000 units of the pair token itself as minimum liquidity"
 soroban contract invoke \
   $ARGS \
   --wasm $PAIR_WASM\
@@ -442,10 +440,10 @@ echo "--"
 
 echo Now we will SWAP 
 
-# If "buy_a" is true, the swap will buy token_a and sell token_b. This is flipped if "buy_a" is false.
+# If "buy_0" is true, the swap will buy token_a and sell token_b. This is flipped if "buy_0" is false.
 # "out" is the amount being bought, with in_max being a safety to make sure you receive at least that amount.
 #  swap will transfer the selling token "to" to this contract, and then the contract will transfer the buying token to "to".
-#     fn swap(e: Env, to: Address, buy_a: bool, out: i128, in_max: i128);
+#     fn swap(e: Env, to: Address, buy_0: bool, out: i128, in_max: i128);
 
 # In this case we are selling token_a and buying token_b
 
@@ -456,11 +454,10 @@ soroban contract invoke \
   -- \
   swap \
   --to "$USER_ADDRESS" \
-  --buy_a "false,
-  --amount_out
   --amount_out 49 \
-  --in_max 1000000000 
+  --amount_in_max 1000000000 
 
+## Here we don't set any --buy_0 "false"... it will take it as false
 
 
 echo Now the user should have:
