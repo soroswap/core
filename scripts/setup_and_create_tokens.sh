@@ -46,29 +46,46 @@ TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 
 
+# This will fail if the account already exists, but it'll still be fine.
+echo Fund token-admin account from friendbot
+echo This will fail if the account already exists, but it\' still be fine.
+curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
 
 # # Run the script create_token.sh to create the token
 # bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS
 # # Get the token contract address and token id from the file on .soroban/temp_token.json
 
 
-# Initialize an empty JSON array in all_tokens.json
-touch /workspace/.soroban/all_tokens.json
-echo "[]" > /workspace/.soroban/all_tokens.json
+# Initialize an empty JSON array in tokens.json
+touch /workspace/.soroban/tokens.json
+echo "[]" > /workspace/.soroban/tokens.json
+
+# Read token_name_ideas.json file into a variable
+TOKEN_NAME_JSON=$(cat /workspace/scripts/token_name_ideas.json)
+
 
 # Loop from 1 to N_TOKENS
 for i in $(seq 1 $N_TOKENS); do
+
+    # Extract symbol and name values for the current index
+    SYMBOL=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].symbol")
+    NAME=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].name")
+
+    echo "Deploying token $i out of $N_TOKENS. Name: $NAME, Symbol: $SYMBOL"
+  
+
     # Run the script that generates temp_token.json (replace ./your_script.sh with the actual script)
-    bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS
+    bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS $NAME $SYMBOL
 
     # Read the contents of temp_token.json
     temp_token=$(cat /workspace/.soroban/temp_token.json)
 
-    # Add the contents of temp_token.json to the all_tokens.json array
+    # Add the contents of temp_token.json to the tokens.json array
     temp=$(mktemp)
-    jq --argjson new_token "$temp_token" '. += [$new_token]' /workspace/.soroban/all_tokens.json > "$temp" && mv "$temp" /workspace/.soroban/all_tokens.json
+    jq --argjson new_token "$temp_token" '. += [$new_token]' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
 done
 
 # Display the final JSON file
-cat /workspace/.soroban/all_tokens.json
+echo Result available in /workspace/.soroban/tokens.json
+cat /workspace/.soroban/tokens.json
 
