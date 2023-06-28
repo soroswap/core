@@ -43,6 +43,9 @@ TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
 echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 
+echo "$TOKEN_ADMIN_SECRET" > .soroban/token_admin_secret
+echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
+
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot
