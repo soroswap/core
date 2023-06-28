@@ -13,6 +13,13 @@ In another terminal
 ```
 bash run.sh
 ```
+
+Create 8 tokens in the standalone network.
+List will be available in .soroban/tokens.json
+```
+bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
+```
+
 Run any command you want. Here are some examples:
 ```
 bash initialize.sh standalone
