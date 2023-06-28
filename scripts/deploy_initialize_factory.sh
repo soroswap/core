@@ -73,3 +73,11 @@ soroban contract invoke \
 
 echo "--"
 echo "--"
+
+echo "{\"network\": \"$NETWORK\", \"factory\": \"$FACTORY_ID\"}" > /workspace/.soroban/factory.json
+
+
+echo Factory available in  /workspace/.soroban/factory.json
+
+cat /workspace/.soroban/factory.json
+
