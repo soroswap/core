@@ -6,6 +6,8 @@ NETWORK="$1"
 N_TOKENS="$2"
 
 bash /workspace/scripts/setup.sh $1
+TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+
 
 # # Run the script create_token.sh to create the token
 # bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS
@@ -28,7 +30,6 @@ for i in $(seq 1 $N_TOKENS); do
     NAME=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].name")
 
     echo "Deploying token $i out of $N_TOKENS. Name: $NAME, Symbol: $SYMBOL"
-  
 
     # Run the script that generates temp_token.json (replace ./your_script.sh with the actual script)
     bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS $NAME $SYMBOL
