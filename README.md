@@ -20,6 +20,11 @@ List will be available in .soroban/tokens.json
 bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
 ```
 
+Serve the list of tokens at http://localhost:8010/api/tokens
+```
+node api/server.js #Serving file to :8010
+```
+
 Run any command you want. Here are some examples:
 ```
 bash initialize.sh standalone
