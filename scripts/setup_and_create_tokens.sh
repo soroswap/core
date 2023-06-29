@@ -43,6 +43,7 @@ for i in $(seq 1 $N_TOKENS); do
 done
 
 # Display the final JSON file
-echo Result available in /workspace/.soroban/tokens.json
+node api/server.js #Serving file to :8010
+echo Result available in /workspace/.soroban/tokens.json and localhost:8010
 cat /workspace/.soroban/tokens.json
 

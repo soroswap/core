@@ -43,6 +43,7 @@ docker run -dti \
   --volume ${currentDir}:/workspace \
   --name soroban-preview-${previewVersion} \
   -p 8001:8000 \
+  -p 8010:8010 \
   --ipc=host \
   --network soroban-network \
   esteblock/soroban-preview:${previewVersion}
