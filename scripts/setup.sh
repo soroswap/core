@@ -49,7 +49,7 @@ echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
 jq -n \
   --arg secret "$TOKEN_ADMIN_SECRET" \
   --arg address "$TOKEN_ADMIN_ADDRESS" \
-  '{standalone: {admin_public: $address, admin_secret: $secret}, futurenet: {}}' > /workspace/.soroban/token_admin_keys.json
+  '[{network: "standalone", admin_public: $address, admin_secret: $secret}, {network: "futurenet", admin_public: "", admin_secret: ""}]' > /workspace/.soroban/token_admin_keys.json
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot

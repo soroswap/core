@@ -42,7 +42,7 @@ for i in $(seq 1 $N_TOKENS); do
     jq --argjson new_token "$temp_token" '. += [$new_token]' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
 done
 
-jq '. | {standalone: ., futurenet: {}}' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
+jq '. | [{network: "standalone", tokens: .}, {network: "futurenet", tokens: []}]' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
 
 # Display the final JSON file
 echo Result available in /workspace/.soroban/tokens.json and localhost:8010
