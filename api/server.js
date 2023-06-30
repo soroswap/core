@@ -27,13 +27,10 @@ app.get('/api/factory', (req, res) => {
 });
 
 app.get('/api/keys', (req, res) => {
-  const addressFile = '/workspace/.soroban/token_admin_address' 
-  const secretFile = '/workspace/.soroban/token_admin_secret' 
-  
-  if (fs.existsSync(addressFile) && fs.existsSync(secretFile)) {
-    const address = fs.readFileSync(addressFile, 'utf8').trim();
-    const secret = fs.readFileSync(secretFile, 'utf8').trim();
-    return res.json({ admin_public: address, admin_secret: secret });
+  const keysFile = '/workspace/.soroban/token_admin_keys.json' 
+
+  if (fs.existsSync(keysFile)) {
+    return res.sendFile(keysFile);
   }
 
   res.status(404).send({ 'error': 'file not found'})
