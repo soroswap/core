@@ -16,6 +16,26 @@ app.get('/api/tokens', (req, res) => {
   res.status(404).send({ 'error': 'file not found'})
 });
 
+app.get('/api/factory', (req, res) => {
+  const factoryFile = '/workspace/.soroban/factory.json' 
+
+  if (fs.existsSync(factoryFile)) {
+    return res.sendFile(factoryFile);
+  }
+
+  res.status(404).send({ 'error': 'file not found'})
+});
+
+app.get('/api/keys', (req, res) => {
+  const keysFile = '/workspace/.soroban/token_admin_keys.json' 
+
+  if (fs.existsSync(keysFile)) {
+    return res.sendFile(keysFile);
+  }
+
+  res.status(404).send({ 'error': 'file not found'})
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
