@@ -1,41 +1,33 @@
 # Soroswap core Smart Contracts
 
-## 0. Too long to read?
-Install:
-
-In one terminal
+## Too long to read?
+1. In one terminal
 ```
 bash quickstart.sh standalone
 ```
-In another terminal
+2. In another terminal
 ```
 bash run.sh
-```
-
-Create 8 tokens in the standalone network.
-List will be available in .soroban/tokens.json
-```
 bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
 ```
+List will be available in .soroban/tokens.json
 
-Deploy factory
+3. Deploy factory
 ```
 bash scripts/deploy_initialize_factory.sh standalone
 ```
 
-Serve the list of tokens at http://localhost:8010/api/tokens
+4. In another terminal
+
 ```
 bash serve_with_docker.sh
 ```
+This will serve:
+- List of tokens at http://localhost:8010/api/tokens
+- Factory addresses http://localhost:8010/api/factory
+- Admin keys http://localhost:8010/api/keys
 
-Run any command you want. Here are some examples:
-```
-bash initialize.sh standalone
-bash initialize_pair.sh standalone
-bash initialize_factory.sh standalone
-cd pair && make && make test
-cd factory && make && make test
-```
+
 
 ## 1. Environment Preparation:
  
