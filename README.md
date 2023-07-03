@@ -2,9 +2,7 @@
 
 ## 0. Too long to read?
 Install:
-```
-yarn
-```
+
 In one terminal
 ```
 bash quickstart.sh standalone
@@ -20,9 +18,14 @@ List will be available in .soroban/tokens.json
 bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
 ```
 
+Deploy factory
+```
+bash scripts/deploy_initialize_factory.sh standalone
+```
+
 Serve the list of tokens at http://localhost:8010/api/tokens
 ```
-node api/server.js #Serving file to :8010
+bash serve_with_docker.sh
 ```
 
 Run any command you want. Here are some examples:
