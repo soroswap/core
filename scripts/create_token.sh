@@ -48,5 +48,7 @@ soroban contract invoke \
   --name "$NAME" \
   --symbol "$SYMBOL"
 
+TOKEN_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
+
 # Save the token contract address and token id to a file on .soroban/temp_token.json
-echo "{\"token_id\": \"$TOKEN_A_ID\", \"token_address\": \"$TOKEN_ADMIN_ADDRESS\", \"token_name\": \"$NAME\", \"token_symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json
+echo "{\"token_id\": \"$TOKEN_A_ID\", \"token_address\": \"$TOKEN_ADDRESS\", \"token_name\": \"$NAME\", \"token_symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json
