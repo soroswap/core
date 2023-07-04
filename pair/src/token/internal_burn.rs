@@ -15,7 +15,7 @@ fn check_nonnegative_amount(amount: i128) {
     Because this contract is the token admin for itself,
     it cannot make a cross_contract call to itself and hence 
 */
-pub fn internal_burn(e: Env, from: Address, amount: i128) {
+pub fn internal_burn(e: &Env, from: Address, amount: i128) {
         check_nonnegative_amount(amount);
         spend_balance(&e, &from, amount);
         event::burn(&e, from, amount);
