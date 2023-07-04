@@ -8,16 +8,20 @@ bash quickstart.sh standalone
 2. In another terminal
 ```
 bash run.sh
-bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
+
+```
+
+Create 8 tokens in the standalone network, deploy factory and 4 pairs.
+List will be available in .soroban/tokens.json
+```
+bash scripts/deploy_tokens_n_pairs.sh standalone 8
+
 ```
 List will be available in .soroban/tokens.json
 
-3. Deploy factory
-```
-bash scripts/deploy_initialize_factory.sh standalone
-```
+Serve the list of tokens at http://localhost:8010/api/tokens and the address of the factory at http://localhost:8010/api/tokens
 
-4. In another terminal
+3. In another terminal
 
 ```
 bash serve_with_docker.sh
