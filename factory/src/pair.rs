@@ -1,7 +1,11 @@
 
 // Import necessary types from the Soroban SDK
 #![allow(unused)]
-use soroban_sdk::{xdr::ToXdr, Address, Bytes, BytesN, Env};
+use soroban_sdk::{xdr::ToXdr, Address, Bytes, BytesN, Env, contracttype};
+
+#[contracttype]
+#[derive(Clone)]
+pub struct Pair(pub Address, pub Address);
 
 // Import the Soroban Token contract from its WASM file
 soroban_sdk::contractimport!(
@@ -25,16 +29,15 @@ pub fn create_contract(
 
     e: &Env, // Pass in the current environment as an argument
     pair_wasm_hash: &BytesN<32>, // Pass in the hash of the token contract's WASM file
-    token_a: &Address, // Pass in the hash of the first token
-    token_b: &Address, // Pass in the hash of the second token
+    token_pair: &Pair
 ) -> Address { // Return the hash of the newly created contract as a Address value
 
     // Create a new Bytes instance using the current environment
     let mut salt = Bytes::new(e);
     
     // Append the bytes of token_a and token_b to the salt
-    salt.append(&token_a.to_xdr(e));
-    salt.append(&token_b.to_xdr(e));
+    salt.append(&token_pair.0.clone().to_xdr(e)); // can be simplify to salt.append(&token_pair.clone().to_xdr(e)); but changes the hash
+    salt.append(&token_pair.1.clone().to_xdr(e));
 
     // Hash the salt using SHA256 to generate a new BytesN<32> value
     let salt = e.crypto().sha256(&salt);
