@@ -12,18 +12,14 @@ In another terminal
 bash run.sh
 ```
 
-Create 8 tokens in the standalone network.
+Create 8 tokens in the standalone network, deploy factory and 4 pairs.
 List will be available in .soroban/tokens.json
 ```
-bash scripts/setup_and_create_tokens.sh standalone 8 ## Create 8 tokens in the standalone network
+bash scripts/deploy_tokens_n_pairs.sh standalone 8
 ```
 
-Deploy factory
-```
-bash scripts/deploy_initialize_factory.sh standalone
-```
+Serve the list of tokens at http://localhost:8010/api/tokens and the address of the factory at http://localhost:8010/api/tokens
 
-Serve the list of tokens at http://localhost:8010/api/tokens
 ```
 bash serve_with_docker.sh
 ```
