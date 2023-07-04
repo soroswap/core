@@ -119,13 +119,6 @@ fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
     e.storage().set(&DataKey::AllPairs, &all_pairs);
 }
 
-fn get_pair_key(token_a: Address, token_b: Address) -> Pair {
-    if token_a < token_b {
-        Pair(token_a, token_b)
-    } else {
-        Pair(token_b, token_a)
-    }
-}
 
 pub trait SoroswapFactoryTrait {
     // Sets the fee_to_setter address and sets the pair_wasm_hash to create new pair contracts
@@ -218,7 +211,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // Get the mapping of pairs from storage in the current environment.
         let pairs_mapping = get_pairs_mapping(&e);
         // Create a tuple of (Address, Address) using the two input addresses to use as the key.
-        let pair_key = get_pair_key(token_a, token_b);
+        let pair_key = Pair::new(token_a, token_b);
         // Get the value from the pairs mapping using the pair_key as the key.
         // Unwrap the result of the get() method twice to get the actual value of the pair_address.
         let pair_address = pairs_mapping.get(pair_key).unwrap().unwrap();
@@ -270,7 +263,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
         // token0 is guaranteed to be strictly less than token1 by sort order.
         //(address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        let token_pair = get_pair_key(token_a, token_b);
+        let token_pair = Pair::new(token_a, token_b);
 
         // TODO: Implement restriction of any kind of zero address
         //require(token0 != address(0), 'UniswapV2: ZERO_ADDRESS');
