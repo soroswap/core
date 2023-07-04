@@ -17,6 +17,6 @@ fn check_nonnegative_amount(amount: i128) {
 */
 pub fn internal_mint(e: Env, to: Address, amount: i128) {
     check_nonnegative_amount(amount);
-    receive_balance(&e, to.clone(), amount);
+    receive_balance(&e, &to, amount);
     event::mint(&e, e.current_contract_address(), to, amount);
 }
