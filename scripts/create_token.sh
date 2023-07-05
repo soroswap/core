@@ -24,6 +24,9 @@ TOKEN_A_ID="$(
   soroban contract deploy --network $NETWORK --source token-admin \
     --wasm $TOKEN_WASM
   )"
+
+TOKEN_A_ADDRESS="$(node ./address_workaround.js $TOKEN_A_ID)"
+
 # echo TOKEN_A_ID: $TOKEN_A_ID
 
 # echo Initializing TOKEN_A
@@ -48,5 +51,8 @@ soroban contract invoke \
   --name "$NAME" \
   --symbol "$SYMBOL"
 
+TOKEN_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
+
 # Save the token contract address and token id to a file on .soroban/temp_token.json
-echo "{\"token_id\": \"$TOKEN_A_ID\", \"token_address\": \"$TOKEN_ADMIN_ADDRESS\", \"token_name\": \"$NAME\", \"token_symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json
+echo "{\"token_id\": \"$TOKEN_A_ID\", \"token_address\": \"$TOKEN_ADDRESS\", \"token_name\": \"$NAME\", \"token_symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json
+
