@@ -482,7 +482,7 @@ impl SoroswapPairTrait for SoroswapPair {
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-        event::deposit(&e, to, amounts.0, amounts.1);
+        event::deposit(&e, &to, amounts.0, amounts.1);
     }
 
 
@@ -566,7 +566,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let new_balance_0 = balance_0.checked_sub(amount_0_out).unwrap();
         let new_balance_1 = balance_1.checked_sub(amount_1_out).unwrap();
         update(&e, new_balance_0, new_balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-        event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
+        event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
     }
 
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
@@ -621,7 +621,7 @@ impl SoroswapPairTrait for SoroswapPair {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
 
-        event::withdraw(&e, to.clone(), user_sent_shares, out_0, out_1, to);
+        event::withdraw(&e, &to, user_sent_shares, out_0, out_1, &to);
       
         (out_0, out_1)
     }

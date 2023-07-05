@@ -18,5 +18,5 @@ fn check_nonnegative_amount(amount: i128) {
 pub fn internal_burn(e: &Env, from: Address, amount: i128) {
         check_nonnegative_amount(amount);
         spend_balance(&e, &from, amount);
-        event::burn(&e, from, amount);
+        event::burn(&e, &from, amount);
 }
