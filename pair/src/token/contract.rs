@@ -84,7 +84,7 @@ impl TokenTrait for Token {
             .expect("Updated allowance doesn't fit in an i128");
 
         write_allowance(&e, &from, &spender, new_allowance);
-        event::incr_allow(&e, from, spender, amount);
+        event::incr_allow(&e, &from, &spender, amount);
     }
 
     fn decr_allow(e: Env, from: Address, spender: Address, amount: i128) {
@@ -98,7 +98,7 @@ impl TokenTrait for Token {
         } else {
             write_allowance(&e, &from, &spender, allowance - amount);
         }
-        event::decr_allow(&e, from, spender, amount);
+        event::decr_allow(&e, &from, &spender, amount);
     }
 
     fn balance(e: Env, id: Address) -> i128 {
@@ -119,7 +119,7 @@ impl TokenTrait for Token {
         check_nonnegative_amount(amount);
         spend_balance(&e, &from, amount);
         receive_balance(&e, &to, amount);
-        event::transfer(&e, from, to, amount);
+        event::transfer(&e, &from, &to, amount);
     }
 
     fn transfer_from(e: Env, spender: Address, from: Address, to: Address, amount: i128) {
@@ -129,7 +129,7 @@ impl TokenTrait for Token {
         spend_allowance(&e, &from, &spender, amount);
         spend_balance(&e, &from, amount);
         receive_balance(&e, &to, amount);
-        event::transfer(&e, from, to, amount)
+        event::transfer(&e, &from, &to, amount)
     }
 
     fn burn(e: Env, from: Address, amount: i128) {
@@ -137,7 +137,7 @@ impl TokenTrait for Token {
 
         check_nonnegative_amount(amount);
         spend_balance(&e, &from, amount);
-        event::burn(&e, from, amount);
+        event::burn(&e, &from, amount);
     }
 
     fn burn_from(e: Env, spender: Address, from: Address, amount: i128) {
@@ -146,7 +146,7 @@ impl TokenTrait for Token {
         check_nonnegative_amount(amount);
         spend_allowance(&e, &from, &spender, amount);
         spend_balance(&e, &from, amount);
-        event::burn(&e, from, amount)
+        event::burn(&e, &from, amount)
     }
 
     fn clawback(e: Env, admin: Address, from: Address, amount: i128) {
@@ -154,14 +154,14 @@ impl TokenTrait for Token {
         check_admin(&e, &admin);
         admin.require_auth();
         spend_balance(&e, &from, amount);
-        event::clawback(&e, admin, from, amount);
+        event::clawback(&e, &admin, &from, amount);
     }
 
     fn set_auth(e: Env, admin: Address, id: Address, authorize: bool) {
         check_admin(&e, &admin);
         admin.require_auth();
         write_authorization(&e, &id, authorize);
-        event::set_auth(&e, admin, id, authorize);
+        event::set_auth(&e, &admin, &id, authorize);
     }
 
     fn mint(e: Env, admin: Address, to: Address, amount: i128) {
@@ -169,14 +169,14 @@ impl TokenTrait for Token {
         check_admin(&e, &admin);
         admin.require_auth();
         receive_balance(&e, &to, amount);
-        event::mint(&e, admin, to, amount);
+        event::mint(&e, &admin, &to, amount);
     }
 
     fn set_admin(e: Env, admin: Address, new_admin: Address) {
         check_admin(&e, &admin);
         admin.require_auth();
         write_administrator(&e, &new_admin);
-        event::set_admin(&e, admin, new_admin);
+        event::set_admin(&e, &admin, &new_admin);
     }
 
     fn decimals(e: Env) -> u32 {
