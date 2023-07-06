@@ -72,8 +72,9 @@ for i in $(seq 0 2 $(($N_TOKENS-1))); do
 
 done
 
-# Convert the bash array to JSON object
-JSON_OUTPUT=$(printf '{"network": "%s", "pairs": %s }' "$NETWORK" "$PAIRS_ARRAY")
 
-# Save the JSON array to pairs.json
-echo "$JSON_OUTPUT" > /workspace/.soroban/pairs.json
+# Save the PAIRS_ARRAY array to a pairs.json file
+echo "$PAIRS_ARRAY" > /workspace/.soroban/pairs.json
+temp=$(mktemp)
+# Add networks to the JSON file
+jq '. | [{network: "standalone", pairs: .}, {network: "futurenet", pairs: []}]' /workspace/.soroban/pairs.json > "$temp" && mv "$temp" /workspace/.soroban/pairs.json
