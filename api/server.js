@@ -37,7 +37,7 @@ app.get('/api/keys', (req, res) => {
 });
 
 app.get('/api/pairs', (req, res) => {
-  const tokensFile = '/workspace/.soroban/temp_pairs.json';
+  const tokensFile = '/workspace/.soroban/pairs.json';
 
   if (fs.existsSync(tokensFile)) {
     return res.sendFile(tokensFile);

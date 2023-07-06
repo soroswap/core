@@ -64,7 +64,7 @@ for i in $(seq 0 2 $(($N_TOKENS-1))); do
     PAIR_ID=$(cat /workspace/.soroban/pair_id)
     echo "PAIR_ID: $PAIR_ID"
     # Construct the pair entry JSON object
-    PAIR_ENTRY=$(printf '{"token_a_id": "%s", "token_b_id": "%s", "pair_id": "%s", "token_a_address":"%s", "token_b_address":"%s"}' "$TOKEN_A_ID" "$TOKEN_B_ID" "$PAIR_ID" "$TOKEN_A_ADDRESS" "$TOKEN_B_ADDRESS")
+    PAIR_ENTRY=$(printf '{"token_a_id": "%s", "token_b_id": "%s", "pair_address": "%s", "token_a_address":"%s", "token_b_address":"%s"}' "$TOKEN_A_ID" "$TOKEN_B_ID" "$PAIR_ID" "$TOKEN_A_ADDRESS" "$TOKEN_B_ADDRESS")
     echo "PAIR_ENTRY: $PAIR_ENTRY"
     # Add the pair entry to PAIRS_ARRAY for the specific network
     PAIRS_ARRAY=$(echo "$PAIRS_ARRAY" | jq --argjson obj "$PAIR_ENTRY" '. += [$obj]')
@@ -73,7 +73,7 @@ for i in $(seq 0 2 $(($N_TOKENS-1))); do
 done
 
 # Convert the bash array to JSON object
-JSON_OUTPUT=$(printf '{"network": "%s", "tokens": %s }' "$NETWORK" "$PAIRS_ARRAY")
+JSON_OUTPUT=$(printf '{"network": "%s", "pairs": %s }' "$NETWORK" "$PAIRS_ARRAY")
 
 # Save the JSON array to pairs.json
-echo "$JSON_OUTPUT" > /workspace/.soroban/temp_pairs.json
+echo "$JSON_OUTPUT" > /workspace/.soroban/pairs.json
