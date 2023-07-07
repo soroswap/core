@@ -31,6 +31,11 @@ This will serve:
 - Factory addresses http://localhost:8010/api/factory
 - Admin keys http://localhost:8010/api/keys
 
+4. Deploy to Vercel, In another terminal
+```
+bash run.sh
+bash upload_addresses.sh
+```
 
 
 ## 1. Environment Preparation:
