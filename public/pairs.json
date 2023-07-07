@@ -1,0 +1,25 @@
+[
+  {
+    "network": "standalone",
+    "pairs": [
+      {
+        "token_a_id": "0dd1e59245ce7c02a279126e11b0f22301a44332777ee6e6b5b26632e7afdbb6",
+        "token_b_id": "9fcf39f862d585b5c35fe594d549212b5452f22b4e4d74af4d39345194116e2f",
+        "pair_address": "CARJFIIK3CYE7BP66I2TZRDQ5EFUVKWRVGI7JYYXM4MA54T6TBEFVBRS",
+        "token_a_address": "CAG5DZMSIXHHYAVCPEJG4ENQ6IRQDJCDGJ3X5ZXGWWZGMMXHV7N3M67R",
+        "token_b_address": "CCP46OPYMLKYLNODL7SZJVKJEEVVIUXSFNHE25FPJU4TIUMUCFXC6DYJ"
+      },
+      {
+        "token_a_id": "417e9ad079212df93cb1d87198bd01c8c630f309ab2c67e6db12ead986c906d6",
+        "token_b_id": "825554e90d2c898baa35917b0b6de13c476ecd7bab02efa52cc7de3fd5547e74",
+        "pair_address": "CC2ZLQC3TR6XO6B6IESMI7C3BARVDPLXQZYECDESDB244BOXVU5H5T7N",
+        "token_a_address": "CBAX5GWQPEQS36J4WHMHDGF5AHEMMMHTBGVSYZ7G3MJOVWMGZEDNNCU3",
+        "token_b_address": "CCBFKVHJBUWITC5KGWIXWC3N4E6EO3WNPOVQF35FFTD54P6VKR7HJDOP"
+      }
+    ]
+  },
+  {
+    "network": "futurenet",
+    "pairs": []
+  }
+]
