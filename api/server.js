@@ -6,6 +6,10 @@ const port = 8010;
 
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+}
+
 app.get('/api/tokens', (req, res) => {
   const tokensFile = '/workspace/.soroban/tokens.json';
 
