@@ -76,6 +76,12 @@ NEW_PAIRS_OBJECT=$(jq -n --arg NETWORK "$NETWORK" --argjson PAIRS_ARRAY "$PAIRS_
 echo NEW_PAIRS_OBJECT: $NEW_PAIRS_OBJECT
 
 PAIRS_FILE="/workspace/.soroban/pairs.json"
+# Initialize pairs.json if it does not exist
+if [[ ! -f "$PAIRS_FILE" ]]; then
+    echo file not found
+    echo "[]" > "$PAIRS_FILE"
+fi
+
 
 CURRENT_PAIRS_JSON=$(cat $PAIRS_FILE)
 echo "CURRENT_PAIRS_JSON: $CURRENT_PAIRS_JSON"

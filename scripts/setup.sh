@@ -4,6 +4,9 @@ set -e
 
 NETWORK="$1"
 
+# Creating the .soroban folder if does not exist yet
+mkdir -p .soroban
+
 
 # If soroban-cli is called inside the soroban-preview docker containter,
 # it can call the stellar standalone container just using its name "stellar"
@@ -50,6 +53,7 @@ NEW_KEYS_OBJECT="{ \"network\": \"$NETWORK\", \"admin_public\": \"$TOKEN_ADMIN_A
 echo "New keys object: $NEW_KEYS_OBJECT"
 
 KEYS_FILE="/workspace/.soroban/token_admin_keys.json"
+touch $KEYS_FILE
 CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
 echo "CURRENT_KEYS_JSON: $CURRENT_KEYS_JSON"
 
@@ -59,16 +63,22 @@ exists=$(echo "$CURRENT_KEYS_JSON" | jq '.[] | select(.network == "'$NETWORK'")'
 echo "This network already exist in the keys.json? : $exists"
 
 NEW_KEYS_JSON="{}"
-if [[ -n "$exists" ]]; then
-    # if the network exists, update the keys for that network
-    echo network exists, replace
-    NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '
-        map(if .network == "'$NETWORK'" then '"$NEW_KEYS_OBJECT"' else . end)'
-    )
+if [[ -n "$CURRENT_KEYS_JSON" ]]; then
+    if [[ -n "$exists" ]]; then
+        # if the network exists, update the keys for that network
+        echo "Network exists, replacing"
+        NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '
+            map(if .network == "'"$NETWORK"'" then '"$NEW_KEYS_OBJECT"' else . end)'
+        )
+    else
+        # if the network doesn't exist, append the new object to the list
+        echo "Network does not exist, appending"
+        NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '. + ['"$NEW_KEYS_OBJECT"']')
+    fi
 else
-    # if the network doesn't exist, append the new object to the list
-    echo network does not exist, append
-    NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '. += ['"$NEW_KEYS_OBJECT"']')
+    # if the file is empty, initialize with a new object
+    echo "File is empty, initializing"
+    NEW_KEYS_JSON=$(echo '['"$NEW_KEYS_OBJECT"']')
 fi
 
 # echo "NEW_KEYS_JSON: $NEW_KEYS_JSON"
