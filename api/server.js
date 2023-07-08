@@ -9,6 +9,10 @@ const directory = isVercel ? 'public' : '.soroban';
 
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 app.get('/api/tokens', (req, res) => {
   const tokensFile = `/workspace/${directory}/tokens.json`;
 
