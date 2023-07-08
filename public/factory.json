@@ -1,7 +1,12 @@
 [
   {
     "network": "standalone",
-    "factory_id": "2d79df50ae482a42c543053b90f82c3841d07eb7853bcab266908ec3749e1dad",
-    "factory_address": "CAWXTX2QVZECUQWFIMCTXEHYFQ4EDUD6W6CTXSVSM2II5Q3UTYO23SX6"
+    "factory_id": "a1f9278130b203de577b1e87e50b42a2a2eafc4a791c062857ca64d6d1b74584",
+    "factory_address": "CCQ7SJ4BGCZAHXSXPMPIPZILIKRKF2X4JJ4RYBRIK7FGJVWRW5CYIURW"
+  },
+  {
+    "network": "futurenet",
+    "factory_id": "1b4b304cb87c9b776642b42fcd1f79344227c99005c0d1d15b99588315a03ae2",
+    "factory_address": "CANUWMCMXB6JW53GIK2C7TI7PE2EEJ6JSAC4BUORLOMVRAYVUA5OFAZH"
   }
 ]
