@@ -55,7 +55,7 @@ From project root:
 bash run.sh
 bash scripts/upload_addresses.sh
 ```
-Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on public and push them to main.
+Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on ./public and push them to main.
 
 If everything goes right. Vercel will serve the created .json files in the following API's:
 
