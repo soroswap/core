@@ -3,7 +3,7 @@
     "name": "my-express-api",
     "builds": [
       {
-        "src": "api/*.js",
+        "src": ".",
         "use": "@vercel/node"
       }
     ],
