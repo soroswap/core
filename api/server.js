@@ -7,6 +7,7 @@ const path = require('path');
 
 const isVercel = process.env.VERCEL === '1';
 const directory = isVercel ? path.join(__dirname, 'public') : '/workspace/.soroban';
+console.log('directory', directory);
 
 app.use(cors());
 
