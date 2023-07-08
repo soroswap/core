@@ -114,12 +114,17 @@ echo "--"
 FACTORY_ADDRESS="$(node /workspace/address_workaround.js $FACTORY_ID)"
 
 # Create the new FACTORY object with the updated factory id and addresses
-echo "Debug: NEW_TOKENS = $NEW_TOKENS"
 NEW_FACTORY_OBJECT="{ \"network\": \"$NETWORK\", \"factory_id\": \"$FACTORY_ID\", \"factory_address\": \"$FACTORY_ADDRESS\" }"
 echo "New factory object: $NEW_FACTORY_OBJECT"
 # NEW_FACTORY_OBJECT="{ \"network\": \"futurenet\", \"factory_id\": \"5adb2e4748f175bcc1ab4e11c0f03bc275701ef556cd9d2b10becb37ea6a33c9\", \"factory_address\": \"CBNNWLSHJDYXLPGBVNHBDQHQHPBHK4A66VLM3HJLCC7MWN7KNIZ4SLNG\"}"
 
 FACTORY_FILE="/workspace/.soroban/factory.json"
+# Initialize factory.json if it does not exist
+if [[ ! -f "$FACTORY_FILE" ]]; then
+    echo file not found
+    echo "[]" > "$FACTORY_FILE"
+fi
+
 
 CURRENT_FACTORY_JSON=$(cat $FACTORY_FILE)
 echo "CURRENT_FACTORY_JSON: $CURRENT_FACTORY_JSON"
