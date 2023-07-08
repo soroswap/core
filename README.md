@@ -1,11 +1,21 @@
 # Soroswap core Smart Contracts
+You need node, yarn and docker installed
+
 
 ## Too long to read?
-1. In one terminal
+0. Clone this repo
+```
+git clone http://github.com/soroswap/core.git
+```
+1. yarn install
+```
+yarn 
+```
+2. In one terminal
 ```
 bash quickstart.sh standalone
 ```
-2. In another terminal
+1. In another terminal
 ```
 bash run.sh
 
@@ -31,7 +41,14 @@ This will serve:
 - Factory addresses http://localhost:8010/api/factory
 - Admin keys http://localhost:8010/api/keys
 
+4. Deploy to Vercel, from project root:
+```
+bash run.sh
+bash scripts/upload_addresses.sh
+```
+Make sure that the origin is soroswap/core.git
 
+Otherwise the only thing to do is to update the files on public and push them to main.
 
 ## 1. Environment Preparation:
  
