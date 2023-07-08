@@ -46,10 +46,43 @@ echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 echo "$TOKEN_ADMIN_SECRET" > .soroban/token_admin_secret
 echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
 
-jq -n \
-  --arg secret "$TOKEN_ADMIN_SECRET" \
-  --arg address "$TOKEN_ADMIN_ADDRESS" \
-  '[{network: "standalone", admin_public: $address, admin_secret: $secret}, {network: "futurenet", admin_public: "", admin_secret: ""}]' > /workspace/.soroban/token_admin_keys.json
+NEW_KEYS_OBJECT="{ \"network\": \"$NETWORK\", \"admin_public\": \"$TOKEN_ADMIN_ADDRESS\", \"admin_secret\": \"$TOKEN_ADMIN_SECRET\" }"
+echo "New keys object: $NEW_KEYS_OBJECT"
+
+KEYS_FILE="/workspace/.soroban/token_admin_keys.json"
+CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
+echo "CURRENT_KEYS_JSON: $CURRENT_KEYS_JSON"
+
+
+# check if the network already exists in that json
+exists=$(echo "$CURRENT_KEYS_JSON" | jq '.[] | select(.network == "'$NETWORK'")')
+echo "This network already exist in the keys.json? : $exists"
+
+NEW_KEYS_JSON="{}"
+if [[ -n "$exists" ]]; then
+    # if the network exists, update the keys for that network
+    echo network exists, replace
+    NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '
+        map(if .network == "'$NETWORK'" then '"$NEW_KEYS_OBJECT"' else . end)'
+    )
+else
+    # if the network doesn't exist, append the new object to the list
+    echo network does not exist, append
+    NEW_KEYS_JSON=$(echo "$CURRENT_KEYS_JSON" | jq '. += ['"$NEW_KEYS_OBJECT"']')
+fi
+
+# echo "NEW_KEYS_JSON: $NEW_KEYS_JSON"
+echo "$NEW_KEYS_JSON" > "$KEYS_FILE"
+
+echo "Token admin information available in /workspace/.soroban/token_admin_keys.json"
+cat /workspace/.soroban/token_admin_keys.json
+
+echo "end creating the keys" 
+
+# jq -n \
+#   --arg secret "$TOKEN_ADMIN_SECRET" \
+#   --arg address "$TOKEN_ADMIN_ADDRESS" \
+#   '[{network: "standalone", admin_public: $address, admin_secret: $secret}, {network: "futurenet", admin_public: "", admin_secret: ""}]' > /workspace/.soroban/token_admin_keys.json
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot
