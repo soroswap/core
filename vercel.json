@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "name": "my-express-api",
+    "builds": [
+      {
+        "src": "api/*.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "api/server.js" }
+    ]
+  }
+  
