@@ -36,12 +36,22 @@ bash /workspace/scripts/setup.sh $NETWORK
 # Get the token admin address
 TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
-# Initialize an empty JSON array in tokens.json
-touch /workspace/.soroban/tokens.json
-echo "[]" > /workspace/.soroban/tokens.json
-
 # Read the token_name_ideas.json file into a variable
 TOKEN_NAME_JSON=$(cat /workspace/scripts/token_name_ideas.json)
+
+# File handling
+TOKENS_FILE="/workspace/.soroban/tokens.json"
+TEMP_FILE=$(mktemp)
+
+# Initialize tokens.json if it does not exist
+if [[ ! -f "$TOKENS_FILE" ]]; then
+    echo file not found
+    echo "[]" > "$TOKENS_FILE"
+fi
+
+# If no existing tokens array was found for the network, initialize an empty array
+NEW_TOKENS="[]"
+echo NEW_TOKENS: $NEW_TOKENS
 
 # Loop from 1 to N_TOKENS
 for i in $(seq 1 $N_TOKENS); do
@@ -56,15 +66,41 @@ for i in $(seq 1 $N_TOKENS); do
 
     # Read the contents of temp_token.json
     temp_token=$(cat /workspace/.soroban/temp_token.json)
+    echo "temp_token: $temp_token"
 
-    # Add the contents of temp_token.json to the tokens.json array
-    temp=$(mktemp)
-    jq --argjson new_token "$temp_token" '. += [$new_token]' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
+    # Add the new token to the existing tokens array
+    NEW_TOKENS=$(jq --argjson new_token "$temp_token" '. += [$new_token]' <<<"$NEW_TOKENS")
+    echo "NEW_TOKENS: $NEW_TOKENS"
 done
 
-# Add networks to the JSON file
-jq '. | [{network: "standalone", tokens: .}, {network: "futurenet", tokens: []}]' /workspace/.soroban/tokens.json > "$temp" && mv "$temp" /workspace/.soroban/tokens.json
+echo NEW_TOKENS: $NEW_TOKENS
+# Create the new network object with the updated tokens array
+echo "Debug: NEW_TOKENS = $NEW_TOKENS"
+NEW_NETWORK_OBJECT="{ \"network\": \"$NETWORK\", \"tokens\": $NEW_TOKENS }"
+# NEW_NETWORK_OBJECT=$(jq --arg network "standalone" --argjson tokens '[{"token_id": "id1", "token_address": "address1", "token_name": "name1", "token_symbol": "symbol1"}, {"token_id": "id2", "token_address": "address2", "token_name": "name2", "token_symbol": "symbol2"}]' '[{network: $network, tokens: $tokens}]')
+# NEW_NETWORK_OBJECT=$(jq --arg network "$NETWORK" --argjson tokens "$EXISTING_TOKENS" '[{network: $network, tokens: $tokens}]')
+echo "New network object: $NEW_NETWORK_OBJECT"
 
-# Display the final JSON file
-echo "Result available in /workspace/.soroban/tokens.json and localhost:8010"
-cat /workspace/.soroban/tokens.json
+
+TOKEN_LIST=$(cat $TOKENS_FILE)
+echo "TOKEN_LIST: $TOKEN_LIST"
+
+# check if the network already exists in the list
+exists=$(echo "$TOKEN_LIST" | jq '.[] | select(.network == "'$NETWORK'")')
+echo "exists: $exists"
+
+if [[ -n "$exists" ]]; then
+    # if the network exists, update the tokens for that network
+    echo network exists, replace
+    TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '
+        map(if .network == "'$NETWORK'" then '"$NEW_NETWORK_OBJECT"' else . end)'
+    )
+else
+    # if the network doesn't exist, append the new object to the list
+    echo network does not exist, append
+    TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '. += ['"$NEW_NETWORK_OBJECT"']')
+fi
+echo "TOKEN_LIST: $TOKEN_LIST"
+echo "$TOKEN_LIST" > "$TOKENS_FILE"
+
+echo "end creating tokens"
