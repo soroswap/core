@@ -1,27 +1,40 @@
 # Soroswap core Smart Contracts
+You'll need node, yarn and Docker installed
 
-Check the documentation in https://github.com/soroswap/docs/ or https://docs.soroswap.finance/
 
-## Too long to read?
-#### 1. In one terminal
+Check the documentation in
+- https://github.com/soroswap/docs/
+- https://docs.soroswap.finance/
+
+## TLDR;
+### 1. Setup 
+1.1. Clone this repo
+```
+git clone http://github.com/soroswap/core.git
+```
+1.2 yarn install
+```
+yarn 
+```
+1.3 In one terminal
 ```
 bash quickstart.sh standalone # or futurenet
 ```
-#### 2. In another terminal open a soroban-preview container
+1.4. In another terminal
 ```
 bash run.sh
 ```
 
-#### 3. Create N tokens, deploy factory and 4 pairs.
+### 2. Create N tokens, deploy factory and 4 pairs.
 
 This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
 
-#### 4. Serve those .json files 
+### 3. (For local development): Serve those .json files 
 
-In another terminal run
+In a new terminal run
 
 ```
 bash serve_with_docker.sh
@@ -33,12 +46,28 @@ This will serve:
 - Created pairs http://localhost:8010/api/keys
 
 The created pairs won't be readed by the front-end, however will be useful to debug
+
+#### 5. (For production): Public those .json files and serve them using Vercel
+From project root:
+```
+bash run.sh
+bash scripts/upload_addresses.sh
+```
+Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on public and push them to main.
+
+If everything goes right. Vercel will serve the created .json files in the following API's:
+
+https://api.soroswap.finance/api/factory
+https://api.soroswap.finance/api/keys
+https://api.soroswap.finance/api/tokens
+https://api.soroswap.finance/api/pairs
+
 ____
 ____
 ____
 
 
-## Environment Preparation:
+# Environment Preparation:
  
 1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:9 Docker containers
 Currently, Soroswap Protocol supports PREVIEW-9:
