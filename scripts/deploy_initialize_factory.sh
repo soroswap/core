@@ -113,13 +113,51 @@ echo "--"
 
 FACTORY_ADDRESS="$(node /workspace/address_workaround.js $FACTORY_ID)"
 
-# Save the network and factory information in a JSON file
-jq -n \
-  --arg network "$NETWORK" \
-  --arg factory_id "$FACTORY_ID" \
-  --arg factory_address "$FACTORY_ADDRESS" \
-  '[{"network": $network, "factory_id": $factory_id, "factory_address": $factory_address}]' \
-  > /workspace/.soroban/factory.json
+# Create the new FACTORY object with the updated factory id and addresses
+echo "Debug: NEW_TOKENS = $NEW_TOKENS"
+NEW_FACTORY_OBJECT="{ \"network\": \"$NETWORK\", \"factory_id\": \"$FACTORY_ID\", \"factory_address\": \"$FACTORY_ADDRESS\" }"
+echo "New factory object: $NEW_FACTORY_OBJECT"
+# NEW_FACTORY_OBJECT="{ \"network\": \"futurenet\", \"factory_id\": \"5adb2e4748f175bcc1ab4e11c0f03bc275701ef556cd9d2b10becb37ea6a33c9\", \"factory_address\": \"CBNNWLSHJDYXLPGBVNHBDQHQHPBHK4A66VLM3HJLCC7MWN7KNIZ4SLNG\"}"
+
+FACTORY_FILE="/workspace/.soroban/factory.json"
+
+CURRENT_FACTORY_JSON=$(cat $FACTORY_FILE)
+echo "CURRENT_FACTORY_JSON: $CURRENT_FACTORY_JSON"
+
+
+# check if the network already exists in that json
+exists=$(echo "$CURRENT_FACTORY_JSON" | jq '.[] | select(.network == "'$NETWORK'")')
+echo "This network already exist in the factory.json? : $exists"
+
+NEW_FACTORY_JSON="{}"
+if [[ -n "$exists" ]]; then
+    # if the network exists, update the factory for that network
+    echo network exists, replace
+    NEW_FACTORY_JSON=$(echo "$CURRENT_FACTORY_JSON" | jq '
+        map(if .network == "'$NETWORK'" then '"$NEW_FACTORY_OBJECT"' else . end)'
+    )
+else
+    # if the network doesn't exist, append the new object to the list
+    echo network does not exist, append
+    NEW_FACTORY_JSON=$(echo "$CURRENT_FACTORY_JSON" | jq '. += ['"$NEW_FACTORY_OBJECT"']')
+fi
+
+# echo "NEW_FACTORY_JSON: $NEW_FACTORY_JSON"
+echo "$NEW_FACTORY_JSON" > "$FACTORY_FILE"
+
+echo "end creating the factory" 
+
+
+# # Save the network and factory information in a JSON file
+# jq -n \
+#   --arg network "$NETWORK" \
+#   --arg factory_id "$FACTORY_ID" \
+#   --arg factory_address "$FACTORY_ADDRESS" \
+#   '[{"network": $network, "factory_id": $factory_id, "factory_address": $factory_address}]' \
+#   > /workspace/.soroban/factory.json
+
+
+
 # Output the file path and contents
 echo "Factory information available in /workspace/.soroban/factory.json"
 cat /workspace/.soroban/factory.json
