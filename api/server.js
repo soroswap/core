@@ -3,9 +3,10 @@ const fs = require('fs');
 const app = express();
 const cors = require('cors');
 const port = 8010;
+const path = require('path');
 
 const isVercel = process.env.VERCEL === '1';
-const directory = isVercel ? 'public' : '/workspace/.soroban';
+const directory = isVercel ? path.join(__dirname, 'public') : '/workspace/.soroban';
 
 app.use(cors());
 
