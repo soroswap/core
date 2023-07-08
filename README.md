@@ -16,7 +16,7 @@ git clone http://github.com/soroswap/core.git
 ```
 yarn 
 ```
-1.3 In one terminal
+1.3 In one terminal: (choose standalone or futurenet)
 ```
 bash quickstart.sh standalone # or futurenet
 ```
@@ -28,6 +28,8 @@ bash run.sh
 ### 2. Create N tokens, deploy factory and 4 pairs.
 
 This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
+
+Remember here to choose standalone or futurenet
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
@@ -61,6 +63,12 @@ https://api.soroswap.finance/api/factory
 https://api.soroswap.finance/api/keys
 https://api.soroswap.finance/api/tokens
 https://api.soroswap.finance/api/pairs
+
+
+#### Note:
+If you want to deploy both in standalone an futurenet you can deploy first on futurenet and then on standalone. Then your dapp will connect to standalone using your quickstart containter and to futurenet using the public RPC.
+
+If you want to serve both networks locally, check how it's done in github.com/esteblock/multichain-dapp
 
 ____
 ____
