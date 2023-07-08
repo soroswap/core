@@ -81,7 +81,7 @@ NEW_NETWORK_OBJECT="{ \"network\": \"$NETWORK\", \"tokens\": $NEW_TOKENS }"
 # NEW_NETWORK_OBJECT=$(jq --arg network "$NETWORK" --argjson tokens "$EXISTING_TOKENS" '[{network: $network, tokens: $tokens}]')
 echo "New network object: $NEW_NETWORK_OBJECT"
 
-
+touch $TOKENS_FILE
 TOKEN_LIST=$(cat $TOKENS_FILE)
 echo "TOKEN_LIST: $TOKEN_LIST"
 
@@ -89,18 +89,27 @@ echo "TOKEN_LIST: $TOKEN_LIST"
 exists=$(echo "$TOKEN_LIST" | jq '.[] | select(.network == "'$NETWORK'")')
 echo "exists: $exists"
 
-if [[ -n "$exists" ]]; then
-    # if the network exists, update the tokens for that network
-    echo network exists, replace
-    TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '
-        map(if .network == "'$NETWORK'" then '"$NEW_NETWORK_OBJECT"' else . end)'
-    )
+
+NEW_KEYS_JSON="{}"
+if [[ -n "$TOKEN_LIST" ]]; then
+    if [[ -n "$exists" ]]; then
+        # if the network exists, update the tokens for that network
+        echo network exists, replace
+        TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '
+            map(if .network == "'$NETWORK'" then '"$NEW_NETWORK_OBJECT"' else . end)'
+        )
+    else
+        # if the network doesn't exist, append the new object to the list
+        echo network does not exist, append
+        TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '. += ['"$NEW_NETWORK_OBJECT"']')
+    fi
 else
-    # if the network doesn't exist, append the new object to the list
-    echo network does not exist, append
-    TOKEN_LIST=$(echo "$TOKEN_LIST" | jq '. += ['"$NEW_NETWORK_OBJECT"']')
+    # if the file is empty, initialize with a new object
+    echo "File is empty, initializing"
+    TOKEN_LIST=$(echo '['"$NEW_NETWORK_OBJECT"']')
 fi
+
 echo "TOKEN_LIST: $TOKEN_LIST"
 echo "$TOKEN_LIST" > "$TOKENS_FILE"
 
-echo "end creating tokens"
+echo "end creating tokens" 
