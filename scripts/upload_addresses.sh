@@ -9,6 +9,7 @@ TARGET_DIR="/workspace/public"
 
 # File names
 declare -a FILES=("tokens.json" "pairs.json" "factory.json")
+git config --global --add safe.directory /workspace
 
 # Copy files from .soroban to public/
 for FILE in "${FILES[@]}"
@@ -17,7 +18,6 @@ do
     git add "$TARGET_DIR/$FILE" 
 done
 
-git config --global --add safe.directory /workspace
 git config --global user.email "you@example.com"
 git config --global user.name "Contract Addresses Updater"
 
