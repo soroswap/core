@@ -1,0 +1,12 @@
+[
+  {
+    "network": "standalone",
+    "factory_id": "4439ddcb94f512a2dde9da89ca6b8f17c040502bace9bcaf5244cf1a30ace350",
+    "factory_address": "CBCDTXOLST2RFIW55HNITSTLR4L4AQCQFOWOTPFPKJCM6GRQVTRVBZV3"
+  },
+  {
+    "network": "futurenet",
+    "factory_id": "1b4b304cb87c9b776642b42fcd1f79344227c99005c0d1d15b99588315a03ae2",
+    "factory_address": "CANUWMCMXB6JW53GIK2C7TI7PE2EEJ6JSAC4BUORLOMVRAYVUA5OFAZH"
+  }
+]

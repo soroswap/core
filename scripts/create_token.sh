@@ -17,8 +17,9 @@ mkdir -p /workspace/.soroban
 
 TOKEN_WASM="/workspace/token/soroban_token_contract.wasm"
 
-# echo $NETWORK
-# echo $TOKEN_WASM
+echo Deploying token to network $NETWORK
+echo $NETWORK
+echo $TOKEN_WASM
 
 TOKEN_A_ID="$(
   soroban contract deploy --network $NETWORK --source token-admin \

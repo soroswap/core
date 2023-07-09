@@ -1,27 +1,42 @@
 # Soroswap core Smart Contracts
+You'll need node, yarn and Docker installed
 
-## Too long to read?
-1. In one terminal
+
+Check the documentation in
+- https://github.com/soroswap/docs/
+- https://docs.soroswap.finance/
+
+## TLDR;
+### 1. Setup 
+1.1. Clone this repo
 ```
-bash quickstart.sh standalone
+git clone http://github.com/soroswap/core.git
 ```
-2. In another terminal
+1.2 yarn install
+```
+yarn 
+```
+1.3 In one terminal: (choose standalone or futurenet)
+```
+bash quickstart.sh standalone # or futurenet
+```
+1.4. In another terminal
 ```
 bash run.sh
-
 ```
 
-Create 8 tokens in the standalone network, deploy factory and 4 pairs.
-List will be available in .soroban/tokens.json
+### 2. Create N tokens, deploy factory and 4 pairs.
+
+This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
+
+Remember here to choose standalone or futurenet
 ```
-bash scripts/deploy_tokens_n_pairs.sh standalone 8
-
+bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
-List will be available in .soroban/tokens.json
 
-Serve the list of tokens at http://localhost:8010/api/tokens and the address of the factory at http://localhost:8010/api/tokens
+### 3. (For local development): Serve those .json files 
 
-3. In another terminal
+In a new terminal run
 
 ```
 bash serve_with_docker.sh
@@ -30,10 +45,37 @@ This will serve:
 - List of tokens at http://localhost:8010/api/tokens
 - Factory addresses http://localhost:8010/api/factory
 - Admin keys http://localhost:8010/api/keys
+- Created pairs http://localhost:8010/api/keys
+
+The created pairs won't be readed by the front-end, however will be useful to debug
+
+#### 5. (For production): Public those .json files and serve them using Vercel
+From project root:
+```
+bash run.sh
+bash scripts/upload_addresses.sh
+```
+Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on ./public and push them to main.
+
+If everything goes right. Vercel will serve the created .json files in the following API's:
+
+https://api.soroswap.finance/api/factory
+https://api.soroswap.finance/api/keys
+https://api.soroswap.finance/api/tokens
+https://api.soroswap.finance/api/pairs
 
 
+#### Note:
+If you want to deploy both in standalone an futurenet you can deploy first on futurenet and then on standalone. Then your dapp will connect to standalone using your quickstart containter and to futurenet using the public RPC.
 
-## 1. Environment Preparation:
+If you want to serve both networks locally, check how it's done in github.com/esteblock/multichain-dapp
+
+____
+____
+____
+
+
+# Environment Preparation:
  
 1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:9 Docker containers
 Currently, Soroswap Protocol supports PREVIEW-9:
