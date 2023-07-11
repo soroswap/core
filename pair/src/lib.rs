@@ -196,15 +196,15 @@ fn put_klast(e: &Env, klast: i128) {
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
-    internal_burn(e.clone(), e.current_contract_address(), amount);
-    put_total_shares(e, total.checked_sub(amount).unwrap());
+    internal_burn(&e, e.current_contract_address(), amount);
+    put_total_shares(&e, total.checked_sub(amount).unwrap());
 }
 
-fn mint_shares(e: &Env, to: Address, amount: i128) {
+fn mint_shares(e: &Env, to: &Address, amount: i128) {
     let total = get_total_shares(e);
-    internal_mint(e.clone(), to, amount);
+    internal_mint(&e, &to, amount);
     //put_total_shares(e, total + amount);
-    put_total_shares(e, total.checked_add(amount).unwrap());
+    put_total_shares(&e, total.checked_add(amount).unwrap());
 }
 
 
@@ -214,17 +214,17 @@ fn mint_shares(e: &Env, to: Address, amount: i128) {
 //     require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
 // }
 
-fn transfer(e: &Env, contract_id: Address, to: Address, amount: i128) {
+fn transfer(e: &Env, contract_id: Address, to: &Address, amount: i128) {
     TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
-fn transfer_token_0_from_pair(e: &Env, to: Address, amount: i128) {
+fn transfer_token_0_from_pair(e: &Env, to: &Address, amount: i128) {
     // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
-    transfer(e, get_token_0(e), to, amount);
+    transfer(e, get_token_0(e), &to, amount);
 }
 
-fn transfer_token_1_from_pair(e: &Env, to: Address, amount: i128) {
-    transfer(e, get_token_1(e), to, amount);
+fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
+    transfer(e, get_token_1(e), &to, amount);
 }
 
 fn get_deposit_amounts(
@@ -290,7 +290,7 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
 
                 // if (liquidity > 0) _mint(feeTo, liquidity);
                 if liquidity_pool_shares_fees > 0 {
-                    mint_shares(&e, fee_to,    liquidity_pool_shares_fees);
+                    mint_shares(&e, &fee_to,    liquidity_pool_shares_fees);
                 }
             }
         }
@@ -471,18 +471,18 @@ impl SoroswapPairTrait for SoroswapPair {
         } else {
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
             
-            mint_shares(&e, e.current_contract_address(), MINIMUM_LIQUIDITY);    
+            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);    
             ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         };  
 
-        mint_shares(&e, to.clone(), new_total_shares.checked_sub(total_shares).unwrap());
+        mint_shares(&e, &to, new_total_shares.checked_sub(total_shares).unwrap());
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-        event::deposit(&e, to, amounts.0, amounts.1);
+        event::deposit(&e, &to, amounts.0, amounts.1);
     }
 
 
@@ -558,15 +558,15 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         if buy_0 {
-            transfer_token_0_from_pair(&e, to.clone(), amount_0_out);
+            transfer_token_0_from_pair(&e, &to, amount_0_out);
         } else {
-            transfer_token_1_from_pair(&e, to.clone(), amount_1_out);
+            transfer_token_1_from_pair(&e, &to, amount_1_out);
         }
 
         let new_balance_0 = balance_0.checked_sub(amount_0_out).unwrap();
         let new_balance_1 = balance_1.checked_sub(amount_1_out).unwrap();
         update(&e, new_balance_0, new_balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-        event::swap(&e, to.clone(), amount_0_in, amount_1_in, amount_0_out, amount_1_out, to);
+        event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
     }
 
     fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128) {
@@ -608,8 +608,8 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // _burn(address(this), liquidity);
         burn_shares(&e, user_sent_shares);
-        transfer_token_0_from_pair(&e, to.clone(), out_0.clone());
-        transfer_token_1_from_pair(&e, to.clone(), out_1.clone());
+        transfer_token_0_from_pair(&e, &to, out_0);
+        transfer_token_1_from_pair(&e, &to, out_1);
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
         // _update(balance0, balance1, _reserve0, _reserve1);
@@ -621,7 +621,7 @@ impl SoroswapPairTrait for SoroswapPair {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
 
-        event::withdraw(&e, to.clone(), user_sent_shares, out_0, out_1, to);
+        event::withdraw(&e, &to, user_sent_shares, out_0, out_1, &to);
       
         (out_0, out_1)
     }
@@ -630,8 +630,8 @@ impl SoroswapPairTrait for SoroswapPair {
     fn skim(e: Env, to: Address) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        transfer_token_0_from_pair(&e, to.clone(), balance_0.checked_sub(reserve_0).unwrap());
-        transfer_token_1_from_pair(&e, to, balance_1.checked_sub(reserve_1).unwrap());
+        transfer_token_0_from_pair(&e, &to, balance_0.checked_sub(reserve_0).unwrap());
+        transfer_token_1_from_pair(&e, &to, balance_1.checked_sub(reserve_1).unwrap());
     }
 
     // force reserves to match balances
