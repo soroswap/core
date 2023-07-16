@@ -9,7 +9,7 @@ soroban_sdk::contractimport!(
 
 #[contracttype]
 #[derive(Clone)]
-pub struct Pair(pub Address, pub Address);
+pub struct Pair(Address, Address);
 impl Pair {
     pub fn new(a: Address, b: Address) -> Self {
         if a < b {
@@ -28,6 +28,14 @@ impl Pair {
 
         // Hash the salt using SHA256 to generate a new BytesN<32> value
         e.crypto().sha256(&salt)
+    }
+
+    pub fn token_a(&self) -> &Address {
+        &self.0
+    }
+
+    pub fn token_b(&self) -> &Address {
+        &self.1
     }
 }
 

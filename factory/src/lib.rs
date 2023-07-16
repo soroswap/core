@@ -290,7 +290,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // TODO: Implement name of the pair depending on the token names
         pair::Client::new(&e, &pair).initialize_pair(
             &e.current_contract_address(),
-            &token_pair.0, &token_pair.1
+            &token_pair.token_a(), &token_pair.token_b()
         );
 
         // getPair[token0][token1] = pair;
@@ -301,7 +301,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         add_pair_to_all_pairs(&e, &pair);
 
         // emit PairCreated(token0, token1, pair, allPairs.length);
-        event::pair_created(&e, (token_pair.0, token_pair.1), &pair, get_all_pairs(&e).len());
+        event::pair_created(&e, token_pair.token_a(), token_pair.token_b(), &pair, get_all_pairs(&e).len());
         pair
     }
 }
