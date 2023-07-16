@@ -193,6 +193,9 @@ fn test() {
 
     create_pair(&factory, &token_0.address, &token_1.address);
 
+    assert_eq!(factory.pair_exists(&token_0.address, &token_1.address), true);
+    assert_eq!(factory.pair_exists(&token_1.address, &token_0.address), true);
+
     let _pair_expected_address = guess_contract_address( &e,
                                                         &factory.address, 
                                                         &token_1.address, 
