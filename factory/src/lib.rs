@@ -227,7 +227,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool {
-        get_pair_exists(&e, &Pair(token_a, token_b))
+        get_pair_exists(&e, &Pair::new(token_a, token_b))
     }
 
     /*  *** State-Changing Functions: *** */
