@@ -18,11 +18,11 @@ yarn
 ```
 1.3 In one terminal: (choose standalone or futurenet)
 ```
-bash quickstart.sh standalone # or futurenet
+bash scripts/quickstart.sh standalone # or futurenet
 ```
 1.4. In another terminal
 ```
-bash run.sh
+bash scripts/run.sh
 ```
 
 ### 2. Create N tokens, deploy factory and 4 pairs.
@@ -81,17 +81,17 @@ ____
 Currently, Soroswap Protocol supports PREVIEW-9:
 Here you can choose to use an `standalone` or `futurenet` instance 
 ```
-bash quickstart.sh standalone
+bash scripts/quickstart.sh standalone
 ```
 With this, a `stellar` container and a `soroban-preview-9` will run, sharing the `soroban-network` network in Docker
 
 2.- Run a terminal of the soroban-preview
 ```
-bash run.sh
+bash scripts/run.sh
 ```
 
 ## 2.- Compile
-Inside the soroban-preview container, compile both the `core` and the `factory` contract
+Inside the soroban-preview container, compile both the `core` and the `factory` contract inside the `contracts`
 ```
 make build
 ```

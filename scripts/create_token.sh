@@ -15,7 +15,7 @@ SYMBOL="$4"
 
 mkdir -p /workspace/.soroban
 
-TOKEN_WASM="/workspace/token/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
 
 echo Deploying token to network $NETWORK
 echo $NETWORK
@@ -26,7 +26,7 @@ TOKEN_A_ID="$(
     --wasm $TOKEN_WASM
   )"
 
-TOKEN_A_ADDRESS="$(node ./address_workaround.js $TOKEN_A_ID)"
+TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
 
 # echo TOKEN_A_ID: $TOKEN_A_ID
 
@@ -52,7 +52,7 @@ soroban contract invoke \
   --name "$NAME" \
   --symbol "$SYMBOL"
 
-TOKEN_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
+TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
 
 # Save the token contract address and token id to a file on .soroban/temp_token.json
 echo "{\"token_id\": \"$TOKEN_A_ID\", \"token_address\": \"$TOKEN_ADDRESS\", \"token_name\": \"$NAME\", \"token_symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json

@@ -3,11 +3,11 @@
   "name": "my-express-api",
   "builds": [
     {
-      "src": "api/*.js",
+      "src": "src/api/*.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "api/server.js" }
+    { "src": "src/(.*)", "dest": "src/api/server.js" }
   ]
 }
