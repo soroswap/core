@@ -7,8 +7,8 @@ NETWORK="$1"
 TOKEN_A_ID="$2"
 TOKEN_B_ID="$3"
 
-TOKEN_A_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
-TOKEN_B_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_B_ID)"
+TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
+TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
 
 
 ARGS="--network $NETWORK --source token-admin"

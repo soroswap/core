@@ -49,7 +49,7 @@ echo "--"
 
 # Compile the pair contract
 echo "Compile pair contract"
-cd /workspace/pair
+cd /workspace/contracts/pair
 make build
 
 echo "--"
@@ -57,16 +57,16 @@ echo "--"
 
 # Compile the factory contract
 echo "Compile factory contract"
-cd /workspace/factory
+cd /workspace/contracts/factory
 make build
 
 echo "--"
 echo "--"
 
 # Define the paths to the compiled WASM files
-FACTORY_WASM="/workspace/factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
-PAIR_WASM="/workspace/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-TOKEN_WASM="/workspace/token/soroban_token_contract.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
 
 # Install the Pair contract WASM
 echo "Install the Pair contract WASM"
@@ -111,7 +111,7 @@ soroban contract invoke \
 echo "--"
 echo "--"
 
-FACTORY_ADDRESS="$(node /workspace/address_workaround.js $FACTORY_ID)"
+FACTORY_ADDRESS="$(node /workspace/scripts/address_workaround.js $FACTORY_ID)"
 
 # Create the new FACTORY object with the updated factory id and addresses
 NEW_FACTORY_OBJECT="{ \"network\": \"$NETWORK\", \"factory_id\": \"$FACTORY_ID\", \"factory_address\": \"$FACTORY_ADDRESS\" }"
