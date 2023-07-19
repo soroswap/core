@@ -148,8 +148,8 @@ echo Current TOKEN_B_ID: $TOKEN_B_ID
   echo "--"
 
 # TODO, remove this when https://github.com/stellar/soroban-tools/issues/661 is resolved.
-TOKEN_A_ADDRESS="$(node ./address_workaround.js $TOKEN_A_ID)"
-TOKEN_B_ADDRESS="$(node ./address_workaround.js $TOKEN_B_ID)"
+TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
+TOKEN_B_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_B_ID)"
 
 echo -n "$TOKEN_A_ID" > .soroban/token_a_id
 echo -n "$TOKEN_B_ID" > .soroban/token_b_id
@@ -185,7 +185,7 @@ soroban contract deploy $ARGS \
   --wasm $FACTORY_WASM
 )"
 
-FACTORY_ADDRESS="$(node ./address_workaround.js $FACTORY_ID)"
+FACTORY_ADDRESS="$(node ./scripts/address_workaround.js $FACTORY_ID)"
 
 echo "$FACTORY_WASM" > .soroban/factory_wasm_hash
 echo "SoroswapFactory deployed succesfully with FACTORY_ID: $FACTORY_ID"

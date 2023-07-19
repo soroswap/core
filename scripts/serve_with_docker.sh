@@ -39,6 +39,6 @@ docker run --volume ${currentDir}/:/workspace \
 # docker exec --tty --interactive $containerName bash
 
 # Install dependencies
-docker exec $containerName /bin/sh -c "cd src && yarn"
+docker exec $containerName yarn
 # Launch server
 docker exec $containerName node /workspace/scripts/api/server.js

@@ -58,8 +58,8 @@ for i in $(seq 0 2 $(($N_TOKENS-1))); do
     # Use the create_pair.sh script to deploy a new pair contract
     bash /workspace/scripts/create_pair.sh $NETWORK $TOKEN_A_ID $TOKEN_B_ID
 
-    TOKEN_A_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
-    TOKEN_B_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_B_ID)"
+    TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
+    TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
 
     PAIR_ID=$(cat /workspace/.soroban/pair_id)
     echo "PAIR_ID: $PAIR_ID"
