@@ -1,7 +1,7 @@
 */Cargo.lock
-*/target
+contracts/*/target
 /target/
 /.sccache/
 .DS_Store
 .soroban
-*/node_modules/
+node_modules/
