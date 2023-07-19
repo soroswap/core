@@ -18,11 +18,11 @@ yarn
 ```
 1.3 In one terminal: (choose standalone or futurenet)
 ```
-bash quickstart.sh standalone # or futurenet
+bash scripts/quickstart.sh standalone # or futurenet
 ```
 1.4. In another terminal
 ```
-bash run.sh
+bash scripts/run.sh
 ```
 
 ### 2. Create N tokens, deploy factory and 4 pairs.
