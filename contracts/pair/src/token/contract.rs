@@ -8,7 +8,7 @@ use crate::token::event;
 use crate::token::metadata::{
     read_decimal, read_name, read_symbol, write_decimal, write_name, write_symbol,
 };
-use soroban_sdk::{contractimpl, Address, Bytes, Env};
+use soroban_sdk::{contract, contractimpl, Address, Bytes, Env};
 
 pub trait TokenTrait {
     fn initialize(e: Env, admin: Address, decimal: u32, name: Bytes, symbol: Bytes);
@@ -54,6 +54,7 @@ fn check_nonnegative_amount(amount: i128) {
     }
 }
 
+#[contract]
 pub struct Token;
 
 #[contractimpl]

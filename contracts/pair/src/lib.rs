@@ -4,11 +4,13 @@ mod test;
 mod token;
 mod create;
 mod event;
-mod factory;
+mod factory; 
 mod uq64x64;
 
 use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, IntoVal, Env, Val, TryFromVal};
+use soroban_sdk::{
+    contract, contractimpl, contractmeta, Address, BytesN, Bytes, ConversionError, Env, IntoVal, 
+    TryFromVal, Val}; 
 
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 use factory::{FactoryClient};
@@ -65,19 +67,23 @@ impl TryFromVal<Env, DataKey> for Val {
 }
 
 fn get_factory(e: &Env) -> Address {
-    e.storage().get_unchecked(&DataKey::Factory).unwrap()
+    e.storage().instance().
+get(&DataKey::Factory).unwrap()
 }
 
 fn get_token_0(e: &Env) -> Address {
-    e.storage().get_unchecked(&DataKey::Token0).unwrap()
+    e.storage().instance().
+get(&DataKey::Token0).unwrap()
 }
 
 fn get_token_1(e: &Env) -> Address {
-    e.storage().get_unchecked(&DataKey::Token1).unwrap()
+    e.storage().instance().
+get(&DataKey::Token1).unwrap()
 }
 
 fn get_total_shares(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::TotalShares).unwrap()
+    e.storage().instance().
+get(&DataKey::TotalShares).unwrap()
 }
 
 // // Get reserves functions
@@ -88,15 +94,18 @@ fn get_total_shares(e: &Env) -> i128 {
 // }
 
 fn get_reserve_0(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::Reserve0).unwrap()
+    e.storage().instance().
+get(&DataKey::Reserve0).unwrap()
 }
 
 fn get_reserve_1(e: &Env) -> i128 {
-    e.storage().get_unchecked(&DataKey::Reserve1).unwrap()
+    e.storage().instance().
+get(&DataKey::Reserve1).unwrap()
 }
 
 fn get_block_timestamp_last(e: &Env) -> u64 {
-    if let Some(block_timestamp_last) = e.storage().get(&DataKey::BlockTimestampLast) {
+    if let Some(block_timestamp_last) = e.storage().instance().
+get(&DataKey::BlockTimestampLast) {
         block_timestamp_last.unwrap()
     } else {
         0
@@ -104,7 +113,8 @@ fn get_block_timestamp_last(e: &Env) -> u64 {
 }
 
 fn get_price_0_cumulative_last(e: &Env) -> u128 {
-    if let Some(price) = e.storage().get(&DataKey::Price0CumulativeLast) {
+    if let Some(price) = e.storage().instance().
+get(&DataKey::Price0CumulativeLast) {
         price.unwrap()
     } else {
         0
@@ -112,7 +122,8 @@ fn get_price_0_cumulative_last(e: &Env) -> u128 {
 }
 
 fn get_price_1_cumulative_last(e: &Env) -> u128 {
-    if let Some(price) = e.storage().get(&DataKey::Price1CumulativeLast) {
+    if let Some(price) = e.storage().instance().
+get(&DataKey::Price1CumulativeLast) {
         price.unwrap()
     } else {
         0
@@ -120,7 +131,8 @@ fn get_price_1_cumulative_last(e: &Env) -> u128 {
 }
 
 fn get_klast(e: &Env) -> i128 {
-    if let Some(klast) = e.storage().get(&DataKey::KLast) {
+    if let Some(klast) = e.storage().instance().
+get(&DataKey::KLast) {
         klast.unwrap()
     } else {
         0
@@ -150,49 +162,59 @@ fn get_balance_shares(e: &Env) -> i128 {
 }
 
 fn put_factory(e: &Env, factory: Address) {
-    e.storage().set(&DataKey::Factory, &factory);
+    e.storage().instance().
+set(&DataKey::Factory, &factory);
 }
 
 fn put_token_0(e: &Env, contract_id: Address) {
-    e.storage().set(&DataKey::Token0, &contract_id);
+    e.storage().instance().
+set(&DataKey::Token0, &contract_id);
 }
 
 fn put_token_1(e: &Env, contract_id: Address) {
-    e.storage().set(&DataKey::Token1, &contract_id);
+    e.storage().instance().
+set(&DataKey::Token1, &contract_id);
 }
 
 fn put_total_shares(e: &Env, amount: i128) {
-    e.storage().set(&DataKey::TotalShares, &amount)
+    e.storage().instance().
+set(&DataKey::TotalShares, &amount)
 }
 
 fn put_reserve_0(e: &Env, amount: i128) {
     if amount < 0 {
         panic!("put_reserve_0: amount cannot be negative")
     }
-    e.storage().set(&DataKey::Reserve0, &amount)
+    e.storage().instance().
+set(&DataKey::Reserve0, &amount)
 }
 
 fn put_reserve_1(e: &Env, amount: i128) {
     if amount < 0 {
         panic!("put_reserve_1: amount cannot be negative")
     }
-    e.storage().set(&DataKey::Reserve1, &amount)
+    e.storage().instance().
+set(&DataKey::Reserve1, &amount)
 }
 
 fn put_block_timestamp_last(e: &Env, block_timestamp_last: u64) {
-    e.storage().set(&DataKey::BlockTimestampLast, &block_timestamp_last);
+    e.storage().instance().
+set(&DataKey::BlockTimestampLast, &block_timestamp_last);
 }
 
 fn put_price_0_cumulative_last(e: &Env, price_0_cumulative_last: u128) {
-    e.storage().set(&DataKey::Price0CumulativeLast, &price_0_cumulative_last);
+    e.storage().instance().
+set(&DataKey::Price0CumulativeLast, &price_0_cumulative_last);
 }
 
 fn put_price_1_cumulative_last(e: &Env, price_1_cumulative_last: u128) {
-    e.storage().set(&DataKey::Price1CumulativeLast, &price_1_cumulative_last);
+    e.storage().instance().
+set(&DataKey::Price1CumulativeLast, &price_1_cumulative_last);
 }
 
 fn put_klast(e: &Env, klast: i128) {
-    e.storage().set(&DataKey::KLast, &klast);
+    e.storage().instance().
+set(&DataKey::KLast, &klast);
 }
 
 fn burn_shares(e: &Env, amount: i128) {
@@ -352,6 +374,12 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
     event::sync(&e, reserve_0, reserve_1);
 }
 
+// Metadata that is added on to the WASM custom section
+contractmeta!(
+    key = "Description",
+    val = "Constant product AMM with a .3% swap fee"
+);
+
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
     fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address);
@@ -398,6 +426,7 @@ pub trait SoroswapPairTrait{
     fn total_shares(e: Env) -> i128;
 }
 
+#[contract]
 struct SoroswapPair;
 
 #[contractimpl]

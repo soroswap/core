@@ -1,5 +1,5 @@
 
-use soroban_sdk::{contractimpl, Env, Symbol, Address};
+use soroban_sdk::{contract, contractimpl, Env, Symbol, Address};
 
    
 const DUMMY: Symbol = Symbol::short("DUMMY");
@@ -11,6 +11,7 @@ pub trait FactoryTrait {
     fn fees_enabled(e: Env) -> bool;
 }
 
+#[contract]
 pub struct Factory;
 
 #[contractimpl]
