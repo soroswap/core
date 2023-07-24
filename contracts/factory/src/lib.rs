@@ -6,7 +6,7 @@ mod test;
 
 use pair::{create_contract, Pair};
 use soroban_sdk::{
-    contractimpl, Address, BytesN, ConversionError, Env, Map, RawVal, TryFromVal, Vec,
+    contractimpl, Address, BytesN, ConversionError, Map, IntoVal, Env, Val, TryFromVal, Vec,
 };
 
 #[derive(Clone, Copy)]
@@ -24,7 +24,7 @@ pub enum DataKey {
 
 
 
-impl TryFromVal<Env, DataKey> for RawVal {
+impl TryFromVal<Env, DataKey> for Val {
     type Error = ConversionError;
 
     fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
