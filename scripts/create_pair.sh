@@ -7,12 +7,12 @@ NETWORK="$1"
 TOKEN_A_ID="$2"
 TOKEN_B_ID="$3"
 
-TOKEN_A_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_A_ID)"
-TOKEN_B_ADDRESS="$(node /workspace/address_workaround.js $TOKEN_B_ID)"
+TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
+TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
 
 
 ARGS="--network $NETWORK --source token-admin"
-FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
 
 # Extract FACTORY_ID from JSON file
 FACTORY_ID=$(jq -r --arg network "$NETWORK" '.[] | select(.network == $network) | .factory_id' /workspace/.soroban/factory.json)

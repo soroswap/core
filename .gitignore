@@ -1,5 +1,5 @@
 */Cargo.lock
-*/target
+contracts/*/target
 /target/
 /.sccache/
 .DS_Store
