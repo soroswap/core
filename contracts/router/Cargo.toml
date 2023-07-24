@@ -1,0 +1,28 @@
+[package]
+name = "soroswap-pair-contract"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { version = "0.8.4" }
+num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
+
+[dev_dependencies]
+soroban-sdk = { version = "0.8.4", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
