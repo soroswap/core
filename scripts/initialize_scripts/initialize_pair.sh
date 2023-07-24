@@ -163,8 +163,8 @@ cd ..
 cd factory
 make build
 cd  ..
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-FACTORY_WASM="factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
 
 echo "--"
 echo "--"
@@ -320,7 +320,7 @@ Calling:
 
 
 ARGS="--network $NETWORK --source token-admin"
-PAIR_WASM="pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
 PAIR_ID=$(cat .soroban/pair_wasm_hash)
 TOKEN_ADMIN_ADDRESS=$(cat .soroban/token_admin_address)
 USER_ADDRESS=$(cat .soroban/user_address)
