@@ -8,7 +8,8 @@ mod factory;
 mod uq64x64;
 
 use num_integer::Roots;
-use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, TryFromVal};
+use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, IntoVal, Env, Val, TryFromVal};
+
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
 use factory::{FactoryClient};
 use uq64x64::fraction;
@@ -55,7 +56,7 @@ pub enum DataKey {
 }
 
 
-impl TryFromVal<Env, DataKey> for RawVal {
+impl TryFromVal<Env, DataKey> for Val {
     type Error = ConversionError;
 
     fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
