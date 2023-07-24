@@ -1,1 +1,2 @@
-docker exec -it soroban-preview-9 bash
+previewVersion=$(jq -r '.previewVersion' preview_version.json)
+docker exec -it soroban-preview-${previewVersion} bash
