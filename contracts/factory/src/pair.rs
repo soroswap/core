@@ -54,13 +54,13 @@ pub fn create_contract(
         BytesN<32> value.
     */
     e: &Env,                     // Pass in the current environment as an argument
-    pair_wasm_hash: &BytesN<32>, // Pass in the hash of the token contract's WASM file
+    pair_wasm_hash: BytesN<32>, // Pass in the hash of the token contract's WASM file
     token_pair: &Pair,
 ) -> Address {
     // Return the hash of the newly created contract as a Address value
 
     // Use the deployer() method of the current environment to create a new contract instance
     e.deployer()
-        .with_current_contract(&token_pair.salt(&e)) // Use the salt as a unique identifier for the new contract instance
+        .with_current_contract(token_pair.salt(&e)) // Use the salt as a unique identifier for the new contract instance
         .deploy(pair_wasm_hash) // Deploy the new contract instance using the given pair_wasm_hash value
 }
