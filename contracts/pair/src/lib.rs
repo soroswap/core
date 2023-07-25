@@ -7,9 +7,9 @@ mod event;
 mod factory; 
 mod uq64x64;
 
-use num_integer::Roots;
+use num_integer::Roots; 
 use soroban_sdk::{
-    contract, contractimpl, contractmeta, Address, BytesN, Bytes, ConversionError, Env, IntoVal, 
+    contract, contractimpl, contractmeta, Address, ConversionError, Env, IntoVal,
     TryFromVal, Val}; 
 
 use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
@@ -106,7 +106,7 @@ get(&DataKey::Reserve1).unwrap()
 fn get_block_timestamp_last(e: &Env) -> u64 {
     if let Some(block_timestamp_last) = e.storage().instance().
 get(&DataKey::BlockTimestampLast) {
-        block_timestamp_last.unwrap()
+        block_timestamp_last
     } else {
         0
     }
@@ -115,7 +115,7 @@ get(&DataKey::BlockTimestampLast) {
 fn get_price_0_cumulative_last(e: &Env) -> u128 {
     if let Some(price) = e.storage().instance().
 get(&DataKey::Price0CumulativeLast) {
-        price.unwrap()
+        price
     } else {
         0
     }
@@ -124,7 +124,7 @@ get(&DataKey::Price0CumulativeLast) {
 fn get_price_1_cumulative_last(e: &Env) -> u128 {
     if let Some(price) = e.storage().instance().
 get(&DataKey::Price1CumulativeLast) {
-        price.unwrap()
+        price
     } else {
         0
     }
@@ -133,7 +133,7 @@ get(&DataKey::Price1CumulativeLast) {
 fn get_klast(e: &Env) -> i128 {
     if let Some(klast) = e.storage().instance().
 get(&DataKey::KLast) {
-        klast.unwrap()
+        klast
     } else {
         0
     }
@@ -219,13 +219,13 @@ set(&DataKey::KLast, &klast);
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
-    internal_burn(&e, e.current_contract_address(), amount);
+    internal_burn(e.clone(), e.current_contract_address(), amount);
     put_total_shares(&e, total.checked_sub(amount).unwrap());
 }
 
 fn mint_shares(e: &Env, to: &Address, amount: i128) {
     let total = get_total_shares(e);
-    internal_mint(&e, &to, amount);
+    internal_mint(e.clone(), to.clone(), amount);
     //put_total_shares(e, total + amount);
     put_total_shares(&e, total.checked_add(amount).unwrap());
 }
@@ -444,8 +444,8 @@ impl SoroswapPairTrait for SoroswapPair {
                 e.clone(),
                 e.current_contract_address(),
                 7,
-                Bytes::from_slice(&e, b"Soroswap Pair Token"),
-                Bytes::from_slice(&e, b"SOROSWAP-LP"),
+                "Soroswap Pair Token".into_val(&e),
+                "SOROSWAP-LP".into_val(&e)
             );
 
         put_token_0(&e, token_a);

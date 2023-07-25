@@ -1,8 +1,8 @@
 
-use soroban_sdk::{contract, contractimpl, Env, Symbol, Address};
+use soroban_sdk::{symbol_short, contract, contractimpl, Env, Symbol, Address};
 
    
-const DUMMY: Symbol = Symbol::short("DUMMY");
+const DUMMY: Symbol = symbol_short!("DUMMY");
 
 
 pub trait FactoryTrait {
@@ -18,7 +18,8 @@ pub struct Factory;
 impl FactoryTrait for Factory {
 
     fn fee_to(e: Env) -> Address {
-        e.storage().get(&DUMMY).unwrap().unwrap()
+        let address: Address = e.storage().instance().get(&DUMMY).unwrap();
+        address
     }
 
     fn fees_enabled(_e: Env) -> bool {
