@@ -1,6 +1,6 @@
-use soroban_sdk::{Env, Symbol, Address};
+use soroban_sdk::{symbol_short, Env, Symbol, Address};
 
-const PAIR: Symbol = Symbol::short("PAIR");
+const PAIR: Symbol = symbol_short!("PAIR");
 
 
 pub(crate) fn deposit(e: &Env, sender: &Address, amount_0: i128, amount_1: i128) {

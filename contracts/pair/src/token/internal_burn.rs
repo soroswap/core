@@ -1,5 +1,6 @@
 
 use crate::token::balance::{spend_balance};
+use crate::token::storage_types::INSTANCE_BUMP_AMOUNT;
 use crate::token::event;
 
 use soroban_sdk::{Address, Env};
@@ -15,8 +16,11 @@ fn check_nonnegative_amount(amount: i128) {
     Because this contract is the token admin for itself,
     it cannot make a cross_contract call to itself and hence 
 */
-pub fn internal_burn(e: &Env, from: Address, amount: i128) {
-        check_nonnegative_amount(amount);
-        spend_balance(&e, &from, amount);
-        event::burn(&e, &from, amount);
-}
+pub fn internal_burn(e: Env, from: Address, amount: i128) {
+    check_nonnegative_amount(amount);
+
+    e.storage().instance().bump(INSTANCE_BUMP_AMOUNT);
+
+    spend_balance(&e, from.clone(), amount);
+    event::burn(&e, from, amount);
+} 
