@@ -6,7 +6,8 @@ mod test;
 
 use pair::{create_contract, Pair};
 use soroban_sdk::{
-    contractimpl, Address, BytesN, ConversionError, Env, Map, RawVal, TryFromVal, Vec,
+    contract,
+    contractimpl, Address, BytesN, ConversionError, Map, Env, Val, TryFromVal, Vec,
 };
 
 #[derive(Clone, Copy)]
@@ -24,7 +25,7 @@ pub enum DataKey {
 
 
 
-impl TryFromVal<Env, DataKey> for RawVal {
+impl TryFromVal<Env, DataKey> for Val {
     type Error = ConversionError;
 
     fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
@@ -33,34 +34,34 @@ impl TryFromVal<Env, DataKey> for RawVal {
 }
 
 fn get_fee_to(e: &Env) -> Address {
-    e.storage().get_unchecked(&DataKey::FeeTo).unwrap()
+    e.storage().instance().get(&DataKey::FeeTo).unwrap()
 }
 
 fn get_fees_enabled(e: &Env) -> bool {
     let key = DataKey::FeesEnabled;
-    if let Some(state) = e.storage().get(&key) {
-        state.unwrap()
+    if let Some(state) = e.storage().instance().get(&key) {
+        state
     } else {
         false // By default fees are not enabled
     }
 }
 
 fn get_fee_to_setter(e: &Env) -> Address {
-    e.storage().get_unchecked(&DataKey::FeeToSetter).unwrap()
+    e.storage().instance().get(&DataKey::FeeToSetter).unwrap()
 }
 
 fn get_all_pairs(e: &Env) -> Vec<Address> {
     e.storage()
+        .instance()
         .get(&DataKey::AllPairs)
-        .unwrap_or(Ok(Vec::new(&e)))
-        .unwrap()
+        .unwrap_or(Vec::new(&e))
 }
 fn get_pairs_mapping(e: &Env) -> Map<Pair, Address> {
     // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
     e.storage()
+        .instance()
         .get(&DataKey::PairsMapping)
-        .unwrap_or_else(|| Ok(Map::new(&e)))
-        .unwrap()
+        .unwrap_or_else(|| Map::new(&e))
 }
 
 fn get_pair_exists(e: &Env, pair_key: &Pair) -> bool {
@@ -72,31 +73,31 @@ fn get_pair_exists(e: &Env, pair_key: &Pair) -> bool {
 }
 
 fn get_pair_wasm_hash(e: &Env) -> BytesN<32> {
-    e.storage().get_unchecked(&DataKey::PairWasmHash).unwrap()
+    e.storage().instance().get(&DataKey::PairWasmHash).unwrap()
 }
 
 fn put_fee_to(e: &Env, to: Address) {
-    e.storage().set(&DataKey::FeeTo, &to);
+    e.storage().instance().set(&DataKey::FeeTo, &to);
 }
 
 fn put_fee_to_setter(e: &Env, setter: &Address) {
-    e.storage().set(&DataKey::FeeToSetter, setter);
+    e.storage().instance().set(&DataKey::FeeToSetter, setter);
 }
 
 fn put_fees_enabled(e: &Env, is_enabled: &bool) {
-    e.storage().set(&DataKey::FeesEnabled, is_enabled);
+    e.storage().instance().set(&DataKey::FeesEnabled, is_enabled);
 }
 
 fn _put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
-    e.storage().set(&DataKey::AllPairs, &all_pairs);
+    e.storage().instance().set(&DataKey::AllPairs, &all_pairs);
 }
 
 fn put_pairs_mapping(e: &Env, pairs_mapping: Map<Pair, Address>) {
-    e.storage().set(&DataKey::PairsMapping, &pairs_mapping)
+    e.storage().instance().set(&DataKey::PairsMapping, &pairs_mapping)
 }
 
 fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
-    e.storage().set(&DataKey::PairWasmHash, &pair_wasm_hash)
+    e.storage().instance().set(&DataKey::PairWasmHash, &pair_wasm_hash)
 }
 
 fn add_pair_to_mapping(e: &Env, token_pair: &Pair, pair: &Address) {
@@ -116,7 +117,7 @@ fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
     // Push the new `pair_address` onto the vector
     all_pairs.push_back(pair_address.clone());
     // Save the updated `allPairs` vector to storage
-    e.storage().set(&DataKey::AllPairs, &all_pairs);
+    e.storage().instance().set(&DataKey::AllPairs, &all_pairs);
 }
 
 
@@ -166,6 +167,7 @@ pub trait SoroswapFactoryTrait {
     fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address;
 }
 
+#[contract]
 struct SoroswapFactory;
 
 #[contractimpl]
@@ -214,7 +216,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         let pair_key = Pair::new(token_a, token_b);
         // Get the value from the pairs mapping using the pair_key as the key.
         // Unwrap the result of the get() method twice to get the actual value of the pair_address.
-        let pair_address = pairs_mapping.get(pair_key).unwrap().unwrap();
+        let pair_address = pairs_mapping.get(pair_key).unwrap();
         // Return the pair address.
         pair_address
     }
@@ -223,7 +225,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // function allPairs(uint) external view returns (address pair);
     fn all_pairs(e: Env, n: u32) -> Address {
         // TODO: Implement error if n does not exist
-        get_all_pairs(&e).get_unchecked(n).unwrap()
+        get_all_pairs(&e).get(n).unwrap()
     }
 
     fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool {
@@ -286,7 +288,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
         */
         let pair_wasm_hash = get_pair_wasm_hash(&e);
-        let pair = create_contract(&e, &pair_wasm_hash, &token_pair);
+        let pair = create_contract(&e, pair_wasm_hash, &token_pair);
         // TODO: Implement name of the pair depending on the token names
         pair::Client::new(&e, &pair).initialize_pair(
             &e.current_contract_address(),
