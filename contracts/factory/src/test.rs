@@ -5,7 +5,7 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 
-use soroban_sdk::{testutils::Address as _,
+use soroban_sdk::{testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
     xdr::ToXdr,
     Address, 
     BytesN, 
@@ -36,8 +36,9 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
         file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
     );
-    e.install_contract_wasm(WASM)
+    e.deployer().upload_contract_wasm(WASM)
 }
+
 
 // fn guess_contract_address(
 //     e: &Env,
@@ -140,11 +141,16 @@ fn test() {
 
     assert_eq!(
         e.auths(),
-        [(
+        std::vec![(
             admin.clone(),
-            factory.address.clone(),
-            Symbol::new(&e, "set_fee_to_setter"),
-            (new_admin.clone(),).into_val(&e)
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    factory.address.clone(),
+                    Symbol::new(&e, "set_fee_to_setter"),
+                    (new_admin.clone(),).into_val(&e)
+                )),
+                sub_invocations: std::vec![]
+            }
         )]
     );
     assert_eq!(factory.fee_to_setter(), new_admin);
@@ -156,11 +162,16 @@ fn test() {
 
      assert_eq!(
          e.auths(),
-         [(
+         std::vec![(
              new_admin.clone(),
-             factory.address.clone(),
-             Symbol::new(&e, "set_fees_enabled"),
-             (true,).into_val(&e)
+             AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    factory.address.clone(),
+                    Symbol::new(&e, "set_fees_enabled"),
+                    (true,).into_val(&e)
+                )),
+                sub_invocations: std::vec![]
+            }
          )]
      );
      assert_eq!(factory.fees_enabled(), true);
@@ -172,11 +183,16 @@ fn test() {
     factory.set_fee_to(&factory.address);
     assert_eq!(
         e.auths(),
-        [(
+        std::vec![(
             new_admin.clone(),
-            factory.address.clone(),
-            Symbol::new(&e, "set_fee_to"),
-            (factory.address.clone(),).into_val(&e)
+            AuthorizedInvocation {
+                function: AuthorizedFunction::Contract((
+                    factory.address.clone(),
+                    Symbol::new(&e, "set_fee_to"),
+                    (factory.address.clone(),).into_val(&e)
+                )),
+                sub_invocations: std::vec![]
+            }
         )]
     );
     assert_eq!(factory.fee_to(), factory.address);
@@ -232,7 +248,9 @@ fn test() {
     assert_eq!(pair_client.factory(), factory.address);
 
     
-
+    // TODO; DONT USE RESET
+    e.budget().reset_unlimited(); 
+    
     // expect(await pair.token0()).to.eq(TEST_ADDRESSES[0])
     // expect(await pair.token1()).to.eq(TEST_ADDRESSES[1])
     // Before comparing the token_0 and token_1 saved in the pair contract, we need
