@@ -8,11 +8,11 @@ mod factory;
 mod uq64x64;
 
 use num_integer::Roots; 
-use soroban_sdk::{
+use soroban_sdk::{ 
     contract, contractimpl, contractmeta, Address, ConversionError, Env, IntoVal,
     TryFromVal, Val}; 
 
-use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn};
+use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn, internal_transfer};
 use factory::{FactoryClient};
 use uq64x64::fraction;
 
@@ -608,7 +608,7 @@ impl SoroswapPairTrait for SoroswapPair {
         For now we are sending the pair token to the contract here.
         This will change with a Router contract that will send the tokens to us.
         */
-        Token::transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
+        internal_transfer(e.clone(), to.clone(), e.current_contract_address(), share_amount);
         // address _token0 = token0;                                // gas savings
         // address _token1 = token1;                                // gas savings
         // uint balance0 = IERC20(_token0).balanceOf(address(this));
