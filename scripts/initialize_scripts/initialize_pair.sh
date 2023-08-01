@@ -50,8 +50,8 @@ echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 echo "--"
 echo "--"
 # TODO: Remove this once we can use `soroban config identity` from webpack.
-echo "$TOKEN_ADMIN_SECRET" > .soroban/token_admin_secret
-echo "$TOKEN_ADMIN_ADDRESS" > .soroban/token_admin_address
+echo "$TOKEN_ADMIN_SECRET" > /workspace/.soroban/token_admin_secret
+echo "$TOKEN_ADMIN_ADDRESS" > /workspace/.soroban/token_admin_address
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot
@@ -63,9 +63,9 @@ echo "Using ARGS: $ARGS"
 echo "--" 
 echo "--"
 
-mkdir -p .soroban
+mkdir -p /workspace/.soroban
 
-TOKEN_WASM="token/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
  
 echo Deploying TOKEN_A
 
@@ -148,19 +148,19 @@ echo Current TOKEN_B_ID: $TOKEN_B_ID
   echo "--"
 
 # TODO, remove this when https://github.com/stellar/soroban-tools/issues/661 is resolved.
-TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
-TOKEN_B_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_B_ID)"
+TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
+TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
 
-echo -n "$TOKEN_A_ID" > .soroban/token_a_id
-echo -n "$TOKEN_B_ID" > .soroban/token_b_id
-echo -n "$TOKEN_A_ADDRESS" > .soroban/token_a_address
-echo -n "$TOKEN_B_ADDRESS" > .soroban/token_b_address
+echo -n "$TOKEN_A_ID" > /workspace/.soroban/token_a_id
+echo -n "$TOKEN_B_ID" > /workspace/.soroban/token_b_id
+echo -n "$TOKEN_A_ADDRESS" > /workspace/.soroban/token_a_address
+echo -n "$TOKEN_B_ADDRESS" > /workspace/.soroban/token_b_address
 
 echo Build the SoroswapPair contract
-cd pair
+cd /workspace/contracts/pair
 make build
 cd ..
-cd factory
+cd /workspace/contracts/factory
 make build
 cd  ..
 PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
@@ -174,7 +174,7 @@ PAIR_ID="$(
 soroban contract deploy $ARGS \
   --wasm $PAIR_WASM
 )"
-echo "$PAIR_ID" > .soroban/pair_wasm_hash
+echo "$PAIR_ID" > /workspace/.soroban/pair_wasm_hash
 echo "SoroswapPair deployed succesfully with PAIR_ID: $PAIR_ID"
 echo "--"
 echo "--"
@@ -185,9 +185,9 @@ soroban contract deploy $ARGS \
   --wasm $FACTORY_WASM
 )"
 
-FACTORY_ADDRESS="$(node ./scripts/address_workaround.js $FACTORY_ID)"
+FACTORY_ADDRESS="$(node /workspace/scripts/address_workaround.js $FACTORY_ID)"
 
-echo "$FACTORY_WASM" > .soroban/factory_wasm_hash
+echo "$FACTORY_WASM" > /workspace/.soroban/factory_wasm_hash
 echo "SoroswapFactory deployed succesfully with FACTORY_ID: $FACTORY_ID"
 echo "SoroswapFactory deployed succesfully with FACTORY_ADDRESS: $FACTORY_ADDRESS"
 
@@ -239,8 +239,8 @@ echo In the following we are going to use a new USER account:
   USER_SECRET="$(soroban config identity show user)"
   USER_ADDRESS="$(soroban config identity address user)"
   echo "We are using the following USER_ADDRESS: $USER_ADDRESS"
-  echo "$USER_SECRET" > .soroban/user_secret
-  echo "$USER_ADDRESS" > .soroban/user_address
+  echo "$USER_SECRET" > /workspace/.soroban/user_secret
+  echo "$USER_ADDRESS" > /workspace/.soroban/user_address
   
 
 
@@ -321,11 +321,11 @@ Calling:
 
 ARGS="--network $NETWORK --source token-admin"
 PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-PAIR_ID=$(cat .soroban/pair_wasm_hash)
-TOKEN_ADMIN_ADDRESS=$(cat .soroban/token_admin_address)
-USER_ADDRESS=$(cat .soroban/user_address)
-TOKEN_A_ID=$(cat .soroban/token_a_id)
-TOKEN_B_ID=$(cat .soroban/token_b_id)
+PAIR_ID=$(cat /workspace/.soroban/pair_wasm_hash)
+TOKEN_ADMIN_ADDRESS=$(cat /workspace/.soroban/token_admin_address)
+USER_ADDRESS=$(cat /workspace/.soroban/user_address)
+TOKEN_A_ID=$(cat /workspace/.soroban/token_a_id)
+TOKEN_B_ID=$(cat /workspace/.soroban/token_b_id)
 ARGS_USER="--network $NETWORK --source user"
 
 
