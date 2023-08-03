@@ -15,7 +15,12 @@ SYMBOL="$4"
 
 mkdir -p /workspace/.soroban
 
-TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
+# Compile the token contract
+echo "Compile token contract"
+cd /workspace/contracts/token
+make build
+cd /workspace/
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
 
 echo Deploying token to network $NETWORK
 echo $NETWORK
