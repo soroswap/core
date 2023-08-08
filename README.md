@@ -7,6 +7,10 @@ Check the documentation in
 - https://docs.soroswap.finance/
 
 ## TLDR;
+
+### 0. Prerequisites
+jq, docker, docker-compose, node, yarn
+
 ### 1. Setup 
 1.1. Clone this repo
 ```
@@ -39,7 +43,7 @@ bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to
 In a new terminal run
 
 ```
-bash serve_with_docker.sh
+bash scripts/serve_with_docker.sh
 ```
 This will serve:
 - List of tokens at http://localhost:8010/api/tokens
