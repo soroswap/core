@@ -49,8 +49,8 @@ PAIRS_ARRAY=[]
 # Loop through the tokens and deploy pairs
 for i in $(seq 0 2 $(($N_TOKENS-1))); do
     echo "Deploying pair for tokens $i and $(($i+1))"
-    TOKEN_A_ID=$(echo $TOKENS | jq -r ".[$i].token_id")
-    TOKEN_B_ID=$(echo $TOKENS | jq -r ".[$(($i+1))].token_id")
+    TOKEN_A_ID=$(echo $TOKENS | jq -r ".[$i].address")
+    TOKEN_B_ID=$(echo $TOKENS | jq -r ".[$(($i+1))].address")
     
     echo "TOKEN_A_ID: $TOKEN_A_ID"
     echo "TOKEN_B_ID: $TOKEN_B_ID"

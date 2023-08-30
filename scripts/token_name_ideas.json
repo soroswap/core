@@ -1,70 +1,70 @@
 {
-    "tokens": [
-        {
-          "symbol": "AAAA",
-          "name": "AAAA"
-        },
-        {
-          "symbol": "AAAB",
-          "name": "AAAB"
-        },
-        {
-          "symbol": "AAAC",
-          "name": "AAAC"
-        },
-        {
-          "symbol": "AAAD",
-          "name": "AAAD"
-        },
-        {
-          "symbol": "AAAE",
-          "name": "AAAE"
-        },
-        {
-          "symbol": "AAAF",
-          "name": "AAAF"
-        },
-        {
-          "symbol": "AABA",
-          "name": "AABA"
-        },
-        {
-          "symbol": "AABB",
-          "name": "AABB"
-        },
-        {
-          "symbol": "AABC",
-          "name": "AABC"
-        },
-        {
-          "symbol": "AABD",
-          "name": "AABD"
-        },
-        {
-          "symbol": "AABE",
-          "name": "AABE"
-        },
-        {
-          "symbol": "AABF",
-          "name": "AABF"
-        },
-        {
-          "symbol": "AABG",
-          "name": "AABG"
-        },
-        {
-          "symbol": "AABH",
-          "name": "AABH"
-        },
-        {
-          "symbol": "AABI",
-          "name": "AABI"
-        },
-        {
-          "symbol": "AABJ",
-          "name": "AABJ"
-        }
-    ]
-      
-  }
+  "tokens": [
+      {
+        "symbol": "STELLR",
+        "name": "StellarGiggle"
+      },
+      {
+        "symbol": "COSMLAUGH",
+        "name": "CosmicLaughter"
+      },
+      {
+        "symbol": "GALAGIGG",
+        "name": "GalacticGiggle"
+      },
+      {
+        "symbol": "LOLAR",
+        "name": "LaughingOrbit"
+      },
+      {
+        "symbol": "COMETYUK",
+        "name": "CometYukYuk"
+      },
+      {
+        "symbol": "LUNACHUCK",
+        "name": "LunarChuckle"
+      },
+      {
+        "symbol": "ASTROLAUGH",
+        "name": "AstroGuffaw"
+      },
+      {
+        "symbol": "GRINVEN",
+        "name": "GrinVoyager"
+      },
+      {
+        "symbol": "GALAXJEST",
+        "name": "GalaxyJester"
+      },
+      {
+        "symbol": "PLANETFUN",
+        "name": "PlanetFun"
+      },
+      {
+        "symbol": "COSMICOMEDY",
+        "name": "CosmicComedyCoin"
+      },
+      {
+        "symbol": "ZANYZODIAC",
+        "name": "ZanyZodiacLaughs"
+      },
+      {
+        "symbol": "STARHAHA",
+        "name": "StarlightHaha"
+      },
+      {
+        "symbol": "MOONGLINT",
+        "name": "MoonbeamGlint"
+      },
+      {
+        "symbol": "GALAXYGRIN",
+        "name": "GalaxyGrin"
+      },
+      {
+        "symbol": "SOLARSMILE",
+        "name": "SolarSmileToken"
+      }
+  ]
+}
+
   
