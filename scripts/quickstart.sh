@@ -53,7 +53,7 @@ docker run --rm -ti \
   --name stellar \
   --network soroban-network \
   -p 8000:8000 \
-  stellar/quickstart:soroban-dev@sha256:${quickstartHash} \
+  stellar/quickstart:${quickstartHash} \
   $ARGS \
   --enable-soroban-rpc \
   --protocol-version 20 \
