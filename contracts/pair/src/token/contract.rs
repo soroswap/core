@@ -6,9 +6,10 @@ use crate::token::balance::{read_balance, receive_balance, spend_balance};
 use crate::token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
 use crate::token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use soroban_sdk::token::{self, Interface as _};
-use soroban_sdk::token::{contract, contractimpl, Address, Env, String};
-use soroban_token_sdk::token::metadata::TokenMetadata;
-use soroban_token_sdk::token::TokenUtils;
+use soroban_sdk::{contract, contractimpl, Address, Env, String};
+use soroban_token_sdk::metadata::TokenMetadata;
+use soroban_token_sdk::TokenUtils;
+
 
 fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {
