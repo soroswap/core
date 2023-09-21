@@ -15,6 +15,7 @@ use soroban_sdk::{
 use token::{Token, TokenClient, internal_mint, internal_burn, internal_transfer};
 use factory::{FactoryClient};
 use uq64x64::fraction;
+use soroban_sdk::token::Interface;
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
 
