@@ -19,8 +19,10 @@ fn check_nonnegative_amount(amount: i128) {
 pub fn internal_burn(e: Env, from: Address, amount: i128) {
     check_nonnegative_amount(amount);
 
-    e.storage().instance().bump(INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD);
-
+    e.storage()
+    .instance()
+    .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+    
     spend_balance(&e, from.clone(), amount);
     TokenUtils::new(&e).events().burn(from, amount);
 
@@ -34,18 +36,21 @@ pub fn internal_burn(e: Env, from: Address, amount: i128) {
 pub fn internal_mint(e: Env, to: Address, amount: i128) {
     check_nonnegative_amount(amount);
 
-    e.storage().instance().bump(INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD);
+    e.storage()
+    .instance()
+    .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
     receive_balance(&e, to.clone(), amount);
     TokenUtils::new(&e).events().mint(e.current_contract_address(), to, amount);
-
 }
 
 pub fn internal_transfer(e: Env, from: Address, to: Address, amount: i128) {
 
     check_nonnegative_amount(amount);
 
-    e.storage().instance().bump(INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD);
+    e.storage()
+    .instance()
+    .bump(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
     spend_balance(&e, from.clone(), amount);
     receive_balance(&e, to.clone(), amount);
