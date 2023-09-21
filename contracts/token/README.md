@@ -1,1 +1,0 @@
-Token WASM compiled from https://github.com/stellar/soroban-examples/commit/fdfc1bc6b78e34c30f6ded6c870e87dabfa716aa
