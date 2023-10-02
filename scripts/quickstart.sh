@@ -14,8 +14,12 @@ futurenet)
     echo "Using Futurenet network"
     ARGS="--futurenet"
     ;;
+testnet)
+    echo "Using Testnet network"
+    ARGS="--testnet"
+    ;;
 *)
-    echo "Usage: $0 standalone|futurenet"
+    echo "Usage: $0 standalone|futurenet|testnet"
     exit 1
     ;;
 esac
