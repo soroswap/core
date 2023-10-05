@@ -8,7 +8,7 @@ set -e
 case "$1" in
 standalone)
     echo "Using standalone network"
-    ARGS="--standalone"
+    ARGS="--local --enable-soroban-diagnostic-events"
     ;;
 futurenet)
     echo "Using Futurenet network"
