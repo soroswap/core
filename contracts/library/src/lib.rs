@@ -9,6 +9,13 @@ use soroban_sdk::{
     Bytes,
 };
 
+
+mod pair {
+    soroban_sdk::contractimport!(
+        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+    );
+}
+
 #[derive(Clone, Copy)]
 #[repr(u32)]
 
@@ -45,11 +52,14 @@ fn pairSalt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
 pub trait SoroswapLibraryTrait {
     
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
-    fn sortTokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address);
+    fn sort_tokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address);
 
     // calculates the deterministic address for a pair without making any external calls
     // check https://github.com/paltalabs/deterministic-address-soroban
-    fn pairFor(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address;
+    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address;
+
+    // fetches and sorts the reserves for a pair
+    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128);
 
    
 }
@@ -62,7 +72,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
-    fn sortTokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address) {
+    fn sort_tokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address) {
         //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
         if token_a == token_b {
             panic!("SoroswapFactory: token_a and token_b have identical addresses");
@@ -82,7 +92,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     // calculates the CREATE2 address for a pair without making any external calls
     // function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
-    fn pairFor(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address {
+    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address {
         //     (address token0, address token1) = sortTokens(tokenA, tokenB);
         //     pair = address(uint(keccak256(abi.encodePacked(
         //             hex'ff',
@@ -91,7 +101,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         //             hex'96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // init code hash
         //         ))));
 
-        let (token_0, token_1) = Self::sortTokens(e.clone(), token_a, token_b);
+        let (token_0, token_1) = Self::sort_tokens(e.clone(), token_a, token_b);
         let salt = pairSalt(&e, token_0, token_1);
         let deployer_with_address = e.deployer().with_address(factory.clone(), salt);
         let deterministic_address = deployer_with_address.deployed_address();
@@ -101,10 +111,26 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     // // fetches and sorts the reserves for a pair
     // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-    //     (address token0,) = sortTokens(tokenA, tokenB);
-    //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
-    //     (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-    // }
+    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
+        //     (address token0,) = sortTokens(tokenA, tokenB);
+        let (token_0,token_1) = Self::sort_tokens(e.clone(), token_a, token_b);
+
+        //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
+        let pair_address = Self::pair_for(e.clone(), factory, token_0, token_1);
+        let pair_client = pair::Client::new(&e, &pair_address);
+        let (reserve_0, reserve_1, _block_timestamp_last) = pair_client.get_reserves();
+        
+
+         //   (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+        let (reserve_a, reseve_b) =
+            if token_a == token_0 {
+                (reserve_0, reserve_1) 
+            } else {
+                (reserve_1, reserve_0) };
+
+        (reserve_0, reserve_1)
+
+    }
 
     // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
     // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
