@@ -30,8 +30,9 @@ impl TryFromVal<Env, DataKey> for Val {
 
 
 pub trait SoroswapLibraryTrait {
-    // Sets the fee_to_setter address and sets the pair_wasm_hash to create new pair contracts
-    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>);
+    
+    // returns sorted token addresses, used to handle return values from pairs sorted in this order
+    fn sortTokens(token_a: Address, token_b: Address) -> (Address, Address);
 
    
 }
@@ -41,7 +42,27 @@ struct SoroswapLibrary;
 
 #[contractimpl]
 impl SoroswapLibraryTrait for SoroswapLibrary {
-    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) {
+
+    // returns sorted token addresses, used to handle return values from pairs sorted in this order
+    // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+    fn sortTokens(token_a: Address, token_b: Address) -> (Address, Address) {
+        //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
+        if token_a == token_b {
+            panic!("SoroswapFactory: token_a and token_b have identical addresses");
+        }
+        
+        //     (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        if token_a < token_b {
+            (token_a, token_b)
+        } else {
+            (token_b, token_a)
+        }
+        
+        //     require(token0 != address(0), 'UniswapV2Library: ZERO_ADDRESS');
+        // In Soroban we don't have the concept of ZERO_ADDRESS
     }
+
+    
+
 
 }
