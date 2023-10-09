@@ -63,6 +63,10 @@ pub trait SoroswapLibraryTrait {
     // fetches and sorts the reserves for a pair
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128);
 
+    // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB)
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
+
    
 }
 
@@ -77,7 +81,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
         //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
         if token_a == token_b {
-            panic!("SoroswapFactory: token_a and token_b have identical addresses");
+            panic!("SoroswapLibrary: token_a and token_b have identical addresses");
         }
         
         //     (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
@@ -135,12 +139,20 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
 
     // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    
     // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
-    //     require(amountA > 0, 'UniswapV2Library: INSUFFICIENT_AMOUNT');
-    //     require(reserveA > 0 && reserveB > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-    //     amountB = amountA.mul(reserveB) / reserveA;
-    // }
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
+        //     require(amountA > 0, 'UniswapV2Library: INSUFFICIENT_AMOUNT');
+        if amount_a <= 0 {
+            panic!("SoroswapLibrary: insufficient amount");
+        }
+        //     require(reserveA > 0 && reserveB > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
+        if reserve_a <= 0 && reserve_b <= 0 {
+            panic!("SoroswapLibrary: insufficient liquidity");
+        }
+        //     amountB = amountA.mul(reserveB) / reserveA;
+        amount_a.checked_mul(reserve_b).unwrap().checked_div(reserve_a).unwrap()
+    }
+    
 
     // // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
     // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
