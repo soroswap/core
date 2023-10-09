@@ -64,8 +64,10 @@ pub trait SoroswapLibraryTrait {
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128);
 
     // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB)
     fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
+
+    // // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
    
 }
@@ -115,7 +117,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
 
 
-    // // fetches and sorts the reserves for a pair
+    // fetches and sorts the reserves for a pair
     // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
         //     (address token0,) = sortTokens(tokenA, tokenB);
@@ -138,7 +140,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     }
 
-    // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
     // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
     fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
         //     require(amountA > 0, 'UniswapV2Library: INSUFFICIENT_AMOUNT');
@@ -154,15 +156,30 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
     
 
-    // // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
     // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
-    //     require(amountIn > 0, 'UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT');
-    //     require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-    //     uint amountInWithFee = amountIn.mul(997);
-    //     uint numerator = amountInWithFee.mul(reserveOut);
-    //     uint denominator = reserveIn.mul(1000).add(amountInWithFee);
-    //     amountOut = numerator / denominator;
-    // }
+        fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128 {
+            //     require(amountIn > 0, 'UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT');
+            if amount_in <= 0 {
+                panic!("SoroswapLibrary: insufficient input amount");
+            }
+            
+            //     require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
+            if reserve_in <= 0 && reserve_out <= 0 {
+                panic!("SoroswapLibrary: insufficient liquidity");
+            }
+
+            //     uint amountInWithFee = amountIn.mul(997);
+            let amount_in_with_fee = amount_in.checked_mul(997).unwrap();
+            //     uint numerator = amountInWithFee.mul(reserveOut);
+            let numerator = amount_in_with_fee.checked_mul(reserve_out).unwrap();
+
+            //     uint denominator = reserveIn.mul(1000).add(amountInWithFee);
+            let denominator = reserve_in.checked_mul(1000).unwrap().checked_add(amount_in_with_fee).unwrap();
+
+            //     amountOut = numerator / denominator;
+            numerator.checked_div(denominator).unwrap()
+        }
 
     // // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
     // function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
