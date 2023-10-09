@@ -5,8 +5,7 @@ mod test;
 use soroban_sdk::{
     contract,
     contractimpl, Address, BytesN, ConversionError, Env, Val, TryFromVal,
-    xdr::ToXdr,
-    Bytes,
+    xdr::ToXdr, Vec, Bytes, vec
 };
 
 
@@ -71,6 +70,11 @@ pub trait SoroswapLibraryTrait {
 
     // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
     fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
+
+    // // performs chained getAmountOut calculations on any number of pairs 
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128>;
+    // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
+
 
    
 }
@@ -168,7 +172,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         }
         
         //     require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-        if reserve_in <= 0 && reserve_out <= 0 {
+        if reserve_in <= 0 || reserve_out <= 0 {
             panic!("SoroswapLibrary: insufficient liquidity");
         }
 
@@ -192,7 +196,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
             panic!("SoroswapLibrary: insufficient input amount");
         }
         //     require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-        if reserve_in <= 0 && reserve_out <= 0 {
+        if reserve_in <= 0 || reserve_out <= 0 {
             panic!("SoroswapLibrary: insufficient liquidity");
         }
         //     uint numerator = reserveIn.mul(amountOut).mul(1000);
@@ -206,6 +210,12 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
 
     // // performs chained getAmountOut calculations on any number of pairs 
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128> {
+        if !(path.len() >= 2){
+            panic!("SoroswapLibrary: invalid path");
+        }
+        vec![&e, 1, 1]
+    }
     // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
     //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
     //     amounts = new uint[](path.length);
