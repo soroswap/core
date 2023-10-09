@@ -37,7 +37,7 @@ impl TryFromVal<Env, DataKey> for Val {
     }
 }
 
-fn pairSalt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
+fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     let mut salt = Bytes::new(e);
 
     // Append the bytes of token_a and token_b to the salt
@@ -47,6 +47,8 @@ fn pairSalt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     // Hash the salt using SHA256 to generate a new BytesN<32> value
     e.crypto().sha256(&salt)
 }
+
+
 
 
 pub trait SoroswapLibraryTrait {
@@ -102,7 +104,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         //         ))));
 
         let (token_0, token_1) = Self::sort_tokens(token_a, token_b);
-        let salt = pairSalt(&e, token_0, token_1);
+        let salt = pair_salt(&e, token_0, token_1);
         let deployer_with_address = e.deployer().with_address(factory.clone(), salt);
         let deterministic_address = deployer_with_address.deployed_address();
         deterministic_address
@@ -113,10 +115,10 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
         //     (address token0,) = sortTokens(tokenA, tokenB);
-        let (token_0,token_1) = Self::sort_tokens(token_a, token_b);
+        let (token_0,token_1) = Self::sort_tokens(token_a.clone(), token_b.clone());
 
         //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
-        let pair_address = Self::pair_for(e.clone(), factory, token_0, token_1);
+        let pair_address = Self::pair_for(e.clone(), factory, token_0.clone(), token_1.clone());
         let pair_client = pair::Client::new(&e, &pair_address);
         let (reserve_0, reserve_1, _block_timestamp_last) = pair_client.get_reserves();
         
@@ -128,7 +130,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
             } else {
                 (reserve_1, reserve_0) };
 
-        (reserve_0, reserve_1)
+        (reserve_a, reseve_b)
 
     }
 
