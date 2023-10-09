@@ -4,7 +4,7 @@ mod test;
 
 use soroban_sdk::{
     contract,
-    contractimpl, Address, BytesN, ConversionError, Map, Env, Val, TryFromVal, Vec,
+    contractimpl, Address, BytesN, ConversionError, Env, Val, TryFromVal,
     xdr::ToXdr,
     Bytes,
 };
@@ -52,7 +52,7 @@ fn pairSalt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
 pub trait SoroswapLibraryTrait {
     
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
-    fn sort_tokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address);
+    fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address);
 
     // calculates the deterministic address for a pair without making any external calls
     // check https://github.com/paltalabs/deterministic-address-soroban
@@ -72,7 +72,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
-    fn sort_tokens(e: Env, token_a: Address, token_b: Address) -> (Address, Address) {
+    fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
         //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
         if token_a == token_b {
             panic!("SoroswapFactory: token_a and token_b have identical addresses");
@@ -101,7 +101,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         //             hex'96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // init code hash
         //         ))));
 
-        let (token_0, token_1) = Self::sort_tokens(e.clone(), token_a, token_b);
+        let (token_0, token_1) = Self::sort_tokens(token_a, token_b);
         let salt = pairSalt(&e, token_0, token_1);
         let deployer_with_address = e.deployer().with_address(factory.clone(), salt);
         let deterministic_address = deployer_with_address.deployed_address();
@@ -113,7 +113,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
         //     (address token0,) = sortTokens(tokenA, tokenB);
-        let (token_0,token_1) = Self::sort_tokens(e.clone(), token_a, token_b);
+        let (token_0,token_1) = Self::sort_tokens(token_a, token_b);
 
         //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
         let pair_address = Self::pair_for(e.clone(), factory, token_0, token_1);
@@ -133,6 +133,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
 
     // // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    
     // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
     //     require(amountA > 0, 'UniswapV2Library: INSUFFICIENT_AMOUNT');
     //     require(reserveA > 0 && reserveB > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
