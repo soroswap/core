@@ -173,7 +173,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128 {
         //     require(amountOut > 0, 'UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT');
         if amount_out <= 0 {
-            panic!("SoroswapLibrary: insufficient input amount");
+            panic!("SoroswapLibrary: insufficient output amount");
         }
         //     require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
         if reserve_in <= 0 || reserve_out <= 0 {

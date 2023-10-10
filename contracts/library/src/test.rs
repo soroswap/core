@@ -136,7 +136,15 @@ fn test_get_amount_in() {
     assert_eq!(2,test.contract.get_amount_in(&1, &100, &100));
 }
 
-
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
+fn test_get_amount_in_insufficient_output_amount() {
+    // await expect(router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
+    //   'UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT'
+    // )
+    let test = SoroswapLibraryTest::setup();
+    test.contract.get_amount_in(&0, &100, &100);
+}
 // it('getAmountIn', async () => {
 //     expect(await router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(2))
 //     await expect(router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
