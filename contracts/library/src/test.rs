@@ -79,6 +79,28 @@ fn test_quote_insufficient_amount() {
     let test = SoroswapLibraryTest::setup();
     test.contract.quote(&0, &100, &200);
 }
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_quote_insufficient_liquidity_0() {
+    //     await expect(router.quote(bigNumberify(1), bigNumberify(0), bigNumberify(200))).to.be.revertedWith(
+    //   'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
+    // )
+    let test = SoroswapLibraryTest::setup();
+    test.contract.quote(&1, &0, &200);
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_quote_insufficient_liquidity_1() {
+    //     await expect(router.quote(bigNumberify(1), bigNumberify(10), bigNumberify(0))).to.be.revertedWith(
+    //   'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
+    // )
+    let test = SoroswapLibraryTest::setup();
+    test.contract.quote(&1, &100, &0);
+}
+
+
 //   it('quote', async () => {
 //     expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
 //     expect(await router.quote(bigNumberify(2), bigNumberify(200), bigNumberify(100))).to.eq(bigNumberify(1))
