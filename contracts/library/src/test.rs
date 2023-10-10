@@ -65,24 +65,20 @@ impl<'a> SoroswapLibraryTest<'a> {
 fn test_quote_should_work() {
     let test = SoroswapLibraryTest::setup();
     // expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
-    assert_eq!(
-        2,
-        test.contract.quote(&1, &100, &200)  
-    );
-    
+    assert_eq!(2,test.contract.quote(&1, &100, &200));
     // expect(await router.quote(bigNumberify(2), bigNumberify(200), bigNumberify(100))).to.eq(bigNumberify(1))
-    assert_eq!(
-        1,
-        test.contract.quote(&2, &200, &100)  
-    );
+    assert_eq!(1,test.contract.quote(&2, &200, &100));
 }
 
-// #[test]
-// #[should_panic(expected = "contract has been already initialized")]
-// fn test_quote_insufficient_amount() {
-
-
-// }
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient amount")]
+fn test_quote_insufficient_amount() {
+    // await expect(router.quote(bigNumberify(0), bigNumberify(100), bigNumberify(200))).to.be.revertedWith(
+    //   'UniswapV2Library: INSUFFICIENT_AMOUNT'
+    // )
+    let test = SoroswapLibraryTest::setup();
+    test.contract.quote(&0, &100, &200);
+}
 //   it('quote', async () => {
 //     expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
 //     expect(await router.quote(bigNumberify(2), bigNumberify(200), bigNumberify(100))).to.eq(bigNumberify(1))
