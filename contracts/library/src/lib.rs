@@ -3,9 +3,8 @@
 mod test;
 
 use soroban_sdk::{
-    contract,
-    contractimpl, Address, BytesN, Env,
-    xdr::ToXdr, Vec, Bytes,
+    contract, contractimpl,
+    Address, BytesN, Env, xdr::ToXdr, Vec, Bytes,
 };
 
 
@@ -15,7 +14,7 @@ mod pair {
     );
 }
 
-
+// generates a cryptographic salt value for a pair of tokens 
 fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     let mut salt = Bytes::new(e);
 
@@ -26,8 +25,6 @@ fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     // Hash the salt using SHA256 to generate a new BytesN<32> value
     e.crypto().sha256(&salt)
 }
-
-
 
 
 pub trait SoroswapLibraryTrait {
