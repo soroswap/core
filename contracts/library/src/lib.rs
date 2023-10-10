@@ -5,7 +5,7 @@ mod test;
 use soroban_sdk::{
     contract,
     contractimpl, Address, BytesN, ConversionError, Env, Val, TryFromVal,
-    xdr::ToXdr, Vec, Bytes, vec
+    xdr::ToXdr, Vec, Bytes,
 };
 
 
@@ -71,9 +71,12 @@ pub trait SoroswapLibraryTrait {
     // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
     fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
-    // // performs chained getAmountOut calculations on any number of pairs 
+    // performs chained getAmountOut calculations on any number of pairs 
     fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128>;
-    // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
+    
+    // performs chained getAmountIn calculations on any number of pairs
+    fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128>;
+    // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
 
 
    
@@ -217,7 +220,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         
         //     amounts = new uint[](path.length);
         //     amounts[0] = amountIn;
-        let mut amounts = vec![&e, amount_in];  
+        let mut amounts =  Vec::new(&e);
+        amounts.set(0,amount_in);  
         //     for (uint i; i < path.length - 1; i++) {
         
         for i in 0..path.len() - 1 { //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
@@ -229,21 +233,48 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         }
         amounts
     }
-    //     }
-    // }
 
-    // // performs chained getAmountIn calculations on any number of pairs
+    // performs chained getAmountIn calculations on any number of pairs
     // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
-    //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
-    //     amounts = new uint[](path.length);
-    //     amounts[amounts.length - 1] = amountOut;
-    //     for (uint i = path.length - 1; i > 0; i--) {
-    //         (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
-    //         amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
-    //     }
-    // }
+    fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128> {
+        //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
+        if path.len() < 2 {panic!("SoroswapLibrary: invalid path")};
+
+        //     amounts = new uint[](path.length);
+        //     amounts[amounts.length - 1] = amountOut;
+        let mut amounts =  Vec::new(&e);
+        amounts.set(0,amount_out); 
+
+        // TODO: Find a more efficient way to do this
+        // for (uint i = path.length - 1; i > 0; i--) {
+        for i in (1..path.len()).rev() {
+            // (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
+            let (reserve_in, reserve_out) = Self::get_reserves( e.clone(), factory.clone(), path.get(i-1).unwrap(), path.get(i).unwrap());
+            
+            //  amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+            let new_amount = Self::get_amount_in(amounts.get(0).unwrap(), reserve_in, reserve_out);
+            // Adds the item to the front.
+            // Increases the length by one, shifts all items up by one, and puts the item in the first position.
+            amounts.push_front(new_amount)
+        }
+        amounts
+    }
+
+    /*
+    function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
+                require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
     
-    
+                amounts = new uint[](path.length);
+                amounts[amounts.length - 1] = amountOut;
+            
+         
+            for (uint i = path.length - 1; i > 0; i--) {
+                (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
+                amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+            }
+        }
+    }    
+     */
 
 
 }
