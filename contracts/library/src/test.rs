@@ -91,6 +91,12 @@ fn test_quote_insufficient_liquidity_1() {
     test.contract.quote(&1, &100, &0);
 }
 
+#[test]
+fn test_get_amount_out_should_work() {
+    let test = SoroswapLibraryTest::setup();
+    // expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(1))
+    assert_eq!(1,test.contract.get_amount_out(&2, &100, &100));
+}
 
 // it('getAmountOut', async () => {
 //     expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(1))
