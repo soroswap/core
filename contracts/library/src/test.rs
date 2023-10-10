@@ -1,14 +1,7 @@
 #![cfg(test)]
 //extern crate std;
 
-use soroban_sdk::{testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    xdr::ToXdr,
-    Address, 
-    BytesN, 
-    Env,
-    Bytes,
-    IntoVal, 
-    Symbol};
+use soroban_sdk::{Env};
 
 
 use crate::{SoroswapLibrary, SoroswapLibraryClient};
@@ -44,7 +37,6 @@ fn create_soroswap_library_contract<'a>(e: &Env) -> SoroswapLibraryClient<'a> {
 }
 
 struct SoroswapLibraryTest<'a> {
-    env: Env,
     contract: SoroswapLibraryClient<'a>,
 }
 
@@ -54,7 +46,6 @@ impl<'a> SoroswapLibraryTest<'a> {
         env.mock_all_auths();
         let contract = create_soroswap_library_contract(&env);
         SoroswapLibraryTest {
-            env,
             contract,
         }
     }
@@ -99,21 +90,6 @@ fn test_quote_insufficient_liquidity_1() {
     let test = SoroswapLibraryTest::setup();
     test.contract.quote(&1, &100, &0);
 }
-
-
-//   it('quote', async () => {
-//     expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
-//     expect(await router.quote(bigNumberify(2), bigNumberify(200), bigNumberify(100))).to.eq(bigNumberify(1))
-//     await expect(router.quote(bigNumberify(0), bigNumberify(100), bigNumberify(200))).to.be.revertedWith(
-//       'UniswapV2Library: INSUFFICIENT_AMOUNT'
-//     )
-//     await expect(router.quote(bigNumberify(1), bigNumberify(0), bigNumberify(200))).to.be.revertedWith(
-//       'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
-//     )
-//     await expect(router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(0))).to.be.revertedWith(
-//       'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
-//     )
-//   })
 
 
 // it('getAmountOut', async () => {
