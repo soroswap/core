@@ -145,6 +145,17 @@ fn test_get_amount_in_insufficient_output_amount() {
     let test = SoroswapLibraryTest::setup();
     test.contract.get_amount_in(&0, &100, &100);
 }
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_get_amount_in_insufficient_liquidity_0() {
+    //     await expect(router.getAmountIn(bigNumberify(1), bigNumberify(0), bigNumberify(100))).to.be.revertedWith(
+    //   'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
+    // )
+    let test = SoroswapLibraryTest::setup();
+    test.contract.get_amount_in(&2, &0, &100);
+}
+
 // it('getAmountIn', async () => {
 //     expect(await router.getAmountIn(bigNumberify(1), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(2))
 //     await expect(router.getAmountIn(bigNumberify(0), bigNumberify(100), bigNumberify(100))).to.be.revertedWith(
