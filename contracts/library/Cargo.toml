@@ -1,6 +1,6 @@
 [package]
-name = "soroswap-pair-contract"
-version = "0.0.1"
+name = "soroswap-library-contract"
+version = "0.0.0"
 edition = "2021"
 publish = false
 
@@ -9,14 +9,14 @@ crate-type = ["cdylib"]
 
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2" }
-soroban-token-sdk = { version = "20.0.0-rc2" }
 num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
 
 [dev_dependencies]
-soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] } 
+soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
 
 [profile.release]
 opt-level = "z"
+overflow-checks = true
 debug = 0
 strip = "symbols"
 debug-assertions = false

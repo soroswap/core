@@ -8,14 +8,18 @@ set -e
 case "$1" in
 standalone)
     echo "Using standalone network"
-    ARGS="--standalone"
+    ARGS="--local --enable-soroban-diagnostic-events"
     ;;
 futurenet)
     echo "Using Futurenet network"
     ARGS="--futurenet"
     ;;
+testnet)
+    echo "Using Testnet network"
+    ARGS="--testnet"
+    ;;
 *)
-    echo "Usage: $0 standalone|futurenet"
+    echo "Usage: $0 standalone|futurenet|testnet"
     exit 1
     ;;
 esac
@@ -53,7 +57,7 @@ docker run --rm -ti \
   --name stellar \
   --network soroban-network \
   -p 8000:8000 \
-  stellar/quickstart:soroban-dev@sha256:${quickstartHash} \
+  stellar/quickstart:${quickstartHash} \
   $ARGS \
   --enable-soroban-rpc \
   --protocol-version 20 \

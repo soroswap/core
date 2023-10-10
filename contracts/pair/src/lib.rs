@@ -12,9 +12,10 @@ use soroban_sdk::{
     contract, contractimpl, contractmeta, Address, ConversionError, Env, IntoVal,
     TryFromVal, Val}; 
 
-use token::{Token, TokenTrait, TokenClient, internal_mint, internal_burn, internal_transfer};
+use token::{Token, TokenClient, internal_mint, internal_burn, internal_transfer};
 use factory::{FactoryClient};
 use uq64x64::fraction;
+use soroban_sdk::token::Interface;
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
 

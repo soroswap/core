@@ -25,8 +25,13 @@ futurenet)
   SOROBAN_NETWORK_PASSPHRASE="Test SDF Future Network ; October 2022"
   FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
   ;;
+testnet)
+  echo "Using Futurenet network"
+  SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+  FRIENDBOT_URL="https://friendbot.stellar.org/"
+  ;;
 *)
-  echo "Usage: $0 standalone|futurenet"
+  echo "Usage: $0 standalone|futurenet|testnet"
   exit 1
   ;;
 esac
@@ -88,11 +93,6 @@ echo "Token admin information available in /workspace/.soroban/token_admin_keys.
 cat /workspace/.soroban/token_admin_keys.json
 
 echo "end creating the keys" 
-
-# jq -n \
-#   --arg secret "$TOKEN_ADMIN_SECRET" \
-#   --arg address "$TOKEN_ADMIN_ADDRESS" \
-#   '[{network: "standalone", admin_public: $address, admin_secret: $secret}, {network: "futurenet", admin_public: "", admin_secret: ""}]' > /workspace/.soroban/token_admin_keys.json
 
 # This will fail if the account already exists, but it'll still be fine.
 echo Fund token-admin account from friendbot

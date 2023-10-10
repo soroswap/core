@@ -25,9 +25,13 @@ futurenet)
   SOROBAN_NETWORK_PASSPHRASE="Test SDF Future Network ; October 2022"
   FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
   ;;
+testnet)
+  echo "Using Futurenet network"
+  SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+  FRIENDBOT_URL="https://friendbot.stellar.org/"
+  ;;
 *)
-  echo "Usage: $0 standalone|futurenet"
-  exit 1
+  echo "Usage: $0 standalone|futurenet|testnet"  exit 1
   ;;
 esac
 
