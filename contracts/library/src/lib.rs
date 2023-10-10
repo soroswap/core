@@ -135,7 +135,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
             panic!("SoroswapLibrary: insufficient amount");
         }
         //     require(reserveA > 0 && reserveB > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-        if reserve_a <= 0 && reserve_b <= 0 {
+        if reserve_a <= 0 || reserve_b <= 0 {
             panic!("SoroswapLibrary: insufficient liquidity");
         }
         //     amountB = amountA.mul(reserveB) / reserveA;
