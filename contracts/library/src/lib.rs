@@ -49,7 +49,7 @@ pub trait SoroswapLibraryTrait {
     fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
     // performs chained getAmountOut calculations on any number of pairs 
-    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128>;
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>); //-> Vec<i128>;
     
     // performs chained getAmountIn calculations on any number of pairs
     fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128>;
@@ -191,24 +191,24 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
     // performs chained getAmountOut calculations on any number of pairs 
     // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
-    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128> {
-        //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
-        if path.len() < 2 {panic!("SoroswapLibrary: invalid path")};
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) {//-> Vec<i128> {
+        // //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
+        // if path.len() < 2 {panic!("SoroswapLibrary: invalid path")};
         
-        //     amounts = new uint[](path.length);
-        //     amounts[0] = amountIn;
-        let mut amounts =  Vec::new(&e);
-        amounts.set(0,amount_in);  
-        //     for (uint i; i < path.length - 1; i++) {
+        // //     amounts = new uint[](path.length);
+        // //     amounts[0] = amountIn;
+        // let mut amounts =  Vec::new(&e);
+        // amounts.set(0,amount_in);  
+        // //     for (uint i; i < path.length - 1; i++) {
         
-        for i in 0..path.len() - 1 { //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
-            // (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
-            let (reserve_in, reserve_out) = Self::get_reserves(e.clone(), factory.clone(), path.get(i).unwrap(), path.get(i+1).unwrap());
+        // for i in 0..path.len() - 1 { //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
+        //     // (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
+        //     let (reserve_in, reserve_out) = Self::get_reserves(e.clone(), factory.clone(), path.get(i).unwrap(), path.get(i+1).unwrap());
 
-            // amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
-            amounts.set(i+1, Self::get_amount_out(amounts.get(i).unwrap(), reserve_in, reserve_out))
-        }
-        amounts
+        //     // amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+        //     amounts.set(i+1, Self::get_amount_out(amounts.get(i).unwrap(), reserve_in, reserve_out))
+        // }
+        // amounts
     }
 
     // performs chained getAmountIn calculations on any number of pairs
