@@ -53,7 +53,7 @@ impl<'a> SoroswapLibraryTest<'a> {
 
 
 #[test]
-fn test_quote_should_work() {
+fn test_quote() {
     let test = SoroswapLibraryTest::setup();
     // expect(await router.quote(bigNumberify(1), bigNumberify(100), bigNumberify(200))).to.eq(bigNumberify(2))
     assert_eq!(2,test.contract.quote(&1, &100, &200));
@@ -92,7 +92,7 @@ fn test_quote_insufficient_liquidity_1() {
 }
 
 #[test]
-fn test_get_amount_out_should_work() {
+fn test_get_amount_out() {
     let test = SoroswapLibraryTest::setup();
     // expect(await router.getAmountOut(bigNumberify(2), bigNumberify(100), bigNumberify(100))).to.eq(bigNumberify(1))
     assert_eq!(1,test.contract.get_amount_out(&2, &100, &100));
