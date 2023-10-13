@@ -261,6 +261,18 @@ fn test_get_amounts_out() {
     assert_eq!(expected_amounts_out,amounts_out);
 }
 
+#[test]
+#[should_panic(expected = "SoroswapLibrary: invalid path")]
+fn test_get_amounts_out_invalid_path() {
+    let test = SoroswapLibraryTest::setup();
+    
+    // await expect(router.getAmountsOut(bigNumberify(2), [token0.address])).to.be.revertedWith(
+    //           'UniswapV2Library: INVALID_PATH'
+    //         )
+    let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone()];
+    test.contract.get_amounts_out(&test.factory.address, &2, &path);
+}
+
 //   it('getAmountsOut', async () => {
 //     await token0.approve(router.address, MaxUint256)
 //     await token1.approve(router.address, MaxUint256)
