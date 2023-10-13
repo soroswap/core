@@ -10,9 +10,10 @@ use soroban_sdk::{
 
 mod pair {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+        file = "./src/soroswap_pair_contract.wasm"
     );
 }
+use pair::Client as SoroswapPairClient;
 
 // generates a cryptographic salt value for a pair of tokens 
 fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
@@ -112,7 +113,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
 
         //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
         let pair_address = Self::pair_for(e.clone(), factory, token_0.clone(), token_1.clone());
-        let pair_client = pair::Client::new(&e, &pair_address);
+        let pair_client = SoroswapPairClient::new(&e, &pair_address);
         let (reserve_0, reserve_1, _block_timestamp_last) = pair_client.get_reserves();
         
 
