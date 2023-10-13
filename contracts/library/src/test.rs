@@ -286,26 +286,14 @@ fn test_get_amounts_in() {
     assert_eq!(expected_amounts_in,amounts_out);
 }
 
-//   it('getAmountsIn', async () => {
-//     await token0.approve(router.address, MaxUint256)
-//     await token1.approve(router.address, MaxUint256)
-//     await router.addLiquidity(
-//       token0.address,
-//       token1.address,
-//       bigNumberify(10000),
-//       bigNumberify(10000),
-//       0,
-//       0,
-//       wallet.address,
-//       MaxUint256,
-//       overrides
-//     )
-
-//     await expect(router.getAmountsIn(bigNumberify(1), [token0.address])).to.be.revertedWith(
-//       'UniswapV2Library: INVALID_PATH'
-//     )
-//     const path = [token0.address, token1.address]
-//     expect(await router.getAmountsIn(bigNumberify(1), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
-//   })
-// })
-
+#[test]
+#[should_panic(expected = "SoroswapLibrary: invalid path")]
+fn test_get_amounts_in_invalid_path() {
+    let test = SoroswapLibraryTest::setup();
+    
+    //     await expect(router.getAmountsIn(bigNumberify(1), [token0.address])).to.be.revertedWith(
+    //   'UniswapV2Library: INVALID_PATH'
+    // )
+    let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone()];
+    test.contract.get_amounts_in(&test.factory.address, &1, &path);
+}
