@@ -61,7 +61,7 @@ fn create_token_contract<'a>(e: &'a Env, admin: &'a Address) -> TokenClient<'a> 
 fn create_soroswap_factory_contract<'a>(e: &'a Env, setter: &'a Address) -> SoroswapFactoryClient<'a> {
     let pair_hash = pair_contract_wasm(&e);  
     let factory_address = &e.register_contract_wasm(None, factory::WASM);
-    let factory = SoroswapFactoryClient::new(e, factory_address);
+    let factory = SoroswapFactoryClient::new(e, factory_address); 
     factory.initialize(&setter, &pair_hash);
     factory
 }
@@ -72,6 +72,7 @@ fn create_soroswap_library_contract<'a>(e: &Env) -> SoroswapLibraryClient<'a> {
 
 // Test Functions
 struct SoroswapLibraryTest<'a> {
+    env: Env,
     contract: SoroswapLibraryClient<'a>,
 }
 
@@ -81,6 +82,7 @@ impl<'a> SoroswapLibraryTest<'a> {
         env.mock_all_auths();
         let contract = create_soroswap_library_contract(&env);
         SoroswapLibraryTest {
+            env,
             contract,
         }
     }
@@ -89,7 +91,8 @@ impl<'a> SoroswapLibraryTest<'a> {
 
 #[test]
 fn test() {
-    let e: Env = Default::default();
+    let test = SoroswapLibraryTest::setup();
+    let e: Env = test.env;
     e.mock_all_auths(); // TODO: can we test otherwise?
     
     let admin = Address::random(&e);
@@ -129,18 +132,20 @@ fn test() {
         //       'UniswapV2Library: INVALID_PATH'
         //     )
 
-        // const path = [token0.address, token1.address]
-//     expect(await router.getAmountsOut(bigNumberify(2), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
+    // const path = [token0.address, token1.address]
+    let path: Vec<Address> =  vec![&e, token_0.address.clone(), token_1.address.clone()];
+    
+    // expect(await router.getAmountsOut(bigNumberify(2), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
+    let expected_amounts_out = vec![&e, 2, 1];
+    let amounts_out = test.contract.get_amounts_out(&factory.address, &2, &path);
+    assert_eq!(expected_amounts_out,amounts_out);
+
    // let path: Vec<Address> = vec![&e, token_0.address, token_1.address];
 
-    let path: Vec<Address> =  vec![&e, token_0.address.clone(), token_1.address.clone()];
     // path.set(0,token_0.address);  
 
-    let expected_amounts_out = vec![&e, 2, 1];
 
-    let test = SoroswapLibraryTest::setup();
-    let amounts_out = test.contract.get_amounts_out(&factory.address, &2, &vec![&e, token_0.address.clone(), token_1.address.clone()]);
-   // assert_eq!(expected_amounts_out,test.contract.get_amounts_out(&factory.address, &2, &path));
+    
     
 }
 
