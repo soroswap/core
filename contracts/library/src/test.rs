@@ -54,11 +54,12 @@ use factory::SoroswapFactoryClient;
 // Useful functions to create contracts
 
 
-fn create_token_contract<'a>(e: &'a Env, admin: &'a Address) -> TokenClient<'a> {
+fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
-fn create_soroswap_factory_contract<'a>(e: &'a Env, setter: &'a Address) -> SoroswapFactoryClient<'a> {
+
+fn create_soroswap_factory_contract<'a>(e: & Env, setter: & Address) -> SoroswapFactoryClient<'a> {
     let pair_hash = pair_contract_wasm(&e);  
     let factory_address = &e.register_contract_wasm(None, factory::WASM);
     let factory = SoroswapFactoryClient::new(e, factory_address); 
@@ -70,83 +71,51 @@ fn create_soroswap_library_contract<'a>(e: &Env) -> SoroswapLibraryClient<'a> {
     SoroswapLibraryClient::new(e, &e.register_contract(None, SoroswapLibrary {}))
 }
 
-// Test Functions
+// Extended test with factory and a pair
 struct SoroswapLibraryTest<'a> {
     env: Env,
     contract: SoroswapLibraryClient<'a>,
+    token_0: TokenClient<'a>,
+    token_1: TokenClient<'a>,
+    factory: SoroswapFactoryClient<'a>,
+    pair: SoroswapPairClient<'a>,
 }
 
 impl<'a> SoroswapLibraryTest<'a> {
     fn setup() -> Self {
+
         let env = Env::default();
         env.mock_all_auths();
         let contract = create_soroswap_library_contract(&env);
+
+        let admin = Address::random(&env);
+        let user = Address::random(&env);
+
+        let mut token_0 = create_token_contract(&env, &admin);
+        let mut token_1 = create_token_contract(&env, &admin);
+        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+            std::mem::swap(&mut token_0, &mut token_1);
+        }
+        token_0.mint(&user, &10000);
+        token_1.mint(&user, &10000);
+
+        let factory = create_soroswap_factory_contract(&env, &admin);
+        factory.create_pair(&token_0.address, &token_1.address);
+
+        let pair_address = factory.get_pair(&token_0.address, &token_1.address);
+        let pair = SoroswapPairClient::new(&env, &pair_address);
+
+        pair.deposit(&user, &10000, &0, &10000, &0);
+        
         SoroswapLibraryTest {
             env,
             contract,
+            token_0,
+            token_1,
+            factory,
+            pair,
         }
     }
-}
-
-
-#[test]
-fn test() {
-    let test = SoroswapLibraryTest::setup();
-    let e: Env = test.env;
-    e.mock_all_auths(); // TODO: can we test otherwise?
-    
-    let admin = Address::random(&e);
-    let user = Address::random(&e);
-
-    let mut token_0 = create_token_contract(&e, &admin);
-    let mut token_1 = create_token_contract(&e, &admin);
-    if &token_1.address.contract_id() < &token_0.address.contract_id() {
-        std::mem::swap(&mut token_0, &mut token_1);
-    }
-    token_0.mint(&user, &10000);
-    token_1.mint(&user, &10000);
-
-    let factory = create_soroswap_factory_contract(&e, &admin);
-    factory.create_pair(&token_0.address, &token_1.address);
-
-    let pair_address = factory.get_pair(&token_0.address, &token_1.address);
-    let pair_client = SoroswapPairClient::new(&e, &pair_address);
-
-    // function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to,uint deadline)
-    //await router.addLiquidity(
-        //       token0.address,
-        //       token1.address,
-        //       bigNumberify(10000),
-        //       bigNumberify(10000),
-        //       0,
-        //       0,
-        //       wallet.address,
-        //       MaxUint256,
-        //       overrides
-        //     )
-        
-    //fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
-    pair_client.deposit(&user, &10000, &0, &10000, &0);
-
-    // await expect(router.getAmountsOut(bigNumberify(2), [token0.address])).to.be.revertedWith(
-        //       'UniswapV2Library: INVALID_PATH'
-        //     )
-
-    // const path = [token0.address, token1.address]
-    let path: Vec<Address> =  vec![&e, token_0.address.clone(), token_1.address.clone()];
-    
-    // expect(await router.getAmountsOut(bigNumberify(2), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
-    let expected_amounts_out = vec![&e, 2, 1];
-    let amounts_out = test.contract.get_amounts_out(&factory.address, &2, &path);
-    assert_eq!(expected_amounts_out,amounts_out);
-
-   // let path: Vec<Address> = vec![&e, token_0.address, token_1.address];
-
-    // path.set(0,token_0.address);  
-
-
-    
-    
 }
 
 
@@ -263,6 +232,67 @@ fn test_get_amount_in_insufficient_liquidity_1() {
     // )
     let test = SoroswapLibraryTest::setup();
     test.contract.get_amount_in(&1, &100, &0);
+}
+
+
+
+#[test]
+fn test() {
+    let test = SoroswapLibraryTest::setup();
+    let e: Env = test.env;
+    
+    let admin = Address::random(&e);
+    let user = Address::random(&e);
+
+    let mut token_0 = create_token_contract(&e, &admin);
+    let mut token_1 = create_token_contract(&e, &admin);
+    if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        std::mem::swap(&mut token_0, &mut token_1);
+    }
+    token_0.mint(&user, &10000);
+    token_1.mint(&user, &10000);
+
+    let factory = create_soroswap_factory_contract(&e, &admin);
+    factory.create_pair(&token_0.address, &token_1.address);
+
+    let pair_address = factory.get_pair(&token_0.address, &token_1.address);
+    let pair_client = SoroswapPairClient::new(&e, &pair_address);
+
+    // function addLiquidity(address tokenA, address tokenB, uint amountADesired, uint amountBDesired, uint amountAMin, uint amountBMin, address to,uint deadline)
+    //await router.addLiquidity(
+        //       token0.address,
+        //       token1.address,
+        //       bigNumberify(10000),
+        //       bigNumberify(10000),
+        //       0,
+        //       0,
+        //       wallet.address,
+        //       MaxUint256,
+        //       overrides
+        //     )
+        
+    //fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
+    pair_client.deposit(&user, &10000, &0, &10000, &0);
+
+    // await expect(router.getAmountsOut(bigNumberify(2), [token0.address])).to.be.revertedWith(
+        //       'UniswapV2Library: INVALID_PATH'
+        //     )
+
+    // const path = [token0.address, token1.address]
+    let path: Vec<Address> =  vec![&e, token_0.address.clone(), token_1.address.clone()];
+    
+    // expect(await router.getAmountsOut(bigNumberify(2), path)).to.deep.eq([bigNumberify(2), bigNumberify(1)])
+    let expected_amounts_out = vec![&e, 2, 1];
+    let amounts_out = test.contract.get_amounts_out(&factory.address, &2, &path);
+    assert_eq!(expected_amounts_out,amounts_out);
+
+   // let path: Vec<Address> = vec![&e, token_0.address, token_1.address];
+
+    // path.set(0,token_0.address);  
+
+
+    
+    
 }
 
 //   it('getAmountsOut', async () => {
