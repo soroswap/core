@@ -9,7 +9,7 @@ authors = ["esteblock <esteblock@paltalabs.io>"]
 readme = "README.md"
 license = "GPL-3.0"
 edition = "2021"
-keywords = ["no_std", "wasm", "soroswap", "amm", "soroban", "soroban-sdk"]
+keywords = ["no_std", "wasm", "soroswap", "amm", "soroban"]
 rust-version = "1.73"
 publish = true
 
