@@ -220,7 +220,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
         //     amounts = new uint[](path.length);
         //     amounts[amounts.length - 1] = amountOut;
         let mut amounts =  Vec::new(&e);
-        amounts.set(0,amount_out); 
+        amounts.push_front(amount_out); 
 
         // TODO: Find a more efficient way to do this
         // for (uint i = path.length - 1; i > 0; i--) {
