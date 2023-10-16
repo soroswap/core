@@ -22,18 +22,6 @@ pub fn is_true() -> bool {
     true
 }
 
-// generates a cryptographic salt value for a pair of tokens 
-fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
-    let mut salt = Bytes::new(e);
-
-    // Append the bytes of token_a and token_b to the salt
-    salt.append(&token_a.clone().to_xdr(e)); // can be simplified to salt.append(&self.clone().to_xdr(e)); but changes the hash
-    salt.append(&token_b.clone().to_xdr(e));
-
-    // Hash the salt using SHA256 to generate a new BytesN<32> value
-    e.crypto().sha256(&salt)
-}
-
 
 pub trait SoroswapLibraryTrait {
     
@@ -83,19 +71,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     // calculates the CREATE2 address for a pair without making any external calls
     // function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
     fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address {
-        //     (address token0, address token1) = sortTokens(tokenA, tokenB);
-        //     pair = address(uint(keccak256(abi.encodePacked(
-        //             hex'ff',
-        //             factory,
-        //             keccak256(abi.encodePacked(token0, token1)),
-        //             hex'96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // init code hash
-        //         ))));
-
-        let (token_0, token_1) = Self::sort_tokens(token_a, token_b);
-        let salt = pair_salt(&e, token_0, token_1);
-        let deployer_with_address = e.deployer().with_address(factory.clone(), salt);
-        let deterministic_address = deployer_with_address.deployed_address();
-        deterministic_address
+        tokens::pair_for(e, factory, token_a, token_b)
     }
 
 
