@@ -1,12 +1,38 @@
 [package]
-name = "dummy-library-"
+name = "dummy-library"
 version = "0.0.2"
-description = "Dummy Library"
+description = "Dummy"
 homepage = "https://github.com/"
 repository = "https://github.com/"
-authors = ["dummy"]
+documentation = "https://docs.com"
+authors = ["Dummy"]
 readme = "README.md"
-license = "MIT"
+license = "GPL-3.0"
 edition = "2021"
-keywords = ["no_std", "wasm"]
-rust-version = "1.66"
+keywords = ["no_std", "wasm", "soroswap", "amm", "soroban"]
+rust-version = "1.73"
+publish = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { version = "20.0.0-rc2" }
+num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
+
+[dev_dependencies]
+soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
