@@ -1,6 +1,5 @@
-pub trait DummyContractTrait: Sized {
-    
-    fn is_true() -> bool {
+pub mod dummy {
+    pub fn is_true() -> bool {
         true
     }
 }

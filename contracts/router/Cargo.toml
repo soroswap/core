@@ -12,7 +12,7 @@ soroban-sdk = { version = "20.0.0-rc2" }
 num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
 fixed-point-math = "0.0.2"
 soroswap-library = "0.0.1"
-dummy-contract = "0.0.4"
+dummy-contract = "0.0.5"
 dummy-increment-contract = "0.0.1"
 
 
