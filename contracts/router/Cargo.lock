@@ -324,9 +324,9 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "dummy-contract"
-version = "0.0.6"
+version = "0.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "919fae9572a3dd82f876a42b31ab68efcc39f1eaf6ef3771efd708e193e4a92f"
+checksum = "7a983cfd4a997b5d45ff34cdf4042b603cc471903ec4901df98b39ad2a526f99"
 dependencies = [
  "soroban-sdk",
 ]
