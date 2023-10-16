@@ -1,10 +1,9 @@
 [package]
 name = "soroswap-library"
-version = "0.0.1"
+version = "0.1.1"
 description = "Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol"
 homepage = "https://github.com/soroswap/core/tree/main/contracts/library"
 repository = "https://github.com/soroswap/core/tree/main/contracts/library"
-documentation = "https://docs.soroswap.finance"
 authors = ["esteblock <esteblock@paltalabs.io>"]
 readme = "README.md"
 license = "GPL-3.0"
@@ -14,7 +13,7 @@ rust-version = "1.73"
 publish = true
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2" }

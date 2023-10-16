@@ -1,12 +1,24 @@
 # The Soroswap Library
-Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol
+Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol.
 
-## Usage
+This can be used as a Library Contract that can be deployed in the Soroban Blockchain or as a crate in your contract
 
-Add this to your Cargo.toml:
+## Usage as a crate
+
+1.- Add this to your Cargo.toml:
 
 [dependencies]
 soroswap-library = "<desired version>"
+
+2.- Import it:
+```rust
+use soroswap_library;
+```
+
+3.- Use it:
+```rust
+let quote = soroswap_library::quote(amount_a, reserve_a, reserve_b)
+```
 
 ## How to publish:
 https://doc.rust-lang.org/cargo/reference/publishing.html
@@ -32,4 +44,4 @@ The WASM target wasm32-unknown-unknown is supported.
 Contributions are welcome
 
 ## Licence
-This library is released under the GPL-3.0 License.
+This library is released under the GPL-3.0   License.
