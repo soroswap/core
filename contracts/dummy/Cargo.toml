@@ -3,7 +3,7 @@ name = "dummy-contract"
 version = "0.0.0"
 edition = "2021"
 description = "desc"
-licence = "MIT"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib"]
