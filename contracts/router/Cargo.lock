@@ -324,9 +324,12 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "dummy-contract"
-version = "0.0.2"
+version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd3e649569d4f56a07c650daec9dd0b2fb0cfb29a8b680668e160c459e0d64cc"
+checksum = "1cec028fa8e9bddff4f955be1703b9edf954a923d60b95b1130370d172090184"
+dependencies = [
+ "soroban-sdk",
+]
 
 [[package]]
 name = "dummy-increment-contract"
