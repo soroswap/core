@@ -1,5 +1,4 @@
 #![no_std]
-#[panic_handler]`
 
 pub const STROOP: u64 = 1_0000000;
 
