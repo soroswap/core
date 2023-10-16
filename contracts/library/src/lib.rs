@@ -1,6 +1,7 @@
 #![no_std] 
 
 mod test;
+mod tokens;
 
 use soroban_sdk::{
     contract, contractimpl,
@@ -73,20 +74,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
     fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
-        //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
-        if token_a == token_b {
-            panic!("SoroswapLibrary: token_a and token_b have identical addresses");
-        }
-        
-        //     (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        if token_a < token_b {
-            (token_a, token_b)
-        } else {
-            (token_b, token_a)
-        }
-        
-        //     require(token0 != address(0), 'UniswapV2Library: ZERO_ADDRESS');
-        // In Soroban we don't have the concept of ZERO_ADDRESS
+        tokens::sort_tokens(token_a, token_b)
     }
 
 
