@@ -1,28 +1,50 @@
 #![cfg(test)]
 extern crate std;
 
-use crate::{SoroswapRouterClient};
+use crate::{SoroswapRouter, SoroswapRouterClient};
 
-use soroban_sdk::{  testutils::{Events, Ledger, LedgerInfo},
-                    Vec,
-                    RawVal,
-                    vec,
-                    testutils::Address as _,
-                    Address, 
-                    BytesN, 
-                    Env,
-                    IntoVal, Symbol};
+use soroban_sdk::{Env, Address, testutils::Address as _};
 
+
+
+fn create_soroswap_router_contract<'a>(e: &Env) -> SoroswapRouterClient<'a> {
+    SoroswapRouterClient::new(e, &e.register_contract(None, SoroswapRouter {}))
+}
+
+// Extended test with factory and a pair
+struct SoroswapRouterTest<'a> {
+    env: Env,
+    contract: SoroswapRouterClient<'a>,
+}
+
+impl<'a> SoroswapRouterTest<'a> {
+    fn setup() -> Self {
+
+        let env = Env::default();
+        env.mock_all_auths();
+        let contract = create_soroswap_router_contract(&env);
+
+        SoroswapRouterTest {
+            env,
+            contract,
+        }
+    }
+}
+                    
 
 #[test]
 fn test() {
-    let e: Env = Default::default();
-    e.mock_all_auths();
-    
+    let test = SoroswapRouterTest::setup();
+    let factory = Address::random(&test.env);
+    test.contract.initialize(&factory);
+}
 
-
-
-    
-
-
+#[test]
+#[should_panic(expected = "SoroswapRouter: already initialized")]
+fn test_initialize_twice() {
+    let test = SoroswapRouterTest::setup();
+    let factory = Address::random(&test.env);
+    test.contract.initialize(&factory);
+    let factory_another = Address::random(&test.env);
+    test.contract.initialize(&factory_another);
 }
