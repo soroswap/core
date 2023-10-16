@@ -2,7 +2,7 @@
 
 mod test;
 mod tokens;
-pub use tokens::{sort_tokens};
+pub use tokens::{sort_tokens, pair_for};
 //pub use crate::tokens;
 
 use soroban_sdk::{
