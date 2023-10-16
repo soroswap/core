@@ -4,6 +4,7 @@ version = "0.0.0"
 authors = ["Dummy"]
 license = "Apache-2.0"
 edition = "2021"
+description = "desc"
 
 [lib]
 crate-type = ["cdylib"]
