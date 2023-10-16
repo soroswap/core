@@ -1,7 +1,9 @@
 # The Soroswap Library
 Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol
 
-## Usage
+This can be used as a Library Contract or as a crate in your contract
+
+## Usage as a crate
 
 Add this to your Cargo.toml:
 
@@ -32,4 +34,4 @@ The WASM target wasm32-unknown-unknown is supported.
 Contributions are welcome
 
 ## Licence
-This library is released under the GPL-3.0 License.
+This library is released under the GPL-3.0   License.
