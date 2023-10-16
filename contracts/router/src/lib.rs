@@ -6,8 +6,9 @@ use soroban_sdk::{
     contract, contractimpl,
     Env};
 
-use SoroswapLibraryTrait;
+// use SoroswapLibraryTrait;
 //use fixed_point_math;
+use dummy_contract;
 
 pub trait SoroswapRouterTrait{
 
