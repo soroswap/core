@@ -4,3 +4,7 @@ version = "0.0.2"
 edition = "2021"
 description = "desc"
 license = "MIT"
+
+
+[lib]
+crate-type = ["cdylib"]
