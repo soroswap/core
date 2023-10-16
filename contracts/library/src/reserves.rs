@@ -11,7 +11,7 @@ use pair::Client as SoroswapPairClient;
 
 
 
-// fetches and sorts the reserves for a pair
+/// fetches and sorts the reserves for a pair
 // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
 pub fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
     //     (address token0,) = sortTokens(tokenA, tokenB);
