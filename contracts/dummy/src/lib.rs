@@ -1,5 +1,3 @@
 #![no_std]
-
-pub fn is_true() -> bool {
-    true
-}
+mod dummy_contract;
+pub use dummy_contract::DummyContractTrait;
