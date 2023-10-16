@@ -2,25 +2,16 @@
 
 mod test;
 mod tokens;
+mod reserves;
 pub use tokens::{sort_tokens, pair_for};
+pub use reserves::{get_reserves};
 //pub use crate::tokens;
 
 use soroban_sdk::{
     contract, contractimpl,
-    Address, BytesN, Env, xdr::ToXdr, Vec, Bytes,
+    Address, Env, Vec, 
 };
 
-
-mod pair {
-    soroban_sdk::contractimport!(
-        file = "./src/soroswap_pair_contract.wasm"
-    );
-}
-use pair::Client as SoroswapPairClient;
-
-pub fn is_true() -> bool {
-    true
-}
 
 
 pub trait SoroswapLibraryTrait {
@@ -64,37 +55,21 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
     fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
-        tokens::sort_tokens(token_a, token_b)
+        sort_tokens(token_a, token_b)
     }
 
 
     // calculates the CREATE2 address for a pair without making any external calls
     // function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
     fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address {
-        tokens::pair_for(e, factory, token_a, token_b)
+        pair_for(e, factory, token_a, token_b)
     }
 
 
     // fetches and sorts the reserves for a pair
     // function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
     fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> (i128, i128) {
-        //     (address token0,) = sortTokens(tokenA, tokenB);
-        let (token_0,token_1) = Self::sort_tokens(token_a.clone(), token_b.clone());
-
-        //     (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
-        let pair_address = Self::pair_for(e.clone(), factory, token_0.clone(), token_1.clone());
-        let pair_client = SoroswapPairClient::new(&e, &pair_address);
-        let (reserve_0, reserve_1, _block_timestamp_last) = pair_client.get_reserves();
-        
-
-         //   (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-        let (reserve_a, reseve_b) =
-            if token_a == token_0 {
-                (reserve_0, reserve_1) 
-            } else {
-                (reserve_1, reserve_0) };
-
-        (reserve_a, reseve_b)
+        get_reserves(e, factory, token_a, token_b)
 
     }
 
