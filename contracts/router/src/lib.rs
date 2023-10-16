@@ -1,20 +1,36 @@
 #![no_std]
 
-use soroban_sdk::{contractimpl, Address, Bytes, ConversionError, Env, RawVal, TryFromVal};
+// /extern crate soroswap_library;
 
+use soroban_sdk::{
+    contract, contractimpl,
+    Env};
 
+use SoroswapLibraryTrait;
+//use fixed_point_math;
 
 pub trait SoroswapRouterTrait{
 
-    fn my_function(e: Env) -> i128;
+    // **** LIBRARY FUNCTIONS ****
+    
+    // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
 }
 
+#[contract]
 struct SoroswapRouter;
 
 #[contractimpl]
 impl SoroswapRouterTrait for SoroswapRouter {
   
-    fn my_function(e: Env) -> i128{
-        3
+   
+    // given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128)  -> i128 {
+        // function quote(uint amountA, uint reserveA, uint reserveB) public pure virtual override returns (uint amountB) {
+        //     return UniswapV2Library.quote(amountA, reserveA, reserveB);
+        // }
+        //quote(amount_a, reserve_a, reserve_b)
+        0
     }
+
 }
