@@ -34,7 +34,7 @@ fn has_factory(e: &Env) -> bool {
 
 pub trait SoroswapRouterTrait{
 
-     // Initializer: 
+     // Initializes the contract and sets the factory address
      fn initialize(e: Env, factory: Address);
 }
 
@@ -46,12 +46,13 @@ struct SoroswapRouter;
 #[contractimpl]
 impl SoroswapRouterTrait for SoroswapRouter {
 
-    // constructor(address _factory, address _WETH) public {
-    //     factory = _factory;
-    //     WETH = _WETH;
-    // }
+    // Initializes the contract and sets the factory address
     fn initialize(e: Env, factory: Address) {
-        // Sets the factory
+        // constructor(address _factory, address _WETH) public {
+        //     factory = _factory;
+        //     WETH = _WETH;
+        // }
+        
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
     }
