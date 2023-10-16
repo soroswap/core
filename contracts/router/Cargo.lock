@@ -293,6 +293,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
+name = "dummy-contract"
+version = "0.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c2cd11466c11ab03383e0f4d099de3255737dc62ba664e8aded1249782b546e"
+dependencies = [
+ "num-integer",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "ecdsa"
 version = "0.16.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1074,6 +1084,7 @@ dependencies = [
 name = "soroswap-pair-contract"
 version = "0.0.1"
 dependencies = [
+ "dummy-contract",
  "fixed-point-math",
  "num-integer",
  "soroban-sdk",
