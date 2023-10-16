@@ -1,14 +1,11 @@
 [package]
 name = "dummy-contract"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Dummy"]
 license = "Apache-2.0"
 edition = "2021"
 description = "desc"
 
-[lib]
-crate-type = ["cdylib"]
-doctest = false
 
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2" }
