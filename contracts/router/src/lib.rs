@@ -8,7 +8,7 @@ use soroban_sdk::{
 
 // use SoroswapLibraryTrait;
 //use fixed_point_math;
-use dummy_contract::DummyContractTrait::is_true;
+use dummy_contract::is_true;
 
 pub trait SoroswapRouterTrait{
 
@@ -36,7 +36,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     // }
 
     fn my_bool() -> bool {
-        DummyContractTrait
+        is_true()
         
     }
 }
