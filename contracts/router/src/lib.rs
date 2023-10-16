@@ -1,12 +1,10 @@
 #![no_std]
 mod test;
 
-use  soroswap_library;
-use soroswap_library::SoroswapLibrary as SoroswapLibraryTrait;
-use soroswap_library::{__sort_tokens};
+use soroswap_library;
 // use dummy_increment_contract;
 use soroban_sdk::{
-    contract, contractimpl, Address};
+    contract, contractimpl, Address, Env};
 
 // use SoroswapLibraryTrait;
 //use fixed_point_math;
@@ -22,6 +20,11 @@ pub trait SoroswapRouterTrait{
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     fn my_sort_tokens(token_a: Address, token_b: Address) -> (Address, Address);
+
+    // calculates the deterministic address for a pair without making any external calls
+    // check https://github.com/paltalabs/deterministic-address-soroban
+    fn my_pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address;
+
 }
 
 #[contract]
@@ -47,6 +50,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
     fn my_sort_tokens(token_a: Address, token_b: Address) -> (Address, Address){
-        sort_tokens(token_a, token_b)
+        soroswap_library::sort_tokens(token_a, token_b)
+    }
+
+    // calculates the deterministic address for a pair without making any external calls
+    // check https://github.com/paltalabs/deterministic-address-soroban
+    fn my_pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address{
+        soroswap_library::pair_for(e, factory, token_a, token_b)
     }
 }
