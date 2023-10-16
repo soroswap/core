@@ -1,0 +1,12 @@
+[package]
+name = "dummy-library-"
+version = "0.0.2"
+description = "Dummy Library"
+homepage = "https://github.com/"
+repository = "https://github.com/"
+authors = ["dummy"]
+readme = "README.md"
+license = "MIT"
+edition = "2021"
+keywords = ["no_std", "wasm"]
+rust-version = "1.66"
