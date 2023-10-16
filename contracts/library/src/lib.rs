@@ -15,6 +15,10 @@ mod pair {
 }
 use pair::Client as SoroswapPairClient;
 
+pub fn is_true() -> bool {
+    true
+}
+
 // generates a cryptographic salt value for a pair of tokens 
 fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     let mut salt = Bytes::new(e);
