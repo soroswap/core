@@ -1090,7 +1090,7 @@ dependencies = [
 
 [[package]]
 name = "soroswap-library"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "num-integer",
  "soroban-sdk",

@@ -2,6 +2,8 @@
 
 mod test;
 mod tokens;
+pub use tokens::{sort_tokens};
+//pub use crate::tokens;
 
 use soroban_sdk::{
     contract, contractimpl,
