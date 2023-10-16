@@ -1,4 +1,4 @@
-#![no_std]
+#![no_std] 
 
 mod test;
 
@@ -61,7 +61,7 @@ pub trait SoroswapLibraryTrait {
 }
 
 #[contract]
-struct SoroswapLibrary;
+pub struct SoroswapLibrary;
 
 #[contractimpl]
 impl SoroswapLibraryTrait for SoroswapLibrary {
