@@ -1,6 +1,6 @@
 [package]
-name = "dummy-increment-contract"
-version = "0.0.1"
+name = "dummy-contract"
+version = "0.0.3"
 authors = ["Dummy"]
 license = "Apache-2.0"
 edition = "2021"
