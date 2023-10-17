@@ -96,7 +96,7 @@ bash scripts/run.sh
 ```
 
 ## 2.- Compile
-Inside the soroban-preview container, compile both the `core` and the `factory` contract inside the `contracts`
+Inside the soroban-preview container, compile both the `pair` and the `factory` contract inside the `contracts`
 ```
 make build
 ```
