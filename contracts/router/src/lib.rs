@@ -217,16 +217,18 @@ pub trait SoroswapRouterTrait{
         amount_b_min: i128,
         to: Address,
         deadline: u64
-    ) -> (i128, i128);//returns (uint amountA, uint amountB)
-//  function removeLiquidity(
-//     address tokenA,
-//     address tokenB,
-//     uint liquidity,
-//     uint amountAMin,
-//     uint amountBMin,
-//     address to,
-//     uint deadline
-// )
+    ) -> (i128, i128);
+
+    fn swap_exact_tokens_for_tokens(
+        e:Env,
+        amount_in: i128,
+        amount_out_min: i128,
+        path: Vec<Address>,
+        to: Address,
+        deadline: u64
+    ) -> Vec<i128>;
+
+
 
 }
 
@@ -359,6 +361,34 @@ impl SoroswapRouterTrait for SoroswapRouter {
         (amount_a, amount_b)
     }
         
+
+    fn swap_exact_tokens_for_tokens(
+        e:Env,
+        amount_in: i128,
+        amount_out_min: i128,
+        path: Vec<Address>,
+        to: Address,
+        deadline: u64
+    ) -> Vec<i128> {
+        let mut amounts =  Vec::new(&e);
+        amounts.push_back(amount_in);  
+        amounts
+    
+    }
+    // function swapExactTokensForTokens(
+    //     uint amountIn,
+    //     uint amountOutMin,
+    //     address[] calldata path,
+    //     address to,
+    //     uint deadline
+    // ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
+    //     amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
+    //     require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
+    //     TransferHelper.safeTransferFrom(
+    //         path[0], msg.sender, UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]
+    //     );
+    //     _swap(amounts, path, to);
+    // }
 
 
 
