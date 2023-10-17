@@ -140,7 +140,7 @@ pub trait SoroswapRouterTrait{
      /// Initializes the contract and sets the factory address
      fn initialize(e: Env, factory: Address);
 
-    /// Add Liquidity to a pool
+    /// Add Liquidity to a Pool
     /// If a pool for the passed tokens does not exists, one is created automatically, 
     /// and exactly amountADesired/amountBDesired tokens are added.
      fn add_liquidity(
@@ -154,6 +154,27 @@ pub trait SoroswapRouterTrait{
         to: Address,
         deadline: u64
     ) -> (i128, i128, i128);
+
+    /// Remove Liquidity to a Pool
+    fn remove_liquidity(
+        e: Env,
+        token_a: Address,
+        token_b: Address,
+        liquidity: i128,
+        amount_a_min: i128,
+        amount_b_min: i128,
+        to: Address,
+        deadline: u64
+    ) -> (i128, i128);//returns (uint amountA, uint amountB)
+//  function removeLiquidity(
+//     address tokenA,
+//     address tokenB,
+//     uint liquidity,
+//     uint amountAMin,
+//     uint amountBMin,
+//     address to,
+//     uint deadline
+// )
 
 }
 
@@ -218,19 +239,77 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         // TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
 
+        // TODO: Change Pair contracts so tokens are sent by the Router contract
         // In Soroban we will just make a simple transfer function because token contracts implement the require_auth()
         // transfer(&from, &to, &amount);
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
-        TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
-        
+        // TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        // TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
         // liquidity = IUniswapV2Pair(pair).mint(to);
         // let liquidity = SoroswapPairClient::new(&e, &pair).mint(&to);
-        let liquidity = 0;
+        // For now we'll do:
+        //  deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
+        let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
 
         (amount_a,amount_b,liquidity)
     }
+
+    /// Remove Liquidity to a Pool
+    //  function removeLiquidity(
+    // address tokenA,
+    // address tokenB,
+    // uint liquidity,
+    // uint amountAMin,
+    // uint amountBMin,
+    // address to,
+    // uint deadline
+    fn remove_liquidity(
+        e: Env,
+        token_a: Address,
+        token_b: Address,
+        liquidity: i128,
+        amount_a_min: i128,
+        amount_b_min: i128,
+        to: Address,
+        deadline: u64
+    ) -> (i128, i128) { // returns (uint amountA, uint amountB)
+        // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
+        // and then take the tokens from the user
+        to.require_auth();
+        
+        // ensure(deadline)
+        ensure_deadline(&e, deadline);
+        
+        // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
+        let pair: Address = soroswap_library::pair_for(e.clone(), get_factory(&e), token_a.clone(), token_b.clone());
+        
+        // TODO: Change pair contract so tokens are being sent from the Router contract
+        // IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        // (uint amount0, uint amount1) = IUniswapV2Pair(pair).burn(to);
+        // For now we have:
+        //fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
+        let (amount_0, amount_1) = SoroswapPairClient::new(&e, &pair).withdraw(
+            &to, &liquidity, &amount_a_min, &amount_b_min);
+        
+        // (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        let (token_0,_token_1) = soroswap_library::sort_tokens(token_a.clone(), token_b.clone());
+
+        // (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
+        let (amount_a, amount_b) = if token_a == token_0 {
+            (amount_0, amount_1)
+        } else{
+            (amount_1, amount_0)
+        };
+        if amount_a < amount_a_min {panic!("SoroswapRouter: insufficient A amount")}
+        if amount_b < amount_b_min {panic!("SoroswapRouter: insufficient B amount")}       
+        
+        
+        (amount_a, amount_b)
+    }
         
 
+
+
+// }
 
 
     // }
