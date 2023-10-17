@@ -1,4 +1,5 @@
 #![no_std]
+// https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02
 mod test;
 use soroban_sdk::{
     contract,
@@ -138,10 +139,10 @@ fn add_liquidity_amounts(
 // requires the initial amount to have already been sent to the first pair
 // function _swap(uint[] memory amounts, address[] memory path, address _to) internal virtual {
 fn swap(
-    e: Env,
-    amounts: Vec<i128>,
-    path: Vec<Address>,
-    _to: Address
+    e: &Env,
+    amounts: &Vec<i128>,
+    path: &Vec<Address>,
+    _to: &Address
 ){
     let factory_address = get_factory(&e);
     //     for (uint i; i < path.length - 1; i++) {
@@ -219,6 +220,10 @@ pub trait SoroswapRouterTrait{
         deadline: u64
     ) -> (i128, i128);
 
+    /// Swaps an exact amount of input tokens for as many output tokens as possible, 
+    /// along the route determined by the path. The first element of path is the input token, 
+    /// the last is the output token, and any intermediate elements represent intermediate 
+    /// pairs to trade through (if, for example, a direct pair does not exist).
     fn swap_exact_tokens_for_tokens(
         e:Env,
         amount_in: i128,
@@ -361,7 +366,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
         (amount_a, amount_b)
     }
         
-
+    /// Swaps an exact amount of input tokens for as many output tokens as possible, 
+    /// along the route determined by the path. The first element of path is the input token, 
+    /// the last is the output token, and any intermediate elements represent intermediate 
+    /// pairs to trade through (if, for example, a direct pair does not exist).
+    // function swapExactTokensForTokens(
+    //     uint amountIn,
+    //     uint amountOutMin,
+    //     address[] calldata path,
+    //     address to,
+    //     uint deadline
     fn swap_exact_tokens_for_tokens(
         e:Env,
         amount_in: i128,
@@ -369,25 +383,32 @@ impl SoroswapRouterTrait for SoroswapRouter {
         path: Vec<Address>,
         to: Address,
         deadline: u64
-    ) -> Vec<i128> {
-        let mut amounts =  Vec::new(&e);
-        amounts.push_back(amount_in);  
-        amounts
-    
+    ) -> Vec<i128> {// returns (uint[] memory amounts)
+        
+        // ensure(deadline)
+        ensure_deadline(&e, deadline);
+        
+        // amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
+        let factory_address = get_factory(&e);
+        let amounts =  soroswap_library::get_amounts_out(e.clone(), factory_address, amount_in, path.clone());
+        
+        // require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
+        if amounts.get(amounts.len()-1).unwrap() < amount_out_min {
+            panic!("SoroswapRouter: insufficient output amount")
+        }
+
+        // TODO: Change when tokens will be send first:
+        //     TransferHelper.safeTransferFrom(
+        //         path[0], msg.sender, UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]
+        //     );
+
+        // _swap(amounts, path, to);
+        swap(&e, &amounts, &path, &to);
+        
+        // returns (uint[] memory amounts)
+        amounts    
     }
-    // function swapExactTokensForTokens(
-    //     uint amountIn,
-    //     uint amountOutMin,
-    //     address[] calldata path,
-    //     address to,
-    //     uint deadline
-    // ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
-    //     amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
-    //     require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
-    //     TransferHelper.safeTransferFrom(
-    //         path[0], msg.sender, UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]
-    //     );
-    //     _swap(amounts, path, to);
+    
     // }
 
 
