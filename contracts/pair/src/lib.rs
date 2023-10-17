@@ -388,7 +388,7 @@ pub trait SoroswapPairTrait{
     // Deposits token_a and token_b. Also mints pool shares for the "to" Identifier. The amount minted
     // is determined based on the difference between the reserves stored by this contract, and
     // the actual balance of token_a and token_b for this contract.
-    fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
+    fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) -> i128;
 
     // If "buy_a" is true, the swap will buy token_a and sell token_b. This is flipped if "buy_a" is false.
     // "out" is the amount being bought, with amount_in_max being a safety to make sure you receive at least that amount.
@@ -471,7 +471,7 @@ impl SoroswapPairTrait for SoroswapPair {
         get_factory(&e)
     }
 
-    fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) {
+    fn deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128) -> i128 {
         // Depositor needs to authorize the deposit
         to.require_auth();
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
@@ -505,8 +505,9 @@ impl SoroswapPairTrait for SoroswapPair {
             mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);    
             ((balance_0.checked_mul(balance_1).unwrap()).sqrt()).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         };  
-
-        mint_shares(&e, &to, new_total_shares.checked_sub(total_shares).unwrap());
+        
+        let liquidity_to_mint = new_total_shares.checked_sub(total_shares).unwrap();
+        mint_shares(&e, &to, liquidity_to_mint.clone());
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e)); 
@@ -514,6 +515,7 @@ impl SoroswapPairTrait for SoroswapPair {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
         event::deposit(&e, &to, amounts.0, amounts.1);
+        liquidity_to_mint
     }
 
 
