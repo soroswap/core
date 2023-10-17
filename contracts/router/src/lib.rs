@@ -2,7 +2,7 @@
 mod test;
 use soroban_sdk::{
     contract,
-    contractimpl, Address, ConversionError, Env, Val, TryFromVal,
+    contractimpl, Address, ConversionError, Env, Val, TryFromVal, Vec
 };
 use soroban_sdk::token::Client as TokenClient;
 use soroswap_library;
@@ -70,70 +70,122 @@ fn ensure_deadline(e: &Env, timestamp: u64) {
 //     uint amountAMin,
 //     uint amountBMin
 // ) internal virtual returns (uint amountA, uint amountB) {
-    fn add_liquidity_amounts(
-        e: Env,
-        token_a: Address,
-        token_b: Address, 
-        amount_a_desired: i128,
-        amount_b_desired: i128,
-        amount_a_min: i128,
-        amount_b_min: i128
-    ) -> (i128, i128) { // returns (uint amountA, uint amountB)
-        // create the pair if it doesn't exist yet
-        // if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
-        //     IUniswapV2Factory(factory).createPair(tokenA, tokenB);
-        // }
-        let factory_address = get_factory(&e);
-        let factory = SoroswapFactoryClient::new(&e, &factory_address);
-        if !factory.pair_exists(&token_a, &token_b) {
-            factory.create_pair(&token_a, &token_b);
+fn add_liquidity_amounts(
+    e: Env,
+    token_a: Address,
+    token_b: Address, 
+    amount_a_desired: i128,
+    amount_b_desired: i128,
+    amount_a_min: i128,
+    amount_b_min: i128
+) -> (i128, i128) { // returns (uint amountA, uint amountB)
+    // create the pair if it doesn't exist yet
+    // if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
+    //     IUniswapV2Factory(factory).createPair(tokenA, tokenB);
+    // }
+    let factory_address = get_factory(&e);
+    let factory = SoroswapFactoryClient::new(&e, &factory_address);
+    if !factory.pair_exists(&token_a, &token_b) {
+        factory.create_pair(&token_a, &token_b);
+    }
+    
+    //  (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
+    //  TODO: Check if we can borrow the values instead
+    let (reserve_a, reserve_b) = soroswap_library::get_reserves(e.clone(), factory_address.clone(), token_a.clone(), token_b.clone());
+    
+    //     if (reserveA == 0 && reserveB == 0) {
+    if reserve_a == 0 && reserve_b == 0 {
+        // (amountA, amountB) = (amountADesired, amountBDesired);
+        (amount_a_desired, amount_b_desired)
+    } else {
+        // We try first with the amount a desired:
+        // uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
+        let amount_b_optimal = soroswap_library::quote(amount_a_desired.clone(), reserve_a.clone(), reserve_b.clone());
+        // if (amountBOptimal <= amountBDesired) {
+        if amount_b_optimal <= amount_b_desired{
+            // require(amountBOptimal >= amountBMin, 'UniswapV2Router: INSUFFICIENT_B_AMOUNT');
+            if amount_b_optimal < amount_b_min {
+                panic!("SoroswapRouter: insufficient b amount")
+            }
+            // (amountA, amountB) = (amountADesired, amountBOptimal);
+            (amount_a_desired, amount_b_optimal)
         }
+
+        // If not, we can try with the amount b desired
+        else {
+            // uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
+            let amount_a_optimal = soroswap_library::quote(amount_b_desired, reserve_b, reserve_a);
+
+
+            // assert(amountAOptimal <= amountADesired);
+            // This should happen anyway. Because if we where not able to fulfill with our amount_b_desired  for our amount_a_desired
+            // It is to expect that the amount_a_optimal for that lower amount_b_desired to be lower than the amount_a_desired
+            assert!(amount_a_optimal <= amount_a_desired);
+
+            // require(amountAOptimal >= amountAMin, 'UniswapV2Router: INSUFFICIENT_A_AMOUNT');
+            if amount_a_optimal < amount_a_min {
+                panic!("SoroswapRouter: insufficient a amount")
+            }
+
+            // (amountA, amountB) = (amountAOptimal, amountBDesired);
+            (amount_a_optimal, amount_b_desired)
+        }
+    }
+} 
+
+
+// **** SWAP ****
+// requires the initial amount to have already been sent to the first pair
+// function _swap(uint[] memory amounts, address[] memory path, address _to) internal virtual {
+fn swap(
+    e: Env,
+    amounts: Vec<i128>,
+    path: Vec<Address>,
+    _to: Address
+){
+    let factory_address = get_factory(&e);
+    //     for (uint i; i < path.length - 1; i++) {
+    for i in 0..path.len() - 1 { //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
+        // (address input, address output) = (path[i], path[i + 1]);
+        let (input, output):(Address, Address) = (path.get(i).unwrap(), path.get(i+1).unwrap());
+
+        // (address token0,) = UniswapV2Library.sortTokens(input, output);
+        let (token_0, _token_1): (Address, Address) = soroswap_library::sort_tokens(input.clone(), output.clone());
         
-        //  (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
-        //  TODO: Check if we can borrow the values instead
-        let (reserve_a, reserve_b) = soroswap_library::get_reserves(e.clone(), factory_address.clone(), token_a.clone(), token_b.clone());
-        
-        //     if (reserveA == 0 && reserveB == 0) {
-        if reserve_a == 0 && reserve_b == 0 {
-            // (amountA, amountB) = (amountADesired, amountBDesired);
-            (amount_a_desired, amount_b_desired)
+        // uint amountOut = amounts[i + 1];
+        let amount_out: i128 = amounts.get(i+1).unwrap();
+
+        // (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
+        let (amount_0_out, amount_1_out): (i128, i128) = if input == token_0 {
+            (0, amount_out)
         } else {
-            // We try first with the amount a desired:
-            // uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
-            let amount_b_optimal = soroswap_library::quote(amount_a_desired.clone(), reserve_a.clone(), reserve_b.clone());
-            // if (amountBOptimal <= amountBDesired) {
-            if amount_b_optimal <= amount_b_desired{
-                // require(amountBOptimal >= amountBMin, 'UniswapV2Router: INSUFFICIENT_B_AMOUNT');
-                if amount_b_optimal < amount_b_min {
-                    panic!("SoroswapRouter: insufficient b amount")
-                }
-                // (amountA, amountB) = (amountADesired, amountBOptimal);
-                (amount_a_desired, amount_b_optimal)
-            }
-    
-            // If not, we can try with the amount b desired
-            else {
-                // uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
-                let amount_a_optimal = soroswap_library::quote(amount_b_desired, reserve_b, reserve_a);
-    
-    
-                // assert(amountAOptimal <= amountADesired);
-                // This should happen anyway. Because if we where not able to fulfill with our amount_b_desired  for our amount_a_desired
-                // It is to expect that the amount_a_optimal for that lower amount_b_desired to be lower than the amount_a_desired
-                assert!(amount_a_optimal <= amount_a_desired);
-    
-                // require(amountAOptimal >= amountAMin, 'UniswapV2Router: INSUFFICIENT_A_AMOUNT');
-                if amount_a_optimal < amount_a_min {
-                    panic!("SoroswapRouter: insufficient a amount")
-                }
-    
-                // (amountA, amountB) = (amountAOptimal, amountBDesired);
-                (amount_a_optimal, amount_b_desired)
-            }
-        }
-    } 
+            (amount_out, 0)
+        };
+        
+        // before the end, "to" must be the next pair... "to" will be the user just at the end
+        // address to = i < path.length - 2 ? UniswapV2Library.pairFor(factory, output, path[i + 2]) : _to;
+        let to: Address = if i < path.len() - 2 {
+            soroswap_library::pair_for(e.clone(), factory_address.clone(), output, path.get(i+2).unwrap())
+        } else {
+            _to.clone()
+        };
+        
+        // TODO: Change swap function in pair
+        // IUniswapV2Pair(UniswapV2Library.pairFor(factory, input, output)).swap(
+        // amount0Out, amount1Out, to, new bytes(0)
+        // );
 
+        // fn swap(e: Env, to: Address, buy_a: bool, amount_out: i128, amount_in_max: i128);
+        // SoroswapPairClient::new(&e, &soroswap_library::pair_for(
+        //     e.clone(), factory_address.clone(), input, output))
+        //     .swap(&to, );
 
+        
+    }
+}
+
+//     }
+// }
 
 pub trait SoroswapRouterTrait{
 
@@ -250,7 +302,6 @@ impl SoroswapRouterTrait for SoroswapRouter {
         //  deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
         // TODO: Change in Pair so deposit returns the liquidity
         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
-        
         
         (amount_a,amount_b,liquidity)
     }
