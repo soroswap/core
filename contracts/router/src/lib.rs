@@ -248,8 +248,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // let liquidity = SoroswapPairClient::new(&e, &pair).mint(&to);
         // For now we'll do:
         //  deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
-        let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
-
+        // TODO: Change in Pair so deposit returns the liquidity
+        //let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
+        SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
+        let liquidity = 0;
         (amount_a,amount_b,liquidity)
     }
 
