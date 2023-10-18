@@ -238,6 +238,15 @@ pub trait SoroswapRouterTrait{
         deadline: u64
     ) -> Vec<i128>;
 
+    fn swap_tokens_for_exact_tokens(
+        e:Env,
+        amount_out: i128,
+        amount_in_max: i128,
+        path: Vec<Address>,
+        to: Address,
+        deadline: u64
+    ) -> Vec<i128>;
+   
 
 
 }
@@ -423,14 +432,47 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // returns (uint[] memory amounts)
         amounts    
     }
+
+    fn swap_tokens_for_exact_tokens(
+        e:Env,
+        amount_out: i128,
+        amount_in_max: i128,
+        path: Vec<Address>,
+        to: Address,
+        deadline: u64
+    ) -> Vec<i128> { // returns (uint[] memory amounts) 
+        // ensure(deadline)
+        ensure_deadline(&e, deadline);
+
+        // amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
+        let factory_address = get_factory(&e);
+        let amounts =  soroswap_library::get_amounts_in(e.clone(), factory_address.clone(), amount_out, path.clone());
+        
+        // require(amounts[0] <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
+        if amounts.get(0).unwrap() < amount_in_max {
+            panic!("SoroswapRouter: excessive input amount")
+        }
+
+        // TransferHelper.safeTransferFrom(
+        //     path[0], // token
+        //     msg.sender, // from
+        //     UniswapV2Library.pairFor(factory, path[0], path[1]), // to
+        //     amounts[0] // value
+        // );
+        let pair = soroswap_library::pair_for(e.clone(), factory_address, path.get(0).unwrap(), path.get(1).unwrap());
+        transfer_from(&e, &path.get(0).unwrap(), &to, &pair, &amounts.get(0).unwrap());
+
+        // _swap(amounts, path, to);
+        swap(&e, &amounts, &path, &to);
+
+        // returns (uint[] memory amounts) 
+        amounts
+    }
+
     
-    // }
-
-
-
-// }
-
-
+   
+    
+    
     // }
     
 }
