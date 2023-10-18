@@ -62,6 +62,10 @@ fn ensure_deadline(e: &Env, timestamp: u64) {
     }
 }
 
+fn transfer_from(e: &Env, token: &Address, from: &Address, to: &Address, value: &i128){
+    let token_client = TokenClient::new(&e, &token);
+    token_client.transfer(&from, &to, &value);
+}
 /// Internal add_liquidityt function
 //  function _addLiquidity(
 //     address tokenA,
@@ -166,20 +170,21 @@ fn swap(
         // before the end, "to" must be the next pair... "to" will be the user just at the end
         // address to = i < path.length - 2 ? UniswapV2Library.pairFor(factory, output, path[i + 2]) : _to;
         let to: Address = if i < path.len() - 2 {
-            soroswap_library::pair_for(e.clone(), factory_address.clone(), output, path.get(i+2).unwrap())
+            soroswap_library::pair_for(e.clone(), factory_address.clone(), output.clone(), path.get(i+2).unwrap())
         } else {
             _to.clone()
         };
         
-        // TODO: Change swap function in pair
+        
         // IUniswapV2Pair(UniswapV2Library.pairFor(factory, input, output)).swap(
         // amount0Out, amount1Out, to, new bytes(0)
         // );
+        // We dont use the bytes part of it in Soroswap
 
-        // fn swap(e: Env, to: Address, buy_a: bool, amount_out: i128, amount_in_max: i128);
-        // SoroswapPairClient::new(&e, &soroswap_library::pair_for(
-        //     e.clone(), factory_address.clone(), input, output))
-        //     .swap(&to, );
+        //fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
+        SoroswapPairClient::new(&e, &soroswap_library::pair_for(
+            e.clone(), factory_address.clone(), input, output))
+            .swap(&amount_0_out, &amount_1_out, &to);
 
         
     }
@@ -390,17 +395,27 @@ impl SoroswapRouterTrait for SoroswapRouter {
         
         // amounts = UniswapV2Library.getAmountsOut(factory, amountIn, path);
         let factory_address = get_factory(&e);
-        let amounts =  soroswap_library::get_amounts_out(e.clone(), factory_address, amount_in, path.clone());
+        let amounts =  soroswap_library::get_amounts_out(e.clone(), factory_address.clone(), amount_in, path.clone());
         
         // require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
         if amounts.get(amounts.len()-1).unwrap() < amount_out_min {
             panic!("SoroswapRouter: insufficient output amount")
         }
 
-        // TODO: Change when tokens will be send first:
         //     TransferHelper.safeTransferFrom(
-        //         path[0], msg.sender, UniswapV2Library.pairFor(factory, path[0], path[1]), amounts[0]
+        //      path[0],
+        // msg.sender, 
+        // UniswapV2Library.pairFor(factory, path[0], path[1]),
+        // amounts[0]
         //     );
+        // function safeTransferFrom(
+        //     address token,
+        //     address from,
+        //     address to,
+        //     uint256 value
+        // )
+        let pair = soroswap_library::pair_for(e.clone(), factory_address, path.get(0).unwrap(), path.get(1).unwrap());
+        transfer_from(&e, &path.get(0).unwrap(), &to, &pair, &amounts.get(0).unwrap());
 
         // _swap(amounts, path, to);
         swap(&e, &amounts, &path, &to);
