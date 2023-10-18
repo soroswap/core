@@ -6,6 +6,7 @@ test: build
 	cargo test
 
 build:
+	$(MAKE) -C ../pair || break;
 	cargo build --target wasm32-unknown-unknown --release 
 	@ls -l target/wasm32-unknown-unknown/release/*.wasm
 fmt:
