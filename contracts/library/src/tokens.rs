@@ -1,7 +1,7 @@
 use soroban_sdk::{Address, Env, xdr::ToXdr, BytesN, Bytes};
 
 
-// generates a cryptographic salt value for a pair of tokens 
+/// generates a cryptographic salt value for a pair of tokens 
 fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     let mut salt = Bytes::new(e);
 
@@ -13,7 +13,7 @@ fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     e.crypto().sha256(&salt)
 }
 
-// returns sorted token addresses, used to handle return values from pairs sorted in this order
+/// returns sorted token addresses, used to handle return values from pairs sorted in this order
 // function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
 pub fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
     //     require(tokenA != tokenB, 'UniswapV2Library: IDENTICAL_ADDRESSES');
@@ -33,7 +33,8 @@ pub fn sort_tokens(token_a: Address, token_b: Address) -> (Address, Address) {
 }
 
 
-// calculates the CREATE2 address for a pair without making any external calls
+/// calculates the deterministic address for a pair without making any external calls
+/// check <https://github.com/paltalabs/deterministic-address-soroban>
 // function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
 pub fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Address {
     //     (address token0, address token1) = sortTokens(tokenA, tokenB);
