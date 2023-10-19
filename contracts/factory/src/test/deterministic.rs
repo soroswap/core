@@ -1,7 +1,13 @@
 use soroban_sdk::{
     Env,
     Address,
-    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation}
+    BytesN,
+    Bytes,
+    symbol_short,
+    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
+    Vec,
+    Val,
+    IntoVal,
 };
 use core::mem;
 
@@ -31,7 +37,6 @@ struct SoroswapFactoryTest<'a> {
 
 impl<'a> SoroswapFactoryTest<'a> {
     fn new() -> Self {
-
         let env: Env = Default::default();
         env.mock_all_auths();
         let admin = Address::random(&env);
@@ -46,10 +51,11 @@ impl<'a> SoroswapFactoryTest<'a> {
         }
         token_0.mint(&user, &10000);
         // token_1.mint(&user, &10000);
-        let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
         let factory_address = &env.register_contract_wasm(None, factory::WASM);
+        let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+
         // let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
-        let factory = SoroswapFactoryClient::new(&env, factory_address);
+        let factory = SoroswapFactoryClient::new(&env, &factory_address);
         factory.initialize(&admin, &pair_hash);
         factory.create_pair(&token_0.address, &token_1.address);
         let pair_address = factory.get_pair(&token_0.address, &token_1.address);
@@ -65,70 +71,34 @@ impl<'a> SoroswapFactoryTest<'a> {
     }
 }
 
-mod deterministic {
-    use soroban_sdk::{
-        Env,
-        Address,
-        BytesN,
-        Bytes,
-        xdr::ToXdr,
-        testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation}
-    };
-    use crate::test::deterministic::SoroswapFactoryTest;
+#[test]
+pub fn create_and_register_factory_contract() {
+    let factory_test = SoroswapFactoryTest::new();
+}
 
-    #[test]
-    pub fn create_and_register_factory_contract() {
-        let factory_test = SoroswapFactoryTest::new();
-    }
+#[test]
+pub fn token_client_ne() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_ne!(factory_test.token_0.address, factory_test.token_1.address);
+}
 
-    #[test]
-    pub fn token_client_ne() {
-        let factory_test = SoroswapFactoryTest::new();
-        assert_ne!(factory_test.token_0.address, factory_test.token_1.address);
-    }
-
-    // #[test]
-    pub fn compare_address() {
-        let env: Env = Default::default();
-        // env.mock_all_auths();
-        let factory_test = SoroswapFactoryTest::new();
-        let mut phrase = Bytes::new(&env);
-        phrase.append(&factory_test.factory.address.to_xdr(&env));
-        phrase.append(&factory_test.token_0.address.to_xdr(&env));
-        phrase.append(&factory_test.token_1.address.to_xdr(&env));
-        let phrase_hash = env.crypto().sha256(&phrase);
-        // let pair_expected_address = guess_contract_address( &e,
-        //     &factory.address, 
-        //     &token_1.address, 
-        //     &token_0.address);
-        // let pair_address = factory.get_pair(&token_0.address, &token_1.address);
-        // assert_eq!(&factory_test.factory.address, &phrase_hash);
-    }
+#[test]
+pub fn compare_address() {
+    use crate::{ SoroswapFactory, SoroswapFactoryClient};
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let factory_test = SoroswapFactoryTest::new();
+    let salt = BytesN::from_array(&env, &[0; 32]);
+    // let deployed_address = env.deployer().with_address(factory_test.factory.address.clone(), salt.clone()).deployed_address();
+    let wasm_hash = env.deployer().upload_contract_wasm(factory::WASM);
 
 
-    pub fn guess_contract_address(
-        e: &Env,
-        factory: &Address,
-        token_a: &Address,
-        token_b: &Address,
-    ) -> BytesN<32> {
-        let token_0;
-        let token_1;
-        if token_a < token_b {
-            token_0 = token_a;
-            token_1 = token_b;
-        }
-        else {
-            token_0 = token_b;
-            token_1 = token_a;
-        }
-        let mut salt = Bytes::new(e);
-        salt.append(&factory.to_xdr(e));
-        salt.append(&token_0.to_xdr(e));
-        salt.append(&token_1.to_xdr(e));
-        let salt_hash = e.crypto().sha256(&salt);
-        // let contract_address = Address::try_from(&salt_hash.as_ref()[12..]);
-        // contract_address.unwrap_or_else(|_| BytesN::zero())
-        salt_hash
-    }
+    // let factory_client = &env.register_contract(None, SoroswapFactory);
+    let factory_client = SoroswapFactoryClient::new(&env, &env.register_contract(None, SoroswapFactory));
+    let factory_address = env
+        .deployer()
+        .with_address(factory_client.address, salt)
+        .deploy(wasm_hash);
+    assert!(false, "should fail.")
+    // assert_eq!(&factory_address, &deployed_address);
 }
