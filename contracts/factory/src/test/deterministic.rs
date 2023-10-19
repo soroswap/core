@@ -92,13 +92,15 @@ pub fn compare_address() {
     // let deployed_address = env.deployer().with_address(factory_test.factory.address.clone(), salt.clone()).deployed_address();
     let wasm_hash = env.deployer().upload_contract_wasm(factory::WASM);
 
-
-    // let factory_client = &env.register_contract(None, SoroswapFactory);
     let factory_client = SoroswapFactoryClient::new(&env, &env.register_contract(None, SoroswapFactory));
     let factory_address = env
         .deployer()
         .with_address(factory_client.address, salt)
         .deploy(wasm_hash);
-    assert!(false, "should fail.")
+    let init_fn = symbol_short!("init");
+    let init_fn_args: Vec<Val> = (5u32,).into_val(&env);
+    // let res: Val = env.invoke_contract(&factory_address, &init_fn, init_fn_args);
+    // assert!(false, "should fail.");
     // assert_eq!(&factory_address, &deployed_address);
+    assert!(false, "todo");
 }
