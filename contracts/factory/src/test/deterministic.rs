@@ -188,13 +188,13 @@ pub fn add_pair() {
 }
 
 #[test]
-pub fn all_pairs_length_is_zero() {
+pub fn all_pairs_length_is_one() {
     let factory_test = SoroswapFactoryTest::new();
     assert_eq!(factory_test.factory.all_pairs_length(), 1);
 }
 
 #[test]
-pub fn pair_address_inverted_eq() {
+pub fn pair_address_eq_both_directions() {
     let factory_test = SoroswapFactoryTest::new();
     let token_0_address = factory_test.token_0.address;
     let token_1_address = factory_test.token_1.address;
