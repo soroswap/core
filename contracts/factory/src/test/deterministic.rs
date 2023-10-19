@@ -8,6 +8,7 @@ use soroban_sdk::{
     Vec,
     Val,
     IntoVal,
+    Symbol
 };
 use core::mem;
 
@@ -107,8 +108,34 @@ pub fn fees_are_not_enabled() {
 #[test]
 pub fn set_fee_to_setter_user() {
     let factory_test = SoroswapFactoryTest::new();
-    factory_test.factory.set_fee_to_setter(&factory_test.user);
-    assert_eq!(factory_test.factory.fee_to_setter(), factory_test.user);
+    let env = factory_test.env;
+    let admin_address = factory_test.admin;
+    let user = factory_test.user;
+    factory_test.factory.set_fee_to_setter(&user);
+    let setter = factory_test.factory.fee_to_setter();
+    assert_eq!(setter, user);
+}
+
+#[test]
+pub fn authorize_user() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let factory_address = factory.address.clone();
+    let admin_address = factory_test.admin.clone();
+    let user = factory_test.user.clone();
+    factory.set_fee_to_setter(&user);
+    let auths = [(
+        admin_address,
+        AuthorizedInvocation {
+            function: AuthorizedFunction::Contract((
+                factory_address,
+                Symbol::new(&factory.env, "set_fee_to_setter"),
+                (user.clone(),).into_val(&factory.env)
+            )),
+            sub_invocations:[].into()
+        }
+    )];
+    assert_eq!(factory.env.auths(), auths);
 }
 
 #[test]
