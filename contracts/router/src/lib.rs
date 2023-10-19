@@ -62,11 +62,13 @@ fn ensure_deadline(e: &Env, timestamp: u64) {
     }
 }
 
+/// Transfer tokens from an account to another (requires require.auth)
 fn transfer_from(e: &Env, token: &Address, from: &Address, to: &Address, value: &i128){
     let token_client = TokenClient::new(&e, &token);
     token_client.transfer(&from, &to, &value);
 }
-/// Internal add_liquidityt function
+
+/// Given a pair of tokens, a desired and minimum amount of tokens to provide liquidity, gives the correct amount of tokens
 //  function _addLiquidity(
 //     address tokenA,
 //     address tokenB,
@@ -279,11 +281,6 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
     /// Initializes the contract and sets the factory address
     fn initialize(e: Env, factory: Address) {
-        // constructor(address _factory, address _WETH) public {
-        //     factory = _factory;
-        //     WETH = _WETH;
-        // }
-        
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
     }
@@ -329,18 +326,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         // TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
+        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
 
-        // TODO: Change Pair contracts so tokens are sent by the Router contract
-        // In Soroban we will just make a simple transfer function because token contracts implement the require_auth()
-        // transfer(&from, &to, &amount);
-        // TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
-        // TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
         // liquidity = IUniswapV2Pair(pair).mint(to);
-        // let liquidity = SoroswapPairClient::new(&e, &pair).mint(&to);
-        // For now we'll do:
-        //  deposit(e: Env, to: Address, desired_a: i128, min_a: i128, desired_b: i128, min_b: i128);
-        // TODO: Change in Pair so deposit returns the liquidity
-        let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to, &amount_a, &amount_a, &amount_b, &amount_b);
+        let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to);
         
         (amount_a,amount_b,liquidity)
     }
