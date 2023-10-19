@@ -29,6 +29,8 @@ use factory::SoroswapFactoryClient;
 
 struct SoroswapFactoryTest<'a> {
     env: Env,
+    admin: Address,
+    user: Address,
     factory: SoroswapFactoryClient<'a>,
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
@@ -63,6 +65,8 @@ impl<'a> SoroswapFactoryTest<'a> {
 
         SoroswapFactoryTest {
             env,
+            admin,
+            user,
             factory,
             token_0,
             token_1,
@@ -80,6 +84,37 @@ pub fn create_and_register_factory_contract() {
 pub fn token_client_ne() {
     let factory_test = SoroswapFactoryTest::new();
     assert_ne!(factory_test.token_0.address, factory_test.token_1.address);
+}
+
+#[test]
+pub fn setter_is_admin() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_eq!(factory_test.factory.fee_to_setter(), factory_test.admin);
+}
+
+#[test]
+pub fn setter_is_not_user() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_ne!(factory_test.factory.fee_to_setter(), factory_test.user);
+}
+
+#[test]
+pub fn fees_are_not_enabled() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_eq!(factory_test.factory.fees_enabled(), false);
+}
+
+#[test]
+pub fn set_fee_to_setter_user() {
+    let factory_test = SoroswapFactoryTest::new();
+    factory_test.factory.set_fee_to_setter(&factory_test.user);
+    assert_eq!(factory_test.factory.fee_to_setter(), factory_test.user);
+}
+
+#[test]
+pub fn all_pairs_length_is_zero() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_eq!(factory_test.factory.all_pairs_length(), 1);
 }
 
 #[test]
