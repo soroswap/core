@@ -10,5 +10,5 @@ mod internal_fn;
 
 pub use crate::token::contract::TokenClient;
 pub use crate::token::contract::Token;
-pub use crate::token::internal_fn::{internal_mint, internal_burn, internal_transfer};
+pub use crate::token::internal_fn::{internal_mint, internal_burn};
 

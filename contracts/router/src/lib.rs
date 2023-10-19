@@ -364,13 +364,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(e.clone(), get_factory(&e), token_a.clone(), token_b.clone());
         
-        // TODO: Change pair contract so tokens are being sent from the Router contract
         // IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        transfer_from(&e, &pair, &to, &pair, &liquidity);
+
         // (uint amount0, uint amount1) = IUniswapV2Pair(pair).burn(to);
-        // For now we have:
-        //fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
+        
         let (amount_0, amount_1) = SoroswapPairClient::new(&e, &pair).withdraw(
-            &to, &liquidity, &amount_a_min, &amount_b_min);
+            &to);
         
         // (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
         let (token_0,_token_1) = soroswap_library::sort_tokens(token_a.clone(), token_b.clone());
