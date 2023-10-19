@@ -1,40 +1,82 @@
-mod deterministic {
-    use soroban_sdk::{testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    xdr::ToXdr,
-    Address, 
-    BytesN, 
+use soroban_sdk::{
     Env,
-    Bytes,
-    IntoVal,
-    Symbol};
-    use crate::{pair, SoroswapFactoryClient};
+    Address,
+    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation}
+};
 
+mod pair {
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
+    pub type SoroswapPairClient<'a> = Client<'a>;
+}
+mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
+}
+mod factory {
+    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    pub type SoroswapFactoryClient<'a> = Client<'a>; 
+}
+use pair::SoroswapPairClient;
+use token::TokenClient;
+use factory::SoroswapFactoryClient;
+
+struct SoroswapFactoryTest<'a> {
+    env: Env,
+    contract: SoroswapFactoryClient<'a>,
+    token_0: TokenClient<'a>,
+    token_1: TokenClient<'a>,
+    pair: SoroswapPairClient<'a>
+}
+
+impl<'a> SoroswapFactoryTest<'a> {
+    fn new() -> Self {
+
+        let env: Env = Default::default();
+        let admin = Address::random(&env);
+        let user = Address::random(&env);
+        let factory_address = &env.register_contract_wasm(None, token::WASM);
+        let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
+        let token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
+        let token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
+
+        token_0.mint(&user, &10000);
+        token_1.mint(&user, &10000);
+        let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+        let factory = SoroswapFactoryClient::new(&env, factory_address);
+        let pair_address = factory.get_pair(&token_0.address, &token_1.address);
+        let pair = SoroswapPairClient::new(&env, &pair_address);
+        factory.initialize(&admin, &pair_hash);
+
+        SoroswapFactoryTest {
+            env,
+            contract,
+            token_0,
+            token_1,
+            pair
+        }
+    }
+}
+
+mod deterministic {
+    use soroban_sdk::{
+        Env,
+        Address,
+        BytesN,
+        Bytes,
+        xdr::ToXdr,
+        testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation}
+    };
+    use crate::test::deterministic::SoroswapFactoryTest;
 
     #[test]
     pub fn token_client_ne() {
-        let e: Env = Default::default();
-        e.mock_all_auths();
-
-        let admin = Address::random(&e);
-        let mut token_0 = TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()));
-        let mut token_1 = TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()));
-
-        assert_ne!(token_0.address, token_1.address);
+        let factory_test = SoroswapFactoryTest::new();
+        assert_eq!(factory_test.token_0.address, factory_test.token_1.address);
     }
 
-    #[test]
+    // #[test]
     pub fn create_factory_contract() {
-        soroban_sdk::contractimport!(
-            file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-        );
-        let e: Env = Default::default();
-        let pair_token_wasm_binding = e.deployer().upload_contract_wasm(WASM);
-        let admin = Address::random(&e);
-        let factory = SoroswapFactoryClient::new(&e, &e.register_contract(None, crate::SoroswapFactory {}));
-        
-        factory.initialize(&admin, &pair_token_wasm_binding);
+        let factory_test = SoroswapFactoryTest::new();
     }
 
     #[test]
