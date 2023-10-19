@@ -85,9 +85,9 @@ pub fn token_client_ne() {
 #[test]
 pub fn compare_address() {
     use crate::{ SoroswapFactory, SoroswapFactoryClient};
-    let env: Env = Default::default();
-    env.mock_all_auths();
     let factory_test = SoroswapFactoryTest::new();
+    let env = factory_test.env;
+    env.mock_all_auths();
     let salt = BytesN::from_array(&env, &[0; 32]);
     // let deployed_address = env.deployer().with_address(factory_test.factory.address.clone(), salt.clone()).deployed_address();
     let wasm_hash = env.deployer().upload_contract_wasm(factory::WASM);
@@ -101,6 +101,6 @@ pub fn compare_address() {
     let init_fn_args: Vec<Val> = (5u32,).into_val(&env);
     // let res: Val = env.invoke_contract(&factory_address, &init_fn, init_fn_args);
     // assert!(false, "should fail.");
-    // assert_eq!(&factory_address, &deployed_address);
-    assert!(false, "todo");
+    assert_eq!(&factory_address, &factory_test.factory.address.clone());
+    // assert!(false, "todo");
 }
