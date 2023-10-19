@@ -176,6 +176,18 @@ pub fn pair_does_not_exists_both_directions() {
 }
 
 #[test]
+pub fn add_pair() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    factory.create_pair(&token_a.address, &token_b.address);
+    assert_eq!(factory.pair_exists(&token_a.address, &token_b.address), true);
+    assert_eq!(factory.pair_exists(&token_b.address, &token_a.address), true);
+}
+
+#[test]
 pub fn all_pairs_length_is_zero() {
     let factory_test = SoroswapFactoryTest::new();
     assert_eq!(factory_test.factory.all_pairs_length(), 1);
