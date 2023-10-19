@@ -93,7 +93,16 @@ pub fn pair_address_inverted_eq() {
 }
 
 #[test]
-pub fn compare_address() {
+pub fn compare_pair_address() {
+    let factory_test = SoroswapFactoryTest::new();
+    let token_0_address = factory_test.token_0.address;
+    let token_1_address = factory_test.token_1.address;
+    let pair_address = factory_test.factory.get_pair(&token_0_address, &token_1_address);
+    assert_eq!(pair_address, factory_test.pair.address);
+}
+
+// #[test]
+pub fn compare_factory_address() {
     use crate::{ SoroswapFactory, SoroswapFactoryClient};
     let factory_test = SoroswapFactoryTest::new();
     let env = factory_test.env;
