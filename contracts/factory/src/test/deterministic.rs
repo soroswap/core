@@ -109,7 +109,6 @@ pub fn fees_are_not_enabled() {
 pub fn set_fee_to_setter_user() {
     let factory_test = SoroswapFactoryTest::new();
     let env = factory_test.env;
-    let admin_address = factory_test.admin;
     let user = factory_test.user;
     factory_test.factory.set_fee_to_setter(&user);
     let setter = factory_test.factory.fee_to_setter();
@@ -136,6 +135,44 @@ pub fn authorize_user() {
         }
     )];
     assert_eq!(factory.env.auths(), auths);
+}
+
+#[test]
+pub fn set_fees_enabled() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    factory.set_fees_enabled(&true);
+    assert_eq!(factory.fees_enabled(), true);
+}
+
+#[test]
+pub fn set_fee_to_factory_address() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    factory.set_fees_enabled(&true);
+    factory.set_fee_to(&factory.address);
+    assert_eq!(factory.fee_to(), factory.address);
+}
+
+#[test]
+pub fn pair_exists_both_directions() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let token_0 = factory_test.token_0;
+    let token_1 = factory_test.token_1;
+    assert_eq!(factory.pair_exists(&token_0.address, &token_1.address), true);
+    assert_eq!(factory.pair_exists(&token_1.address, &token_0.address), true);
+}
+
+#[test]
+pub fn pair_does_not_exists_both_directions() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    assert_eq!(factory.pair_exists(&token_a.address, &token_b.address), false);
+    assert_eq!(factory.pair_exists(&token_b.address, &token_a.address), false);
 }
 
 #[test]
@@ -178,8 +215,8 @@ pub fn compare_factory_address() {
         .deployer()
         .with_address(factory_client.address, salt)
         .deploy(wasm_hash);
-    let init_fn = symbol_short!("init");
-    let init_fn_args: Vec<Val> = (5u32,).into_val(&env);
+    let _init_fn = symbol_short!("init");
+    let _init_fn_args: Vec<Val> = (5u32,).into_val(&env);
     // let res: Val = env.invoke_contract(&factory_address, &init_fn, init_fn_args);
     // assert!(false, "should fail.");
     assert_eq!(&factory_address, &deployed_address);
