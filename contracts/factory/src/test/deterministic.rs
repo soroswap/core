@@ -3,13 +3,14 @@ use soroban_sdk::{
     Address,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation}
 };
+use core::mem;
 
 mod pair {
     soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
     pub type SoroswapPairClient<'a> = Client<'a>;
 }
 mod token {
-    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 mod factory {
@@ -22,7 +23,7 @@ use factory::SoroswapFactoryClient;
 
 struct SoroswapFactoryTest<'a> {
     env: Env,
-    contract: SoroswapFactoryClient<'a>,
+    factory: SoroswapFactoryClient<'a>,
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
     pair: SoroswapPairClient<'a>
@@ -32,24 +33,31 @@ impl<'a> SoroswapFactoryTest<'a> {
     fn new() -> Self {
 
         let env: Env = Default::default();
+        env.mock_all_auths();
         let admin = Address::random(&env);
         let user = Address::random(&env);
-        let factory_address = &env.register_contract_wasm(None, token::WASM);
-        let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
-        let token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
-        let token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
-
+        let mut token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
+        let mut token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
+        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+            mem::swap(&mut token_0, &mut token_1);
+        } else 
+        if &token_1.address.contract_id() == &token_0.address.contract_id() {
+            panic!("token contract ids are equal");
+        }
         token_0.mint(&user, &10000);
-        token_1.mint(&user, &10000);
+        // token_1.mint(&user, &10000);
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+        let factory_address = &env.register_contract_wasm(None, factory::WASM);
+        // let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
         let factory = SoroswapFactoryClient::new(&env, factory_address);
+        factory.initialize(&admin, &pair_hash);
+        factory.create_pair(&token_0.address, &token_1.address);
         let pair_address = factory.get_pair(&token_0.address, &token_1.address);
         let pair = SoroswapPairClient::new(&env, &pair_address);
-        factory.initialize(&admin, &pair_hash);
 
         SoroswapFactoryTest {
             env,
-            contract,
+            factory,
             token_0,
             token_1,
             pair
@@ -71,7 +79,7 @@ mod deterministic {
     #[test]
     pub fn token_client_ne() {
         let factory_test = SoroswapFactoryTest::new();
-        assert_eq!(factory_test.token_0.address, factory_test.token_1.address);
+        assert_ne!(factory_test.token_0.address, factory_test.token_1.address);
     }
 
     // #[test]
