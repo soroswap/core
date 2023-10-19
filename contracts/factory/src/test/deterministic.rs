@@ -77,27 +77,32 @@ mod deterministic {
     use crate::test::deterministic::SoroswapFactoryTest;
 
     #[test]
+    pub fn create_and_register_factory_contract() {
+        let factory_test = SoroswapFactoryTest::new();
+    }
+
+    #[test]
     pub fn token_client_ne() {
         let factory_test = SoroswapFactoryTest::new();
         assert_ne!(factory_test.token_0.address, factory_test.token_1.address);
     }
 
     // #[test]
-    pub fn create_factory_contract() {
-        let factory_test = SoroswapFactoryTest::new();
-    }
-
-    #[test]
     pub fn compare_address() {
-        // Create two tokens in order to create a pair using the factory
-        // let mut token_0 = create_token_contract(&e, &admin);
-        // let mut token_1 = create_token_contract(&e, &admin);
+        let env: Env = Default::default();
+        // env.mock_all_auths();
+        let factory_test = SoroswapFactoryTest::new();
+        let mut phrase = Bytes::new(&env);
+        phrase.append(&factory_test.factory.address.to_xdr(&env));
+        phrase.append(&factory_test.token_0.address.to_xdr(&env));
+        phrase.append(&factory_test.token_1.address.to_xdr(&env));
+        let phrase_hash = env.crypto().sha256(&phrase);
         // let pair_expected_address = guess_contract_address( &e,
         //     &factory.address, 
         //     &token_1.address, 
         //     &token_0.address);
         // let pair_address = factory.get_pair(&token_0.address, &token_1.address);
-        // assert_eq!(&pair_expected_address, &pair_address);
+        // assert_eq!(&factory_test.factory.address, &phrase_hash);
     }
 
 
