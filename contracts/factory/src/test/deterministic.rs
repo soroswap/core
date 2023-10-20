@@ -275,3 +275,27 @@ fn set_fee_to_address_from_zero_u8() {
 
     assert_eq!(zero_addr, factory_test.factory.fee_to());
 }
+
+#[test]
+#[should_panic]
+pub fn pair_is_unique_and_unequivocal_same_order() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    factory.create_pair(&token_a.address, &token_b.address);
+    factory.create_pair(&token_a.address, &token_b.address);
+}
+
+#[test]
+#[should_panic]
+pub fn pair_is_unique_and_unequivocal_inverted_order() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    factory.create_pair(&token_a.address, &token_b.address);
+    factory.create_pair(&token_b.address, &token_a.address);
+}
