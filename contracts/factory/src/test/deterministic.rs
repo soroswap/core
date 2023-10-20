@@ -3,7 +3,13 @@ use soroban_sdk::{
     Address,
     BytesN,
     symbol_short,
-    testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
+    testutils::{
+        Address as _, 
+        AuthorizedFunction, 
+        AuthorizedInvocation,
+        MockAuth,
+        MockAuthInvoke,
+    },
     Vec,
     Val,
     IntoVal,
@@ -298,4 +304,89 @@ pub fn pair_is_unique_and_unequivocal_inverted_order() {
     let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
     factory.create_pair(&token_a.address, &token_b.address);
     factory.create_pair(&token_b.address, &token_a.address);
+}
+
+#[test]
+pub fn admin_user_ne() {
+    let factory_test = SoroswapFactoryTest::new();
+    assert_ne!(factory_test.admin, factory_test.user);
+}
+
+#[test]
+pub fn authorized_invocation() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let user = factory_test.user.clone();
+    
+    // admin is not equal to setter
+    assert_ne!(admin, user);
+    // admin is fee_to_setter
+    assert_eq!(admin, factory.fee_to_setter());
+
+    // e.x.
+    // let authorization = 
+    // AuthorizedInvocation {
+    //     function: 
+    //     AuthorizedFunction::Contract((
+    //         factory.address.clone(),
+    //         Symbol::new(&factory.env, "set_fee_to_setter"),
+    //         (user.clone(),).into_val(&factory.env)
+    //     )),
+    //     sub_invocations:[].into()
+    // };
+
+    let r = factory
+        .mock_auths(&[MockAuth {
+            address: &admin,
+            invoke: &MockAuthInvoke {
+                contract: &factory.address,
+                fn_name: "set_fee_to_setter",
+                args: (&user,).into_val(&factory_test.env),
+                sub_invokes: &[],
+            },
+        }])
+        .set_fee_to_setter(&user);
+
+    assert_eq!(user, factory.fee_to_setter());
+}
+
+#[test]
+#[should_panic]
+pub fn non_authorized_invocation() {
+    let factory_test = SoroswapFactoryTest::new();
+    let factory = factory_test.factory;
+    let admin = factory_test.admin.clone();
+    let user = factory_test.user.clone();
+
+    // admin is not equal to setter
+    assert_ne!(admin, user);
+    // admin is fee_to_setter
+    assert_eq!(admin, factory.fee_to_setter());
+
+    // e.x.
+    // let authorization = 
+    // AuthorizedInvocation {
+    //     function: 
+    //     AuthorizedFunction::Contract((
+    //         factory.address.clone(),
+    //         Symbol::new(&factory.env, "set_fee_to_setter"),
+    //         (user.clone(),).into_val(&factory.env)
+    //     )),
+    //     sub_invocations:[].into()
+    // };
+
+    let r = factory
+        .mock_auths(&[MockAuth {
+            address: &user,
+            invoke: &MockAuthInvoke {
+                contract: &factory.address,
+                fn_name: "set_fee_to_setter",
+                args: (&user,).into_val(&factory_test.env),
+                sub_invokes: &[],
+            },
+        }])
+        .set_fee_to_setter(&user);
+        
+    assert_eq!(user, factory.fee_to_setter());
 }
