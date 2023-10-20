@@ -232,3 +232,21 @@ pub fn compare_deterministic_address() {
     let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytesN_32_salt.clone()).deployed_address();
     assert_eq!(&factory_test.pair.address, &calculated_pair_address);
 }
+
+#[test]
+pub fn compare_deterministic_address_inverted() {
+    let factory_test = SoroswapFactoryTest::new();
+    let env = factory_test.env;
+    env.mock_all_auths();
+
+    // Calculating pair address:
+    let mut salt = Bytes::new(&env);
+    // Append the bytes of token_0 and token_1 to the salt
+    salt.append(&factory_test.token_1.address.clone().to_xdr(&env)); 
+    salt.append(&factory_test.token_0.address.clone().to_xdr(&env));
+    // Hash the salt using SHA256 to generate a new BytesN<32> value
+    let bytes_n_32_salt=env.crypto().sha256(&salt);
+    
+    let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytes_n_32_salt.clone()).deployed_address();
+    assert_ne!(&factory_test.pair.address, &calculated_pair_address);
+}
