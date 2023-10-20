@@ -62,7 +62,7 @@ bash /workspace/scripts/deploy_pairs.sh $NETWORK $N_TOKENS false
 
 # Step 4: Deploy router
 echo -e "${GREEN}Deploying router...${NC}"
-bash /workspace/scripts/deploy_initialize_router.sh $NETWORK
+bash /workspace/scripts/deploy_initialize_router.sh $NETWORK false
 
 # Display the completion message
 echo -e "${GREEN}Deployment process completed successfully.${NC}"
