@@ -8,8 +8,18 @@ use soroban_sdk::{
     Val,
     IntoVal,
     Symbol,
-    xdr::ToXdr,
-    Bytes
+    xdr::{
+        ToXdr,
+        ScAddress,
+        ScVal,
+        // ScObject,
+        PublicKey,
+        AccountId,
+        Uint256
+    },
+    Bytes,
+    TryFromVal,
+    String,
 };
 use core::mem;
 
@@ -55,13 +65,13 @@ impl<'a> SoroswapFactoryTest<'a> {
         if &token_1.address.contract_id() == &token_0.address.contract_id() {
             panic!("token contract ids are equal");
         }
-        token_0.mint(&user, &10000);
-        // token_1.mint(&user, &10000);
+        // The other form for registering the contract with the environment
+        // interface is directly calling the WASM code:
+        // 
         // let factory_address = &env.register_contract_wasm(None, factory::WASM);
+        //
         let factory_address = &env.register_contract(None, SoroswapFactory);
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-
-        // let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
         let factory = SoroswapFactoryClient::new(&env, &factory_address);
         factory.initialize(&admin, &pair_hash);
         factory.create_pair(&token_0.address, &token_1.address);
@@ -249,4 +259,19 @@ pub fn compare_deterministic_address_inverted() {
     
     let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytes_n_32_salt.clone()).deployed_address();
     assert_ne!(&factory_test.pair.address, &calculated_pair_address);
+}
+
+#[test]
+fn set_fee_to_address_from_zero_u8() {    
+    let factory_test = SoroswapFactoryTest::new();
+    let env = factory_test.env;
+    let public_key = PublicKey::PublicKeyTypeEd25519(Uint256([0u8; 32]));
+    let sc_account_id = AccountId(public_key);
+    let sc_account = ScAddress::Account(sc_account_id);
+    let zero_sc_addr = ScVal::Address(sc_account);
+
+    let zero_addr: Address = Address::try_from_val(&env, &zero_sc_addr).unwrap();
+    factory_test.factory.set_fee_to(&zero_addr);
+
+    assert_eq!(zero_addr, factory_test.factory.fee_to());
 }
