@@ -318,8 +318,8 @@ pub fn authorized_invocation() {
     let factory = factory_test.factory;
     let admin = factory_test.admin.clone();
     let user = factory_test.user.clone();
-    
-    // admin is not equal to setter
+
+    // admin is not equal to user
     assert_ne!(admin, user);
     // admin is fee_to_setter
     assert_eq!(admin, factory.fee_to_setter());
@@ -348,6 +348,7 @@ pub fn authorized_invocation() {
         }])
         .set_fee_to_setter(&user);
 
+    // setter is user
     assert_eq!(user, factory.fee_to_setter());
 }
 
@@ -359,7 +360,7 @@ pub fn non_authorized_invocation() {
     let admin = factory_test.admin.clone();
     let user = factory_test.user.clone();
 
-    // admin is not equal to setter
+    // admin is not equal to user
     assert_ne!(admin, user);
     // admin is fee_to_setter
     assert_eq!(admin, factory.fee_to_setter());
@@ -388,5 +389,6 @@ pub fn non_authorized_invocation() {
         }])
         .set_fee_to_setter(&user);
         
+    // setter is user
     assert_eq!(user, factory.fee_to_setter());
 }
