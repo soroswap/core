@@ -2,7 +2,6 @@ use soroban_sdk::{
     Env,
     Address,
     BytesN,
-    Bytes,
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
     Vec,
@@ -22,7 +21,7 @@ mod token {
 }
 mod factory {
     soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
-    pub type SoroswapFactoryClient<'a> = Client<'a>; 
+    pub type _SoroswapFactoryClient<'a> = Client<'a>; 
 }
 use pair::SoroswapPairClient;
 use token::TokenClient;
@@ -81,7 +80,7 @@ impl<'a> SoroswapFactoryTest<'a> {
 
 #[test]
 pub fn create_and_register_factory_contract() {
-    let factory_test = SoroswapFactoryTest::new();
+    let _factory_test = SoroswapFactoryTest::new();
 }
 
 #[test]
@@ -111,7 +110,6 @@ pub fn fees_are_not_enabled() {
 #[test]
 pub fn set_fee_to_setter_user() {
     let factory_test = SoroswapFactoryTest::new();
-    let env = factory_test.env;
     let user = factory_test.user;
     factory_test.factory.set_fee_to_setter(&user);
     let setter = factory_test.factory.fee_to_setter();
@@ -217,7 +215,6 @@ pub fn compare_pair_address() {
 
 // #[test]
 pub fn _compare_factory_address() {
-    use crate::{ SoroswapFactory, SoroswapFactoryClient};
     let factory_test = SoroswapFactoryTest::new();
     let env = factory_test.env;
     env.mock_all_auths();
@@ -232,7 +229,7 @@ pub fn _compare_factory_address() {
         .deploy(wasm_hash);
     let _init_fn = symbol_short!("init");
     let _init_fn_args: Vec<Val> = (5u32,).into_val(&env);
-    // let res: Val = env.invoke_contract(&factory_address, &init_fn, init_fn_args);
+    // let res: Val = factory_client.env.invoke_contract(&factory_address, &init_fn, init_fn_args);
     // assert!(false, "should fail.");
     assert_eq!(&factory_address, &deployed_address);
     // assert!(false, "todo");
