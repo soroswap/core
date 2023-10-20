@@ -14,19 +14,11 @@ fn create_router_contract<'a>(
 }
 
 #[test]
-fn test() {
+fn test_value() {
     let e: Env = Default::default();
     e.mock_all_auths();
 
     let router = create_router_contract(&e);
 
     assert_eq!(router.my_bool(), true);
-    
-    
-
-
-
-    
-
-
 }
