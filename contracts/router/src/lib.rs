@@ -6,7 +6,6 @@ use soroban_sdk::{
     contractimpl, Address, ConversionError, Env, Val, TryFromVal, Vec
 };
 use soroban_sdk::token::Client as TokenClient;
-use soroswap_library;
 
 mod factory {
     soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
@@ -253,20 +252,20 @@ pub trait SoroswapRouterTrait{
     LIBRARY FUNCTIONS:
     */
 
-    // /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    // fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
+    /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
 
-    // /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    // fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
+    /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
-    // /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    // fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
+    /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
-    // /// performs chained getAmountOut calculations on any number of pairs 
-    // fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128>;
+    /// performs chained getAmountOut calculations on any number of pairs 
+    fn router_get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128>;
     
-    // /// performs chained getAmountIn calculations on any number of pairs
-    // fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128>;
+    /// performs chained getAmountIn calculations on any number of pairs
+    fn router_get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128>;
 
 
 }
@@ -364,13 +363,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(e.clone(), get_factory(&e), token_a.clone(), token_b.clone());
         
-        // TODO: Change pair contract so tokens are being sent from the Router contract
         // IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        transfer_from(&e, &pair, &to, &pair, &liquidity);
+
         // (uint amount0, uint amount1) = IUniswapV2Pair(pair).burn(to);
-        // For now we have:
-        //fn withdraw(e: Env, to: Address, share_amount: i128, min_a: i128, min_b: i128) -> (i128, i128);
+        
         let (amount_0, amount_1) = SoroswapPairClient::new(&e, &pair).withdraw(
-            &to, &liquidity, &amount_a_min, &amount_b_min);
+            &to);
         
         // (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
         let (token_0,_token_1) = soroswap_library::sort_tokens(token_a.clone(), token_b.clone());
@@ -478,34 +477,34 @@ impl SoroswapRouterTrait for SoroswapRouter {
     }
     
 
-    // /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    // // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
-    // fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
-    //     soroswap_library_quote(amount_a, reserve_a, reserve_b)
-    // }
+    /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
+    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
+        soroswap_library::quote(amount_a, reserve_a, reserve_b)
+    }
     
 
-    // /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    // // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
-    // fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128 {
-    //     soroswap_library::get_amount_out(amount_in, reserve_in, reserve_out)
-    // }
+    /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128 {
+        soroswap_library::get_amount_out(amount_in, reserve_in, reserve_out)
+    }
 
-    // /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    // // function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
-    // fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128 {
-    //     soroswap_library::get_amount_in(amount_out, reserve_in, reserve_out)
-    // }
+    /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+    // function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
+    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128 {
+        soroswap_library::get_amount_in(amount_out, reserve_in, reserve_out)
+    }
 
-    // /// performs chained getAmountOut calculations on any number of pairs 
-    // // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
-    // fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128> {
-    //     soroswap_library::get_amounts_out(e, factory, amount_in, path)
-    // }
+    /// performs chained getAmountOut calculations on any number of pairs 
+    // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
+    fn router_get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128> {
+        soroswap_library::get_amounts_out(e, factory, amount_in, path)
+    }
 
-    // /// performs chained getAmountIn calculations on any number of pairs
-    // // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
-    // fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128> {
-    //     soroswap_library::get_amounts_in(e, factory, amount_out, path)
-    // }
+    /// performs chained getAmountIn calculations on any number of pairs
+    // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
+    fn router_get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128> {
+        soroswap_library::get_amounts_in(e, factory, amount_out, path)
+    }
 }
