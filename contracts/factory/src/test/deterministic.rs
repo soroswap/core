@@ -7,7 +7,9 @@ use soroban_sdk::{
     Vec,
     Val,
     IntoVal,
-    Symbol
+    Symbol,
+    xdr::ToXdr,
+    Bytes
 };
 use core::mem;
 
@@ -213,24 +215,20 @@ pub fn compare_pair_address() {
     assert_eq!(pair_address, factory_test.pair.address);
 }
 
-// #[test]
-pub fn _compare_factory_address() {
+#[test]
+pub fn compare_deterministic_address() {
     let factory_test = SoroswapFactoryTest::new();
     let env = factory_test.env;
     env.mock_all_auths();
-    let salt = BytesN::from_array(&env, &[0; 32]);
-    let deployed_address = env.deployer().with_address(factory_test.factory.address.clone(), salt.clone()).deployed_address();
-    let wasm_hash = env.deployer().upload_contract_wasm(factory::WASM);
 
-    let factory_client = SoroswapFactoryClient::new(&env, &env.register_contract(None, SoroswapFactory));
-    let factory_address = factory_client.env
-        .deployer()
-        .with_address(factory_client.address, salt)
-        .deploy(wasm_hash);
-    let _init_fn = symbol_short!("init");
-    let _init_fn_args: Vec<Val> = (5u32,).into_val(&env);
-    // let res: Val = factory_client.env.invoke_contract(&factory_address, &init_fn, init_fn_args);
-    // assert!(false, "should fail.");
-    assert_eq!(&factory_address, &deployed_address);
-    // assert!(false, "todo");
+    // Calculating pair address:
+    let mut salt = Bytes::new(&env);
+    // Append the bytes of token_0 and token_1 to the salt
+    salt.append(&factory_test.token_0.address.clone().to_xdr(&env)); 
+    salt.append(&factory_test.token_1.address.clone().to_xdr(&env));
+    // Hash the salt using SHA256 to generate a new BytesN<32> value
+    let bytesN_32_salt=env.crypto().sha256(&salt);
+    
+    let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytesN_32_salt.clone()).deployed_address();
+    assert_eq!(&factory_test.pair.address, &calculated_pair_address);
 }
