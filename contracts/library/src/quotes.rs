@@ -1,7 +1,7 @@
 use soroban_sdk::{Address, Env, Vec};
 use crate::reserves::{get_reserves};
 
-// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+/// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
 // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
 pub fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
     //     require(amountA > 0, 'UniswapV2Library: INSUFFICIENT_AMOUNT');
@@ -17,7 +17,7 @@ pub fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
 }
 
 
-// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+/// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
 // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
 pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128 {
     //     require(amountIn > 0, 'UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT');
@@ -42,7 +42,7 @@ pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i
     numerator.checked_div(denominator).unwrap()
 }
 
-// // given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+/// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
 // function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
 pub fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128 {
     //     require(amountOut > 0, 'UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT');
@@ -63,7 +63,7 @@ pub fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i
     numerator.checked_div(denominator).unwrap().checked_add(1).unwrap()
 }
 
-// performs chained getAmountOut calculations on any number of pairs 
+/// performs chained getAmountOut calculations on any number of pairs 
 // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
 pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Vec<i128> {
     //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
@@ -85,7 +85,7 @@ pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Addr
     amounts
 }
 
-// performs chained getAmountIn calculations on any number of pairs
+/// performs chained getAmountIn calculations on any number of pairs
 // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
 pub fn get_amounts_in(e:Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Vec<i128> {
     //     require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
