@@ -26,7 +26,8 @@ mod factory {
 }
 use pair::SoroswapPairClient;
 use token::TokenClient;
-use factory::SoroswapFactoryClient;
+// use factory::SoroswapFactoryClient;
+use crate::{ SoroswapFactory, SoroswapFactoryClient};
 
 struct SoroswapFactoryTest<'a> {
     env: Env,
@@ -40,6 +41,7 @@ struct SoroswapFactoryTest<'a> {
 
 impl<'a> SoroswapFactoryTest<'a> {
     fn new() -> Self {
+        
         let env: Env = Default::default();
         env.mock_all_auths();
         let admin = Address::random(&env);
@@ -54,7 +56,8 @@ impl<'a> SoroswapFactoryTest<'a> {
         }
         token_0.mint(&user, &10000);
         // token_1.mint(&user, &10000);
-        let factory_address = &env.register_contract_wasm(None, factory::WASM);
+        // let factory_address = &env.register_contract_wasm(None, factory::WASM);
+        let factory_address = &env.register_contract(None, SoroswapFactory);
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
 
         // let contract: SoroswapFactoryClient<'a> = SoroswapFactoryClient::new(&env, factory_address);
@@ -213,7 +216,7 @@ pub fn compare_pair_address() {
 }
 
 // #[test]
-pub fn compare_factory_address() {
+pub fn _compare_factory_address() {
     use crate::{ SoroswapFactory, SoroswapFactoryClient};
     let factory_test = SoroswapFactoryTest::new();
     let env = factory_test.env;
@@ -223,7 +226,7 @@ pub fn compare_factory_address() {
     let wasm_hash = env.deployer().upload_contract_wasm(factory::WASM);
 
     let factory_client = SoroswapFactoryClient::new(&env, &env.register_contract(None, SoroswapFactory));
-    let factory_address = env
+    let factory_address = factory_client.env
         .deployer()
         .with_address(factory_client.address, salt)
         .deploy(wasm_hash);
