@@ -48,8 +48,8 @@ use crate::{ SoroswapFactory, SoroswapFactoryClient};
 
 struct SoroswapFactoryTest<'a> {
     env: Env,
-    admin: Address,
-    user: Address,
+    alice: Address,
+    bob: Address,
     factory: SoroswapFactoryClient<'a>,
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
@@ -61,10 +61,10 @@ impl<'a> SoroswapFactoryTest<'a> {
         
         let env: Env = Default::default();
         env.mock_all_auths();
-        let admin = Address::random(&env);
-        let user = Address::random(&env);
-        let mut token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
-        let mut token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(admin.clone()));
+        let alice = Address::random(&env);
+        let bob = Address::random(&env);
+        let mut token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+        let mut token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             mem::swap(&mut token_0, &mut token_1);
         } else 
@@ -79,15 +79,15 @@ impl<'a> SoroswapFactoryTest<'a> {
         let factory_address = &env.register_contract(None, SoroswapFactory);
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
         let factory = SoroswapFactoryClient::new(&env, &factory_address);
-        factory.initialize(&admin, &pair_hash);
+        factory.initialize(&alice, &pair_hash);
         factory.create_pair(&token_0.address, &token_1.address);
         let pair_address = factory.get_pair(&token_0.address, &token_1.address);
         let pair = SoroswapPairClient::new(&env, &pair_address);
 
         SoroswapFactoryTest {
             env,
-            admin,
-            user,
+            alice,
+            bob,
             factory,
             token_0,
             token_1,
@@ -108,15 +108,15 @@ pub fn token_client_ne() {
 }
 
 #[test]
-pub fn setter_is_admin() {
+pub fn setter_is_alice() {
     let factory_test = SoroswapFactoryTest::new();
-    assert_eq!(factory_test.factory.fee_to_setter(), factory_test.admin);
+    assert_eq!(factory_test.factory.fee_to_setter(), factory_test.alice);
 }
 
 #[test]
-pub fn setter_is_not_user() {
+pub fn setter_is_not_bob() {
     let factory_test = SoroswapFactoryTest::new();
-    assert_ne!(factory_test.factory.fee_to_setter(), factory_test.user);
+    assert_ne!(factory_test.factory.fee_to_setter(), factory_test.bob);
 }
 
 #[test]
@@ -126,29 +126,29 @@ pub fn fees_are_not_enabled() {
 }
 
 #[test]
-pub fn set_fee_to_setter_user() {
+pub fn set_fee_to_setter_bob() {
     let factory_test = SoroswapFactoryTest::new();
-    let user = factory_test.user;
-    factory_test.factory.set_fee_to_setter(&user);
+    let bob = factory_test.bob;
+    factory_test.factory.set_fee_to_setter(&bob);
     let setter = factory_test.factory.fee_to_setter();
-    assert_eq!(setter, user);
+    assert_eq!(setter, bob);
 }
 
 #[test]
-pub fn authorize_user() {
+pub fn authorize_bob() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
     let factory_address = factory.address.clone();
-    let admin_address = factory_test.admin.clone();
-    let user = factory_test.user.clone();
-    factory.set_fee_to_setter(&user);
+    let alice_address = factory_test.alice.clone();
+    let bob = factory_test.bob.clone();
+    factory.set_fee_to_setter(&bob);
     let auths = [(
-        admin_address,
+        alice_address,
         AuthorizedInvocation {
             function: AuthorizedFunction::Contract((
                 factory_address,
                 Symbol::new(&factory.env, "set_fee_to_setter"),
-                (user.clone(),).into_val(&factory.env)
+                (bob.clone(),).into_val(&factory.env)
             )),
             sub_invocations:[].into()
         }
@@ -187,9 +187,9 @@ pub fn pair_exists_both_directions() {
 pub fn pair_does_not_exists_both_directions() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
-    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let alice = factory_test.alice.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
     assert_eq!(factory.pair_exists(&token_a.address, &token_b.address), false);
     assert_eq!(factory.pair_exists(&token_b.address, &token_a.address), false);
 }
@@ -198,9 +198,9 @@ pub fn pair_does_not_exists_both_directions() {
 pub fn add_pair() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
-    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let alice = factory_test.alice.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
     factory.create_pair(&token_a.address, &token_b.address);
     assert_eq!(factory.pair_exists(&token_a.address, &token_b.address), true);
     assert_eq!(factory.pair_exists(&token_b.address, &token_a.address), true);
@@ -287,9 +287,9 @@ fn set_fee_to_address_from_zero_u8() {
 pub fn pair_is_unique_and_unequivocal_same_order() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
-    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let alice = factory_test.alice.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
     factory.create_pair(&token_a.address, &token_b.address);
     factory.create_pair(&token_a.address, &token_b.address);
 }
@@ -299,30 +299,30 @@ pub fn pair_is_unique_and_unequivocal_same_order() {
 pub fn pair_is_unique_and_unequivocal_inverted_order() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
-    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(admin.clone()));
+    let alice = factory_test.alice.clone();
+    let token_a = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
+    let token_b = TokenClient::new(&factory.env, &factory.env.register_stellar_asset_contract(alice.clone()));
     factory.create_pair(&token_a.address, &token_b.address);
     factory.create_pair(&token_b.address, &token_a.address);
 }
 
 #[test]
-pub fn admin_user_ne() {
+pub fn alice_bob_ne() {
     let factory_test = SoroswapFactoryTest::new();
-    assert_ne!(factory_test.admin, factory_test.user);
+    assert_ne!(factory_test.alice, factory_test.bob);
 }
 
 #[test]
 pub fn authorized_invocation() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let user = factory_test.user.clone();
+    let alice = factory_test.alice.clone();
+    let bob = factory_test.bob.clone();
 
-    // admin is not equal to user
-    assert_ne!(admin, user);
-    // admin is fee_to_setter
-    assert_eq!(admin, factory.fee_to_setter());
+    // alice is not equal to bob
+    assert_ne!(alice, bob);
+    // alice is fee_to_setter
+    assert_eq!(alice, factory.fee_to_setter());
 
     // e.x.
     // let authorization = 
@@ -331,25 +331,25 @@ pub fn authorized_invocation() {
     //     AuthorizedFunction::Contract((
     //         factory.address.clone(),
     //         Symbol::new(&factory.env, "set_fee_to_setter"),
-    //         (user.clone(),).into_val(&factory.env)
+    //         (bob.clone(),).into_val(&factory.env)
     //     )),
     //     sub_invocations:[].into()
     // };
 
     let r = factory
         .mock_auths(&[MockAuth {
-            address: &admin,
+            address: &alice,
             invoke: &MockAuthInvoke {
                 contract: &factory.address,
                 fn_name: "set_fee_to_setter",
-                args: (&user,).into_val(&factory_test.env),
+                args: (&bob,).into_val(&factory_test.env),
                 sub_invokes: &[],
             },
         }])
-        .set_fee_to_setter(&user);
+        .set_fee_to_setter(&bob);
 
-    // setter is user
-    assert_eq!(user, factory.fee_to_setter());
+    // setter is bob
+    assert_eq!(bob, factory.fee_to_setter());
 }
 
 #[test]
@@ -357,13 +357,13 @@ pub fn authorized_invocation() {
 pub fn non_authorized_invocation() {
     let factory_test = SoroswapFactoryTest::new();
     let factory = factory_test.factory;
-    let admin = factory_test.admin.clone();
-    let user = factory_test.user.clone();
+    let alice = factory_test.alice.clone();
+    let bob = factory_test.bob.clone();
 
-    // admin is not equal to user
-    assert_ne!(admin, user);
-    // admin is fee_to_setter
-    assert_eq!(admin, factory.fee_to_setter());
+    // alice is not equal to bob
+    assert_ne!(alice, bob);
+    // alice is fee_to_setter
+    assert_eq!(alice, factory.fee_to_setter());
 
     // e.x.
     // let authorization = 
@@ -372,23 +372,23 @@ pub fn non_authorized_invocation() {
     //     AuthorizedFunction::Contract((
     //         factory.address.clone(),
     //         Symbol::new(&factory.env, "set_fee_to_setter"),
-    //         (user.clone(),).into_val(&factory.env)
+    //         (bob.clone(),).into_val(&factory.env)
     //     )),
     //     sub_invocations:[].into()
     // };
 
     let r = factory
         .mock_auths(&[MockAuth {
-            address: &user,
+            address: &bob,
             invoke: &MockAuthInvoke {
                 contract: &factory.address,
                 fn_name: "set_fee_to_setter",
-                args: (&user,).into_val(&factory_test.env),
+                args: (&bob,).into_val(&factory_test.env),
                 sub_invokes: &[],
             },
         }])
-        .set_fee_to_setter(&user);
+        .set_fee_to_setter(&bob);
         
-    // setter is user
-    assert_eq!(user, factory.fee_to_setter());
+    // setter is bob
+    assert_eq!(bob, factory.fee_to_setter());
 }
