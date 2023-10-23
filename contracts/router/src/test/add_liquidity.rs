@@ -10,10 +10,30 @@ use soroban_sdk::{
     vec,
     IntoVal};
 
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: not yet initialized")]
+fn test_add_liquidity_not_yet_initialized() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &10000, //     amount_a_desired: i128,
+        &10000, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &0//     deadline: u64,
+    );
+}
+    
+
 #[test]
 #[should_panic(expected = "Unauthorized function call for address")]
 fn test_add_liquidity_not_authorized() {
     let test = SoroswapRouterTest::setup();
+    let factory = Address::random(&test.env);
+    test.contract.initialize(&factory);
     let alice = Address::random(&test.env);
     let bob = Address::random(&test.env);
     // alice is not equal to bob
@@ -60,6 +80,9 @@ fn test_add_liquidity_not_authorized() {
 #[should_panic(expected = "SoroswapRouter: expired")]
 fn test_add_liquidity_deadline_expired() {
     let test = SoroswapRouterTest::setup();
+    let factory = Address::random(&test.env);
+    test.contract.initialize(&factory);
+
     let alice = Address::random(&test.env);
     let bob = Address::random(&test.env);
     // alice is not equal to bob
@@ -71,7 +94,7 @@ fn test_add_liquidity_deadline_expired() {
     assert!(desired_deadline < ledger_timestamp);
 
     test.env.ledger().with_mut(|li| {
-        li.timestamp = 100;
+        li.timestamp = ledger_timestamp;
     });
 
     // /*
@@ -88,3 +111,29 @@ fn test_add_liquidity_deadline_expired() {
         &desired_deadline//     deadline: u64,
     );
 }
+
+// #[test]
+// #[should_panic(expected = "SoroswapRouter: not yet initialized")]
+// fn test_add_liquidity_not_yet_initialized() {
+//     let test = SoroswapRouterTest::setup();
+    
+//     let ledger_timestamp = 100;
+//     let desired_deadline = 1000;
+
+//     assert!(desired_deadline > ledger_timestamp);
+
+//     test.env.ledger().with_mut(|li| {
+//         li.timestamp = ledger_timestamp;
+//     });
+
+//     test.contract.add_liquidity(
+//         &test.token_0.address, //     token_a: Address,
+//         &test.token_1.address, //     token_b: Address,
+//         &10000, //     amount_a_desired: i128,
+//         &10000, //     amount_b_desired: i128,
+//         &0, //     amount_a_min: i128,
+//         &0 , //     amount_b_min: i128,
+//         &test.user, //     to: Address,
+//         &desired_deadline//     deadline: u64,
+//     );
+// }
