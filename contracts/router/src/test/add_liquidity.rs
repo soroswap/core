@@ -18,8 +18,6 @@ fn test_add_liquidity_not_authorized() {
     let bob = Address::random(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
-    let token_a = Address::random(&test.env);
-    let token_b = Address::random(&test.env);
 
     /*
         Here we test the add_liquidity function "to.require_auth();" requirement
@@ -33,8 +31,8 @@ fn test_add_liquidity_not_authorized() {
                 fn_name: "add_liquidity",
                 args: vec![
                     &test.env,
-                    token_a.into_val(&test.env), //     token_a: Address,
-                    token_b.into_val(&test.env), //     token_b: Address,
+                    test.token_0.address.into_val(&test.env), //     token_a: Address,
+                    test.token_1.address.into_val(&test.env), //     token_b: Address,
                     0.into_val(&test.env), //     amount_a_desired: i128,
                     0.into_val(&test.env), //     amount_b_desired: i128,
                     0.into_val(&test.env), //     amount_a_min: i128,
@@ -46,8 +44,8 @@ fn test_add_liquidity_not_authorized() {
             },
         }])
         .add_liquidity(
-            &token_a, //     token_a: Address,
-            &token_b, //     token_b: Address,
+            &test.token_0.address, //     token_a: Address,
+            &test.token_1.address, //     token_b: Address,
             &0, //     amount_a_desired: i128,
             &0, //     amount_b_desired: i128,
             &0, //     amount_a_min: i128,
@@ -66,8 +64,6 @@ fn test_add_liquidity_deadline_expired() {
     let bob = Address::random(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
-    let token_a = Address::random(&test.env);
-    let token_b = Address::random(&test.env);
 
     let ledger_timestamp = 100;
     let desired_deadline = 90;
@@ -82,8 +78,8 @@ fn test_add_liquidity_deadline_expired() {
     //     Here we test the case when deadline has passed
     //  */
     test.contract.add_liquidity(
-        &token_a, //     token_a: Address,
-        &token_b, //     token_b: Address,
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
         &0, //     amount_a_desired: i128,
         &0, //     amount_b_desired: i128,
         &0, //     amount_a_min: i128,
