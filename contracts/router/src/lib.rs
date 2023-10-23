@@ -65,15 +65,23 @@ fn transfer_from(e: &Env, token: &Address, from: &Address, to: &Address, value: 
     token_client.transfer(&from, &to, &value);
 }
 
-/// Given a pair of tokens, a desired and minimum amount of tokens to provide liquidity, gives the correct amount of tokens
-//  function _addLiquidity(
-//     address tokenA,
-//     address tokenB,
-//     uint amountADesired,
-//     uint amountBDesired,
-//     uint amountAMin,
-//     uint amountBMin
-// ) internal virtual returns (uint amountA, uint amountB) {
+/// Given a pair of tokens, a desired and minimum amount of tokens to provide as liquidity, this function calculates
+/// the correct amounts of tokens to add to the pool. If the pool doesn't exist, it creates one.
+///
+/// It considers the desired and minimum amounts for both tokens and calculates the optimal distribution to
+/// satisfy these requirements while taking into account the current reserves in the pool.
+///
+/// # Arguments
+/// * `e` - The contract environment (`Env`) in which the contract is executing.
+/// * `token_a` - The address of the first token in the pair.
+/// * `token_b` - The address of the second token in the pair.
+/// * `amount_a_desired` - The desired amount of the first token to add.
+/// * `amount_b_desired` - The desired amount of the second token to add.
+/// * `amount_a_min` - The minimum required amount of the first token to add.
+/// * `amount_b_min` - The minimum required amount of the second token to add.
+///
+/// # Returns
+/// A tuple containing the calculated amounts of token A and B to be added to the pool.
 fn add_liquidity_amounts(
     e: Env,
     token_a: Address,
