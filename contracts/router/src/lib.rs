@@ -340,19 +340,21 @@ impl SoroswapRouterTrait for SoroswapRouter {
         factory_address
     }
 
-    /// Add Liquidity to a pool
-    /// If a pool for the passed tokens does not exists, one is created automatically,
-    /// and exactly amountADesired/amountBDesired tokens are added.
-    //
-    // function addLiquidity(
-    //     address tokenA,
-    //     address tokenB,
-    //     uint amountADesired,
-    //     uint amountBDesired,
-    //     uint amountAMin,
-    //     uint amountBMin,
-    //     address to,
-    //     uint deadline
+    /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
+    /// of both tokens are added, subject to minimum requirements.
+    /// This function is responsible for transferring tokens from the user to the pool and minting liquidity tokens in return.
+    /// # Arguments
+    /// * `token_a` - The address of the first token to add liquidity for.
+    /// * `token_b` - The address of the second token to add liquidity for.
+    /// * `amount_a_desired` - The desired amount of the first token to add.
+    /// * `amount_b_desired` - The desired amount of the second token to add.
+    /// * `amount_a_min` - The minimum required amount of the first token to add.
+    /// * `amount_b_min` - The minimum required amount of the second token to add.
+    /// * `to` - The address where the liquidity tokens will be minted and sent.
+    /// * `deadline` - The deadline for executing the operation.
+    /// # Returns
+    /// A tuple containing: amounts of token A and B added to the pool.
+    /// plus the amount of liquidity tokens minted.
     fn add_liquidity(
         e: Env,
         token_a: Address,
