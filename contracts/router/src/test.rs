@@ -37,6 +37,7 @@ impl<'a> SoroswapRouterTest<'a> {
 
         let admin = Address::random(&env);
         let user = Address::random(&env);
+        assert_ne!(admin, user);
 
         let mut token_0 = create_token_contract(&env, &admin);
         let mut token_1 = create_token_contract(&env, &admin);
