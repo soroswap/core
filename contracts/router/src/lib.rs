@@ -197,12 +197,23 @@ fn swap(e: &Env, amounts: &Vec<i128>, path: &Vec<Address>, _to: &Address) {
     }
 }
 
-//     }
-// }
+
+/*
+    SOROSWAP ROUTER SMART CONTRACT INTERFACE:
+*/
 
 pub trait SoroswapRouterTrait {
+
     /// Initializes the contract and sets the factory address
     fn initialize(e: Env, factory: Address);
+
+    /// This function retrieves the factory contract's address associated with the provided environment.
+    /// It also checks if the factory has been initialized and raises an assertion error if not.
+    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
+    ///
+    /// # Arguments
+    /// * `e` - The contract environment (`Env`) in which the contract is executing.
+    fn get_factory(e: Env) -> Address;
 
     /// Add Liquidity to a Pool
     /// If a pool for the passed tokens does not exists, one is created automatically,
@@ -253,7 +264,6 @@ pub trait SoroswapRouterTrait {
         deadline: u64,
     ) -> Vec<i128>;
 
-    fn get_factory(e: Env) -> Address;
     /*
     LIBRARY FUNCTIONS:
     */
@@ -293,6 +303,18 @@ impl SoroswapRouterTrait for SoroswapRouter {
     fn initialize(e: Env, factory: Address) {
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
+    }
+
+    /// This function retrieves the factory contract's address associated with the provided environment.
+    /// It also checks if the factory has been initialized and raises an assertion error if not.
+    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
+    ///
+    /// # Arguments
+    /// * `e` - The contract environment (`Env`) in which the contract is executing.
+    fn get_factory(e: Env) -> Address {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        let factory_address = get_factory(&e);
+        factory_address
     }
 
     /// Add Liquidity to a pool
@@ -540,11 +562,6 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // returns (uint[] memory amounts)
         amounts
-    }
-
-    fn get_factory(e: Env) -> Address {
-        let factory_address = get_factory(&e);
-        factory_address
     }
 
     /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
