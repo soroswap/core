@@ -366,6 +366,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> (i128, i128, i128) {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         // returns (uint amountA, uint amountB, uint liquidity)
 
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
@@ -424,6 +425,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> (i128, i128) {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         // returns (uint amountA, uint amountB)
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
         // and then take the tokens from the user
@@ -484,6 +486,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         // returns (uint[] memory amounts)
 
         // ensure(deadline)
@@ -544,6 +547,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         // returns (uint[] memory amounts)
         // ensure(deadline)
         ensure_deadline(&e, deadline);
