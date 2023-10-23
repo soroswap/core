@@ -6,12 +6,10 @@ use crate::{SoroswapRouter, SoroswapRouterClient};
 use soroban_sdk::{Env, Address, testutils::Address as _};
 
 
-
 fn create_soroswap_router_contract<'a>(e: &Env) -> SoroswapRouterClient<'a> {
     SoroswapRouterClient::new(e, &e.register_contract(None, SoroswapRouter {}))
 }
 
-// Extended test with factory and a pair
 struct SoroswapRouterTest<'a> {
     env: Env,
     contract: SoroswapRouterClient<'a>,
@@ -33,10 +31,19 @@ impl<'a> SoroswapRouterTest<'a> {
                     
 
 #[test]
-fn test() {
+fn test_initialize_and_get_factory() {
     let test = SoroswapRouterTest::setup();
     let factory = Address::random(&test.env);
     test.contract.initialize(&factory);
+    assert_eq!(factory, test.contract.get_factory());
+}
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: not yet initialized")]
+fn test_get_factory_not_yet_initialized() {
+    let test = SoroswapRouterTest::setup();
+    let factory = Address::random(&test.env);
+    assert_eq!(factory, test.contract.get_factory());
 }
 
 #[test]
