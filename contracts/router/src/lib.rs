@@ -223,9 +223,24 @@ pub trait SoroswapRouterTrait {
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
     fn get_factory(e: Env) -> Address;
 
-    /// Add Liquidity to a Pool
-    /// If a pool for the passed tokens does not exists, one is created automatically,
-    /// and exactly amountADesired/amountBDesired tokens are added.
+    /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
+    /// of both tokens are added, subject to minimum requirements.
+    ///
+    /// This function is responsible for transferring tokens from the user to the pool and minting liquidity tokens in return.
+    ///
+    /// # Arguments
+    /// * `e` - The contract environment (`Env`) in which the contract is executing.
+    /// * `token_a` - The address of the first token to add liquidity for.
+    /// * `token_b` - The address of the second token to add liquidity for.
+    /// * `amount_a_desired` - The desired amount of the first token to add.
+    /// * `amount_b_desired` - The desired amount of the second token to add.
+    /// * `amount_a_min` - The minimum required amount of the first token to add.
+    /// * `amount_b_min` - The minimum required amount of the second token to add.
+    /// * `to` - The address where the liquidity tokens will be minted and sent.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A tuple containing the actual amounts of token A and B added to the pool, as well as the amount of liquidity tokens minted.
     fn add_liquidity(
         e: Env,
         token_a: Address,
