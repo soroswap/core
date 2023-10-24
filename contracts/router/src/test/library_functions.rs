@@ -136,13 +136,13 @@ fn test_get_amounts_out_invalid_path() {
     test.contract.router_get_amounts_out(&2, &path);
 }
 
-// #[test]
-// #[should_panic(expected = "SoroswapRouter: not yet initialized")]
-// fn test_get_amounts_out_not_yet_initialized() {
-//     let test = SoroswapRouterTest::setup();   
-//     let path = vec![&test.env, test.token_0.address, test.token_1.address];
-//     test.contract.router_get_amounts_out(&2, &path);
-// }
+#[test]
+#[should_panic(expected = "SoroswapRouter: not yet initialized")]
+fn test_get_amounts_out_not_yet_initialized() {
+    let test = SoroswapRouterTest::setup();   
+    let path = vec![&test.env, test.token_0.address, test.token_1.address];
+    test.contract.router_get_amounts_out(&2, &path);
+}
 
 #[test]
 fn test_get_amounts_out() {
