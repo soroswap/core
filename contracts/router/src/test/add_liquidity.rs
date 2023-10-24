@@ -198,7 +198,7 @@ fn test_add_liquidity() {
 // Pub function that will be used in other tests:
 
 
-pub fn add_liquidity(test: &SoroswapRouterTest){
+pub fn add_liquidity(test: &SoroswapRouterTest, amount_0: &i128, amount_1: &i128){
     let ledger_timestamp = 100;
     let desired_deadline = 1000;
     assert!(desired_deadline > ledger_timestamp);
@@ -206,8 +206,6 @@ pub fn add_liquidity(test: &SoroswapRouterTest){
         li.timestamp = ledger_timestamp;
     });
 
-    let amount_0: i128 = 1_000_000_000_000_000_000;
-    let amount_1: i128 = 4_000_000_000_000_000_000;
 
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,

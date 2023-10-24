@@ -132,7 +132,11 @@ fn test_remove_liquidity_pair_does_not_exist() {
 fn test_remove_liquidity() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    add_liquidity(&test);
+    
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
 
     let ledger_timestamp = 200;
     let desired_deadline = 1000;
