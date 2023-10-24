@@ -16,6 +16,8 @@
     ) -> Vec<i128>;
 */
 use crate::test::{SoroswapRouterTest, SoroswapPairClient};
+use crate::test::add_liquidity::add_liquidity;
+
 
 use soroban_sdk::{
     Address,
@@ -122,15 +124,29 @@ fn test_get_amount_in_insufficient_liquidity_1() {
     test.contract.router_get_amount_in(&1, &100, &0);
 }
 
+// router_get_amounts_out
+
+#[test]
+fn test_get_amounts_out() {
+    let test = SoroswapRouterTest::setup();
+    
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+
+    test.contract.initialize(&test.factory.address);
+
+    let amount_0: i128 = 10_000;
+    let amount_1: i128 = 10_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let path = vec![&test.env, test.token_0.address, test.token_1.address];
+    assert_eq!(test.contract.router_get_amounts_out(&2, &path), vec![&test.env,2, 1]);
+}
 
 
 
 
 
 
-
-
-
-    // Correct router.getAmountsOut after adding liquidity
-    // let path = vec![&test.env, test.token_0.address, test.token_1.address];
-    // assert_eq!(test.contract.router_get_amounts_out(&2, &path), vec![&test.env,2, 1]);
+    
