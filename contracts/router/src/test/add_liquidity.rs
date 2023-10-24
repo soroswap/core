@@ -111,7 +111,7 @@ fn test_add_liquidity_deadline_expired() {
 }
 
 #[test]
-fn test_add_liquidity_create_pair_get_amounts_out() {
+fn test_add_liquidity() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
     
@@ -124,44 +124,72 @@ fn test_add_liquidity_create_pair_get_amounts_out() {
         li.timestamp = ledger_timestamp;
     });
 
-    let reserve_0 = 10000;
-    let reserve_1 = 10000;
+    let initial_user_balance = 10_000_000_000_000_000_000;
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+    let expected_liquidity: i128 = 2_000_000_000_000_000_000;
+
+    // Check initial user value of every token:
+    assert_eq!(test.token_0.balance(&test.user), initial_user_balance);
+    assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
 
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
-        &reserve_0, //     amount_a_desired: i128,
-        &reserve_1, //     amount_b_desired: i128,
+        &amount_0, //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
         &0, //     amount_a_min: i128,
         &0 , //     amount_b_min: i128,
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
 
+    // TODO: Test events:
+
     // We test that the pair now exist
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), true);
 
     // We test that the pair was created succesfully
-    let pair_address_one_way = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+    let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
     let pair_address_other_way = test.factory.get_pair(&test.token_1.address, &test.token_0.address);
-    assert_eq!(pair_address_one_way, pair_address_other_way);
+    assert_eq!(pair_address, pair_address_other_way);
     
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
-    assert_eq!(test.factory.all_pairs(&0), pair_address_one_way); 
+    assert_eq!(test.factory.all_pairs(&0), pair_address); 
     assert_eq!(test.factory.all_pairs_length(), 1);
     
-    let pair_client = SoroswapPairClient::new(&test.env, &pair_address_one_way);
+    let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
     assert_eq!(pair_client.factory(), test.factory.address);
     assert_eq!(pair_client.token_0(), test.token_0.address);
     assert_eq!(pair_client.token_1(), test.token_1.address);
-    
-    // Correct initial reserves
-    assert_eq!(pair_client.get_reserves(), (reserve_0, reserve_1,ledger_timestamp));
-    
-    // Correct router.getAmountsOut after adding liquidity
-    let path = vec![&test.env, test.token_0.address, test.token_1.address];
-    assert_eq!(test.contract.router_get_amounts_out(&2, &path), vec![&test.env,2, 1]);
 
+    // Check new balances:
+    assert_eq!(test.token_0.balance(&test.user), initial_user_balance.checked_sub(amount_0).unwrap());
+    assert_eq!(test.token_1.balance(&test.user), initial_user_balance.checked_sub(amount_1).unwrap());
+    assert_eq!(test.token_0.balance(&pair_address), amount_0);
+    assert_eq!(test.token_1.balance(&pair_address), amount_1);
+   
+    // Check initial reserves
+    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1,ledger_timestamp));
+
+    // Check initial total_shares
+    assert_eq!(pair_client.total_shares(), expected_liquidity);
+
+    // Check user LP balance
+    static MINIMUM_LIQUIDITY: i128 = 1000;
+    assert_eq!(pair_client.balance(&test.user), expected_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap());
+
+    // We can provide liquidity again and should not panic
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &amount_0, //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
 }

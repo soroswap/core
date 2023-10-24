@@ -77,8 +77,8 @@ impl<'a> SoroswapRouterTest<'a> {
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             std::mem::swap(&mut token_0, &mut token_1);
         }
-        token_0.mint(&user, &10000);
-        token_1.mint(&user, &10000);
+        token_0.mint(&user, &10_000_000_000_000_000_000);
+        token_1.mint(&user, &10_000_000_000_000_000_000);
 
         let factory = create_soroswap_factory_contract(&env, &admin);
 
