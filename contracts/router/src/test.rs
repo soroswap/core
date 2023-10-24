@@ -51,7 +51,7 @@ fn create_soroswap_router_contract<'a>(e: &Env) -> SoroswapRouterClient<'a> {
 
 // SoroswapRouter TEST
 
-struct SoroswapRouterTest<'a> {
+pub struct SoroswapRouterTest<'a> {
     env: Env,
     contract: SoroswapRouterClient<'a>,
     token_0: TokenClient<'a>,

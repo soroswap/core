@@ -1,4 +1,5 @@
 use crate::test::{SoroswapRouterTest, SoroswapPairClient};
+use crate::test::add_liquidity::add_liquidity;
 
 use soroban_sdk::{
     Address,
@@ -120,29 +121,6 @@ fn test_remove_liquidity_pair_does_not_exist() {
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &0, //     liquidity: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &desired_deadline//     deadline: u64,
-    );
-}
-
-fn add_liquidity(test: &SoroswapRouterTest){
-    let ledger_timestamp = 100;
-    let desired_deadline = 1000;
-    assert!(desired_deadline > ledger_timestamp);
-    test.env.ledger().with_mut(|li| {
-        li.timestamp = ledger_timestamp;
-    });
-
-    let amount_0: i128 = 1_000_000_000_000_000_000;
-    let amount_1: i128 = 4_000_000_000_000_000_000;
-
-    test.contract.add_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &amount_0, //     amount_a_desired: i128,
-        &amount_1, //     amount_b_desired: i128,
         &0, //     amount_a_min: i128,
         &0 , //     amount_b_min: i128,
         &test.user, //     to: Address,
