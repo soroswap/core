@@ -48,7 +48,7 @@ fn test_add_liquidity_not_authorized() {
             invoke: &MockAuthInvoke {
                 contract: &test.contract.address,
                 fn_name: "add_liquidity",
-                args: vec![
+                args: vec![&
                     &test.env,
                     test.token_0.address.into_val(&test.env), //     token_a: Address,
                     test.token_1.address.into_val(&test.env), //     token_b: Address,
@@ -111,7 +111,7 @@ fn test_add_liquidity_deadline_expired() {
 }
 
 #[test]
-fn test_add_liquidity_non_existing_pair() {
+fn test_add_liquidity_create_pair_get_amounts_out() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
     
@@ -142,13 +142,27 @@ fn test_add_liquidity_non_existing_pair() {
     // We test that the pair now exist
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), true);
 
-    // We test that the total amount of reserves is correct
-    let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
-    let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
-    // assert_eq!(pair_client.get_reserves(), (reserve_0, reserve_1,ledger_timestamp));
-
-    // pair_client.get_reserves();
-
+    // We test that the pair was created succesfully
+    let pair_address_one_way = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+    let pair_address_other_way = test.factory.get_pair(&test.token_1.address, &test.token_0.address);
+    assert_eq!(pair_address_one_way, pair_address_other_way);
+    
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+    assert_eq!(test.factory.all_pairs(&0), pair_address_one_way); 
+    assert_eq!(test.factory.all_pairs_length(), 1);
+    
+    let pair_client = SoroswapPairClient::new(&test.env, &pair_address_one_way);
+    assert_eq!(pair_client.factory(), test.factory.address);
+    assert_eq!(pair_client.token_0(), test.token_0.address);
+    assert_eq!(pair_client.token_1(), test.token_1.address);
+    
+    // Correct initial reserves
+    assert_eq!(pair_client.get_reserves(), (reserve_0, reserve_1,ledger_timestamp));
+    
+    // Correct router.getAmountsOut after adding liquidity
+    let path = vec![&test.env, test.token_0.address, test.token_1.address];
+    assert_eq!(test.contract.router_get_amounts_out(&2, &path), vec![&test.env,2, 1]);
 
 
 
