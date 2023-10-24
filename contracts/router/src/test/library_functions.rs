@@ -126,6 +126,24 @@ fn test_get_amount_in_insufficient_liquidity_1() {
 
 // router_get_amounts_out
 
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: invalid path")]
+fn test_get_amounts_out_invalid_path() {
+    let test = SoroswapRouterTest::setup();   
+    test.contract.initialize(&test.factory.address); 
+    let path =  vec![&test.env, test.token_0.address];
+    test.contract.router_get_amounts_out(&2, &path);
+}
+
+// #[test]
+// #[should_panic(expected = "SoroswapRouter: not yet initialized")]
+// fn test_get_amounts_out_not_yet_initialized() {
+//     let test = SoroswapRouterTest::setup();   
+//     let path = vec![&test.env, test.token_0.address, test.token_1.address];
+//     test.contract.router_get_amounts_out(&2, &path);
+// }
+
 #[test]
 fn test_get_amounts_out() {
     let test = SoroswapRouterTest::setup();
@@ -143,6 +161,7 @@ fn test_get_amounts_out() {
     let path = vec![&test.env, test.token_0.address, test.token_1.address];
     assert_eq!(test.contract.router_get_amounts_out(&2, &path), vec![&test.env,2, 1]);
 }
+
 
 
 
