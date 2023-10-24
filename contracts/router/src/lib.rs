@@ -432,6 +432,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // ensure(deadline)
         ensure_deadline(&e, deadline);
 
+        //Require that the pair exist
+        let factory_address = get_factory(&e);
+        let factory = SoroswapFactoryClient::new(&e, &factory_address);
+        assert!(factory.pair_exists(&token_a, &token_b), "SoroswapRouter: pair does not exist");
+
         // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(
             e.clone(),
