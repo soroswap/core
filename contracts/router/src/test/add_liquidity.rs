@@ -1,4 +1,4 @@
-use crate::test::SoroswapRouterTest;
+use crate::test::{SoroswapRouterTest, SoroswapPairClient};
 
 use soroban_sdk::{
     Address,
@@ -32,8 +32,7 @@ fn test_add_liquidity_not_yet_initialized() {
 #[should_panic(expected = "Unauthorized function call for address")]
 fn test_add_liquidity_not_authorized() {
     let test = SoroswapRouterTest::setup();
-    let factory = Address::random(&test.env);
-    test.contract.initialize(&factory);
+    test.contract.initialize(&test.factory.address);
     let alice = Address::random(&test.env);
     let bob = Address::random(&test.env);
     // alice is not equal to bob
@@ -80,8 +79,7 @@ fn test_add_liquidity_not_authorized() {
 #[should_panic(expected = "SoroswapRouter: expired")]
 fn test_add_liquidity_deadline_expired() {
     let test = SoroswapRouterTest::setup();
-    let factory = Address::random(&test.env);
-    test.contract.initialize(&factory);
+    test.contract.initialize(&test.factory.address);
 
     let alice = Address::random(&test.env);
     let bob = Address::random(&test.env);
@@ -112,28 +110,46 @@ fn test_add_liquidity_deadline_expired() {
     );
 }
 
-// #[test]
-// #[should_panic(expected = "SoroswapRouter: not yet initialized")]
-// fn test_add_liquidity_not_yet_initialized() {
-//     let test = SoroswapRouterTest::setup();
+#[test]
+fn test_add_liquidity_non_existing_pair() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
     
-//     let ledger_timestamp = 100;
-//     let desired_deadline = 1000;
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
 
-//     assert!(desired_deadline > ledger_timestamp);
+    assert!(desired_deadline > ledger_timestamp);
 
-//     test.env.ledger().with_mut(|li| {
-//         li.timestamp = ledger_timestamp;
-//     });
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
 
-//     test.contract.add_liquidity(
-//         &test.token_0.address, //     token_a: Address,
-//         &test.token_1.address, //     token_b: Address,
-//         &10000, //     amount_a_desired: i128,
-//         &10000, //     amount_b_desired: i128,
-//         &0, //     amount_a_min: i128,
-//         &0 , //     amount_b_min: i128,
-//         &test.user, //     to: Address,
-//         &desired_deadline//     deadline: u64,
-//     );
-// }
+    let reserve_0 = 10000;
+    let reserve_1 = 10000;
+
+    assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &reserve_0, //     amount_a_desired: i128,
+        &reserve_1, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+
+    // We test that the pair now exist
+    assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), true);
+
+    // We test that the total amount of reserves is correct
+    let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+    let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
+    // assert_eq!(pair_client.get_reserves(), (reserve_0, reserve_1,ledger_timestamp));
+
+    // pair_client.get_reserves();
+
+
+
+
+}

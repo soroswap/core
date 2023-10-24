@@ -17,8 +17,10 @@ fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
 // Pair Contract
 mod pair {
     soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
-   // pub type SoroswapPairClient<'a> = Client<'a>;
+   pub type SoroswapPairClient<'a> = Client<'a>;
 }
+use pair::SoroswapPairClient;
+
 
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
