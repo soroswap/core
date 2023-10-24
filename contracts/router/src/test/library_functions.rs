@@ -91,6 +91,36 @@ fn test_get_amount_out_insufficient_liquidity_1() {
     test.contract.router_get_amount_out(&2, &100, &0);
 }
 
+// router_get_amount_in
+
+    
+#[test]
+fn test_get_amount_in() {
+    let test = SoroswapRouterTest::setup();
+    assert_eq!(2,test.contract.router_get_amount_in(&1, &100, &100));
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
+fn test_get_amount_in_insufficient_output_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_in(&0, &100, &100);
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_get_amount_in_insufficient_liquidity_0() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_in(&1, &0, &100);
+}
+
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_get_amount_in_insufficient_liquidity_1() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_in(&1, &100, &0);
+}
 
 
 
