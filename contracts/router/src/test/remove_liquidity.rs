@@ -81,30 +81,48 @@ fn test_remove_liquidity_deadline_expired() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
 
-    let alice = Address::random(&test.env);
-    let bob = Address::random(&test.env);
-    // alice is not equal to bob
-    assert_ne!(alice, bob);
-
     let ledger_timestamp = 100;
     let desired_deadline = 90;
-
     assert!(desired_deadline < ledger_timestamp);
-
     test.env.ledger().with_mut(|li| {
         li.timestamp = ledger_timestamp;
     });
 
-    // /*
-    //     Here we test the case when deadline has passed
-    //  */
+    // Here we test the case when deadline has passed
     test.contract.remove_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &0, //     liquidity: i128,
         &0, //     amount_a_min: i128,
         &0 , //     amount_b_min: i128,
-        &bob, //     to: Address,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: pair does not exist")]
+fn test_remove_liquidity_pair_does_not_exist() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+
+    test.contract.remove_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &0, //     liquidity: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
 }
