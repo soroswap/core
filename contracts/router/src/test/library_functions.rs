@@ -28,7 +28,7 @@ use soroban_sdk::{
     IntoVal};
 
 
-// QUOTE
+// router_quote
 
 #[test]
 fn test_quote() {
@@ -50,9 +50,6 @@ fn test_quote_insufficient_amount() {
 #[test]
 #[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
 fn test_quote_insufficient_liquidity_0() {
-    //     await expect(router.quote(bigNumberify(1), bigNumberify(0), bigNumberify(200))).to.be.revertedWith(
-    //   'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
-    // )
     let test = SoroswapRouterTest::setup();
     test.contract.router_quote(&1, &0, &200);
 }
@@ -60,12 +57,49 @@ fn test_quote_insufficient_liquidity_0() {
 #[test]
 #[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
 fn test_quote_insufficient_liquidity_1() {
-    //     await expect(router.quote(bigNumberify(1), bigNumberify(10), bigNumberify(0))).to.be.revertedWith(
-    //   'UniswapV2Library: INSUFFICIENT_LIQUIDITY'
-    // )
     let test = SoroswapRouterTest::setup();
     test.contract.router_quote(&1, &100, &0);
 }
+
+// router_get_amount_out
+
+
+#[test]
+fn test_get_amount_out() {
+    let test = SoroswapRouterTest::setup();
+    assert_eq!(1,test.contract.router_get_amount_out(&2, &100, &100));
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient input amount")]
+fn test_get_amount_out_insufficient_input_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_out(&0, &100, &100);
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_get_amount_out_insufficient_liquidity_0() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_out(&2, &0, &100);
+}
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: insufficient liquidity")]
+fn test_get_amount_out_insufficient_liquidity_1() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.router_get_amount_out(&2, &100, &0);
+}
+
+
+
+
+
+
+
+
+
+
 
     // Correct router.getAmountsOut after adding liquidity
     // let path = vec![&test.env, test.token_0.address, test.token_1.address];
