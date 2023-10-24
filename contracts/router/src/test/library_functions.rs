@@ -164,6 +164,44 @@ fn test_get_amounts_out() {
 
 
 
+// router_get_amounts_in
+
+
+#[test]
+#[should_panic(expected = "SoroswapLibrary: invalid path")]
+fn test_get_amounts_in_invalid_path() {
+    let test = SoroswapRouterTest::setup();   
+    test.contract.initialize(&test.factory.address); 
+    let path =  vec![&test.env, test.token_0.address];
+    test.contract.router_get_amounts_in(&1, &path);
+}
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: not yet initialized")]
+fn test_get_amounts_in_not_yet_initialized() {
+    let test = SoroswapRouterTest::setup();   
+    let path = vec![&test.env, test.token_0.address, test.token_1.address];
+    test.contract.router_get_amounts_in(&1, &path);
+}
+
+#[test]
+fn test_get_amounts_in() {
+    let test = SoroswapRouterTest::setup();
+    
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+
+    test.contract.initialize(&test.factory.address);
+
+    let amount_0: i128 = 10_000;
+    let amount_1: i128 = 10_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let path = vec![&test.env, test.token_0.address, test.token_1.address];
+    assert_eq!(test.contract.router_get_amounts_in(&1, &path), vec![&test.env,2, 1]);
+}
+
 
 
 
