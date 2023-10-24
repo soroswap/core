@@ -303,7 +303,6 @@ pub trait SoroswapRouterTrait {
     /// performs chained getAmountOut calculations on any number of pairs
     fn router_get_amounts_out(
         e: Env,
-        factory: Address,
         amount_in: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
@@ -311,7 +310,6 @@ pub trait SoroswapRouterTrait {
     /// performs chained getAmountIn calculations on any number of pairs
     fn router_get_amounts_in(
         e: Env,
-        factory: Address,
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
@@ -615,10 +613,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
     // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
     fn router_get_amounts_out(
         e: Env,
-        factory: Address,
         amount_in: i128,
         path: Vec<Address>,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        let factory = get_factory(&e);
         soroswap_library::get_amounts_out(e, factory, amount_in, path)
     }
 
@@ -626,10 +625,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
     // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
     fn router_get_amounts_in(
         e: Env,
-        factory: Address,
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        let factory = get_factory(&e);
         soroswap_library::get_amounts_in(e, factory, amount_out, path)
     }
 }
