@@ -99,4 +99,6 @@ impl<'a> SoroswapRouterTest<'a> {
 pub mod initialize;
 pub mod add_liquidity;
 pub mod remove_liquidity;
+pub mod library_functions;
+
 
