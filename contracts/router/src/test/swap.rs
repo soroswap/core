@@ -106,6 +106,8 @@ pub fn mock_auth_add_liquidity() {
     let router_test = SoroswapRouterTest::new();
     // router_test.router.initialize(&router_test.factory.address);
     let deadline: u64 = router_test.env.ledger().timestamp() + 120;
+    router_test.token_0.mint(&router_test.alice, &10000_i128);
+    router_test.token_1.mint(&router_test.alice, &10000_i128);
     router_test
     .router
     .mock_auths(&[MockAuth {
