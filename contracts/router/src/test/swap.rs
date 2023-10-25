@@ -3,6 +3,7 @@ use soroban_sdk::{
     Env,
     Address,
     Vec,
+    vec,
     testutils::{
         Address as _,
         MockAuth,
@@ -114,6 +115,29 @@ pub fn mock_auth_add_liquidity() {
     router_test.token_1.mint(&router_test.alice, &1001);    
     router_test
     .router
+    // .mock_auths(
+    //     &[
+    //         MockAuth {
+    //             address: &router_test.alice,
+    //             invoke: &MockAuthInvoke {
+    //                 contract: &router_test.router.address,
+    //                 fn_name: "add_liquidity",
+    //                 args: vec![
+    //                     &router_test.env,
+    //                     router_test.token_0.address.into_val(&router_test.env), //     token_a: Address,
+    //                     router_test.token_1.address.into_val(&router_test.env), //     token_b: Address,
+    //                     1001_i128.into_val(&router_test.env), //     amount_a_desired: i128,
+    //                     1001_i128.into_val(&router_test.env), //     amount_b_desired: i128,
+    //                     0_i128.into_val(&router_test.env), //     amount_a_min: i128,
+    //                     0_i128.into_val(&router_test.env), //     amount_b_min: i128,
+    //                     router_test.alice.into_val(&router_test.env), //     to: Address,
+    //                     deadline.into_val(&router_test.env) //     deadline: u64,
+    //                 ],
+    //                 sub_invokes: &[],
+    //             }
+    //         }
+    //     ]
+    // )
     .add_liquidity(
         &router_test.token_0.address, //     token_a: Address,
         &router_test.token_1.address, //     token_b: Address,
@@ -231,9 +255,37 @@ pub fn swap_exact_tokens_for_tokens() {
     assert!(l == lqdt);
     router_test
     .router
+    .mock_auths(
+        &[
+            MockAuth {
+                address: &router_test.alice,
+                invoke: &MockAuthInvoke {
+                    contract: &router_test.router.address,
+                    fn_name: "swap_exact_tokens_for_tokens",
+                    args: 
+                    // vec![
+                    //     &router_test.env,
+                    //     200_i128.into_val(&router_test.env), //     amount_in: i128,
+                    //     0_i128.into_val(&router_test.env), //     amount_out_min: i128,
+                    //     path.into_val(&router_test.env), // path: Vec<Address>,
+                    //     router_test.alice.into_val(&router_test.env), //     to: Address,
+                    //     (deadline+1000).into_val(&router_test.env) //     deadline: u64,
+                    // ],
+                    (
+                        200_i128, //     amount_in: i128,
+                        0_i128, //     amount_out_min: i128,
+                        path.clone(), // path: Vec<Address>,
+                        router_test.alice.clone(), //     to: Address,
+                        deadline + 1000, //     deadline: u64,
+                    ).into_val(&router_test.env),
+                    sub_invokes: &[],
+                }
+            }
+        ]
+    )
     // .swap_exact_tokens_for_tokens(
     //     // router_test.env, // e: Env,
-    //     &1001, // amount_in: i128,
+    //     &200, // amount_in: i128,
     //     &0, //  amount_out_min: i128,
     //     &path, // path: Vec<Address>,
     //     &router_test.alice, // to: Address,
