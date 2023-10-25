@@ -303,7 +303,6 @@ pub trait SoroswapRouterTrait {
     /// performs chained getAmountOut calculations on any number of pairs
     fn router_get_amounts_out(
         e: Env,
-        factory: Address,
         amount_in: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
@@ -311,7 +310,6 @@ pub trait SoroswapRouterTrait {
     /// performs chained getAmountIn calculations on any number of pairs
     fn router_get_amounts_in(
         e: Env,
-        factory: Address,
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
@@ -433,6 +431,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // ensure(deadline)
         ensure_deadline(&e, deadline);
+
+        //Require that the pair exist
+        let factory_address = get_factory(&e);
+        let factory = SoroswapFactoryClient::new(&e, &factory_address);
+        assert!(factory.pair_exists(&token_a, &token_b), "SoroswapRouter: pair does not exist");
 
         // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(
@@ -615,10 +618,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
     // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
     fn router_get_amounts_out(
         e: Env,
-        factory: Address,
         amount_in: i128,
         path: Vec<Address>,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        let factory = get_factory(&e);
         soroswap_library::get_amounts_out(e, factory, amount_in, path)
     }
 
@@ -626,10 +630,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
     // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
     fn router_get_amounts_in(
         e: Env,
-        factory: Address,
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128> {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        let factory = get_factory(&e);
         soroswap_library::get_amounts_in(e, factory, amount_out, path)
     }
 }
