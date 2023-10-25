@@ -224,11 +224,11 @@ pub fn swap_exact_tokens_for_tokens() {
     path.push_back(router_test.token_1.address.clone());
     assert!(a == 2002);
     assert!(b == 2003);
-    let balance_0 = router_test.token_0.balance(&router_test.factory.address);
-    let balance_1 = router_test.token_1.balance(&router_test.factory.address);
-    let lqdt: i128 = (balance_0.checked_mul(balance_1).unwrap()).sqrt();
+    let balance_0 = 2002_i128;// router_test.token_0.balance(&router_test.factory.address);
+    let balance_1 = 2003_i128;// router_test.token_1.balance(&router_test.factory.address);
+    let lqdt: i128 = (balance_0.checked_mul(balance_1).unwrap()).sqrt() - 1000;
     // TODO: Check liquidity.
-    // assert!(l == lqdt);
+    assert!(l == lqdt);
     router_test
     .router
     // .swap_exact_tokens_for_tokens(
