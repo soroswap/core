@@ -7,6 +7,7 @@ use soroban_sdk::{
         Address as _,
         MockAuth,
         MockAuthInvoke,
+        Ledger,
     },
     IntoVal
 };
@@ -105,13 +106,22 @@ pub fn deposit() {
 pub fn mock_auth_add_liquidity() {
     let router_test = SoroswapRouterTest::new();
     // router_test.router.initialize(&router_test.factory.address);
-    let deadline: u64 = router_test.env.ledger().timestamp() + 120;
-    router_test.token_0.mint(&router_test.alice, &10000_i128);
-    router_test.token_1.mint(&router_test.alice, &10000_i128);
+    router_test.env.ledger().with_mut(|li| {
+        li.timestamp = 0;
+    });
+    let deadline: u64 = router_test.env.ledger().timestamp() + 1000;
+    router_test.token_0.mint(&router_test.alice, &10_000_000_000_000_000_000);
+    router_test.token_1.mint(&router_test.alice, &10_000_000_000_000_000_000);    
+    router_test.token_0.mint(&router_test.bob, &10_000_000_000_000_000_000);
+    router_test.token_1.mint(&router_test.bob, &10_000_000_000_000_000_000);
+    assert_eq!(router_test.token_0.balance(&router_test.alice), 10_000_000_000_000_000_000);
+    assert_eq!(router_test.token_1.balance(&router_test.alice), 10_000_000_000_000_000_000);
+    assert_eq!(router_test.token_0.balance(&router_test.bob), 10_000_000_000_000_000_000);
+    assert_eq!(router_test.token_1.balance(&router_test.bob), 10_000_000_000_000_000_000);
     router_test
     .router
     .mock_auths(&[MockAuth {
-        address: &router_test.alice,
+        address: &router_test.bob,
         invoke: &MockAuthInvoke {
             contract: &router_test.router.address,
             fn_name: "add_liquidity",
@@ -123,7 +133,7 @@ pub fn mock_auth_add_liquidity() {
                 10.into_val(&router_test.env), //     amount_b_desired: i128,
                 0.into_val(&router_test.env), //     amount_a_min: i128,
                 0.into_val(&router_test.env) , //     amount_b_min: i128,
-                (&router_test.alice,).into_val(&router_test.env), //     to: Address,
+                (&router_test.bob,).into_val(&router_test.env), //     to: Address,
                 deadline.into_val(&router_test.env)//     deadline: u64,
                 ],
             sub_invokes: &[],
@@ -132,11 +142,11 @@ pub fn mock_auth_add_liquidity() {
     // .add_liquidity(
     //     &router_test.token_0.address, //     token_a: Address,
     //     &router_test.token_1.address, //     token_b: Address,
-    //     &10_i128, //     amount_a_desired: i128,
-    //     &10_i128, //     amount_b_desired: i128,
-    //     &0_i128, //     amount_a_min: i128,
-    //     &0_i128, //     amount_b_min: i128,
-    //     &router_test.alice, //     to: Address,
+    //     &10, //     amount_a_desired: i128,
+    //     &10, //     amount_b_desired: i128,
+    //     &0, //     amount_a_min: i128,
+    //     &0, //     amount_b_min: i128,
+    //     &router_test.bob, //     to: Address,
     //     &deadline//     deadline: u64,
     // )
     ;
@@ -150,12 +160,12 @@ pub fn mock_auth_add_liquidity_new_token() {
     let deadline: u64 = router_test.env.ledger().timestamp() + 120;
     let mut token_2 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
     let mut token_3 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
-    token_2.mint(&router_test.bob, &10000);
-    token_3.mint(&router_test.bob, &10000);
+    token_2.mint(&router_test.bob, &10_000_000_000_000_000_000);
+    token_3.mint(&router_test.bob, &10_000_000_000_000_000_000);
     router_test
     .router
     .mock_auths(&[MockAuth {
-        address: &router_test.bob,
+        address: &router_test.alice,
         invoke: &MockAuthInvoke {
             contract: &router_test.router.address,
             fn_name: "add_liquidity",
@@ -167,7 +177,7 @@ pub fn mock_auth_add_liquidity_new_token() {
                 10.into_val(&router_test.env), //     amount_b_desired: i128,
                 0.into_val(&router_test.env), //     amount_a_min: i128,
                 0.into_val(&router_test.env) , //     amount_b_min: i128,
-                (&router_test.bob,).into_val(&router_test.env), //     to: Address,
+                (&router_test.alice,).into_val(&router_test.env), //     to: Address,
                 deadline.into_val(&router_test.env)//     deadline: u64,
                 ],
             sub_invokes: &[],
@@ -180,7 +190,7 @@ pub fn mock_auth_add_liquidity_new_token() {
     //     &10, //     amount_b_desired: i128,
     //     &0, //     amount_a_min: i128,
     //     &0, //     amount_b_min: i128,
-    //     &router_test.bob, //     to: Address,
+    //     &router_test.alice, //     to: Address,
     //     &deadline//     deadline: u64,
     // )
     ;
