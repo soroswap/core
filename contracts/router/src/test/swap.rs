@@ -149,6 +149,30 @@ pub fn mock_auth_add_liquidity_without_balance() {
     );
 }
 
+#[test]
+#[should_panic]
+pub fn mock_auth_add_liquidity_lt_minimum() {
+    let router_test = SoroswapRouterTest::new();
+    router_test.env.ledger().with_mut(|li| {
+        li.timestamp = 0;
+    });
+    let deadline: u64 = router_test.env.ledger().timestamp() + 1000;    
+    router_test.token_0.mint(&router_test.alice, &1001);
+    router_test.token_1.mint(&router_test.alice, &1001);  
+    router_test
+    .router
+    .add_liquidity(
+        &router_test.token_0.address, //     token_a: Address,
+        &router_test.token_1.address, //     token_b: Address,
+        &1000_i128, //     amount_a_desired: i128,
+        &1000_i128, //     amount_b_desired: i128,
+        &0_i128, //     amount_a_min: i128,
+        &0_i128, //     amount_b_min: i128,
+        &router_test.alice, //     to: Address,
+        &deadline//     deadline: u64,
+    );
+}
+
 // #[test]
 pub fn mock_auth_add_liquidity_new_token() {
     let router_test = SoroswapRouterTest::new();
