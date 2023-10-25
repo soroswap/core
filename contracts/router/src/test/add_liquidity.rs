@@ -26,6 +26,25 @@ fn test_add_liquidity_not_yet_initialized() {
         &0//     deadline: u64,
     );
 }
+
+// false negatives could fail for multiple reasons, not only for its initialization state.
+#[test]
+#[should_panic]
+fn test_add_liquidity_initialized_prooves_false_negative() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &10000, //     amount_a_desired: i128,
+        &10000, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &0//     deadline: u64,
+    );
+    // assert!(true);
+}
     
 
 #[test]
