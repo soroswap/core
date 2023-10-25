@@ -141,3 +141,47 @@ pub fn mock_auth_add_liquidity() {
     // )
     ;
 }
+
+#[test]
+pub fn mock_auth_add_liquidity_new_token() {
+    let router_test = SoroswapRouterTest::new();
+    // router_test.router.initialize(&router_test.factory.address);
+    // let env = router_test.env;
+    let deadline: u64 = router_test.env.ledger().timestamp() + 120;
+    let mut token_2 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
+    let mut token_3 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
+    token_2.mint(&router_test.bob, &10000);
+    token_3.mint(&router_test.bob, &10000);
+    router_test
+    .router
+    .mock_auths(&[MockAuth {
+        address: &router_test.bob,
+        invoke: &MockAuthInvoke {
+            contract: &router_test.router.address,
+            fn_name: "add_liquidity",
+            args: vec![
+                &router_test.router.env,
+                token_2.address.into_val(&router_test.env), //     token_a: Address,
+                token_3.address.into_val(&router_test.env), //     token_b: Address,
+                10.into_val(&router_test.env), //     amount_a_desired: i128,
+                10.into_val(&router_test.env), //     amount_b_desired: i128,
+                0.into_val(&router_test.env), //     amount_a_min: i128,
+                0.into_val(&router_test.env) , //     amount_b_min: i128,
+                (&router_test.bob,).into_val(&router_test.env), //     to: Address,
+                deadline.into_val(&router_test.env)//     deadline: u64,
+                ],
+            sub_invokes: &[],
+        },
+    }])
+    // .add_liquidity(
+    //     &token_2.address, //     token_a: Address,
+    //     &token_3.address, //     token_b: Address,
+    //     &10, //     amount_a_desired: i128,
+    //     &10, //     amount_b_desired: i128,
+    //     &0, //     amount_a_min: i128,
+    //     &0, //     amount_b_min: i128,
+    //     &router_test.bob, //     to: Address,
+    //     &deadline//     deadline: u64,
+    // )
+    ;
+}
