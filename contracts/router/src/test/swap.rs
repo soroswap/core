@@ -110,34 +110,34 @@ pub fn mock_auth_add_liquidity() {
     router_test.token_1.mint(&router_test.alice, &10000_i128);
     router_test
     .router
-    .mock_auths(&[MockAuth {
-        address: &router_test.alice,
-        invoke: &MockAuthInvoke {
-            contract: &router_test.router.address,
-            fn_name: "add_liquidity",
-            args: vec![
-                &router_test.router.env,
-                router_test.token_0.address.into_val(&router_test.env), //     token_a: Address,
-                router_test.token_1.address.into_val(&router_test.env), //     token_b: Address,
-                10.into_val(&router_test.env), //     amount_a_desired: i128,
-                10.into_val(&router_test.env), //     amount_b_desired: i128,
-                0.into_val(&router_test.env), //     amount_a_min: i128,
-                0.into_val(&router_test.env) , //     amount_b_min: i128,
-                (&router_test.alice,).into_val(&router_test.env), //     to: Address,
-                deadline.into_val(&router_test.env)//     deadline: u64,
-                ],
-            sub_invokes: &[],
-        },
-    }])
-    // .add_liquidity(
-    //     &router_test.token_0.address, //     token_a: Address,
-    //     &router_test.token_1.address, //     token_b: Address,
-    //     &10_i128, //     amount_a_desired: i128,
-    //     &10_i128, //     amount_b_desired: i128,
-    //     &0_i128, //     amount_a_min: i128,
-    //     &0_i128, //     amount_b_min: i128,
-    //     &router_test.alice, //     to: Address,
-    //     &deadline//     deadline: u64,
-    // )
+    // .mock_auths(&[MockAuth {
+    //     address: &router_test.alice,
+    //     invoke: &MockAuthInvoke {
+    //         contract: &router_test.router.address,
+    //         fn_name: "add_liquidity",
+    //         args: vec![
+    //             &router_test.router.env,
+    //             router_test.token_0.address.into_val(&router_test.env), //     token_a: Address,
+    //             router_test.token_1.address.into_val(&router_test.env), //     token_b: Address,
+    //             10000_i128.into_val(&router_test.env), //     amount_a_desired: i128,
+    //             10000_i128.into_val(&router_test.env), //     amount_b_desired: i128,
+    //             0.into_val(&router_test.env), //     amount_a_min: i128,
+    //             0.into_val(&router_test.env) , //     amount_b_min: i128,
+    //             (&router_test.alice,).into_val(&router_test.env), //     to: Address,
+    //             deadline.into_val(&router_test.env)//     deadline: u64,
+    //             ],
+    //         sub_invokes: &[],
+    //     },
+    // }])
+    .add_liquidity(
+        &router_test.token_0.address, //     token_a: Address,
+        &router_test.token_1.address, //     token_b: Address,
+        &1001_i128, //     amount_a_desired: i128,
+        &1001_i128, //     amount_b_desired: i128,
+        &0_i128, //     amount_a_min: i128,
+        &0_i128, //     amount_b_min: i128,
+        &router_test.alice, //     to: Address,
+        &deadline//     deadline: u64,
+    )
     ;
 }
