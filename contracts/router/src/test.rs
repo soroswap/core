@@ -1,7 +1,18 @@
 #![cfg(test)]
 extern crate std;
 use crate::{SoroswapRouter, SoroswapRouterClient};
-use soroban_sdk::{Env, BytesN, Address, testutils::Address as _};
+use soroban_sdk::{
+    Env, 
+    BytesN, 
+    Address, 
+    testutils::{
+        Address as _,
+        MockAuthInvoke,
+        MockAuth
+    },
+    vec,
+    IntoVal,
+};
 
 // Token Contract
 mod token {
@@ -17,8 +28,10 @@ fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
 // Pair Contract
 mod pair {
     soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
-   // pub type SoroswapPairClient<'a> = Client<'a>;
+   pub type SoroswapPairClient<'a> = Client<'a>;
 }
+use pair::SoroswapPairClient;
+
 
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
@@ -49,7 +62,7 @@ fn create_soroswap_router_contract<'a>(e: &Env) -> SoroswapRouterClient<'a> {
 
 // SoroswapRouter TEST
 
-struct SoroswapRouterTest<'a> {
+pub struct SoroswapRouterTest<'a> {
     env: Env,
     contract: SoroswapRouterClient<'a>,
     token_0: TokenClient<'a>,
@@ -75,8 +88,8 @@ impl<'a> SoroswapRouterTest<'a> {
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             std::mem::swap(&mut token_0, &mut token_1);
         }
-        token_0.mint(&user, &10000);
-        token_1.mint(&user, &10000);
+        token_0.mint(&user, &10_000_000_000_000_000_000);
+        token_1.mint(&user, &10_000_000_000_000_000_000);
 
         let factory = create_soroswap_factory_contract(&env, &admin);
 
@@ -96,4 +109,8 @@ impl<'a> SoroswapRouterTest<'a> {
 
 pub mod initialize;
 pub mod add_liquidity;
+pub mod swap;
+pub mod remove_liquidity;
+pub mod library_functions;
+
 
