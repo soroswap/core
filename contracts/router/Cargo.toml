@@ -1,8 +1,16 @@
 [package]
-name = "soroswap-router-contract"
+name = "soroswap-router"
 version = "0.0.1"
 edition = "2021"
-publish = false
+description = "Swap of tokens when a direct pair does not exist, by using a given paths. It will also handle liquidity provision and manage deposit and withdrawal functions for liquidity providers within the Soroswap ecosystem."
+homepage = "https://github.com/soroswap/core/tree/main/contracts/router"
+repository = "https://github.com/soroswap/core/tree/main/contracts/router"
+authors = ["esteblock <esteblock@paltalabs.io>"]
+readme = "README.md"
+keywords = ["no_std", "wasm", "soroswap", "amm", "soroban"]
+publish = true
+
+
 
 [lib]
 crate-type = ["cdylib"]
