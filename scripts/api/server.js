@@ -6,17 +6,17 @@ const port = 8010;
 const path = require('path');
 
 const isVercel = process.env.VERCEL === '1';
-const directory = isVercel ? path.join(__dirname, '../public') : '/workspace/.soroban';
+const directory = isVercel ? path.join(__dirname, '..', '..', 'public') : '/workspace/.soroban';
 
 app.use(cors());
 
+
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send(`directory: ${files}`);
 });
 
 app.get('/api/tokens', (req, res) => {
-  const tokensFile = `${directory}/tokens.json`;
-
+  const tokensFile = path.join(directory, 'tokens.json');
   if (fs.existsSync(tokensFile)) {
     return res.sendFile(tokensFile);
   }
