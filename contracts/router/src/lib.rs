@@ -490,6 +490,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> Vec<i128> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        to.require_auth();
         // returns (uint[] memory amounts)
 
         // ensure(deadline)
@@ -551,6 +552,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> Vec<i128> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        to.require_auth();
         // returns (uint[] memory amounts)
         // ensure(deadline)
         ensure_deadline(&e, deadline);
