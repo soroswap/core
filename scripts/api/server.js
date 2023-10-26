@@ -11,7 +11,7 @@ const directory = isVercel ? path.join(__dirname, '../public') : '/workspace/.so
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send(`directory: ${directory}`);
 });
 
 app.get('/api/tokens', (req, res) => {
