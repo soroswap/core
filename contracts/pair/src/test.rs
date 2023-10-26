@@ -15,6 +15,7 @@ use crate::{SoroswapPairClient};
 // TESTS MODS (in ./test/ folder)
 mod operations;
 mod decode;
+mod deposit;
 
 
 // TOKEN CONTRACT
@@ -69,7 +70,7 @@ const PAIR: Symbol = symbol_short!("PAIR");
 
 
 // THE TEST
-struct SoroswapPairTest<'a> {
+pub struct SoroswapPairTest<'a> {
     env: Env,
     admin: Address,
     user: Address,
