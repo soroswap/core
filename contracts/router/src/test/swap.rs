@@ -286,6 +286,89 @@ pub fn swap_exact_tokens_for_tokens() {
     ;
 }
 
+
+
+#[test]
+pub fn swap_exact_tokens_for_tokens_two_agents() {
+    let router_test = SoroswapRouterTest::new();
+    router_test.env.ledger().with_mut(|li| {
+        li.timestamp = 0;
+    });
+    let deadline: u64 = router_test.env.ledger().timestamp() + 1000;
+    router_test.token_0.mint(&router_test.alice, &10_000);
+    router_test.token_1.mint(&router_test.alice, &10_000);
+    router_test.token_0.mint(&router_test.bob, &10_000);
+    router_test.token_1.mint(&router_test.bob, &10_000);
+    let (a_a,b_a,l_a) = router_test
+    .router
+    .add_liquidity(
+        &router_test.token_0.address, //     token_a: Address,
+        &router_test.token_1.address, //     token_b: Address,
+        &2002_i128, //     amount_a_desired: i128,
+        &2003_i128, //     amount_b_desired: i128,
+        &0_i128, //     amount_a_min: i128,
+        &0_i128, //     amount_b_min: i128,
+        &router_test.alice, //     to: Address,
+        &deadline//     deadline: u64,
+    );
+    // let (a_b,b_b,l_b) = router_test
+    // .router
+    // .add_liquidity(
+    //     &router_test.token_0.address, //     token_a: Address,
+    //     &router_test.token_1.address, //     token_b: Address,
+    //     &2002_i128, //     amount_a_desired: i128,
+    //     &2003_i128, //     amount_b_desired: i128,
+    //     &0_i128, //     amount_a_min: i128,
+    //     &0_i128, //     amount_b_min: i128,
+    //     &router_test.bob, //     to: Address,
+    //     &deadline//     deadline: u64,
+    // );
+    let mut path: Vec<Address> = Vec::new(&router_test.env);
+    path.push_back(router_test.token_0.address.clone());
+    path.push_back(router_test.token_1.address.clone());
+    assert!(a_a == 2002);
+    assert!(b_a == 2003);
+    // assert!(a_b == 2002);
+    // assert!(b_b == 2003);
+    let balance_0 = 2002_i128;// router_test.token_0.balance(&router_test.factory.address);
+    let balance_1 = 2003_i128;// router_test.token_1.balance(&router_test.factory.address);
+    let lqdt: i128 = (balance_0.checked_mul(balance_1).unwrap()).sqrt() - 1000;
+    // TODO: Check liquidity.
+    assert!(l_a == lqdt);
+    // assert!(l_b == lqdt);
+    // router_test
+    // .router
+    // .mock_auths(
+    //     &[
+    //         MockAuth {
+    //             address: &router_test.alice,
+    //             invoke: &MockAuthInvoke {
+    //                 contract: &router_test.router.address,
+    //                 fn_name: "swap_exact_tokens_for_tokens",
+    //                 args: 
+    //                 (
+    //                     200_i128, //     amount_in: i128,
+    //                     0_i128, //     amount_out_min: i128,
+    //                     path.clone(), // path: Vec<Address>,
+    //                     router_test.alice.clone(), //     to: Address,
+    //                     deadline + 1000, //     deadline: u64,
+    //                 ).into_val(&router_test.env),
+    //                 sub_invokes: &[],
+    //             }
+    //         }
+    //     ]
+    // )
+    // .swap_exact_tokens_for_tokens(
+    //     // router_test.env, // e: Env,
+    //     &200, // amount_in: i128,
+    //     &0, //  amount_out_min: i128,
+    //     &path, // path: Vec<Address>,
+    //     &router_test.alice, // to: Address,
+    //     &(deadline + 1000)// deadline: u64,
+    // )
+    ;
+}
+
 // #[test]
 pub fn mock_auth_add_liquidity_new_token() {
     let router_test = SoroswapRouterTest::new();
