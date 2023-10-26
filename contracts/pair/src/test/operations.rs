@@ -7,6 +7,10 @@ mod token {
 mod pair {
     soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
 }
+mod factory {
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    pub type SoroswapFactoryClient<'a> = Client<'a>; 
+}
 
 use soroban_sdk::testutils::Address as _;
 use crate::{
@@ -14,6 +18,10 @@ use crate::{
     SoroswapPairClient,
 };
 use token::TokenClient;
+use factory::{
+    SoroswapFactoryClient,
+    WASM as FACTORY_WASM,
+};
 
 
 #[contracttype]
@@ -84,14 +92,26 @@ fn pair_initialization() {
     let env: Env = Default::default();
     env.mock_all_auths();
     let alice = Address::random(&env);
-    let mut token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let pair = Pair::new(token_0.address, token_1.address);
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
     let salt = pair.salt(&env);
-    let pair_address = pair.create_contract(&env, pair_hash);
-    let new = SoroswapPairClient::new(&env, &pair_address);
-    // let new = Pair::create_contract(env, pair:WASM);
+    let pair_address = pair.create_contract(&env, pair_hash.clone());
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let factory = SoroswapFactoryClient::new(&env, &factory_address);
+    factory.initialize(&alice, &pair_hash);
+    factory.create_pair(&token_0.address, &token_1.address);
+    let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
+    let new = SoroswapPairClient::new(&env, &factory_pair_address);
+    // new.initialize_pair(&alice, &token_0.address, &token_1.address);
+    let factory = new.factory();
+    let tokens = if token_0.address < token_1.address {
+        (token_0.address, token_1.address)
+    } else {
+        (token_1.address, token_0.address)
+    };
+    assert_eq!(tokens, (new.token_0(), new.token_1()))
 }
 
 // #[test]
