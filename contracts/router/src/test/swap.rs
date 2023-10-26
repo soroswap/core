@@ -3,6 +3,7 @@ use soroban_sdk::{
     Env,
     Address,
     Vec,
+    vec,
     testutils::{
         Address as _,
         MockAuth,
