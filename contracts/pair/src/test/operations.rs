@@ -97,5 +97,5 @@ fn double_pair_initialization() {
     let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let new = Pair::new(token_0.address.clone(), token_1.address.clone());
     let new_inverse = Pair::new(token_1.address, token_0.address);
-    // assert_eq!(new, new_inverse);
+    assert_eq!((new.token_a(),new.token_b()), (new_inverse.token_a(),new_inverse.token_b()));
 }
