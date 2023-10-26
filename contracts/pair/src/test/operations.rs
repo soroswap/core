@@ -71,8 +71,8 @@ impl Pair {
         // Use the deployer() method of the current environment to create a new contract instance
         // let pair_hash = e.deployer().upload_contract_wasm(pair_wasm_hash);
         let pair_client = SoroswapPairClient::new(env, &env.register_contract(None, SoroswapPair {}));
-        let calculated_pair_address = env.deployer().with_address(pair_client.address.clone(), self.salt(&env).clone()).deployed_address();
-        SoroswapPairClient::new(env, &env.register_contract(None, SoroswapPair {})).address
+        env.deployer().with_address(pair_client.address.clone(), self.salt(&env).clone()).deployed_address()
+        
         // e.deployer()
         //     .with_current_contract(self.salt(&e)) // Use the salt as a unique identifier for the new contract instance
         //     .deploy(pair_hash) // Deploy the new contract instance using the given pair_wasm_hash value
@@ -89,8 +89,8 @@ fn pair_initialization() {
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let pair = Pair::new(token_0.address, token_1.address);
     let salt = pair.salt(&env);
-    let contract = pair.create_contract(&env, pair_hash);
-    // let new = SoroswapPairClient::new(&env, &contract);
+    let pair_address = pair.create_contract(&env, pair_hash);
+    let new = SoroswapPairClient::new(&env, &pair_address);
     // let new = Pair::create_contract(env, pair:WASM);
 }
 
