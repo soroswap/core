@@ -79,8 +79,23 @@ impl Pair {
 #[test]
 fn pair_initialization() {
     let env: Env = Default::default();
+    env.mock_all_auths();
     let alice = Address::random(&env);
     let mut token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let new = Pair::new(token_0.address, token_1.address);
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    // let contract = Pair::new(token_0.address, token_1.address).create_contract(&env, pair_hash);
+    // let new = SoroswapPairClient::new(&env, &contract);
+    // let new = Pair::create_contract(env, pair:WASM);
+}
+
+// #[test]
+fn double_pair_initialization() {
+    let env: Env = Default::default();
+    let alice = Address::random(&env);
+    let mut token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let new = Pair::new(token_0.address.clone(), token_1.address.clone());
+    let new_inverse = Pair::new(token_1.address, token_0.address);
+    // assert_eq!(new, new_inverse);
 }
