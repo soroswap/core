@@ -108,7 +108,7 @@ impl<'a> SoroswapPairTest<'a> {
         SoroswapPairTest {
             env,
             admin,
-            user,git pu
+            user,
             token_0,
             token_1,
             factory,
