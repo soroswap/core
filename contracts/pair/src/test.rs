@@ -94,8 +94,8 @@ impl<'a> SoroswapPairTest<'a> {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         
-        token_0.mint(&user, &10_000_000_000_000_000_000);
-        token_1.mint(&user, &10_000_000_000_000_000_000);
+        token_0.mint(&user, &123_000_000_000_000_000_000);
+        token_1.mint(&user, &321_000_000_000_000_000_000);
 
         let pair_token_wasm_binding = pair_token_wasm(&env);  
         let factory = create_factory_contract(&env, &admin, &pair_token_wasm_binding);
