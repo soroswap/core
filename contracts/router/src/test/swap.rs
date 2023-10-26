@@ -263,14 +263,6 @@ pub fn swap_exact_tokens_for_tokens() {
                     contract: &router_test.router.address,
                     fn_name: "swap_exact_tokens_for_tokens",
                     args: 
-                    // vec![
-                    //     &router_test.env,
-                    //     200_i128.into_val(&router_test.env), //     amount_in: i128,
-                    //     0_i128.into_val(&router_test.env), //     amount_out_min: i128,
-                    //     path.into_val(&router_test.env), // path: Vec<Address>,
-                    //     router_test.alice.into_val(&router_test.env), //     to: Address,
-                    //     (deadline+1000).into_val(&router_test.env) //     deadline: u64,
-                    // ],
                     (
                         200_i128, //     amount_in: i128,
                         0_i128, //     amount_out_min: i128,
