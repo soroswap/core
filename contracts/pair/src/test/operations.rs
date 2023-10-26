@@ -1,12 +1,19 @@
 use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
-mod pair {
-    // Import the Soroban Token contract from its WASM file
-    soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
-    );
-    pub type _SoroswapPairClient<'a> = Client<'a>;
+mod token {
+    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    pub type TokenClient<'a> = Client<'a>;
 }
+mod pair {
+    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
+}
+
+use soroban_sdk::testutils::Address as _;
+use crate::{
+    SoroswapPair, 
+    SoroswapPairClient,
+};
+use token::TokenClient;
 
 
 #[contracttype]
@@ -62,10 +69,18 @@ impl Pair {
         // Return the hash of the newly created contract as a Address value
 
         // Use the deployer() method of the current environment to create a new contract instance
-        let pair_hash = e.deployer().upload_contract_wasm(pair::WASM);
+        let pair_hash = e.deployer().upload_contract_wasm(pair_wasm_hash);
         e.deployer()
             .with_current_contract(self.salt(&e)) // Use the salt as a unique identifier for the new contract instance
             .deploy(pair_hash) // Deploy the new contract instance using the given pair_wasm_hash value
     }
 }
 
+#[test]
+fn pair_initialization() {
+    let env: Env = Default::default();
+    let alice = Address::random(&env);
+    let mut token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let new = Pair::new(token_0.address, token_1.address);
+}

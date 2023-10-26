@@ -2,6 +2,7 @@
 extern crate std;
 
 use crate::{SoroswapPairClient};
+mod operations;
 
 mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
