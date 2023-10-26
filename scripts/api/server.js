@@ -12,16 +12,11 @@ app.use(cors());
 
 
 app.get('/', (req, res) => {
-  const files = fs.readdirSync(directory);
-  // files.forEach((file) => {
-  //   console.log(file);
-  // });
   res.send(`directory: ${files}`);
 });
 
 app.get('/api/tokens', (req, res) => {
   const tokensFile = path.join(directory, 'tokens.json');
-  console.log("tokensFile", tokensFile)
   if (fs.existsSync(tokensFile)) {
     return res.sendFile(tokensFile);
   }
