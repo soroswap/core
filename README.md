@@ -1,4 +1,6 @@
 # Soroswap core Smart Contracts
+Make sure to compile contracts in the right order: pair, factory, library, router
+
 You'll need node, yarn and Docker installed
 
 
@@ -7,7 +9,6 @@ Check the documentation in
 - https://docs.soroswap.finance/
 
 ## TLDR;
-
 ### 0. Prerequisites
 jq, docker, docker-compose, node, yarn
 
