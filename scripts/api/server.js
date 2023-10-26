@@ -10,13 +10,18 @@ const directory = isVercel ? path.join(__dirname, '../public') : '/workspace/.so
 
 app.use(cors());
 
+
 app.get('/', (req, res) => {
-  res.send(`directory: ${directory}`);
+  const files = fs.readdirSync(directory);
+  files.forEach((file) => {
+    console.log(file);
+  });
+  res.send(`directory: ${files}`);
 });
 
 app.get('/api/tokens', (req, res) => {
-  const tokensFile = `${directory}/tokens.json`;
-
+  const tokensFile = path.join(directory, 'tokens.json');
+  console.log("tokensFile", tokensFile)
   if (fs.existsSync(tokensFile)) {
     return res.sendFile(tokensFile);
   }
