@@ -62,17 +62,20 @@ impl Pair {
             BytesN<32> value.
         */
         &self,
-        e: &Env,                     // Pass in the current environment as an argument
+        env: &Env,                     // Pass in the current environment as an argument
         pair_wasm_hash: BytesN<32>, // Pass in the hash of the token contract's WASM file
         // token_pair: &Pair,
     ) -> Address {
         // Return the hash of the newly created contract as a Address value
 
         // Use the deployer() method of the current environment to create a new contract instance
-        let pair_hash = e.deployer().upload_contract_wasm(pair_wasm_hash);
-        e.deployer()
-            .with_current_contract(self.salt(&e)) // Use the salt as a unique identifier for the new contract instance
-            .deploy(pair_hash) // Deploy the new contract instance using the given pair_wasm_hash value
+        // let pair_hash = e.deployer().upload_contract_wasm(pair_wasm_hash);
+        let pair_client = SoroswapPairClient::new(env, &env.register_contract(None, SoroswapPair {}));
+        env.deployer().with_address(pair_client.address.clone(), self.salt(&env).clone()).deployed_address()
+        
+        // e.deployer()
+        //     .with_current_contract(self.salt(&e)) // Use the salt as a unique identifier for the new contract instance
+        //     .deploy(pair_hash) // Deploy the new contract instance using the given pair_wasm_hash value
     }
 }
 
@@ -84,8 +87,10 @@ fn pair_initialization() {
     let mut token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let mut token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    // let contract = Pair::new(token_0.address, token_1.address).create_contract(&env, pair_hash);
-    // let new = SoroswapPairClient::new(&env, &contract);
+    let pair = Pair::new(token_0.address, token_1.address);
+    let salt = pair.salt(&env);
+    let pair_address = pair.create_contract(&env, pair_hash);
+    let new = SoroswapPairClient::new(&env, &pair_address);
     // let new = Pair::create_contract(env, pair:WASM);
 }
 
