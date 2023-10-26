@@ -12,7 +12,7 @@ app.use(cors());
 
 
 app.get('/', (req, res) => {
-  res.send(`directory: ${files}`);
+  res.send(`healthy`);
 });
 
 app.get('/api/tokens', (req, res) => {
