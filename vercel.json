@@ -9,6 +9,10 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "scripts/api/server.js"
     }
