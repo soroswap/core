@@ -248,6 +248,11 @@ pub fn swap_exact_tokens_for_tokens() {
     path.push_back(router_test.token_1.address.clone());
     assert!(a == 2002);
     assert!(b == 2003);
+
+    // TODO: Get rid of this hack?
+    router_test.env.budget().reset_unlimited();
+
+
     let balance_0 = 2002_i128;// router_test.token_0.balance(&router_test.factory.address);
     let balance_1 = 2003_i128;// router_test.token_1.balance(&router_test.factory.address);
     let lqdt: i128 = (balance_0.checked_mul(balance_1).unwrap()).sqrt() - 1000;
@@ -255,34 +260,34 @@ pub fn swap_exact_tokens_for_tokens() {
     assert!(l == lqdt);
     router_test
     .router
-    .mock_auths(
-        &[
-            MockAuth {
-                address: &router_test.alice,
-                invoke: &MockAuthInvoke {
-                    contract: &router_test.router.address,
-                    fn_name: "swap_exact_tokens_for_tokens",
-                    args: 
-                    (
-                        200_i128, //     amount_in: i128,
-                        0_i128, //     amount_out_min: i128,
-                        path.clone(), // path: Vec<Address>,
-                        router_test.alice.clone(), //     to: Address,
-                        deadline + 1000, //     deadline: u64,
-                    ).into_val(&router_test.env),
-                    sub_invokes: &[],
-                }
-            }
-        ]
-    )
-    // .swap_exact_tokens_for_tokens(
-    //     // router_test.env, // e: Env,
-    //     &200, // amount_in: i128,
-    //     &0, //  amount_out_min: i128,
-    //     &path, // path: Vec<Address>,
-    //     &router_test.alice, // to: Address,
-    //     &(deadline + 1000)// deadline: u64,
+    // .mock_auths(
+    //     &[
+    //         MockAuth {
+    //             address: &router_test.alice,
+    //             invoke: &MockAuthInvoke {
+    //                 contract: &router_test.router.address,
+    //                 fn_name: "swap_exact_tokens_for_tokens",
+    //                 args: 
+    //                 (
+    //                     200_i128, //     amount_in: i128,
+    //                     0_i128, //     amount_out_min: i128,
+    //                     path.clone(), // path: Vec<Address>,
+    //                     router_test.alice.clone(), //     to: Address,
+    //                     deadline + 1000, //     deadline: u64,
+    //                 ).into_val(&router_test.env),
+    //                 sub_invokes: &[],
+    //             }
+    //         }
+    //     ]
     // )
+    .swap_exact_tokens_for_tokens(
+        // router_test.env, // e: Env,
+        &200, // amount_in: i128,
+        &0, //  amount_out_min: i128,
+        &path, // path: Vec<Address>,
+        &router_test.alice, // to: Address,
+        &(deadline + 1000)// deadline: u64,
+    )
     ;
 }
 
