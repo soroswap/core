@@ -13,9 +13,9 @@ app.use(cors());
 
 app.get('/', (req, res) => {
   const files = fs.readdirSync(directory);
-  files.forEach((file) => {
-    console.log(file);
-  });
+  // files.forEach((file) => {
+  //   console.log(file);
+  // });
   res.send(`directory: ${files}`);
 });
 
