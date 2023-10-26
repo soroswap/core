@@ -3,7 +3,6 @@ use soroban_sdk::{
     Env,
     Address,
     Vec,
-    vec,
     testutils::{
         Address as _,
         MockAuth,
@@ -366,7 +365,7 @@ pub fn swap_exact_tokens_for_tokens_two_agents() {
     //     &router_test.alice, // to: Address,
     //     &(deadline + 1000)// deadline: u64,
     // )
-    ;
+    
 }
 
 // #[test]
@@ -387,7 +386,7 @@ pub fn mock_auth_add_liquidity_new_token() {
     let get_factory = router_test.router.get_factory();
     let get_factory_client = factory::SoroswapFactoryClient::new(&router_test.env, &get_factory);
     get_factory_client.create_pair(&token_2.address, &token_3.address);
-    let pair_address = get_factory_client.get_pair(&token_2.address, &token_3.address);
+    let _pair_address = get_factory_client.get_pair(&token_2.address, &token_3.address);
     token_2.mint(&router_test.alice, &1001);
     token_3.mint(&router_test.alice, &1001);
     router_test.env.ledger().with_mut(|li| {

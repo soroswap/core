@@ -7,10 +7,7 @@ use soroban_sdk::{
     Address, 
     testutils::{
         Address as _,
-        MockAuthInvoke,
-        MockAuth
     },
-    vec,
     IntoVal,
 };
 
@@ -68,7 +65,6 @@ pub struct SoroswapRouterTest<'a> {
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
-    admin: Address,
     user: Address,
 }
 
@@ -99,7 +95,6 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            admin,
             user
         }
     }

@@ -15,19 +15,12 @@
         path: Vec<Address>,
     ) -> Vec<i128>;
 */
-use crate::test::{SoroswapRouterTest, SoroswapPairClient};
+use crate::test::{SoroswapRouterTest};
 use crate::test::add_liquidity::add_liquidity;
 
 
 use soroban_sdk::{
-    Address,
-    testutils::{
-        Address as _, 
-        MockAuth,
-        MockAuthInvoke,
-        Ledger},
-    vec,
-    IntoVal};
+    vec,};
 
 
 // router_quote
