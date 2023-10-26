@@ -16,6 +16,7 @@ use crate::{SoroswapPairClient};
 mod operations;
 mod decode;
 mod deposit;
+mod swap;
 
 
 // TOKEN CONTRACT
