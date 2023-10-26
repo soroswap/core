@@ -1,6 +1,6 @@
 $MAKEFILES = $(shell find . -maxdepth 3 -type f -name Makefile)
-SUBDIRS   = $(filter-out ./,$(dir $($MAKEFILES)))
-
+# SUBDIRS   = $(filter-out ./,$(dir $($MAKEFILES)))
+SUBDIRS = pair factory
 default: build
 
 all: test

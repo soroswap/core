@@ -12,6 +12,8 @@ NETWORK="$1"
 TOKEN_ADMIN_ADDRESS="$2"
 NAME="$3"
 SYMBOL="$4"
+LOGO="$5"
+DECIMAL=7
 
 mkdir -p /workspace/.soroban
 
@@ -53,12 +55,12 @@ soroban contract invoke \
   -- \
   initialize \
   --admin "$TOKEN_ADMIN_ADDRESS" \
-  --decimal 7 \
+  --decimal $DECIMAL \
   --name "$NAME" \
   --symbol "$SYMBOL"
 
 TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
 
 # Save the token contract address and token id to a file on .soroban/temp_token.json
-echo "{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\"}" > /workspace/.soroban/temp_token.json
+echo "{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}" > /workspace/.soroban/temp_token.json
 

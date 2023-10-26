@@ -58,11 +58,12 @@ for i in $(seq 1 $N_TOKENS); do
     # Extract symbol and name values for the current index
     SYMBOL=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].symbol")
     NAME=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].name")
+    LOGO=$(echo $TOKEN_NAME_JSON | jq -r ".tokens[$i-1].logoURI")
 
     echo "Deploying token $i out of $N_TOKENS. Name: $NAME, Symbol: $SYMBOL"
 
     # Run the script that generates temp_token.json (make sure create_token.sh is an existing script)
-    bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS $NAME $SYMBOL
+    bash /workspace/scripts/create_token.sh $NETWORK $TOKEN_ADMIN_ADDRESS $NAME $SYMBOL $LOGO
 
     # Read the contents of temp_token.json
     temp_token=$(cat /workspace/.soroban/temp_token.json)

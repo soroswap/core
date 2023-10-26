@@ -1,9 +1,12 @@
 #![cfg(test)]
 extern crate std;
+
 mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
+
+pub mod deterministic;
 
 use soroban_sdk::{testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
     xdr::ToXdr,
