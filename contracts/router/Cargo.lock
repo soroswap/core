@@ -1106,7 +1106,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "soroswap-router-contract"
+name = "soroswap-router"
 version = "0.0.1"
 dependencies = [
  "num-integer",
