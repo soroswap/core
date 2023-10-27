@@ -532,13 +532,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
             path.get(0).unwrap(),
             path.get(1).unwrap(),
         );
-        transfer_from(
-            &e,
-            &path.get(0).unwrap(),
-            &to,
-            &pair,
-            &amounts.get(0).unwrap(),
-        );
+        TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         // _swap(amounts, path, to);
         swap(&e, &amounts, &path, &to);

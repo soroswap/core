@@ -85,8 +85,8 @@ echo -n "$TOKEN_0_ID" > .soroban/token_1_id
 
 echo Build the SoroswapPair and SoroswapFactory contract
 make build
-FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
-PAIR_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
+PAIR_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
 echo "--"
 echo "--"
 echo Install the Pair contract WASM

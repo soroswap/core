@@ -1,5 +1,5 @@
 [package]
-name = "soroswap-factory-contract"
+name = "soroswap-factory"
 version = "0.0.0"
 edition = "2021"
 publish = false
