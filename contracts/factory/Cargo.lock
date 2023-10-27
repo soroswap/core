@@ -1120,7 +1120,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "soroswap-factory-contract"
+name = "soroswap-factory"
 version = "0.0.0"
 dependencies = [
  "num-integer",

@@ -55,7 +55,7 @@ echo "--"
 echo "--"
 
 # Define the paths to the compiled WASM files
-ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router_contract.wasm"
+ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.wasm"
 
 # Deploy the Router contract
 echo "Deploy the router contract"
