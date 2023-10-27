@@ -36,6 +36,17 @@ impl Pair {
         }
     }
 
+    pub fn client(&self, env: &Env, client_address: Address) -> SoroswapPairClient {
+        let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+        let pair = Pair::new(self.0.clone(), self.1.clone());
+        let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+        let factory = SoroswapFactoryClient::new(&env, &factory_address);
+        factory.initialize(&client_address, &pair_hash);
+        factory.create_pair(&self.0, &self.1);
+        let factory_pair_address = factory.get_pair(&self.0, &self.1);
+        SoroswapPairClient::new(&env, &factory_pair_address)
+    }
+
     pub fn salt(&self, e: &Env) -> BytesN<32> {
         let mut salt = Bytes::new(e);
 
@@ -94,25 +105,9 @@ fn pair_initialization() {
     let alice = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
-    let salt = pair.salt(&env);
-    let pair_address = pair.create_contract(&env, pair_hash.clone());
-    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
-    let factory = SoroswapFactoryClient::new(&env, &factory_address);
-    factory.initialize(&alice, &pair_hash);
-    factory.create_pair(&token_0.address, &token_1.address);
-    let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
-    // assert_eq!(factory_pair_address, pair_address);
-    let new = SoroswapPairClient::new(&env, &factory_pair_address);
-    // new.initialize_pair(&alice, &token_0.address, &token_1.address);
-    let factory = new.factory();
-    let tokens = if token_0.address < token_1.address {
-        (token_0.address, token_1.address)
-    } else {
-        (token_1.address, token_0.address)
-    };
-    assert_eq!(tokens, (new.token_0(), new.token_1()))
+    let pair = Pair::new(token_0.address, token_1.address);
+    let new = pair.client(&env, alice);
+    assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()))
 }
 
 // #[test]
