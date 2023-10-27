@@ -26,6 +26,25 @@ fn test_add_liquidity_not_yet_initialized() {
         &0//     deadline: u64,
     );
 }
+
+// false negatives could fail for multiple reasons, not only for its initialization state.
+#[test]
+#[should_panic]
+fn test_add_liquidity_initialized_prooves_false_negative() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &10000, //     amount_a_desired: i128,
+        &10000, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &0//     deadline: u64,
+    );
+    // assert!(true);
+}
     
 
 #[test]
@@ -74,6 +93,98 @@ fn test_add_liquidity_not_authorized() {
         );
 
 }
+
+
+
+// #[test]
+// fn test_add_liquidity_authorized() {
+//     let test = SoroswapRouterTest::setup();
+//     test.contract.initialize(&test.factory.address);
+//     let ledger_timestamp = 100;
+//     let desired_deadline = 1000;
+
+//     assert!(desired_deadline > ledger_timestamp);
+
+//     test.env.ledger().with_mut(|li| {
+//         li.timestamp = ledger_timestamp;
+//     });
+
+//     let initial_user_balance = 10_000_000_000_000_000_000;
+//     let amount_0: i128 = 1_000_000_000_000_000_000;
+//     let amount_1: i128 = 4_000_000_000_000_000_000;
+//     let expected_liquidity: i128 = 2_000_000_000_000_000_000;
+
+//     // Check initial user value of every token:
+//     assert_eq!(test.token_0.balance(&test.user), initial_user_balance);
+//     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
+
+//     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+
+//     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+//     /*
+//         Here we test the add_liquidity function "to.require_auth();" requirement
+//         So if alice calls the function but sets "bob" in the "to" argument, this should fail
+
+//         The Router Contract does 3 cross-contract calls that requires auth
+//         TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a); THIS ONE REQUIRES AUTH
+//         TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b); THIS ONE REQUIRES AUTH
+//         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to); THIS ONE DOES NOT REQUIRES AUTH
+//     */
+//     test.contract
+//         .mock_auths(&[MockAuth {
+//             address: &test.user,
+//             invoke: &MockAuthInvoke {
+//                 contract: &test.contract.address,
+//                 fn_name: "add_liquidity",
+//                 args: vec![&
+//                     &test.env,
+//                     test.token_0.address.into_val(&test.env), //     token_a: Address,
+//                     test.token_1.address.into_val(&test.env), //     token_b: Address,
+//                     amount_0.into_val(&test.env), //     amount_a_desired: i128,
+//                     amount_1.into_val(&test.env), //     amount_b_desired: i128,
+//                     0.into_val(&test.env), //     amount_a_min: i128,
+//                     0.into_val(&test.env) , //     amount_b_min: i128,
+//                     (&test.user,).into_val(&test.env), //     to: Address,
+//                     desired_deadline.into_val(&test.env)//     deadline: u64,
+//                     ],
+//                 sub_invokes: &[MockAuthInvoke {
+//                     contract: &test.token_0.address,
+//                     fn_name: "transfer",
+//                     args: vec![&
+//                         &test.env,
+//                         test.user.into_val(&test.env), //     to: Address, (from)
+//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         amount_0.into_val(&test.env), //     amount_a: i128, (amount)
+//                     ],
+//                     sub_invokes: &[],
+//                 },
+//                 MockAuthInvoke {
+//                     contract: &test.token_1.address,
+//                     fn_name: "transfer",
+//                     args: vec![&
+//                         &test.env,
+//                         test.user.into_val(&test.env), //     to: Address, (from)
+//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         amount_1.into_val(&test.env), //     amount_a: i128, (amount)
+//                     ],
+//                     sub_invokes: &[],
+//                 }
+//                 ],
+//             },
+//         }])
+//         .add_liquidity(
+//             &test.token_0.address, //     token_a: Address,
+//             &test.token_1.address, //     token_b: Address,
+//             &amount_0, //     amount_a_desired: i128,
+//             &amount_1, //     amount_b_desired: i128,
+//             &0, //     amount_a_min: i128,
+//             &0 , //     amount_b_min: i128,
+//             &test.user, //     to: Address,
+//             &desired_deadline//     deadline: u64,
+//         );
+
+// }
+
 
 #[test]
 #[should_panic(expected = "SoroswapRouter: expired")]

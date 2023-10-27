@@ -527,7 +527,8 @@ impl SoroswapPairTrait for SoroswapPair {
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
         
         // require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
-        if amount_0_out <= 0 || amount_1_out <=0 { panic!("SoroswapPair: insufficient output amount") }
+        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
+        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
 
         // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -573,7 +574,8 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         //     require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
-        if amount_0_in <= 0 || amount_1_in <=0 {panic!("SoroswapPair: insufficient input amount")}
+        if amount_0_in == 0 && amount_1_in == 0 {panic!("SoroswapPair: insufficient input amount")}
+        if amount_0_in < 0 || amount_1_in < 0 { panic!("SoroswapPair: negatives dont supported") }
 
         // uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
         // uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
