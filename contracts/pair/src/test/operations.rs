@@ -36,13 +36,12 @@ impl Pair {
         }
     }
 
-    pub fn client(&self, env: &Env, pair_hash: BytesN<32>,client_address: Address) -> SoroswapPairClient {
+    pub fn client(&self, env: &Env, pair_hash: BytesN<32>, factory_address: &Address, client_address: Address) -> SoroswapPairClient {
         // let pair_hash = env
         //     .deployer()
         //     .with_address(client_address.clone(), self.salt(&env))
         //     .deployed_address();
         let pair = Pair::new(self.0.clone(), self.1.clone());
-        let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
         let factory = SoroswapFactoryClient::new(&env, &factory_address);
         factory.initialize(&client_address, &pair_hash.clone());
         factory.create_pair(&self.0, &self.1);
@@ -90,7 +89,8 @@ fn pair_initialization() {
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair = Pair::new(token_0.address, token_1.address);
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice);
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let new = pair.client(&env, pair_hash, factory_address, alice);
     assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()))
 }
 
@@ -105,7 +105,8 @@ fn mint_double_factory_initialization() {
     token_1.mint(&alice, &1001);
     let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice);
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let new = pair.client(&env, pair_hash, factory_address, alice);
     let factory_a = SoroswapFactoryClient::new(&env, &new.factory());
     let factory_b = SoroswapFactoryClient::new(&env, &new.factory());
     assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
@@ -124,7 +125,8 @@ fn pair_not_created() {
     token_1.mint(&alice, &1001);
     let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice.clone());
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let new = pair.client(&env, pair_hash, factory_address, alice.clone());
     let factory_a = SoroswapFactoryClient::new(&env, &new.factory());
     let factory_b = SoroswapFactoryClient::new(&env, &new.factory());
     let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
@@ -153,9 +155,10 @@ fn two_pairs_initialization_alice() {
     let pair_2_3 = Pair::new(token_2.address.clone(), token_3.address.clone());
     // let new_0_1 = pair_0_1.client(&env, alice.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new_0_1 = pair_0_1.client(&env, pair_hash.clone(), alice.clone());
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let new_0_1 = pair_0_1.client(&env, pair_hash.clone(), factory_address, alice.clone());
     let factory_a = SoroswapFactoryClient::new(&env, &new_0_1.factory());
-    let new_2_3 = pair_2_3.client(&env, pair_hash.clone(), alice.clone());
+    let new_2_3 = pair_2_3.client(&env, pair_hash.clone(), factory_address, alice.clone());
     // let factory_b = SoroswapFactoryClient::new(&env, &new_2_3.factory());
     // assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert!(factory_b.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
