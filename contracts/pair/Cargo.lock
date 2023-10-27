@@ -1098,7 +1098,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "soroswap-pair-contract"
+name = "soroswap-pair"
 version = "0.0.1"
 dependencies = [
  "num-integer",
