@@ -5,10 +5,10 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 mod pair {
-    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
+    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
 }
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>; 
 }
 

@@ -31,7 +31,7 @@ fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
 
 // FACTORY CONTRACT
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 use factory::SoroswapFactoryClient;
@@ -47,7 +47,7 @@ fn create_factory_contract<'a>(e: & Env, setter: & Address,pair_wasm_hash: & Byt
 
 fn pair_token_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
-        file = "./target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+        file = "./target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
     );
     e.deployer().upload_contract_wasm(WASM)
 }
