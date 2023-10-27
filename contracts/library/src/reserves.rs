@@ -4,7 +4,7 @@ use crate::tokens::{sort_tokens, pair_for};
 
 mod pair {
     soroban_sdk::contractimport!(
-        file = "./src/soroswap_pair_contract.wasm"
+        file = "./src/soroswap_pair.wasm"
     );
 }
 use pair::Client as SoroswapPairClient;

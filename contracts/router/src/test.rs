@@ -24,7 +24,7 @@ fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
 
 // Pair Contract
 mod pair {
-    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
    pub type SoroswapPairClient<'a> = Client<'a>;
 }
 use pair::SoroswapPairClient;
@@ -32,19 +32,19 @@ use pair::SoroswapPairClient;
 
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
     );
     e.deployer().upload_contract_wasm(WASM)
 }
 
 // SoroswapFactory Contract
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 use factory::SoroswapFactoryClient;
 
-fn create_soroswap_factory_contract<'a>(e: & Env, setter: & Address) -> SoroswapFactoryClient<'a> {
+fn create_soroswap_factory<'a>(e: & Env, setter: & Address) -> SoroswapFactoryClient<'a> {
     let pair_hash = pair_contract_wasm(&e);  
     let factory_address = &e.register_contract_wasm(None, factory::WASM);
     let factory = SoroswapFactoryClient::new(e, factory_address); 
@@ -53,7 +53,7 @@ fn create_soroswap_factory_contract<'a>(e: & Env, setter: & Address) -> Soroswap
 }
 
 // SoroswapRouter Contract
-fn create_soroswap_router_contract<'a>(e: &Env) -> SoroswapRouterClient<'a> {
+fn create_soroswap_router<'a>(e: &Env) -> SoroswapRouterClient<'a> {
     SoroswapRouterClient::new(e, &e.register_contract(None, SoroswapRouter {}))
 }
 
@@ -73,7 +73,7 @@ impl<'a> SoroswapRouterTest<'a> {
 
         let env = Env::default();
         env.mock_all_auths();
-        let contract = create_soroswap_router_contract(&env);
+        let contract = create_soroswap_router(&env);
 
         let admin = Address::random(&env);
         let user = Address::random(&env);
@@ -87,7 +87,7 @@ impl<'a> SoroswapRouterTest<'a> {
         token_0.mint(&user, &10_000_000_000_000_000_000);
         token_1.mint(&user, &10_000_000_000_000_000_000);
 
-        let factory = create_soroswap_factory_contract(&env, &admin);
+        let factory = create_soroswap_factory(&env, &admin);
 
         SoroswapRouterTest {
             env,
