@@ -33,9 +33,9 @@ fn deposit_basic() {
 
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);
-    let amount_0: i128 = 1_000_000_000_000_000_000;
-    let amount_1: i128 = 4_000_000_000_000_000_000;
-    let expected_liquidity: i128 = 2_000_000_000_000_000_000;
+    let amount_0: i128 = 1_000_000;
+    let amount_1: i128 = 4_000_000;
+    let expected_liquidity: i128 = 2_000_000;
     let minimum_liquidity: i128 = 1_000;
 
 
