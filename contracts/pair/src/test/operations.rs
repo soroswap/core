@@ -151,11 +151,11 @@ fn two_pairs_initialization_alice() {
     token_3.mint(&alice, &1001);
     let pair_0_1 = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_2_3 = Pair::new(token_2.address.clone(), token_3.address.clone());
-    // let new_0_1 = pair_0_1.client(&env, alice.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let new_0_1 = pair_0_1.client(&env, pair_hash.clone(), alice.clone());
     let factory_a = SoroswapFactoryClient::new(&env, &new_0_1.factory());
     let new_2_3 = pair_2_3.client(&env, pair_hash.clone(), alice.clone());
+    assert_ne!(new_0_1.address, new_2_3.address);
     // let factory_b = SoroswapFactoryClient::new(&env, &new_2_3.factory());
     // assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert!(factory_b.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
