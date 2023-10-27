@@ -1,4 +1,16 @@
-use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
+use soroban_sdk::{
+    contracttype, 
+    xdr::ToXdr, 
+    Address, 
+    Bytes, 
+    BytesN, 
+    Env, 
+    IntoVal,
+    testutils::{
+        MockAuth,
+        MockAuthInvoke,
+    },
+};
 
 mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
@@ -37,10 +49,6 @@ impl Pair {
     }
 
     pub fn client(&self, env: &Env, pair_hash: BytesN<32>,client_address: Address) -> SoroswapPairClient {
-        // let pair_hash = env
-        //     .deployer()
-        //     .with_address(client_address.clone(), self.salt(&env))
-        //     .deployed_address();
         let pair = Pair::new(self.0.clone(), self.1.clone());
         let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
         let factory = SoroswapFactoryClient::new(&env, &factory_address);
@@ -92,6 +100,31 @@ fn pair_initialization() {
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let new = pair.client(&env, pair_hash, alice);
     assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()))
+}
+
+#[test]
+fn pair_mock_auth_initialization() {
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let alice = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let pair = Pair::new(token_0.address, token_1.address);
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let new = pair.client(&env, pair_hash, alice.clone());
+    assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()));
+    new.mock_auths(&[ 
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &new.address,
+                    fn_name: "deposit",
+                    args: (alice.clone(),10_000).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ]);
 }
 
 #[test]
