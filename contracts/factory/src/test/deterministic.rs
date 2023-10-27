@@ -30,7 +30,7 @@ use soroban_sdk::{
 use core::mem;
 
 mod pair {
-    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm");
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
     pub type SoroswapPairClient<'a> = Client<'a>;
 }
 mod token {
@@ -38,7 +38,7 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 mod factory {
-    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm");
+    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
     pub type _SoroswapFactoryClient<'a> = Client<'a>; 
 }
 use pair::SoroswapPairClient;

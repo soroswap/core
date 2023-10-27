@@ -4,7 +4,7 @@ use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
 // Import the Soroban Token contract from its WASM file
 soroban_sdk::contractimport!(
-    file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+    file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
 );
 
 #[contracttype]
