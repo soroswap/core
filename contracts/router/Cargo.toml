@@ -1,19 +1,26 @@
 [package]
-name = "soroswap-pair-contract"
+name = "soroswap-router"
 version = "0.0.1"
 edition = "2021"
-publish = false
+description = "Swap of tokens when a direct pair does not exist, by using a given paths. It will also handle liquidity provision and manage deposit and withdrawal functions for liquidity providers within the Soroswap ecosystem."
+homepage = "https://github.com/soroswap/core/tree/main/contracts/router"
+repository = "https://github.com/soroswap/core/tree/main/contracts/router"
+authors = ["esteblock <esteblock@paltalabs.io>"]
+readme = "README.md"
+keywords = ["no_std", "wasm", "soroswap", "amm", "soroban"]
+publish = true
+
+
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 soroban-sdk = { version = "20.0.0-rc2" }
-num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
-fixed-point-math = "0.0.2"
-soroswap-library = "0.0.5"
-dummy-contract = "0.0.8"
-dummy-increment-contract = "0.0.1"
+num-integer = { version = "0.1.45", default-features = false, features = [
+  "i128",
+] }
+soroswap-library = "0.1.1"
 
 
 [dev_dependencies]
