@@ -1,7 +1,15 @@
 #![cfg(test)]
 extern crate std;
 use crate::{SoroswapRouter, SoroswapRouterClient};
-use soroban_sdk::{Env, BytesN, Address, testutils::Address as _};
+use soroban_sdk::{
+    Env, 
+    BytesN, 
+    Address, 
+    testutils::{
+        Address as _,
+    },
+    IntoVal,
+};
 
 // Token Contract
 mod token {
@@ -57,7 +65,6 @@ pub struct SoroswapRouterTest<'a> {
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
-    admin: Address,
     user: Address,
 }
 
@@ -88,7 +95,6 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            admin,
             user
         }
     }
@@ -98,6 +104,7 @@ impl<'a> SoroswapRouterTest<'a> {
 
 pub mod initialize;
 pub mod add_liquidity;
+pub mod swap;
 pub mod remove_liquidity;
 pub mod library_functions;
 
