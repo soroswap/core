@@ -54,6 +54,16 @@ app.get('/api/pairs', (req, res) => {
   res.status(404).send({ error: 'file not found' });
 });
 
+app.get('/api/router', (req, res) => {
+  const routerFile = `${directory}/router.json`;
+
+  if (fs.existsSync(routerFile)) {
+    return res.sendFile(routerFile);
+  }
+
+  res.status(404).send({ error: 'file not found' });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
