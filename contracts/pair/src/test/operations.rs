@@ -96,14 +96,26 @@ impl Pair {
 #[test]
 fn pair_initialization() {
     let env: Env = Default::default();
-    env.mock_all_auths();
     let alice = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
     let factory = SoroswapFactoryClient::new(&env, &factory_address);
-    factory.initialize(&alice.clone(), &pair_hash.clone());
+    factory
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &factory.address,
+                    fn_name: "initialize",
+                    args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .initialize(&alice.clone(), &pair_hash.clone());
     factory.create_pair(&token_0.address, &token_1.address);
     let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
     let new = SoroswapPairClient::new(&env, &factory_pair_address);
