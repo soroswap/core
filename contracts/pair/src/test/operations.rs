@@ -246,18 +246,40 @@ fn token_init_some_balance_alice() {
 }
 
 #[test]
-fn pair_init_some_balance_bob() {
+fn token_init_some_balance_bob() {
     let env: Env = Default::default();
-    env.mock_all_auths();
     let alice = Address::random(&env);
     let bob = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    token_0.mint(&bob, &1001);
-    token_1.mint(&bob, &1002);
-    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
-    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice.clone());
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (bob.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&bob, &1001);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (bob.clone(),1_002_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&bob, &1002);
     let asserted: (i128, i128) = (token_0.balance(&bob.clone()), token_1.balance(&bob.clone()));
     assert_eq!(asserted, (1001,1002));
 }
