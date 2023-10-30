@@ -137,7 +137,7 @@ fn pair_init_zero_balance_bob() {
 }
 
 #[test]
-fn pair_init_some_balance() {
+fn pair_init_some_balance_alice() {
     let env: Env = Default::default();
     env.mock_all_auths();
     let alice = Address::random(&env);
@@ -149,6 +149,23 @@ fn pair_init_some_balance() {
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let new = pair.client(&env, pair_hash, alice.clone());
     let asserted: (i128, i128) = (token_0.balance(&alice.clone()), token_1.balance(&alice.clone()));
+    assert_eq!(asserted, (1001,1002));
+}
+
+#[test]
+fn pair_init_some_balance_bob() {
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let alice = Address::random(&env);
+    let bob = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    token_0.mint(&bob, &1001);
+    token_1.mint(&bob, &1002);
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let new = pair.client(&env, pair_hash, alice.clone());
+    let asserted: (i128, i128) = (token_0.balance(&bob.clone()), token_1.balance(&bob.clone()));
     assert_eq!(asserted, (1001,1002));
 }
 
