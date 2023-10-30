@@ -108,6 +108,49 @@ fn pair_initialization() {
 }
 
 #[test]
+#[should_panic]
+fn token_mint_not_auth() {
+    let env: Env = Default::default();
+    let alice = Address::random(&env);
+    let bob = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let amount: i128 = 10_000;
+    token_0
+    .mint(&bob.clone(), &amount);
+    let bob_balance = token_0.balance(&bob.clone());
+    assert_eq!(bob_balance, amount);
+}
+
+#[test]
+fn token_mint_mock_auths() {
+    let env: Env = Default::default();
+    let alice = Address::random(&env);
+    let bob = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let amount: i128 = 10_000;
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address,
+                    fn_name: "mint",
+                    args: (bob.clone(), amount,).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&bob.clone(), &amount);
+    
+    let bob_balance = token_0.balance(&bob.clone());
+
+    assert_eq!(bob_balance, amount);
+}
+
+#[test]
 fn pair_init_zero_balance_alice() {
     let env: Env = Default::default();
     env.mock_all_auths();
