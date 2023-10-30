@@ -99,7 +99,37 @@ fn pair_initialization() {
     let pair = Pair::new(token_0.address, token_1.address);
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let new = pair.client(&env, pair_hash, alice);
-    assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()))
+    assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()));
+}
+
+#[test]
+fn pair_init_zero_balance() {
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let alice = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let new = pair.client(&env, pair_hash, alice.clone());
+    let asserted: (i128, i128) = (token_0.balance(&alice.clone()), token_1.balance(&alice.clone()));
+    assert_eq!(asserted, (0,0));
+}
+
+#[test]
+fn pair_init_some_balance() {
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let alice = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    token_0.mint(&alice, &1001);
+    token_1.mint(&alice, &1002);
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let new = pair.client(&env, pair_hash, alice.clone());
+    let asserted: (i128, i128) = (token_0.balance(&alice.clone()), token_1.balance(&alice.clone()));
+    assert_eq!(asserted, (1001,1002));
 }
 
 #[test]
@@ -116,7 +146,7 @@ fn pair_mock_auth_initialization() {
     token_0.mint(&alice, &1001);
     token_1.mint(&alice, &1001);
     token_0
-    .mock_auths(&[ 
+    .mock_auths(&[
         MockAuth {
             address: &alice.clone(),
             invoke: 
@@ -195,10 +225,10 @@ fn two_pairs_initialization_alice() {
     let token_3 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
     assert_ne!(token_2.address, token_3.address);
-    token_0.mint(&alice, &1001);
-    token_1.mint(&alice, &1001);
-    token_2.mint(&alice, &1001);
-    token_3.mint(&alice, &1001);
+    token_0.mint(&alice, &10_000);
+    token_1.mint(&alice, &10_000);
+    token_2.mint(&alice, &10_000);
+    token_3.mint(&alice, &10_000);
     let pair_0_1 = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_2_3 = Pair::new(token_2.address.clone(), token_3.address.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -210,6 +240,6 @@ fn two_pairs_initialization_alice() {
     // assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert!(factory_b.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
-    // assert!(factory_b.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
+    // assert!(!factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert_eq!(factory_a.address, factory_b.address);
 }
