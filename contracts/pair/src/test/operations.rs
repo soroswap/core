@@ -287,29 +287,71 @@ fn token_init_some_balance_bob() {
 #[test]
 fn pair_mock_auth_initialization() {
     let env: Env = Default::default();
-    env.mock_all_auths();
     let alice = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice.clone());
-    assert_eq!((pair.0.clone(), pair.1.clone()), (new.token_0(), new.token_1()));
-    token_0.mint(&alice, &1001);
-    token_1.mint(&alice, &1001);
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let factory = SoroswapFactoryClient::new(&env, &factory_address);
+    factory
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &factory.address,
+                    fn_name: "initialize",
+                    args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .initialize(&alice.clone(), &pair_hash.clone());
+    factory.create_pair(&token_0.address, &token_1.address);
+    let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
+    let new = SoroswapPairClient::new(&env, &factory_pair_address);
     token_0
     .mock_auths(&[
         MockAuth {
             address: &alice.clone(),
             invoke: 
                 &MockAuthInvoke {
-                    contract: &new.address,
-                    fn_name: "transfer",
-                    args: (alice.clone(),&new.address,1_000_i128).into_val(&env),
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),&new.address,1_001_i128).into_val(&env),
                     sub_invokes: &[],
                 },
         }
     ])
+    // .mint(&alice, &1001)
+    ;
+    // token_1
+    // .mock_auths(&[
+    //     MockAuth {
+    //         address: &alice.clone(),
+    //         invoke: 
+    //             &MockAuthInvoke {
+    //                 contract: &token_1.address.clone(),
+    //                 fn_name: "mint",
+    //                 args: (alice.clone(),&new.address,1_002_i128).into_val(&env),
+    //                 sub_invokes: &[],
+    //             },
+    //     }
+    // ])
+    // .mint(&alice, &1002);
+    // token_0
+    // .mock_auths(&[
+    //     MockAuth {
+    //         address: &alice.clone(),
+    //         invoke: 
+    //             &MockAuthInvoke {
+    //                 contract: &new.address,
+    //                 fn_name: "transfer",
+    //                 args: (alice.clone(),&new.address,1_000_i128).into_val(&env),
+    //                 sub_invokes: &[],
+    //             },
+    //     }
+    // ])
     // .mock_auths(&[ 
     //     MockAuth {
     //         address: &alice.clone(),
@@ -329,15 +371,57 @@ fn pair_mock_auth_initialization() {
 #[test]
 fn mint_double_factory_initialization() {
     let env: Env = Default::default();
-    env.mock_all_auths();
     let alice = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    token_0.mint(&alice, &1001);
-    token_1.mint(&alice, &1001);
-    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let new = pair.client(&env, pair_hash, alice);
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let factory = SoroswapFactoryClient::new(&env, &factory_address);
+    factory
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &factory.address,
+                    fn_name: "initialize",
+                    args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .initialize(&alice.clone(), &pair_hash.clone());
+    factory.create_pair(&token_0.address, &token_1.address);
+    let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
+    let new = SoroswapPairClient::new(&env, &factory_pair_address);
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice.clone(), &1001);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &1001);
     let factory_a = SoroswapFactoryClient::new(&env, &new.factory());
     let factory_b = SoroswapFactoryClient::new(&env, &new.factory());
     assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
