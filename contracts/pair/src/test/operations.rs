@@ -89,6 +89,11 @@ impl Pair {
     }
 }
 
+// As a general rule we will refer to alice as the deployer of contracts, bob and charlie are secondary 
+// token identifiers that could or not sign contract deployements, depending on the functionality being 
+// tested. The rule is alice is the main identifier token generated from the cryptographic
+// methods of the library, in this case using the random generator provided.
+
 #[test]
 fn pair_initialization() {
     let env: Env = Default::default();
@@ -103,7 +108,7 @@ fn pair_initialization() {
 }
 
 #[test]
-fn pair_init_zero_balance() {
+fn pair_init_zero_balance_alice() {
     let env: Env = Default::default();
     env.mock_all_auths();
     let alice = Address::random(&env);
@@ -113,6 +118,21 @@ fn pair_init_zero_balance() {
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let new = pair.client(&env, pair_hash, alice.clone());
     let asserted: (i128, i128) = (token_0.balance(&alice.clone()), token_1.balance(&alice.clone()));
+    assert_eq!(asserted, (0,0));
+}
+
+#[test]
+fn pair_init_zero_balance_bob() {
+    let env: Env = Default::default();
+    env.mock_all_auths();
+    let alice = Address::random(&env);
+    let bob = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let new = pair.client(&env, pair_hash, alice.clone());
+    let asserted: (i128, i128) = (token_0.balance(&bob.clone()), token_1.balance(&bob.clone()));
     assert_eq!(asserted, (0,0));
 }
 
