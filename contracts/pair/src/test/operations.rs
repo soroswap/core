@@ -350,7 +350,11 @@ fn pair_mock_auth_initialization() {
     .transfer(&alice.clone(), &new.address.clone(), &1002);
 
     let x = token_0.balance(&alice.clone());
-    assert!(x == 1001);
+    assert_eq!(x, 1001);
+
+    let y = token_1.balance(&alice.clone());
+    assert!(y == 0);
+    // assert_eq!(y, 1002);
 
     let l = new.deposit(&alice.clone());
     // assert_eq!(new.balance().checked_mul());
