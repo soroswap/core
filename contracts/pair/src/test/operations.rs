@@ -491,7 +491,7 @@ fn factory_is_unique_and_pair_not_created() {
     assert_eq!(factory_a.address, factory_b.address);
 }
 
-// #[test]
+#[test]
 fn two_pairs_initialization_alice() {
     let env: Env = Default::default();
     let alice = Address::random(&env);
@@ -574,31 +574,13 @@ fn two_pairs_initialization_alice() {
         }
     ])
     .initialize(&alice.clone(), &pair_hash.clone());
-    // factory.create_pair(&token_0.address, &token_1.address);
     
-    let factory_pair_address_0_1 = factory
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &factory.address,
-    //                 fn_name: "create_pair",
-    //                 args: (token_0.address.clone(), token_1.address.clone(),).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    .create_pair(&token_0.address.clone(), &token_1.address.clone());
-    // let factory_pair_address_2_3 = factory.create_pair(&token_2.address, &token_3.address);
-    let factory_pair_address = factory.get_pair(&token_0.address.clone(), &token_1.address.clone());
-    let factory_a = SoroswapFactoryClient::new(&env, &factory_pair_address);
-    // let factory_b = SoroswapFactoryClient::new(&env, &factory_pair_address_2_3);
-    // let new = SoroswapPairClient::new(&env, &factory_pair_address);
-    
-    assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
-    // assert!(factory_b.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
-    assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
-    assert!(!factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
-    // assert_eq!(factory_a.address, factory_b.address);
+    let factory_pair_address_0_1 = factory.create_pair(&token_0.address.clone(), &token_1.address.clone());
+    let factory_pair_address_2_3 = factory.create_pair(&token_2.address, &token_3.address);
+
+    assert!(factory.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
+    assert!(factory.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
+
+    assert_ne!(factory_pair_address_0_1, factory_pair_address_2_3);
+
 }
