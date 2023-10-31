@@ -292,62 +292,72 @@ fn pair_mock_auth_initialization() {
     factory.create_pair(&token_0.address, &token_1.address);
     let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
     let new = SoroswapPairClient::new(&env, &factory_pair_address);
-    // token_0
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &token_0.address.clone(),
-    //                 fn_name: "mint",
-    //                 args: (alice.clone(),1_001_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .mint(&alice, &1001);
-    // token_1
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &token_1.address.clone(),
-    //                 fn_name: "mint",
-    //                 args: (alice.clone(), 1_002_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .mint(&alice, &1002);
-    // token_0
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &new.address,
-    //                 fn_name: "transfer",
-    //                 args: (alice.clone(),&new.address.clone(),1_001_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .transfer(&alice.clone(), &new.address.clone(), &1001);
-    // new
-    // .mock_auths(&[ 
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &new.address,
-    //                 fn_name: "deposit",
-    //                 args: (alice.clone(),).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .deposit(&alice.clone());
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),2_002_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &2002);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(), 1_002_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &1002);
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "transfer",
+                    args: (alice.clone(),&new.address.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&alice.clone(), &new.address.clone(), &1001);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "transfer",
+                    args: (alice.clone(),&new.address.clone(),1_002_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&alice.clone(), &new.address.clone(), &1002);
+
+    let x = token_0.balance(&alice.clone());
+    assert!(x == 1001);
+
+    let l = new.deposit(&alice.clone());
+    // assert_eq!(new.balance().checked_mul());
+
+    let b = new.my_balance(&alice.clone());
+    assert!(b == 1);
+
 }
 
 #[test]
