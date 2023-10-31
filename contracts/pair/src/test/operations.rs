@@ -390,34 +390,34 @@ fn mint_double_factory_initialization() {
     factory.create_pair(&token_0.address, &token_1.address);
     let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
     let new = SoroswapPairClient::new(&env, &factory_pair_address);
-    // token_0
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &token_0.address.clone(),
-    //                 fn_name: "mint",
-    //                 args: (alice.clone(),1_001_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .mint(&alice.clone(), &1001);
-    // token_1
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &token_1.address.clone(),
-    //                 fn_name: "mint",
-    //                 args: (alice.clone(),1_001_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .mint(&alice, &1001);
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice.clone(), &1001);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &1001);
     let factory_a = SoroswapFactoryClient::new(&env, &new.factory());
     let factory_b = SoroswapFactoryClient::new(&env, &new.factory());
     assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
@@ -576,7 +576,7 @@ fn two_pairs_initialization_alice() {
     .initialize(&alice.clone(), &pair_hash.clone());
     // factory.create_pair(&token_0.address, &token_1.address);
     
-    // let factory_pair_address_0_1 = factory
+    let factory_pair_address_0_1 = factory
     // .mock_auths(&[
     //     MockAuth {
     //         address: &alice.clone(),
@@ -589,16 +589,16 @@ fn two_pairs_initialization_alice() {
     //             },
     //     }
     // ])
-    // .create_pair(&token_0.address.clone(), &token_1.address.clone());
+    .create_pair(&token_0.address.clone(), &token_1.address.clone());
     // let factory_pair_address_2_3 = factory.create_pair(&token_2.address, &token_3.address);
-    // let factory_pair_address = factory.get_pair(&token_0.address.clone(), &token_1.address.clone());
-    // let factory_a = SoroswapFactoryClient::new(&env, &factory_pair_address);
+    let factory_pair_address = factory.get_pair(&token_0.address.clone(), &token_1.address.clone());
+    let factory_a = SoroswapFactoryClient::new(&env, &factory_pair_address);
     // let factory_b = SoroswapFactoryClient::new(&env, &factory_pair_address_2_3);
     // let new = SoroswapPairClient::new(&env, &factory_pair_address);
     
-    // assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
+    assert!(factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert!(factory_b.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
-    // assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
-    // assert!(!factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
+    assert!(factory_a.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
+    assert!(!factory_a.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
     // assert_eq!(factory_a.address, factory_b.address);
 }
