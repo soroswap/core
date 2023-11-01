@@ -854,6 +854,7 @@ fn two_pairs_swap_bob_mock_all() {
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
+    env.budget().reset_unlimited();
     let alice = Address::random(&env);
     let bob = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
@@ -889,6 +890,8 @@ fn two_pairs_swap_bob_mock_all() {
 
     assert_ne!(new_0_1.address, new_2_3.address);
 
+    let pair = Pair::new(token_0.address.clone(), token_1.address.clone());
+
     token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
     token_1.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
 
@@ -898,7 +901,7 @@ fn two_pairs_swap_bob_mock_all() {
 
     token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
 
-    // new_0_1.swap(&0, &16624979, &bob.clone());
+    new_0_1.swap(&0, &1_000, &bob.clone());
 }
 
 // #[test]
