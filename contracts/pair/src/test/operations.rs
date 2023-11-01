@@ -342,18 +342,18 @@ fn pair_mock_auth_initialization() {
                 &MockAuthInvoke {
                     contract: &token_1.address.clone(),
                     fn_name: "transfer",
-                    args: (alice.clone(),&new.address.clone(),1_002_i128).into_val(&env),
+                    args: (alice.clone(),&new.address.clone(),1_001_i128).into_val(&env),
                     sub_invokes: &[],
                 },
         }
     ])
-    .transfer(&alice.clone(), &new.address.clone(), &1002);
+    .transfer(&alice.clone(), &new.address.clone(), &1001);
 
     let x = token_0.balance(&alice.clone());
     assert_eq!(x, 1001);
 
     let y = token_1.balance(&alice.clone());
-    assert!(y == 0);
+    assert_eq!(y, 1);
     // assert_eq!(y, 1002);
 
     let l = new.deposit(&alice.clone());
