@@ -862,12 +862,12 @@ fn two_pairs_swap_bob_mock_all() {
     let token_3 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
     assert_ne!(token_2.address, token_3.address);
-    token_0.mint(&alice, &10_000_000);
-    token_1.mint(&alice, &10_000_000);
-    token_0.mint(&bob, &10_000_000);
-    token_1.mint(&bob, &10_000_000);
-    token_2.mint(&alice, &10_000_000);
-    token_3.mint(&alice, &10_000_000);
+    token_0.mint(&alice, &50_000_000);
+    token_1.mint(&alice, &50_000_000);
+    token_0.mint(&bob, &50_000_000);
+    token_1.mint(&bob, &50_000_000);
+    token_2.mint(&alice, &50_000_000);
+    token_3.mint(&alice, &50_000_000);
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
     let factory = SoroswapFactoryClient::new(&env, &factory_address);
@@ -889,16 +889,16 @@ fn two_pairs_swap_bob_mock_all() {
 
     assert_ne!(new_0_1.address, new_2_3.address);
 
-    token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &1001000);
-    token_1.transfer(&bob.clone(), &new_0_1.address.clone(), &1001000);
+    token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
+    token_1.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
 
     let l = new_0_1.deposit(&bob.clone());
 
-    assert_eq!(l, 1001000_i128.checked_mul(1001000_i128).unwrap().sqrt() - 1000_i128);
+    assert_eq!(l, 10000000_i128.checked_mul(10000000_i128).unwrap().sqrt() - 1000_i128);
 
-    token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &1001000);
+    token_0.transfer(&bob.clone(), &new_0_1.address.clone(), &10_000_000);
 
-    // new_0_1.swap(&0, &1000000, &bob.clone());
+    // new_0_1.swap(&0, &16624979, &bob.clone());
 }
 
 // #[test]
