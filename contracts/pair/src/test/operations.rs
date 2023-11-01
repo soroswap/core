@@ -882,11 +882,15 @@ fn two_pairs_swap_bob_mock_all() {
 
     assert_ne!(factory_pair_address_0_1, factory_pair_address_2_3);
 
-    let pair_0_1 = SoroswapPairClient::new(&env, &factory_pair_address_0_1);
+    // There is another form for initializing pair given the factory:
+    // ```
     // let pair_0_1 = SoroswapPairClient::new(&env, &env.register_contract(None, crate::SoroswapPair {}));
+    // pair_0_1.initialize_pair(&factory.address.clone(), &token_0.address.clone(), &token_1.address.clone());
+    // ```
+    let pair_0_1 = SoroswapPairClient::new(&env, &factory_pair_address_0_1);
+
     let pair_2_3 = SoroswapPairClient::new(&env, &factory_pair_address_2_3);
 
-    // pair_0_1.initialize_pair(&factory.address.clone(), &token_0.address.clone(), &token_1.address.clone());
 
     assert_ne!(pair_0_1.address, pair_2_3.address);
 
