@@ -901,12 +901,14 @@ fn two_pairs_swap_bob_mock_all() {
 
     token_0.transfer(&bob.clone(), &pair_0_1.address.clone(), &10_000_000);
 
-    pair_0_1.swap(&0, &1_000, &bob.clone());
+    pair_0_1.swap(&0, &1_000_000, &bob.clone());
+
 }
 
-// #[test]
+#[test]
 fn two_pairs_swap_bob() {
     let env: Env = Default::default();
+    env.budget().reset_unlimited();
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
@@ -1081,18 +1083,6 @@ fn two_pairs_swap_bob() {
     ])
     .transfer(&bob.clone(), &pair_0_1.address.clone(), &1001000);
 
-    // pair_0_1
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &bob.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &pair_0_1.address.clone(),
-    //                 fn_name: "swap",
-    //                 args: (0,10_000, bob.clone(),).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .swap(&0, &1662497, &bob.clone());
+    pair_0_1.swap(&0, &10_000, &bob.clone());
+
 }
