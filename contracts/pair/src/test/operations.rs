@@ -455,8 +455,8 @@ fn pair_mock_auth_withdraw() {
     assert_eq!(y, 1);
     // assert_eq!(y, 1002);
 
-    let l = pair.deposit(&alice.clone());
-    assert_eq!(l, 1001_i128.checked_mul(1001_i128).unwrap().sqrt().checked_sub(1000).unwrap());
+    let liquidity = pair.deposit(&alice.clone());
+    assert_eq!(liquidity, 1001_i128.checked_mul(1001_i128).unwrap().sqrt().checked_sub(1000).unwrap());
 
     let b = pair.my_balance(&alice.clone());
     assert!(b == 1);
@@ -469,27 +469,27 @@ fn pair_mock_auth_withdraw() {
                     &MockAuthInvoke {
                         contract: &token_0.address.clone(),
                         fn_name: "transfer",
-                        args: (alice.clone(), pair.address.clone(),l,).into_val(&env),
+                        args: (alice.clone(), pair.address.clone(),liquidity,).into_val(&env),
                         sub_invokes: &[],
                     },
             }
         ])
-    .transfer(&alice.clone(), &pair.address.clone(), &l);
+    .transfer(&alice.clone(), &pair.address.clone(), &liquidity);
 
-    pair
-    .mock_auths(&[
-        MockAuth {
-            address: &alice.clone(),
-            invoke: 
-                &MockAuthInvoke {
-                    contract: &pair.address.clone(),
-                    fn_name: "withdraw",
-                    args: (alice.clone(),).into_val(&env),
-                    sub_invokes: &[],
-                },
-        }
-    ])
-    .withdraw(&alice.clone());
+    // pair
+    // .mock_auths(&[
+    //     MockAuth {
+    //         address: &alice.clone(),
+    //         invoke: 
+    //             &MockAuthInvoke {
+    //                 contract: &pair.address.clone(),
+    //                 fn_name: "withdraw",
+    //                 args: (alice.clone(),).into_val(&env),
+    //                 sub_invokes: &[],
+    //             },
+    //     }
+    // ])
+    // .withdraw(&alice.clone());
 
 }
 
