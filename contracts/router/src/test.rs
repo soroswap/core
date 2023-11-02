@@ -98,6 +98,41 @@ impl<'a> SoroswapRouterTest<'a> {
             user
         }
     }
+
+    fn setupDeductedReserve() -> Self {
+
+        let env = Env::default();
+        env.mock_all_auths();
+        let contract = create_soroswap_router(&env);
+
+        let admin = Address::random(&env);
+        let user = Address::random(&env);
+        assert_ne!(admin, user);
+
+        let mut token_0 = create_token_contract(&env, &admin);
+        let mut token_1 = create_token_contract(&env, &admin);
+        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+            std::mem::swap(&mut token_0, &mut token_1);
+        }
+        
+        let initial_user_balance = 24_995_705_032_704;
+        let amount_0: i128 = 1_000_000_000_000;
+        let amount_1: i128 = 10_000_000_000_000;
+
+        token_0.mint(&user, &initial_user_balance);
+        token_1.mint(&user, &initial_user_balance);
+
+        let factory = create_soroswap_factory(&env, &admin);
+
+        SoroswapRouterTest {
+            env,
+            contract,
+            token_0,
+            token_1,
+            factory,
+            user
+        }
+    }
 }
 
 // Test mods:

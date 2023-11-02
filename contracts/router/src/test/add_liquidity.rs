@@ -268,10 +268,12 @@ fn test_add_liquidity() {
     
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
+    // We test that factory has only 1 pair
     assert_eq!(test.factory.all_pairs(&0), pair_address); 
     assert_eq!(test.factory.all_pairs_length(), 1);
     
     let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
+    // We test that pair contract has assigned correctly the factory and tokens
     assert_eq!(pair_client.factory(), test.factory.address);
     assert_eq!(pair_client.token_0(), test.token_0.address);
     assert_eq!(pair_client.token_1(), test.token_1.address);
@@ -305,6 +307,73 @@ fn test_add_liquidity() {
     );
 }
 
+// We test that amount deducted from user is the same showed on reserve.
+#[test]
+fn test_add_liquidity_deducted_amount_reserve() {
+    let test = SoroswapRouterTest::setupDeductedReserve();
+    test.contract.initialize(&test.factory.address);
+    
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
+
+    assert!(desired_deadline > ledger_timestamp);
+
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let initial_user_balance = 24_995_705_032_704;
+    let amount_0: i128 = 1_000_000_000_000;
+    let amount_1: i128 = 10_000_000_000_000;
+
+    // Check initial user value of every token:
+    assert_eq!(test.token_0.balance(&test.user), initial_user_balance);
+    assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
+
+    assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+    
+    // Parameters are set as sent on frontend
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &amount_0, //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
+        &amount_0, //     amount_a_min: i128,
+        &amount_1 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+
+    // We test that the pair now exist
+    assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), true);
+
+    // We test that the pair was created succesfully
+    let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+    let pair_address_other_way = test.factory.get_pair(&test.token_1.address, &test.token_0.address);
+    assert_eq!(pair_address, pair_address_other_way);
+    
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+    // We test that factory has only 1 pair
+    assert_eq!(test.factory.all_pairs(&0), pair_address); 
+    assert_eq!(test.factory.all_pairs_length(), 1);
+    
+    let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
+    // We test that pair contract has assigned correctly the factory and tokens
+    assert_eq!(pair_client.factory(), test.factory.address);
+    assert_eq!(pair_client.token_0(), test.token_0.address);
+    assert_eq!(pair_client.token_1(), test.token_1.address);
+
+    // Check new balances:
+    assert_eq!(test.token_0.balance(&test.user), initial_user_balance.checked_sub(amount_0).unwrap());
+    assert_eq!(test.token_1.balance(&test.user), initial_user_balance.checked_sub(amount_1).unwrap());
+    assert_eq!(test.token_0.balance(&pair_address), amount_0);
+    assert_eq!(test.token_1.balance(&pair_address), amount_1);
+   
+    // Check initial reserves
+    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1,ledger_timestamp));
+
+}
 
 // Pub function that will be used in other tests:
 
