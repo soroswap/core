@@ -493,6 +493,9 @@ fn pair_mock_auth_withdraw() {
     ])
     .withdraw(&alice.clone());
 
+    assert_eq!(pair.my_balance(&alice), 0);
+    assert_eq!(token_0.balance(&alice), 1002);
+    assert_eq!(token_1.balance(&alice), 2);
 }
 
 #[test]
