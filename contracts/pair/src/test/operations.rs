@@ -461,13 +461,15 @@ fn pair_mock_auth_withdraw() {
     let b = pair.my_balance(&alice.clone());
     assert!(b == 1);
 
-    token_0
+    let pair_as_token = TokenClient::new(&env, &pair.address);
+
+    pair_as_token
     .mock_auths(&[
             MockAuth {
                 address: &alice.clone(),
                 invoke: 
                     &MockAuthInvoke {
-                        contract: &token_0.address.clone(),
+                        contract: &pair.address.clone(),
                         fn_name: "transfer",
                         args: (alice.clone(), pair.address.clone(),liquidity,).into_val(&env),
                         sub_invokes: &[],
@@ -476,20 +478,20 @@ fn pair_mock_auth_withdraw() {
         ])
     .transfer(&alice.clone(), &pair.address.clone(), &liquidity);
 
-    // pair
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &pair.address.clone(),
-    //                 fn_name: "withdraw",
-    //                 args: (alice.clone(),).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .withdraw(&alice.clone());
+    pair
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &pair.address.clone(),
+                    fn_name: "withdraw",
+                    args: (alice.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .withdraw(&alice.clone());
 
 }
 
