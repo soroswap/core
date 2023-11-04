@@ -47,29 +47,30 @@ echo "TOKENS: $TOKENS"
 PAIRS_ARRAY=[]
 
 # Loop through the tokens and deploy pairs
-for i in $(seq 0 2 $(($N_TOKENS-1))); do
-    echo "Deploying pair for tokens $i and $(($i+1))"
+for ((i=0; i<$N_TOKENS; i++)); do
     TOKEN_A_ID=$(echo $TOKENS | jq -r ".[$i].address")
-    TOKEN_B_ID=$(echo $TOKENS | jq -r ".[$(($i+1))].address")
-    
-    echo "TOKEN_A_ID: $TOKEN_A_ID"
-    echo "TOKEN_B_ID: $TOKEN_B_ID"
 
-    # Use the create_pair.sh script to deploy a new pair contract
-    bash /workspace/scripts/create_pair.sh $NETWORK $TOKEN_A_ID $TOKEN_B_ID
+    for ((j=i+1; j<$N_TOKENS; j++)); do
 
-    TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
-    TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
+        TOKEN_B_ID=$(echo $TOKENS | jq -r ".[$(($j))].address")
 
-    PAIR_ID=$(cat /workspace/.soroban/pair_id)
-    echo "PAIR_ID: $PAIR_ID"
-    # Construct the pair entry JSON object
-    PAIR_ENTRY=$(printf '{"token_a_id": "%s", "token_b_id": "%s", "pair_address": "%s", "token_a_address":"%s", "token_b_address":"%s"}' "$TOKEN_A_ID" "$TOKEN_B_ID" "$PAIR_ID" "$TOKEN_A_ADDRESS" "$TOKEN_B_ADDRESS")
-    echo "PAIR_ENTRY: $PAIR_ENTRY"
-    # Add the pair entry to PAIRS_ARRAY for the specific network
-    PAIRS_ARRAY=$(echo "$PAIRS_ARRAY" | jq --argjson obj "$PAIR_ENTRY" '. += [$obj]')
-    echo "PAIRS_ARRAY: $PAIRS_ARRAY"
+        echo "Deploying pair for tokens $i ($TOKEN_A_ID) and $j ($TOKEN_B_ID)"
+        
+        # Use the create_pair.sh script to deploy a new pair contract
+        bash /workspace/scripts/create_pair.sh $NETWORK $TOKEN_A_ID $TOKEN_B_ID
 
+        TOKEN_A_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
+        TOKEN_B_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_B_ID)"
+
+        PAIR_ID=$(cat /workspace/.soroban/pair_id)
+        echo "PAIR_ID: $PAIR_ID"
+        # Construct the pair entry JSON object
+        PAIR_ENTRY=$(printf '{"token_a_id": "%s", "token_b_id": "%s", "pair_address": "%s", "token_a_address":"%s", "token_b_address":"%s"}' "$TOKEN_A_ID" "$TOKEN_B_ID" "$PAIR_ID" "$TOKEN_A_ADDRESS" "$TOKEN_B_ADDRESS")
+        echo "PAIR_ENTRY: $PAIR_ENTRY"
+        # Add the pair entry to PAIRS_ARRAY for the specific network
+        PAIRS_ARRAY=$(echo "$PAIRS_ARRAY" | jq --argjson obj "$PAIR_ENTRY" '. += [$obj]')
+        echo "PAIRS_ARRAY: $PAIRS_ARRAY"
+    done
 done
 
 NEW_PAIRS_OBJECT=$(jq -n --arg NETWORK "$NETWORK" --argjson PAIRS_ARRAY "$PAIRS_ARRAY" '{"network": $NETWORK, "pairs": $PAIRS_ARRAY}')
