@@ -39,12 +39,6 @@ fi
 NETWORK="$1"
 N_TOKENS="$2"
 
-# Validate that the number of tokens is an even number
-if [ $(($N_TOKENS % 2)) -ne 0 ]; then
-    echo -e "${RED}Error: The number of tokens should be an even number.${NC}"
-    exit 1
-fi
-
 # Display the starting message
 echo -e "${GREEN}Starting the deployment process on network: $NETWORK with $N_TOKENS tokens.${NC}"
 
