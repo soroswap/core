@@ -1203,12 +1203,12 @@ fn two_pairs_swap_bob() {
                 &MockAuthInvoke {
                     contract: &token_2.address.clone(),
                     fn_name: "mint",
-                    args: (alice.clone(),10_000_000_i128).into_val(&env),
+                    args: (bob.clone(),10_000_000_i128).into_val(&env),
                     sub_invokes: &[],
                 },
         }
     ])
-    .mint(&alice, &10_000_000);
+    .mint(&bob, &10_000_000);
     token_3
     .mock_auths(&[
         MockAuth {
@@ -1217,12 +1217,12 @@ fn two_pairs_swap_bob() {
                 &MockAuthInvoke {
                     contract: &token_3.address.clone(),
                     fn_name: "mint",
-                    args: (alice.clone(),10_000_000_i128).into_val(&env),
+                    args: (bob.clone(),10_000_000_i128).into_val(&env),
                     sub_invokes: &[],
                 },
         }
     ])
-    .mint(&alice, &10_000_000);
+    .mint(&bob, &10_000_000);
 
     assert_eq!(token_0.balance(&bob.clone()), 10_000_000);
     assert_eq!(token_1.balance(&bob.clone()), 10_000_000);
@@ -1328,6 +1328,42 @@ fn two_pairs_swap_bob() {
 
     assert_eq!(token_0.balance(&bob), 10000000 - 1001);
     assert_eq!(token_1.balance(&bob), 10000000 - 1001);
+
+
+    // Second token pair contracts.
+
+
+    assert_eq!(token_2.balance(&bob), 10000000);
+    assert_eq!(token_3.balance(&bob), 10000000);
+
+    token_2
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_2.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_2_3_as_token.address.clone(),10_000_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_2_3_as_token.address.clone(), &10000000); // Use all balance
+    token_3
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_3.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_2_3_as_token.address.clone(),10_000_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_2_3_as_token.address.clone(), &10000000); // Use all balance
 
     // assert_eq!(l, 1001000_i128.checked_mul(1001000_i128).unwrap().sqrt() - 1000_i128);
 
