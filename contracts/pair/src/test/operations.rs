@@ -1371,6 +1371,8 @@ fn two_pairs_swap_bob() {
     let bob_balance_2_3 = pair_2_3_as_pair.my_balance(&bob.clone());
     assert_eq!(bob_liquidity_2_3, 10_000_i128.checked_mul(10_000_i128).unwrap().sqrt().checked_sub(1000_i128).unwrap());
 
+    assert_eq!(pair_2_3_as_pair.get_reserves(), (10_000, 10_000, 100));
+
     let second_token_second_pair = TokenClient::new(&env, &pair_2_3_as_pair.token_1());
 
     second_token_second_pair
@@ -1390,5 +1392,19 @@ fn two_pairs_swap_bob() {
 
     pair_2_3_as_pair.swap(&0, &9970, &bob.clone());
 
+    let (reserve_2_3_token_0, reserve_2_3_token_1, timestamp) = pair_2_3_as_pair.get_reserves();
+
+    assert_eq!(reserve_2_3_token_0, 10_000);
+    // Reserve token_1 example:
+    // total_swap_amount = received + fee = 10_000
+    // received = total_swap_amount * 997 / 1000 = 9970
+    // => fee = total_swap_amount - total_swap_amount * 997 / 1000 = 30
+    // 
+    // reserves = initial_reserves + new_deposits - new_withdraws + new_fees
+    // :. reserves = 10_000 + 0 - 0 + (total_swap_amount - total_swap_amount * 997 / 1000)
+    assert_eq!(reserve_2_3_token_1, 10_000_i128.checked_add(10_000_i128.checked_sub(10_000_i128.checked_mul(997).expect("Mul").checked_div(1000).expect("Div")).expect("Sub")).expect("Add"));
+    assert_eq!(timestamp, 100);
+
+    
 }
 
