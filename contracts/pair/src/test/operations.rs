@@ -1268,6 +1268,9 @@ fn two_pairs_swap_bob() {
 
     assert_eq!(pair_0_1_as_pair.address, pair_0_1_as_token.address);
 
+    assert_eq!(token_0.balance(&bob), 10000000);
+    assert_eq!(token_1.balance(&bob), 10000000);
+
     token_0
     .mock_auths(&[
         MockAuth {
@@ -1297,22 +1300,35 @@ fn two_pairs_swap_bob() {
     ])
     .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &1001);
 
-    // pair_0_1_as_token
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &pair_0_1_as_token.address.clone(),
-    //                 fn_name: "transfer",
-    //                 args: (bob.clone(),&pair_0_1_as_pair.address.clone(),1_001_000_i128).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &1001000);
+    let liquidity = pair_0_1_as_pair.deposit(&bob.clone());
 
-    let l = pair_0_1_as_pair.deposit(&bob.clone());
+    assert_eq!(token_0.balance(&bob), 10000000 - 1001);
+    assert_eq!(token_1.balance(&bob), 10000000 - 1001);
+
+    assert_eq!(liquidity, 1);
+
+    pair_0_1_as_token
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &pair_0_1_as_token.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_pair.address.clone(),liquidity).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &liquidity);
+
+    let bob_balance = pair_0_1_as_pair.my_balance(&bob.clone());
+
+    assert_eq!(bob_balance, 0);
+
+    assert_eq!(token_0.balance(&bob), 10000000 - 1001);
+    assert_eq!(token_1.balance(&bob), 10000000 - 1001);
+
     // assert_eq!(l, 1001000_i128.checked_mul(1001000_i128).unwrap().sqrt() - 1000_i128);
 
     // pair_0_1_as_pair.swap(&0, &10_000, &bob.clone());
