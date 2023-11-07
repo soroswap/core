@@ -1394,7 +1394,15 @@ fn max_pair_quantity_bob() {
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
-    let original_amount = 10_000_000;
+    let original_amount = i128::MAX;
+
+    // i128 is bounded.
+    assert_eq!(original_amount + 1000, i128::MAX);
+
+    // i128::MAX + some_quantity == i128::MAX
+    // This could be exploited for undefined behaviour.
+    assert_eq!(original_amount.checked_add(1000).expect("Add"), i128::MAX);
+
     token_0
     .mock_auths(&[
         MockAuth {
