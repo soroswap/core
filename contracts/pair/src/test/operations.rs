@@ -1354,16 +1354,33 @@ fn bigger_pair_quantity_bob() {
     let bob_liquidity = pair_0_1_as_pair.deposit(&bob);
     assert_eq!(bob_liquidity, 10_001_000_i128.checked_sub(1000).expect("Sub").checked_sub(swap_amount).expect("Sub"));
 
+    // Transfer for bob's swap.
+    first_token_first_pair
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &first_token_first_pair.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),(swap_amount) as i128/*_000*/).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(swap_amount)/*000*/); // Use all balance
+
     assert_eq!(pair_0_1_as_token.balance(&bob), 10_000_000 - swap_amount);
-    assert_eq!(first_token_first_pair.balance(&bob), swap_amount);
+    assert_eq!(first_token_first_pair.balance(&bob), 0);
     assert_eq!(second_token_first_pair.balance(&bob), 0);
     assert_eq!(pair_0_1_as_pair.get_reserves(), (10_001_000 - swap_amount,10_001_000,100));
 
-    // pair_0_1_as_pair.swap(&0, &999, &bob.clone());
-    // assert_eq!(pair_0_1_as_token.balance(&bob), 0);
-    // assert_eq!(first_token_first_pair.balance(&bob), 0);
-    // assert_eq!(second_token_first_pair.balance(&bob), 10_000_999);
-    // assert_eq!(pair_0_1_as_pair.get_reserves(), (10_001_000,1,100));
+    let swap_amount_after_fees = swap_amount.checked_mul(997).expect("Mul").checked_div(1000).expect("Div");
+    pair_0_1_as_pair.swap(&0, &swap_amount_after_fees, &bob.clone());
+    assert_eq!(pair_0_1_as_token.balance(&bob), 10_000_000 - swap_amount);
+    assert_eq!(first_token_first_pair.balance(&bob), 0);
+    assert_eq!(second_token_first_pair.balance(&bob), swap_amount_after_fees);
+    assert_eq!(pair_0_1_as_pair.get_reserves(), (10_001_000, 10_001_000 - swap_amount_after_fees, 100));
 }
 
 #[test]
