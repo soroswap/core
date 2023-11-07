@@ -943,7 +943,7 @@ fn two_pairs_swap_bob_mock_all() {
 }
 
 #[test]
-fn one_pair_swap_bob() {
+fn bigger_quantity() {
     let env: Env = Default::default();
     env.budget().reset_unlimited();
     env.ledger().with_mut(|li| {
@@ -953,10 +953,7 @@ fn one_pair_swap_bob() {
     let bob = Address::random(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-    let token_3 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
-    assert_ne!(token_2.address, token_3.address);
     token_0
     .mock_auths(&[
         MockAuth {
@@ -1013,34 +1010,6 @@ fn one_pair_swap_bob() {
         }
     ])
     .mint(&bob, &10_000_000);
-    token_2
-    .mock_auths(&[
-        MockAuth {
-            address: &alice.clone(),
-            invoke: 
-                &MockAuthInvoke {
-                    contract: &token_2.address.clone(),
-                    fn_name: "mint",
-                    args: (alice.clone(),10_000_000_i128).into_val(&env),
-                    sub_invokes: &[],
-                },
-        }
-    ])
-    .mint(&alice, &10_000_000);
-    token_3
-    .mock_auths(&[
-        MockAuth {
-            address: &alice.clone(),
-            invoke: 
-                &MockAuthInvoke {
-                    contract: &token_3.address.clone(),
-                    fn_name: "mint",
-                    args: (alice.clone(),10_000_000_i128).into_val(&env),
-                    sub_invokes: &[],
-                },
-        }
-    ])
-    .mint(&alice, &10_000_000);
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
     let factory = SoroswapFactoryClient::new(&env, &factory_address);
@@ -1060,17 +1029,10 @@ fn one_pair_swap_bob() {
     .initialize(&alice.clone(), &pair_hash.clone());
     
     let factory_pair_address_0_1 = factory.create_pair(&token_0.address.clone(), &token_1.address.clone());
-    let factory_pair_address_2_3 = factory.create_pair(&token_2.address, &token_3.address);
 
     assert!(factory.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
-    assert!(factory.pair_exists(&token_2.address.clone(), &token_3.address.clone()));
-
-    assert_ne!(factory_pair_address_0_1, factory_pair_address_2_3);
 
     let pair_0_1 = SoroswapPairClient::new(&env, &factory_pair_address_0_1);
-    let pair_2_3 = SoroswapPairClient::new(&env, &factory_pair_address_2_3);
-
-    assert_ne!(pair_0_1.address, pair_2_3.address);
 
     token_0
     .mock_auths(&[
@@ -1121,6 +1083,270 @@ fn one_pair_swap_bob() {
     .transfer(&bob.clone(), &pair_0_1.address.clone(), &1001000);
 
     pair_0_1.swap(&0, &10_000, &bob.clone());
+
+}
+
+#[test]
+fn bigger_pair_quantity_bob() {
+    let env: Env = Default::default();
+    env.budget().reset_unlimited();
+    env.ledger().with_mut(|li| {
+        li.timestamp = 100;
+    });
+    let alice = Address::random(&env);
+    let bob = Address::random(&env);
+    let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
+    assert_ne!(token_0.address, token_1.address);
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),10_000_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &10_000_000);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (alice.clone(),10_000_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&alice, &10_000_000);
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "mint",
+                    args: (bob.clone(),10_001_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&bob, &10_001_000);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "mint",
+                    args: (bob.clone(),10_001_000_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .mint(&bob, &10_001_000);
+
+    assert_eq!(token_0.balance(&bob.clone()), 10_001_000);
+    assert_eq!(token_1.balance(&bob.clone()), 10_001_000);
+
+    let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    let factory_address = &env.register_contract_wasm(None, FACTORY_WASM);
+    let factory = SoroswapFactoryClient::new(&env, &factory_address);
+    factory
+    .mock_auths(&[
+        MockAuth {
+            address: &alice.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &factory.address,
+                    fn_name: "initialize",
+                    args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .initialize(&alice.clone(), &pair_hash.clone());
+    
+    let factory_pair_address_0_1 = factory.create_pair(&token_0.address.clone(), &token_1.address.clone());
+
+    assert!(factory.pair_exists(&token_0.address.clone(), &token_1.address.clone()));
+
+    let pair_0_1_as_token = TokenClient::new(&env, &factory_pair_address_0_1);
+
+    assert_eq!(token_0.balance(&bob.clone()), 10_001_000);
+    assert_eq!(token_1.balance(&bob.clone()), 10_001_000);
+
+    let pair_0_1_as_pair = SoroswapPairClient::new(&env, &factory_pair_address_0_1);
+
+    assert_eq!(pair_0_1_as_pair.address, pair_0_1_as_token.address);
+
+    assert_eq!(token_0.balance(&bob), 10001000);
+    assert_eq!(token_1.balance(&bob), 10001000);
+
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &1001);
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),1_001_i128).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &1001);
+
+    let bob_liquidity = pair_0_1_as_pair.deposit(&bob.clone());
+
+    assert_eq!(bob_liquidity, 1001_i128.checked_mul(1001_i128).unwrap().sqrt() - 1000_i128);
+
+    assert_eq!(token_0.balance(&bob), 10001000 - 1001);
+    assert_eq!(token_1.balance(&bob), 10001000 - 1001);
+
+    assert_eq!(bob_liquidity, 1);
+
+    pair_0_1_as_token
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &pair_0_1_as_token.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_pair.address.clone(),bob_liquidity).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity);
+
+    let bob_balance = pair_0_1_as_pair.my_balance(&bob.clone());
+
+    assert_eq!(bob_balance, 0);
+
+    assert_eq!(token_0.balance(&bob), 10001000 - 1001);
+    assert_eq!(token_1.balance(&bob), 10001000 - 1001);
+
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),10_000_i128/*_000*/).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &10000/*000*/); // Use all balance
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),10_000_i128/*_000*/).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &10000/*000*/); // Use all balance
+
+    let bob_liquidity_0_1 = pair_0_1_as_pair.deposit(&bob);
+    let bob_balance_0_1 = pair_0_1_as_pair.my_balance(&bob.clone());
+
+    // At the second deposit, the liquidty formula is different.
+    assert_eq!(bob_balance_0_1, 10_000);
+    assert_eq!(bob_liquidity_0_1, 10_000_i128.checked_mul(10_000_i128).expect("Mul").sqrt()/*.checked_sub(1000_i128)*/);
+    assert_eq!(token_0.balance(&bob), 10_001_000 - 10_000 - 1001);
+    assert_eq!(token_1.balance(&bob), 10_001_000 - 10_000 - 1001);
+
+    pair_0_1_as_token
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &pair_0_1_as_token.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_pair.address.clone(),bob_liquidity_0_1).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity_0_1);
+
+    // Bob's pair balance is 0 again.
+    assert_eq!(pair_0_1_as_pair.my_balance(&bob.clone()), 0);
+
+    pair_0_1_as_pair.withdraw(&bob);
+
+    let bob_balance = (token_0.balance(&bob), token_1.balance(&bob));
+    assert_eq!(bob_balance.0, 10_001_000 - 1000);
+    assert_eq!(bob_balance.1, 10_001_000 - 1000);
+
+    token_0
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_0.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),(10_001_000 - 1000) as i128/*_000*/).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(10_001_000 - 1000)/*000*/); // Use all balance
+    token_1
+    .mock_auths(&[
+        MockAuth {
+            address: &bob.clone(),
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &token_1.address.clone(),
+                    fn_name: "transfer",
+                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),(10_001_000 - 1000) as i128/*_000*/).into_val(&env),
+                    sub_invokes: &[],
+                },
+        }
+    ])
+    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(10_001_000 - 1000)/*000*/);
+
+    let bob_liquidity = pair_0_1_as_pair.deposit(&bob);
+    assert_eq!(bob_liquidity, 10_001_000_i128.checked_sub(1000).expect("Sub"));
+
+    // pair_0_1_as_pair.swap(&0, &1, &bob.clone());
 
 }
 
