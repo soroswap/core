@@ -6,7 +6,7 @@ use soroban_sdk::{contract, contractimpl, Address, ConversionError, Env, TryFrom
 
 mod factory {
     soroban_sdk::contractimport!(
-        file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory_contract.wasm"
+        file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
     );
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
@@ -15,7 +15,7 @@ use factory::SoroswapFactoryClient;
 
 mod pair {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair_contract.wasm"
+        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
     );
     pub type SoroswapPairClient<'a> = Client<'a>;
 }
