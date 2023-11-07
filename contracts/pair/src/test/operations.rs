@@ -1314,13 +1314,18 @@ fn bigger_pair_quantity_bob() {
     assert_eq!(bob_balance.0, 10_001_000 - 1000);
     assert_eq!(bob_balance.1, 10_001_000 - 1000);
 
-    token_0
+    let first_token_first_pair = TokenClient::new(&env, &pair_0_1_as_pair.token_0());
+    let second_token_first_pair = TokenClient::new(&env, &pair_0_1_as_pair.token_1());
+
+    assert!(first_token_first_pair.address == token_0.address || first_token_first_pair.address == token_1.address);
+
+    first_token_first_pair
     .mock_auths(&[
         MockAuth {
             address: &bob.clone(),
             invoke: 
                 &MockAuthInvoke {
-                    contract: &token_0.address.clone(),
+                    contract: &first_token_first_pair.address.clone(),
                     fn_name: "transfer",
                     args: (bob.clone(),&pair_0_1_as_token.address.clone(),(10_001_000 - 1000) as i128/*_000*/).into_val(&env),
                     sub_invokes: &[],
@@ -1328,26 +1333,37 @@ fn bigger_pair_quantity_bob() {
         }
     ])
     .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(10_001_000 - 1000)/*000*/); // Use all balance
-    token_1
-    .mock_auths(&[
-        MockAuth {
-            address: &bob.clone(),
-            invoke: 
-                &MockAuthInvoke {
-                    contract: &token_1.address.clone(),
-                    fn_name: "transfer",
-                    args: (bob.clone(),&pair_0_1_as_token.address.clone(),(10_001_000 - 1000) as i128/*_000*/).into_val(&env),
-                    sub_invokes: &[],
-                },
-        }
-    ])
-    .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(10_001_000 - 1000)/*000*/);
+    // token_1
+    // .mock_auths(&[
+    //     MockAuth {
+    //         address: &bob.clone(),
+    //         invoke: 
+    //             &MockAuthInvoke {
+    //                 contract: &token_1.address.clone(),
+    //                 fn_name: "transfer",
+    //                 args: (bob.clone(),&pair_0_1_as_token.address.clone(),(10_001_000 - 1000) as i128/*_000*/).into_val(&env),
+    //                 sub_invokes: &[],
+    //             },
+    //     }
+    // ])
+    // .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &(10_001_000 - 1000)/*000*/);
 
-    let bob_liquidity = pair_0_1_as_pair.deposit(&bob);
-    assert_eq!(bob_liquidity, 10_001_000_i128.checked_sub(1000).expect("Sub"));
+    // let bob_liquidity = pair_0_1_as_pair.deposit(&bob);
+    // assert_eq!(bob_liquidity, 10_001_000_i128.checked_sub(1000).expect("Sub"));
 
-    // pair_0_1_as_pair.swap(&0, &1, &bob.clone());
+    assert_eq!(pair_0_1_as_token.balance(&bob), 0);
+    assert_eq!(first_token_first_pair.balance(&bob), 0);
+    assert_eq!(second_token_first_pair.balance(&bob), 10_000_000);
+    assert_eq!(pair_0_1_as_pair.get_reserves(), (1_000,1_000,100));
 
+    // assert_eq!((10_001_000_i128 - 1000).checked_mul(997).expect("Mul").checked_div(1000).expect("Div"), 0);
+    // pair_0_1_as_pair.swap(&0, &(10_001_000_i128 - 1000).checked_mul(997).expect("Mul").checked_div(1000).expect("Div"), &bob.clone());
+
+    pair_0_1_as_pair.swap(&999, &0, &bob.clone());
+    assert_eq!(pair_0_1_as_token.balance(&bob), 0);
+    assert_eq!(first_token_first_pair.balance(&bob), 999);
+    assert_eq!(second_token_first_pair.balance(&bob), 10_000_000);
+    assert_eq!(pair_0_1_as_pair.get_reserves(), (10_000_001,1_000,100));
 }
 
 #[test]
