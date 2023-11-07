@@ -1320,7 +1320,7 @@ fn bigger_pair_quantity_bob() {
     assert!(first_token_first_pair.address == token_0.address || first_token_first_pair.address == token_1.address);
 
     // Swap routine with deposit :
-    let swap_amount = 1000;
+    let swap_amount = 9_999_999;
 
     first_token_first_pair
     .mock_auths(&[
