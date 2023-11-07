@@ -77,7 +77,7 @@ fn swap_tokens_for_exact_tokens_pair_does_not_exist() {
 
 
 #[test]
-#[should_panic("SoroswapLibrary: insufficient output amount")]
+#[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
 fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -92,6 +92,7 @@ fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
 
     add_liquidity(&test, &amount_0, &amount_1);
 
+    test.env.budget().reset_unlimited();
     test.contract.swap_tokens_for_exact_tokens(
         &0, //amount_out
         &0,  // amount_in_max
@@ -101,7 +102,7 @@ fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
 }
 
 #[test]
-#[should_0panic("SoroswapRouter: excessive input amount")]
+#[should_panic(expected = "SoroswapRouter: excessive input amount")]
 fn swap_tokens_for_exact_tokens_amount_in_max_not_enough() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
@@ -122,6 +123,34 @@ fn swap_tokens_for_exact_tokens_amount_in_max_not_enough() {
     test.contract.swap_tokens_for_exact_tokens(
         &expected_amount_out, //amount_out
         &0,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+}
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: excessive input amount")]
+fn swap_tokens_for_exact_tokens_amount_in_max_not_enough_amount_in_should_minus_1() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let expected_amount_out = 5_000_000;
+    let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
+
+    test.contract.swap_tokens_for_exact_tokens(
+        &expected_amount_out, //amount_out
+        &(amount_in_should-1),  // amount_in_max
         &path, // path
         &test.user, // to
         &deadline); // deadline
