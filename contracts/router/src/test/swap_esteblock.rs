@@ -54,24 +54,52 @@ fn swap_tokens_for_exact_tokens_invalid_path() {
 }
 
 
-// #[test]
-// #[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
-// fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
-//     let test = SoroswapRouterTest::setup();
-//     test.contract.initialize(&test.factory.address);
-//     let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+#[test]
+// Panics because LP does not exist; here panics with a Error(Storage, MissingValue)
+// We should implement a pair_address.exist() without needing to call the Factory
+#[should_panic()]
+fn swap_tokens_for_exact_tokens_pair_does_not_exist() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
 
-//     let mut path: Vec<Address> = Vec::new(&test.env);
-//     path.push_back(test.token_0.address.clone());
-//     path.push_back(test.token_1.address.clone());
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
 
-//     test.contract.swap_tokens_for_exact_tokens(
-//         &0, //amount_out
-//         &0,  // amount_in_max
-//         &path, // path
-//         &test.user, // to
-//         &deadline); // deadline
-// }
+    test.contract.swap_tokens_for_exact_tokens(
+        &0, //amount_out
+        &0,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+}
+
+
+#[test]
+#[should_panic("SoroswapLibrary: insufficient output amount")]
+fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    test.contract.swap_tokens_for_exact_tokens(
+        &0, //amount_out
+        &0,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+}
+
 
 #[test]
 fn swap_tokens_for_exact_tokens() {
