@@ -100,6 +100,33 @@ fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
         &deadline); // deadline
 }
 
+#[test]
+#[should_0panic("SoroswapRouter: excessive input amount")]
+fn swap_tokens_for_exact_tokens_amount_in_max_not_enough() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let expected_amount_out = 5_000_000;
+
+    test.contract.swap_tokens_for_exact_tokens(
+        &expected_amount_out, //amount_out
+        &0,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+}
+
 
 #[test]
 fn swap_tokens_for_exact_tokens() {
