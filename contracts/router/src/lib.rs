@@ -554,7 +554,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
         // and then take the tokens from the user
-        to.require_auth();
+        to.require_auth(); 
 
         // returns (uint[] memory amounts)
         // ensure(deadline)
@@ -570,7 +570,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         );
 
         // require(amounts[0] <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
-        if amounts.get(0).unwrap() < amount_in_max {
+        if amounts.get(0).unwrap() > amount_in_max {
             panic!("SoroswapRouter: excessive input amount")
         }
 

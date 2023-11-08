@@ -53,6 +53,9 @@ impl<'a> SoroswapRouterTest<'a> {
     fn new() -> Self {
         
         let env: Env = Default::default();
+        // TODO: MockAuth implementation.
+        // In the meanwhile we will be kickstarting with mock_all_auths and remove it gradually.
+        // pair::test::operations has other related tests with Pair and Token initialization.
         env.mock_all_auths();
         let alice = Address::random(&env);
         let bob = Address::random(&env);
