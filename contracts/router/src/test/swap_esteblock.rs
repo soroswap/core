@@ -156,6 +156,48 @@ fn swap_tokens_for_exact_tokens_amount_in_max_not_enough_amount_in_should_minus_
         &deadline); // deadline
 }
 
+#[test]
+//#[should_panic(expected = "SoroswapRouter: excessive input amount")]
+fn swap_tokens_for_exact_tokens_amount_in_should() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000;
+    let amount_1: i128 = 4_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let expected_amount_out = 5_000_000;
+    let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
+
+    let amounts = test.contract.swap_tokens_for_exact_tokens(
+        &expected_amount_out, //amount_out
+        &(amount_in_should),  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+
+    assert_eq!(amounts.get(0).unwrap(), amount_in_should);
+    assert_eq!(amounts.get(1).unwrap(), expected_amount_out);
+
+    let original_balance: i128 = 10_000_000_000_000_000_000;
+    let expected_amount_0_in = 1255331;
+    assert_eq!(expected_amount_0_in, amount_in_should);
+    assert_eq!(test.token_0.balance(&test.user), original_balance - amount_0 - expected_amount_0_in);
+    assert_eq!(test.token_1.balance(&test.user), original_balance - amount_1 + expected_amount_out);
+
+    let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
+    assert_eq!(test.token_0.balance(&pair_address), amount_0 + expected_amount_0_in);
+    assert_eq!(test.token_1.balance(&pair_address), amount_1 - expected_amount_out);
+
+}
+
 
 #[test]
 fn swap_tokens_for_exact_tokens() {
