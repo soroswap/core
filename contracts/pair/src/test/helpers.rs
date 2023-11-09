@@ -47,9 +47,13 @@ pub enum SoroswapClient<'a> {
     FactoryClient(SoroswapFactoryClient<'a>)
 }
 
-impl<'a> SoroswapClient<'a> {
+trait ClientHelpers<'a> {
+    fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>);
+}
 
-    pub fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
+impl<'a> ClientHelpers<'a> for  SoroswapClient<'a> {
+
+    fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
 
         match &self {
             SoroswapClient::TokenClient(token_client) => {
