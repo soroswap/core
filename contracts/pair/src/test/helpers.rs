@@ -72,10 +72,68 @@ pub struct SoroswapTestApi<'a> {
     auth_vec: Box<&'a [MockAuth<'a>]>,
 }
 
+impl<'a> SoroswapClient<'a> {
 
-
-impl<'a> SoroswapTestApi<'a> {
     pub fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
+
+        match &self {
+            SoroswapClient::TokenClient(token_client) => {
+                let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+                let mock_auth_invoke = MockAuthInvoke {
+                    contract,
+                    fn_name,
+                    args: args.clone(),
+                    sub_invokes: &[],
+                };
+                let mock_auth = TestAuth::Mock(MockAuth {
+                    address: &alice,
+                    invoke: &mock_auth_invoke,
+                });
+                let TestAuth::Mock(mock_auth) = mock_auth.clone();
+                let auth = [mock_auth,];
+                let client = token_client.mock_auths(&auth);
+                // SoroswapClient::TokenClient(token_client)
+            },
+            SoroswapClient::PairClient(pair_client) => {
+                let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+                let mock_auth_invoke = MockAuthInvoke {
+                    contract,
+                    fn_name,
+                    args: args.clone(),
+                    sub_invokes: &[],
+                };
+                let mock_auth = TestAuth::Mock(MockAuth {
+                    address: &alice,
+                    invoke: &mock_auth_invoke,
+                });
+                let TestAuth::Mock(mock_auth) = mock_auth.clone();
+                let auth = [mock_auth,];
+                let client = pair_client.mock_auths(&auth);
+                // SoroswapClient::PairClient(pair_client.mock_auths(auth))
+            },
+            SoroswapClient::FactoryClient(ref factory_client) => {
+                let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+                let mock_auth_invoke = MockAuthInvoke {
+                    contract,
+                    fn_name,
+                    args: args.clone(),
+                    sub_invokes: &[],
+                };
+                let mock_auth = TestAuth::Mock(MockAuth {
+                    address: &alice,
+                    invoke: &mock_auth_invoke,
+                });
+                let TestAuth::Mock(mock_auth) = mock_auth.clone();
+                let auth = [mock_auth,];
+                let client = factory_client.mock_auths(&auth);
+                // SoroswapClient::FactoryClient(factory_client.mock_auths(&[mock_auth,]))
+            },
+        };
+    }
+
+}
+
+/*
         self.alice = alice.clone();
         self.sub_invoke = Box::new([]);
         self.mock_auth_invoke = MockAuthInvoke {
@@ -88,30 +146,4 @@ impl<'a> SoroswapTestApi<'a> {
             address: &self.alice,
             invoke: &self.mock_auth_invoke,
         });
-        // self.auth_vec = Box::new(&[
-        //         self.mock_auth,
-        //     ]);
-        // self.client 
-        match &self.client {
-            SoroswapClient::TokenClient(token_client) => {
-                let TestAuth::Mock(mock_auth) = self.mock_auth.clone();
-                let token_client = token_client;
-                let auth = [mock_auth,];
-                let client = token_client.mock_auths(&auth);
-                // SoroswapClient::TokenClient(token_client)
-            },
-            SoroswapClient::PairClient(pair_client) => {
-                let TestAuth::Mock(mock_auth) = self.mock_auth.clone();
-                let pair_client = pair_client;
-                let auth = &[mock_auth,];
-                // SoroswapClient::PairClient(pair_client.mock_auths(auth))
-            },
-            SoroswapClient::FactoryClient(ref factory_client) => {
-                let TestAuth::Mock(mock_auth) = self.mock_auth.clone();
-                let factory_client = factory_client;
-                // SoroswapClient::FactoryClient(factory_client.mock_auths(&[mock_auth,]))
-            },
-        };
-    }
-
-}
+*/
