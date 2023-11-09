@@ -17,7 +17,7 @@ mod operations;
 mod decode;
 mod deposit;
 mod swap;
-
+mod helpers;
 
 // TOKEN CONTRACT
 mod token {

@@ -39,40 +39,7 @@ use factory::{
     WASM as FACTORY_WASM,
 };
 
-
-enum Clients<'a> {
-    TokenClient(TokenClient::<'a>),
-    PairClient(SoroswapPairClient::<'a>),
-    FactoryClient(SoroswapFactoryClient::<'a>)
-}
-
-impl<'a> Clients<'a> {
-    fn mock_auth_helper(&'a self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) -> &Self {
-
-        match self {
-            Clients::TokenClient(token_client) => {
-                token_client
-                .mock_auths(&[
-                    MockAuth {
-                        address: &alice.clone(),
-                        invoke: 
-                            &MockAuthInvoke {
-                                contract,
-                                fn_name,
-                                args,
-                                sub_invokes: &[],
-                            },
-                    }
-                ]);
-            },
-            Clients::PairClient(pair_client) => {},
-            Clients::FactoryClient(factory_client) => {},
-        };
-
-        self
-    }
-}
-
+use crate::test::helpers::*;
 
 // A simple Pair for ordering the token's addresses and biding the salt.
 #[contracttype]
