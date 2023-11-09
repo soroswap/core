@@ -129,7 +129,7 @@ impl<'a> Clone for TestAuth<'a> {
 }
 
 pub struct SoroswapTestApi<'a> {
-    client: SoroswapClient<'a>,
+    client: &'a mut dyn ClientHelpers<'a>,
     alice: Address,
     mock_auth_invoke: MockAuthInvoke<'a>,
     sub_invoke: Box<[MockAuthInvoke<'a>]>,
