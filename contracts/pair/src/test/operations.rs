@@ -57,9 +57,9 @@ impl<'a> Clients<'a> {
                         address: &alice.clone(),
                         invoke: 
                             &MockAuthInvoke {
-                                contract: &contract,
-                                fn_name: "initialize",
-                                args: args,
+                                contract,
+                                fn_name,
+                                args,
                                 sub_invokes: &[],
                             },
                     }
