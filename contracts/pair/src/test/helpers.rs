@@ -47,31 +47,6 @@ pub enum SoroswapClient<'a> {
     FactoryClient(SoroswapFactoryClient<'a>)
 }
 
-enum TestAuth<'a> {
-    Mock(MockAuth<'a>)
-}
-
-impl<'a> Clone for TestAuth<'a> {
-    fn clone(&self) -> TestAuth<'a> {
-        let TestAuth::Mock(mock_auth) = self;
-        TestAuth::Mock(
-            MockAuth {
-                address: &mock_auth.address,
-                invoke: &mock_auth.invoke,
-            }
-        )
-    }
-}
-
-pub struct SoroswapTestApi<'a> {
-    client: SoroswapClient<'a>,
-    alice: Address,
-    mock_auth_invoke: MockAuthInvoke<'a>,
-    sub_invoke: Box<[MockAuthInvoke<'a>]>,
-    mock_auth: TestAuth<'a>,
-    auth_vec: Box<&'a [MockAuth<'a>]>,
-}
-
 impl<'a> SoroswapClient<'a> {
 
     pub fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
@@ -132,6 +107,40 @@ impl<'a> SoroswapClient<'a> {
     }
 
 }
+
+enum TestAuth<'a> {
+    Mock(MockAuth<'a>)
+}
+
+impl<'a> Clone for TestAuth<'a> {
+    fn clone(&self) -> TestAuth<'a> {
+        let TestAuth::Mock(mock_auth) = self;
+        TestAuth::Mock(
+            MockAuth {
+                address: &mock_auth.address,
+                invoke: &mock_auth.invoke,
+            }
+        )
+    }
+}
+
+pub struct SoroswapTestApi<'a> {
+    client: SoroswapClient<'a>,
+    alice: Address,
+    mock_auth_invoke: MockAuthInvoke<'a>,
+    sub_invoke: Box<[MockAuthInvoke<'a>]>,
+    mock_auth: TestAuth<'a>,
+    auth_vec: Box<&'a [MockAuth<'a>]>,
+}
+
+
+
+impl<'a> SoroswapTestApi<'a> {
+    pub fn auth(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
+        self.client.mock_auth_helper(alice, contract, fn_name, args);
+    }
+}
+
 
 /*
         self.alice = alice.clone();
