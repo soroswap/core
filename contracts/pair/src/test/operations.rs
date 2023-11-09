@@ -11,6 +11,8 @@ use soroban_sdk::{
         MockAuthInvoke,
         Ledger,
     },
+    Val,
+    Vec,
 };
 use num_integer::Roots;
 
@@ -36,6 +38,40 @@ use factory::{
     SoroswapFactoryClient,
     WASM as FACTORY_WASM,
 };
+
+
+enum Clients<'a> {
+    TokenClient(TokenClient::<'a>),
+    PairClient(SoroswapPairClient::<'a>),
+    FactoryClient(SoroswapFactoryClient::<'a>)
+}
+
+impl<'a> Clients<'a> {
+    fn mock_auth_helper(&'a self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) -> &Self {
+
+        match self {
+            Clients::TokenClient(token_client) => {
+                token_client
+                .mock_auths(&[
+                    MockAuth {
+                        address: &alice.clone(),
+                        invoke: 
+                            &MockAuthInvoke {
+                                contract: &contract,
+                                fn_name: "initialize",
+                                args: args,
+                                sub_invokes: &[],
+                            },
+                    }
+                ]);
+            },
+            Clients::PairClient(pair_client) => {},
+            Clients::FactoryClient(factory_client) => {},
+        };
+
+        self
+    }
+}
 
 
 // A simple Pair for ordering the token's addresses and biding the salt.
