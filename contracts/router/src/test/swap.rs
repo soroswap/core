@@ -443,8 +443,30 @@ pub fn swap_exact_tokens_for_tokens_two_agents() {
         }
     ])
     .mint(&router_test.bob, &10_000);
-    // let (a_a,b_a,l_a) = router_test
-    // .router
+    // let (a_a,b_a,l_a) = 
+    router_test
+    .router
+    .mock_auths(&[
+        MockAuth {
+            address: &router_test.alice,
+            invoke: 
+                &MockAuthInvoke {
+                    contract: &router_test.router.address,
+                    fn_name: "initialize",
+                    args: (
+                        &router_test.token_0.address, 
+                        &router_test.token_1.address, 
+                        2002_i128, 
+                        2003_i128, 
+                        0_i128, 
+                        0_i128, 
+                        &router_test.alice,
+                        deadline,
+                    ).into_val(&router_test.env),
+                    sub_invokes: &[],
+                },
+        }
+    ]);
     // .add_liquidity(
     //     &router_test.token_0.address, //     token_a: Address,
     //     &router_test.token_1.address, //     token_b: Address,
