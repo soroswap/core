@@ -44,120 +44,142 @@ use factory::{
 pub enum SoroswapClient<T> {
     TokenClient(T),
     PairClient(T),
-    FactoryClient(T)
+    FactoryClient(T),
+    None
 }
 
-impl<'a> SoroswapClient<TokenClient<'a>> {
-    fn new(env: &Env, address: Address) -> SoroswapClient<TokenClient<'a>> {
+trait SoroswapClientTrait<'a> {
+    type ClientType;
+    fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> ;
+    fn client(&'a mut self) -> Option<&'a mut Self::ClientType> ;
+}
+
+impl<'a> SoroswapClientTrait<'a> for SoroswapClient<TokenClient<'a>> {
+    type ClientType = TokenClient<'a>;
+    fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> {
         let client = TokenClient::new(&env, &env.register_stellar_asset_contract(address));
         Self::TokenClient(client)
     }
-}
-
-impl<'a> SoroswapClient<SoroswapPairClient<'a>> {
-    fn new(env: &Env, address: Address) -> SoroswapClient<SoroswapPairClient<'a>> {
-        Self::PairClient(SoroswapPairClient::new(&env, &address))
+    fn client(&'a mut self) -> Option<&'a mut Self::ClientType> {
+        {
+            match self {
+                Self::TokenClient(ref mut client) => { Some(client) },
+                // Self::PairClient(client) => { client },
+                // Self::FactoryClient(client) => { client },
+                _ => None,
+            }
+        }
     }
 }
 
-impl<'a> SoroswapClient<SoroswapFactoryClient<'a>> {
-    fn new(env: &Env, address: Address) -> SoroswapClient<SoroswapFactoryClient<'a>> {
+impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapPairClient<'a>> {
+    type ClientType = SoroswapPairClient<'a>;
+    fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> {
+        Self::PairClient(SoroswapPairClient::new(&env, &address))
+    }
+    fn client(&'a mut self) -> Option<&'a mut Self::ClientType> {
+        {
+            match self {
+                // Self::TokenClient(client) => { client },
+                Self::PairClient(ref mut client) => { Some(client) },
+                // Self::FactoryClient(client) => { client },
+                _ => None,
+            }
+        }
+    }
+}
+
+impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
+    type ClientType = SoroswapFactoryClient<'a>;
+    fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> {
         Self::FactoryClient(SoroswapFactoryClient::new(&env, &env.register_stellar_asset_contract(address)))
+    }
+    fn client(&'a mut self) -> Option<&'a mut Self::ClientType> {
+        {
+            match self {
+                // Self::TokenClient(client) => { client },
+                Self::FactoryClient(ref mut client) => { Some(client) },
+                // Self::FactoryClient(client) => { client },
+                _ => None,
+            }
+        }
     }
 }
 
 pub trait ClientHelpers<'a> {
     type ClientType;
     // fn new(env: &Env, address: &Address) -> SoroswapClient<'a, Self::ClientType>;
-    fn address(&self) -> Address;
-    fn mock_auth(self) -> Self::ClientType;
+    fn address(&self) -> &Address;
+    fn mock_auth_invoke(&'a self, fn_name: &'a str, args: Vec<Val>) -> MockAuthInvoke {
+        MockAuthInvoke {
+            contract: self.address(),
+            fn_name,
+            args: args.clone(),
+            sub_invokes: &[],
+        }
+    }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>);
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
     type ClientType = TokenClient<'a>;
-    fn address(&self) -> Address {
+    fn address(&self) -> &Address {
         let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
-        client.address.clone()
+        &client.address
     }
-    fn mock_auth(self) -> Self::ClientType {
-        let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
-        client
-    }
+
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
-        let mock_auth_invoke = MockAuthInvoke {
-            contract: &self.address(),
-            fn_name,
-            args: args.clone(),
-            sub_invokes: &[],
-        };
+        let mock_auth_invoke = self.mock_auth_invoke(fn_name, args);
         let mock_auth = TestAuth::Mock(MockAuth {
             address: &alice,
             invoke: &mock_auth_invoke,
         });
-        let TestAuth::Mock(mock_auth) = mock_auth.clone();
-        let auth = [mock_auth,];
-        let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
-        client.mock_auths(&auth);
+        // mock_auth.clone()
+        // let client = self.client();
+        // client.mock_auths(&auth);
     }
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     type ClientType = SoroswapFactoryClient<'a>;
-    fn address(&self) -> Address {
+    fn address(&self) -> &Address {
         let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
-        client.address.clone()
-    }
-    fn mock_auth(self) -> Self::ClientType {
-        let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
-        client
+        &client.address
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
-        let mock_auth_invoke = MockAuthInvoke {
-            contract: &self.address(),
-            fn_name,
-            args: args.clone(),
-            sub_invokes: &[],
-        };
-        let mock_auth = TestAuth::Mock(MockAuth {
-            address: &alice,
-            invoke: &mock_auth_invoke,
-        });
-        let TestAuth::Mock(mock_auth) = mock_auth.clone();
-        let auth = [mock_auth,];
-        let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
-        client.mock_auths(&auth);
+        // let mock_auth = TestAuth::Mock(MockAuth {
+        //     address: &alice,
+        //     invoke: &mock_auth_invoke,
+        // });
+        let auth = [
+            MockAuth {
+                address: &alice,
+                invoke: &self.mock_auth_invoke(fn_name, args),
+            },
+        ];
+        let client = self.client();
+        // client.mock_auths(&mut auth);
     }
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
     type ClientType = SoroswapPairClient<'a>;
-    fn address(&self) -> Address {
+    fn address(&self) -> &Address {
         let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
-        client.address.clone()
-    }
-    fn mock_auth(self) -> Self::ClientType {
-        let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
-        client
+        &client.address
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
-        let mock_auth_invoke = MockAuthInvoke {
-            contract: &self.address(),
-            fn_name,
-            args: args.clone(),
-            sub_invokes: &[],
-        };
+        let mock_auth_invoke = self.mock_auth_invoke(fn_name, args);
         let mock_auth = TestAuth::Mock(MockAuth {
             address: &alice,
             invoke: &mock_auth_invoke,
         });
-        let TestAuth::Mock(mock_auth) = mock_auth.clone();
-        let auth = [mock_auth,];
-        let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
-        client.mock_auths(&auth);
+        // let auth = [mock_auth,];
+        // let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
+        // client.mock_auths(&auth);
     }
 }
 
