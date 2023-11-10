@@ -44,7 +44,7 @@ use crate::test::helpers::*;
 // A simple Pair for ordering the token's addresses and biding the salt.
 #[contracttype]
 #[derive(Clone)]
-pub struct Pair(Address, Address);
+pub struct Pair(pub Address, pub Address);
 impl Pair {
     pub fn new(a: Address, b: Address) -> Self {
         if a < b {
