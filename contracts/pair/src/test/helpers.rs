@@ -69,12 +69,16 @@ impl<'a> SoroswapClient<SoroswapFactoryClient<'a>> {
 pub trait ClientHelpers<'a> {
     type ClientType;
     // fn new(env: &Env, address: &Address) -> SoroswapClient<'a, Self::ClientType>;
+    fn address(&self) -> Address;
     fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>);
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
     type ClientType = TokenClient<'a>;
-
+    fn address(&self) -> Address {
+        let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
+        client.address.clone()
+    }
     fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
         let mock_auth_invoke = MockAuthInvoke {
@@ -89,13 +93,17 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
         });
         let TestAuth::Mock(mock_auth) = mock_auth.clone();
         let auth = [mock_auth,];
-        let SoroswapClient::TokenClient(token_client) = self else { panic!("Wrong generic type.") };
-        let client = token_client.mock_auths(&auth);
+        let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
+        client.mock_auths(&auth);
     }
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     type ClientType = SoroswapFactoryClient<'a>;
+    fn address(&self) -> Address {
+        let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
+        client.address.clone()
+    }
     fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
         let mock_auth_invoke = MockAuthInvoke {
@@ -110,17 +118,21 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
         });
         let TestAuth::Mock(mock_auth) = mock_auth.clone();
         let auth = [mock_auth,];
-        let SoroswapClient::FactoryClient(factory_client) = self else { panic!("Wrong generic type.") };
-        let client = factory_client.mock_auths(&auth);
+        let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
+        client.mock_auths(&auth);
     }
 }
 
 impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
     type ClientType = SoroswapPairClient<'a>;
+    fn address(&self) -> Address {
+        let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
+        client.address.clone()
+    }
     fn mock_auth_helper(&'a mut self, alice: &'a Address, contract: &'a Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
         let mock_auth_invoke = MockAuthInvoke {
-            contract,
+            contract: &self.address(),
             fn_name,
             args: args.clone(),
             sub_invokes: &[],
@@ -131,8 +143,8 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
         });
         let TestAuth::Mock(mock_auth) = mock_auth.clone();
         let auth = [mock_auth,];
-        let SoroswapClient::PairClient(pair_client) = self else { panic!("Wrong generic type.") };
-        let client = pair_client.mock_auths(&auth);
+        let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
+        client.mock_auths(&auth);
     }
 }
 
@@ -175,8 +187,9 @@ fn pair_initialization<'a>() {
     let SoroswapClient::TokenClient(token_0) = SoroswapClient::<TokenClient<'a>>::new(&env, alice.clone()) else { todo!() };
     let SoroswapClient::TokenClient(token_1) = SoroswapClient::<TokenClient<'a>>::new(&env, alice.clone()) else { todo!() };
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    let SoroswapClient::FactoryClient(factory) = SoroswapClient::<SoroswapFactoryClient<'a>>::new(&env, alice.clone()) else { todo!() };
-    // factory
+    let soroswap_factory_client = SoroswapClient::<SoroswapFactoryClient<'a>>::new(&env, alice.clone()) else { todo!() };
+    // soroswap_factory_client.mock_auth_helper(alice, )
+    let SoroswapClient::FactoryClient(factory) = soroswap_factory_client else { todo!() };
     // .mock_auths(&[
     //     MockAuth {
     //         address: &alice.clone(),
