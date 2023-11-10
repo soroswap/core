@@ -1,3 +1,7 @@
+extern crate alloc;
+use alloc::boxed::Box;
+use core::fmt::Error;
+
 use soroban_sdk::{
     contracttype, 
     xdr::ToXdr, 
@@ -15,8 +19,6 @@ use soroban_sdk::{
     Vec,
     vec,
 };
-extern crate alloc;
-use alloc::boxed::Box;
 
 mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
@@ -64,8 +66,8 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<TokenClient<'a>> {
         {
             match self {
                 Self::TokenClient(ref mut client) => { Some(client) },
-                // Self::PairClient(client) => { client },
-                // Self::FactoryClient(client) => { client },
+                // Self::PairClient(client) => { Some(client) },
+                // Self::FactoryClient(client) => { Some(client) },
                 _ => None,
             }
         }
@@ -80,9 +82,9 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapPairClient<'a>> {
     fn client(&'a mut self) -> Option<&'a mut Self::ClientType> {
         {
             match self {
-                // Self::TokenClient(client) => { client },
+                // Self::TokenClient(client) => { Some(client) },
                 Self::PairClient(ref mut client) => { Some(client) },
-                // Self::FactoryClient(client) => { client },
+                // Self::FactoryClient(client) => { Some(client) },
                 _ => None,
             }
         }
@@ -97,9 +99,9 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     fn client(&'a mut self) -> Option<&'a mut Self::ClientType> {
         {
             match self {
-                // Self::TokenClient(client) => { client },
-                Self::FactoryClient(ref mut client) => { Some(client) },
-                // Self::FactoryClient(client) => { client },
+                // Self::TokenClient(client) => { Some(client) },
+                // Self::PairClient(ref mut client) => { Some(client) },
+                Self::FactoryClient(client) => { Some(client) },
                 _ => None,
             }
         }
@@ -135,9 +137,8 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
             address: &alice,
             invoke: &mock_auth_invoke,
         });
-        // mock_auth.clone()
-        // let client = self.client();
-        // client.mock_auths(&auth);
+        let client = self.client();
+        // client.mock_auths(&mut auth);
     }
 }
 
@@ -149,10 +150,6 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
-        // let mock_auth = TestAuth::Mock(MockAuth {
-        //     address: &alice,
-        //     invoke: &mock_auth_invoke,
-        // });
         let auth = [
             MockAuth {
                 address: &alice,
@@ -177,9 +174,8 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
             address: &alice,
             invoke: &mock_auth_invoke,
         });
-        // let auth = [mock_auth,];
-        // let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
-        // client.mock_auths(&auth);
+        let client = self.client();
+        // client.mock_auths(&mut auth);
     }
 }
 
