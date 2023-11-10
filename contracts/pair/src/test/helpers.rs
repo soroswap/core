@@ -190,19 +190,6 @@ fn pair_initialization<'a>() {
     let mut soroswap_factory_client = SoroswapClient::<SoroswapFactoryClient<'a>>::new(&env, alice.clone()) else { todo!() };
     soroswap_factory_client.mock_auth_helper(alice.clone(), "initialize", (alice.clone(), pair_hash,).into_val(&env));
     // let SoroswapClient::FactoryClient(factory) = soroswap_factory_client else { todo!() };
-    // .mock_auths(&[
-    //     MockAuth {
-    //         address: &alice.clone(),
-    //         invoke: 
-    //             &MockAuthInvoke {
-    //                 contract: &factory.address,
-    //                 fn_name: "initialize",
-    //                 args: (alice.clone(), pair_hash.clone(),).into_val(&env),
-    //                 sub_invokes: &[],
-    //             },
-    //     }
-    // ])
-    // .initialize(&alice.clone(), &pair_hash.clone());
     // factory.create_pair(&token_0.address, &token_1.address);
     // let factory_pair_address = factory.get_pair(&token_0.address, &token_1.address);
     // let new = SoroswapPairClient::new(&env, &factory_pair_address);
