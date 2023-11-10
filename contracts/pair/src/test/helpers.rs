@@ -70,6 +70,7 @@ pub trait ClientHelpers<'a> {
     type ClientType;
     // fn new(env: &Env, address: &Address) -> SoroswapClient<'a, Self::ClientType>;
     fn address(&self) -> Address;
+    fn mock_auth(self) -> Self::ClientType;
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>);
 }
 
@@ -78,6 +79,10 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
     fn address(&self) -> Address {
         let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
         client.address.clone()
+    }
+    fn mock_auth(self) -> Self::ClientType {
+        let SoroswapClient::TokenClient(client) = self else { panic!("Wrong generic type.") };
+        client
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
@@ -104,6 +109,10 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
         let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
         client.address.clone()
     }
+    fn mock_auth(self) -> Self::ClientType {
+        let SoroswapClient::FactoryClient(client) = self else { panic!("Wrong generic type.") };
+        client
+    }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
         let mock_auth_invoke = MockAuthInvoke {
@@ -128,6 +137,10 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
     fn address(&self) -> Address {
         let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
         client.address.clone()
+    }
+    fn mock_auth(self) -> Self::ClientType {
+        let SoroswapClient::PairClient(client) = self else { panic!("Wrong generic type.") };
+        client
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
