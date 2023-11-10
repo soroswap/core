@@ -85,7 +85,7 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<TokenClient<'a>> {
         client
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
-        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
         let mock_auth_invoke = MockAuthInvoke {
             contract: &self.address(),
             fn_name,
@@ -114,7 +114,7 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
         client
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
-        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
         let mock_auth_invoke = MockAuthInvoke {
             contract: &self.address(),
             fn_name,
@@ -143,7 +143,7 @@ impl<'a> ClientHelpers<'a> for SoroswapClient<SoroswapPairClient<'a>> {
         client
     }
     fn mock_auth_helper(&'a mut self, alice: Address, fn_name: &'a str, args: Vec<Val>) {
-        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]);
+        let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
         let mock_auth_invoke = MockAuthInvoke {
             contract: &self.address(),
             fn_name,
