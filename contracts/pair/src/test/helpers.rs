@@ -207,12 +207,17 @@ impl<'a> SoroswapTestApi<'a, SoroswapClient<SoroswapFactoryClient<'a>>>
             auth_vec: None,
         }
     }
-    pub fn invoke(&'a mut self, alice: &'a Address, fn_name: &'a str, args: Vec<Val>) {
+    fn invoke(&'a mut self, alice: &'a Address, fn_name: &'a str, args: Vec<Val>) -> MockAuthInvoke<'a> {
         let env = &self.env;
-        self.mock_auth_invoke = Some(self.client.mock_auth_invoke(fn_name, args));
+        let binding = Some(self.client.mock_auth_invoke(fn_name, args));
+        self.mock_auth_invoke = binding.clone();
+        binding.unwrap()
     }
-    pub fn auth(&'a mut self) {
-        self.mock_auth = Some(self.client.mock_auth_helper(&self.alice, &self.mock_auth_invoke.as_ref().unwrap()));
+    pub fn auth(&'a mut self, alice: &'a Address, fn_name: &'a str, args: Vec<Val>) {
+        match self.mock_auth_invoke {
+            Some(ref invoke) => self.client.mock_auth_helper(alice, invoke),
+            None => panic!("Undefined Invoke")
+        };
     }
 }
 
@@ -225,7 +230,7 @@ fn pair_initialization<'a>() {
     let mut factory_api = SoroswapTestApi::<SoroswapClient<SoroswapFactoryClient<'a>>>::new(&alice, &env);
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
     factory_api.invoke(&alice, "initialize", (alice.clone(), pair_hash.clone(),).into_val(&env));
-    // factory_api.auth();
+    // factory_api.auth(&alice, "initialize", (alice.clone(), pair_hash.clone(),).into_val(&env));
     // soroswap_factory_client.mock_auth_helper(&alice_clone, &invoke);
     // let client = soroswap_factory_client.client();
     // let SoroswapClient::FactoryClient(factory) = soroswap_factory_client else { todo!() };
