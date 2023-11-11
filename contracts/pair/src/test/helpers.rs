@@ -182,22 +182,6 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     }
 }
 
-enum TestAuth<'a> {
-    Mock(MockAuth<'a>)
-}
-
-impl<'a> Clone for TestAuth<'a> {
-    fn clone(&self) -> TestAuth<'a> {
-        let TestAuth::Mock(mock_auth) = self;
-        TestAuth::Mock(
-            MockAuth {
-                address: &mock_auth.address,
-                invoke: &mock_auth.invoke,
-            }
-        )
-    }
-}
-
 pub struct SoroswapTestApi<'a, T: SoroswapClientTrait<'a>> {
     env: Env,
     client: T,
