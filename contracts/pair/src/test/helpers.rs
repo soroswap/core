@@ -86,6 +86,17 @@ impl<T> fmt::Display for SoroswapClientError<T> {
     }
 }
 
+trait SoroswapError {
+    fn dispatch_error(self) -> ! ;
+}
+
+impl<T> SoroswapError for SoroswapClientError<T>
+{
+    fn dispatch_error(self) -> ! {
+        panic!("{}", self)
+    }
+}
+
 pub trait SoroswapClientTrait<'a> {
     type ClientType;
     fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType>;
@@ -116,20 +127,22 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<TokenClient<'a>> {
         Self::TokenClient(env.clone(), client)
     }
     fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
-        let SoroswapClient::TokenClient(env, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::TokenClient(env, client) = self else { 
+            SoroswapClientError::WrongBindingType(self.copy()).dispatch_error()
+        };
         Self::new(&env.clone(), client.address.clone())
     }
     fn address(&'a mut self) -> &Address {
-        let SoroswapClient::TokenClient(_, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::TokenClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         &client.address
     }
     fn client(&'a mut self) -> Self::ClientType {    
         match self {
             Self::TokenClient(_, client) => { 
-                let Self::TokenClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+                let Self::TokenClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
                 client_copy
             },
-            _ => panic!("{}", SoroswapClientError::WrongBindingType(self.copy())),
+            _ => SoroswapClientError::WrongBindingType(self.copy()).dispatch_error(),
         }
     }
 }
@@ -140,20 +153,20 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapPairClient<'a>> {
         Self::PairClient(env.clone(), SoroswapPairClient::new(&env, &address))
     }
     fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
-        let SoroswapClient::PairClient(env, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::PairClient(env, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         Self::new(&env.clone(), client.address.clone())
     }
     fn address(&'a mut self) -> &Address {
-        let SoroswapClient::PairClient(_, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::PairClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         &client.address
     }
     fn client(&'a mut self) -> Self::ClientType {
         match self {
             Self::PairClient(_, client) => { 
-                let Self::PairClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+                let Self::PairClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
                 client_copy
              },
-            _ => panic!("{}", SoroswapClientError::WrongBindingType(self.copy())),
+            _ => SoroswapClientError::WrongBindingType(self.copy()).dispatch_error(),
         }
     }
 }
@@ -164,20 +177,20 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
         Self::FactoryClient(env.clone(), SoroswapFactoryClient::new(&env, &env.register_stellar_asset_contract(address)))
     }
     fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
-        let SoroswapClient::FactoryClient(env, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::FactoryClient(env, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         Self::new(&env.clone(), client.address.clone())
     }
     fn address(&'a mut self) -> &Address {
-        let SoroswapClient::FactoryClient(_, client) = self else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+        let SoroswapClient::FactoryClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         &client.address
     }
     fn client(&'a mut self) -> Self::ClientType {
         match self {
             Self::FactoryClient(_, client) => { 
-                let Self::FactoryClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { panic!("{}", SoroswapClientError::WrongBindingType(self.copy())) };
+                let Self::FactoryClient(_, client_copy) = Self::new(&client.env, client.address.clone()) else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
                 client_copy
              },
-            _ => panic!("{}", SoroswapClientError::WrongBindingType(self.copy())),
+            _ => SoroswapClientError::WrongBindingType(self.copy()).dispatch_error(),
         }
     }
 }
