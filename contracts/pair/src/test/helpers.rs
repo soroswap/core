@@ -69,7 +69,8 @@ impl<T> fmt::Display for SoroswapClient<T> {
 
 pub enum SoroswapClientError<T> {
     WrongBindingType(SoroswapClient<T>),
-    InvokeUndefined(SoroswapClient<T>)
+    InvokeUndefined(SoroswapClient<T>),
+    CodeUnreachable,
 
 }
 
@@ -81,6 +82,7 @@ impl<T> fmt::Display for SoroswapClientError<T> {
             match self {
                 Self::WrongBindingType(client_type) => "Wrong binding for type {client_type}",
                 Self::InvokeUndefined(client_type) => "Undefined invoke parameters for type {client_type}",
+                Self::CodeUnreachable => "This code is intended to be unreachable."
             }
         )
     }
@@ -243,14 +245,13 @@ impl<'a> SoroswapTestApi<'a, SoroswapClient<SoroswapFactoryClient<'a>>>
         let binding = Some(self.client.mock_auth_invoke(fn_name, args));
         self.mock_auth_invoke = binding.clone();
 
-        binding.expect("Should be unreachable: the variable is created as Some(x) within the scope.")
+        binding.unwrap_or_else( || SoroswapClientError::<SoroswapFactoryClient<'a>>::CodeUnreachable.dispatch_error() )
     }
     pub fn auth(&'a mut self, alice: &'a Address, fn_name: &'a str, args: Vec<Val>) {
         match self.mock_auth_invoke {
             Some(ref invoke) => self.client.mock_auth_helper(alice, invoke),
             None => {
-                panic!("{}",SoroswapClientError::InvokeUndefined(self.client.copy()))
-                
+                SoroswapClientError::InvokeUndefined(self.client.copy()).dispatch_error()
             },
         };
     }
