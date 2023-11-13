@@ -102,9 +102,9 @@ impl<T> SoroswapError for SoroswapClientError<T>
 pub trait SoroswapClientTrait<'a> {
     type ClientType;
     fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType>;
-    fn copy(&'a mut self) -> SoroswapClient<Self::ClientType>;
+    fn copy(&'a self) -> SoroswapClient<Self::ClientType>;
     fn client(&'a mut self) -> Self::ClientType;
-    fn address(&'a mut self) -> &Address;
+    fn address(&'a self) -> &Address;
     fn mock_auth_helper(&'a mut self, alice: &'a Address, invoke: &'a MockAuthInvoke) -> MockAuth {
         let sub_invoke: Box<[MockAuthInvoke<'a>; 0]> = Box::<[MockAuthInvoke<'a>; 0]>::new([]); // TODO: implement sub_invoke .
         MockAuth {
@@ -112,11 +112,15 @@ pub trait SoroswapClientTrait<'a> {
             invoke: invoke,
         }
     }
-    fn mock_auth_invoke(&'a mut self, fn_name: &'a str, args: Vec<Val>) -> MockAuthInvoke {
+    fn mock_auth_invoke(&'a self, fn_name: &'a str, args: Vec<Val>) -> MockAuthInvoke
+     where Self: Sized
+    {
+        let address_copy = self.address();
+        let args_clone = args.clone();
         MockAuthInvoke {
-            contract: &self.address(),
+            contract: &address_copy,
             fn_name,
-            args: args.clone(),
+            args: args_clone,
             sub_invokes: &[],
         }
     }
@@ -128,13 +132,13 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<TokenClient<'a>> {
         let client = TokenClient::new(&env, &env.register_stellar_asset_contract(address));
         Self::TokenClient(env.clone(), client)
     }
-    fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
+    fn copy(&'a self) -> SoroswapClient<Self::ClientType> {
         let SoroswapClient::TokenClient(env, client) = self else { 
             SoroswapClientError::WrongBindingType(self.copy()).dispatch_error()
         };
         Self::new(&env.clone(), client.address.clone())
     }
-    fn address(&'a mut self) -> &Address {
+    fn address(&'a self) -> &Address {
         let SoroswapClient::TokenClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         &client.address
     }
@@ -154,11 +158,11 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapPairClient<'a>> {
     fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> {
         Self::PairClient(env.clone(), SoroswapPairClient::new(&env, &address))
     }
-    fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
+    fn copy(&'a self) -> SoroswapClient<Self::ClientType> {
         let SoroswapClient::PairClient(env, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         Self::new(&env.clone(), client.address.clone())
     }
-    fn address(&'a mut self) -> &Address {
+    fn address(&'a self) -> &Address {
         let SoroswapClient::PairClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         &client.address
     }
@@ -178,12 +182,13 @@ impl<'a> SoroswapClientTrait<'a> for SoroswapClient<SoroswapFactoryClient<'a>> {
     fn new(env: &Env, address: Address) -> SoroswapClient<Self::ClientType> {
         Self::FactoryClient(env.clone(), SoroswapFactoryClient::new(&env, &env.register_stellar_asset_contract(address)))
     }
-    fn copy(&'a mut self) -> SoroswapClient<Self::ClientType> {
+    fn copy(&'a self) -> SoroswapClient<Self::ClientType> {
         let SoroswapClient::FactoryClient(env, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
         Self::new(&env.clone(), client.address.clone())
     }
-    fn address(&'a mut self) -> &Address {
-        let SoroswapClient::FactoryClient(_, client) = self else { SoroswapClientError::WrongBindingType(self.copy()).dispatch_error() };
+    fn address(&'a self) -> &Address {
+        let self_copy = self.copy();
+        let SoroswapClient::FactoryClient(_, client) = self else { SoroswapClientError::WrongBindingType(self_copy).dispatch_error() };
         &client.address
     }
     fn client(&'a mut self) -> Self::ClientType {
