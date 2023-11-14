@@ -3,14 +3,10 @@ use soroban_sdk::{
     Env,
     Address,
     Vec,
-    vec,
     testutils::{
         Address as _,
-        MockAuth,
-        MockAuthInvoke,
         Ledger,
     },
-    IntoVal,
 };
 use num_integer::Roots; 
 
@@ -45,7 +41,7 @@ struct SoroswapRouterTest<'a> {
     factory: SoroswapFactoryClient<'a>,
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
-    pair: SoroswapPairClient<'a>,
+    // pair: SoroswapPairClient<'a>,
     router: SoroswapRouterClient<'a>,
 }
 
@@ -78,7 +74,7 @@ impl<'a> SoroswapRouterTest<'a> {
         factory.initialize(&alice, &pair_hash);
         factory.create_pair(&token_0.address, &token_1.address);
         let pair_address = factory.get_pair(&token_0.address, &token_1.address);
-        let pair = SoroswapPairClient::new(&env, &pair_address);
+        // let pair = SoroswapPairClient::new(&env, &pair_address);
         let router = SoroswapRouterClient::new(&env, &env.register_contract(None, SoroswapRouter {}));
         router.initialize(factory_address);
 
@@ -89,7 +85,7 @@ impl<'a> SoroswapRouterTest<'a> {
             factory,
             token_0,
             token_1,
-            pair,
+            // pair,
             router
         }
     }

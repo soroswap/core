@@ -8,7 +8,6 @@ use soroban_sdk::{
     testutils::{
         Address as _,
     },
-    IntoVal,
 };
 
 // Token Contract
@@ -116,8 +115,6 @@ impl<'a> SoroswapRouterTest<'a> {
         }
         
         let initial_user_balance = 24_995_705_032_704;
-        let amount_0: i128 = 1_000_000_000_000;
-        let amount_1: i128 = 10_000_000_000_000;
 
         token_0.mint(&user, &initial_user_balance);
         token_1.mint(&user, &initial_user_balance);
