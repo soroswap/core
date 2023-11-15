@@ -5,7 +5,9 @@ use core::{
 use soroban_sdk::{
     contracttype, 
     Address, 
-    Env, 
+    Env,
+    Val,
+    Vec,
     IntoVal,
     testutils::{
         MockAuth,
@@ -129,6 +131,14 @@ where Self: Sized
     fn client(&'a self) -> &'a ClientType;
     fn address(&self) -> &Address;
     fn mock_auth_helper(&'a self, env: &'a Env, alice: &'a Address, mock_auths: &'a [MockAuth<'a>; 1]) -> Self;
+    fn generate_mock_auth_invoke(contract_address: &'a Address, alice: &'a Address, fn_name: &'a str, args: Vec<Val>, sub_invokes: &'a [MockAuthInvoke<'a>]) -> MockAuthInvoke<'a> {
+        MockAuthInvoke {
+            contract: &contract_address,
+            fn_name,
+            args,
+            sub_invokes,
+        }
+    }
 }
 
 impl<'a> SoroswapClientTrait<'a, TokenClient<'a>> for SoroswapClient<'a, TokenClient<'a>> {
@@ -152,7 +162,7 @@ impl<'a> SoroswapClientTrait<'a, TokenClient<'a>> for SoroswapClient<'a, TokenCl
             _ => SoroswapClientError::WrongBindingType(&self).dispatch_error(),
         }
     }
-    fn mock_auth_helper(&'a self, env: &'a Env, alice: &'a Address, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
+    fn mock_auth_helper(&'a self, env: &'a Env, alice: &'a Address, mock_auths: &   'a [MockAuth<'a>; 1]) -> Self {
         let ref client = self.client();
         Self::TokenClient(env, client.mock_auths(mock_auths))
     }
@@ -226,13 +236,13 @@ pub struct SoroswapTest<'a, T, U: SoroswapClientTrait<'a, T>>
 impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
  where SoroswapClient<'a, T>: SoroswapClientTrait<'a, T>
 {
-    fn address(&'a self) -> &'a Address {
+    pub fn address(&'a self) -> &'a Address {
         self.test_client.address()
     }
 }
 
 impl<'a> SoroswapTest<'a, TokenClient<'a>, SoroswapClient<'a, TokenClient<'a>>> {
-    pub fn mint(alice: &'a Address, test_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mocks_auths: &'a [MockAuth<'a>; 1]) {
+    pub fn mint(alice: &'a Address, token_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mocks_auths: &'a [MockAuth<'a>; 1]) {
 
     }
 }
