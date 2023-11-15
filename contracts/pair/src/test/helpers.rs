@@ -23,14 +23,14 @@ use soroban_sdk::{
     vec,
 };
 
-mod token {
+pub mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
-mod pair {
+pub mod pair {
     soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
 }
-mod factory {
+pub mod factory {
     soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
     pub type FactoryClient<'a> = Client<'a>; 
 }
@@ -56,7 +56,7 @@ pub enum SoroswapClient<'a, T> {
 
 impl<'a> SoroswapClient<'a, TokenClient<'a>> {
     // initialize
-    fn from(env: &'a Env, address: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
+    pub fn from(env: &'a Env, address: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
         Self::TokenClient(&env, TokenClient::new(&env, &env.register_stellar_asset_contract(address.clone())))
     }
 
@@ -64,10 +64,9 @@ impl<'a> SoroswapClient<'a, TokenClient<'a>> {
 
 impl<'a> SoroswapClient<'a, FactoryClient<'a>> {
     // initialize
-    fn from(env: &'a Env) -> SoroswapClient<'a, FactoryClient<'a>> {
+    pub fn from(env: &'a Env) -> SoroswapClient<'a, FactoryClient<'a>> {
         SoroswapClient::FactoryClient(env, FactoryClient::new(&env, &env.register_contract_wasm(None, FACTORY_WASM)) )
     }
-
 }
 
 impl<T> fmt::Display for SoroswapClient<'_, T> {
@@ -226,10 +225,10 @@ impl<'a> SoroswapClientTrait<'a, FactoryClient<'a>> for SoroswapClient<'a, Facto
 // #[derive(Clone)]
 pub struct SoroswapTest<'a, T, U: SoroswapClientTrait<'a, T>>
 {
-    env: Env,
+    pub env: Env,
     client: PhantomData<&'a T>,
-    test_client: &'a mut U, // SoroswapClient<'a, T>,
-    alice: Address,
+    pub test_client: &'a mut U, // SoroswapClient<'a, T>,
+    pub alice: Address,
     mock_auths: &'a [MockAuth<'a>; 1]
 }
 
@@ -241,9 +240,14 @@ impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
     }
 }
 
+impl<'a> SoroswapTest<'a, SoroswapPairClient<'a>, SoroswapClient<'a, SoroswapPairClient<'a>>> {
+
+}
+
 impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a>>> {
-    fn initialize(env: &'a Env, alice: &'a Address, test_client: &'a mut SoroswapClient<'a, FactoryClient<'a>>, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
+    pub fn initialize(env: &'a Env, alice: &'a Address, test_client: &'a mut SoroswapClient<'a, FactoryClient<'a>>, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+        test_client.client().initialize(&alice.clone(), &pair_hash.clone());
         let contract_address = test_client.address();
         Self {
             env: env.clone(),
@@ -253,7 +257,7 @@ impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a
             mock_auths
         }
     }
-    fn create_a_pair(&'a mut self) -> Address {
+    pub fn create_a_pair(&'a mut self) -> Address {
         let token_0 = SoroswapClient::<TokenClient>::from(&self.env, &self.alice);
         let token_1 = SoroswapClient::<TokenClient>::from(&self.env, &self.alice);
         let client = self.test_client.client();
