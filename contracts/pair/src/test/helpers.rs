@@ -257,13 +257,13 @@ pub struct SoroswapTest<'a, T, U: SoroswapClientTrait<'a, T>>
     mock_auths: &'a [MockAuth<'a>; 1]
 }
 
-// impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
-//  where SoroswapClient<'a, T>: SoroswapClientTrait<'a, T>
-// {
-//     fn address(&'a self) -> &'a Address {
-//         self.test_client.address()
-//     }
-// }
+impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
+ where SoroswapClient<'a, T>: SoroswapClientTrait<'a, T>
+{
+    fn address(&'a self) -> &'a Address {
+        self.test_client.address()
+    }
+}
 
 impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a>>> {
     fn initialize(env: &'a Env, alice: &'a Address, test_client: &'a SoroswapClient<'a, FactoryClient<'a>>, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
@@ -276,9 +276,6 @@ impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a
             alice: alice.clone(),
             mock_auths
         }
-    }
-    fn address(&'a self) -> &'a Address {
-        self.test_client.address()
     }
 }
 
