@@ -231,6 +231,12 @@ impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
     }
 }
 
+impl<'a> SoroswapTest<'a, TokenClient<'a>, SoroswapClient<'a, TokenClient<'a>>> {
+    pub fn mint(alice: &'a Address, test_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mocks_auths: &'a [MockAuth<'a>; 1]) {
+
+    }
+}
+
 impl<'a> SoroswapTest<'a, SoroswapPairClient<'a>, SoroswapClient<'a, SoroswapPairClient<'a>>> {
 
 }
@@ -248,7 +254,7 @@ impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a
             mock_auths
         }
     }
-    pub fn create_a_pair(&'a mut self) -> Address {
+    pub fn create_a_pair(&self) -> Address {
         let token_0 = SoroswapClient::<TokenClient>::from(&self.env, &self.alice);
         let token_1 = SoroswapClient::<TokenClient>::from(&self.env, &self.alice);
         let client = self.test_client.client();
