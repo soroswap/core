@@ -307,5 +307,8 @@ fn pair_initialization() {
     let token_1 = SoroswapClient::<TokenClient>::from(&env, &alice);
 
     client.create_pair(&token_0.address(), &token_1.address());
+    let first_pair_call = client.get_pair(&token_0.address(), &token_1.address());
+    let second_pair_call = client.get_pair(&token_1.address(), &token_0.address());
+    assert_eq!(first_pair_call, second_pair_call);
     let factory_address = factory_api.address();
 }
