@@ -57,7 +57,8 @@ pub enum SoroswapClient<'a, T> {
 impl<'a> SoroswapClient<'a, FactoryClient<'a>> {
     // initialize
     fn new(env: &'a Env, alice: &Address) -> SoroswapClient<'a, FactoryClient<'a>> {
-        SoroswapClient::FactoryClient(env, FactoryClient::new(&env, &env.register_stellar_asset_contract(alice.clone())) )
+        // SoroswapClient::FactoryClient(env, FactoryClient::new(&env, &env.register_stellar_asset_contract(alice.clone())) )
+        SoroswapClient::FactoryClient(env, FactoryClient::new(&env, &env.register_contract_wasm(None, FACTORY_WASM)) )
     }
     fn from(env: &'a Env, factory_client: FactoryClient<'a>) -> SoroswapClient<'a, FactoryClient<'a>> {
         Self::FactoryClient(env, factory_client)
@@ -265,11 +266,34 @@ pub struct SoroswapTest<'a, T, U: SoroswapClientTrait<'a, T>>
 // }
 
 impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a>>> {
+    // fn new_from_client(test_client: &'a SoroswapClient<'a, FactoryClient<'a>>) -> Self {    
+    //     let env: Env = Default::default();
+    //     let alice: Address = Address::random(&env);
+    //     // let test_client = SoroswapClient::<FactoryClient>::new(&env, &alice);
+    //     let contract_address = test_client.address().clone();
+    //     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
+    //     let invoke = MockAuthInvoke {
+    //         contract: &contract_address,
+    //         fn_name: "initialize",
+    //         args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+    //         sub_invokes: &[],
+    //     };
+    //     let mock_auth = MockAuth {
+    //         address: &alice,
+    //         invoke: &invoke,
+    //     };
+    //     let mock_auths = &[mock_auth];
+    //     Self {
+    //         env: env.clone(),
+    //         client:PhantomData,
+    //         test_client,
+    //         alice: alice.clone(),
+    //         mock_auths
+    //     }
+    // }
     fn initialize(env: &'a Env, alice: &'a Address, test_client: &'a SoroswapClient<'a, FactoryClient<'a>>, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
-        
         let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
         let contract_address = test_client.address();
-        let mocked_client = test_client.mock_auth_helper(env, alice, mock_auths);
         Self {
             env: env.clone(),
             client:PhantomData,
@@ -290,7 +314,6 @@ fn pair_initialization() {
     // let token_api_1 = SoroswapTest::<TokenClient, SoroswapClient<TokenClient>>::new(&alice, &env);
     let env: Env = Default::default();
     let alice: Address = Address::random(&env);
-    // let factory_client = FactoryClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let test_client = SoroswapClient::<FactoryClient>::new(&env, &alice);
     let contract_address = test_client.address().clone();
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -305,14 +328,9 @@ fn pair_initialization() {
         invoke: &invoke,
     };
     let mock_auths = &[mock_auth];
-    let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &test_client, mock_auths);
-
+    let mocked_client = test_client.mock_auth_helper(&env, &alice, mock_auths);
+    assert_eq!(test_client.address(), mocked_client.address());
+    let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mocked_client, mock_auths);
+    factory_api.test_client.client().initialize(&alice.clone(), &pair_hash.clone());
     let factory_address = factory_api.address();
-    // let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
-    // factory_api.address();
-
-    // let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &factory_api.address, "initialize", (alice.clone(), pair_hash.clone(),).into_val(&env));
-
-    // factory_api.invoke(&alice, &factory_address, "initialize", (alice.clone(), pair_hash.clone(),).into_val(&env));
-    // factory_api.initialize(&env, &alice, &factory_address, "initialize", (alice.clone(), pair_hash.clone(),).into_val(&env));
 }
