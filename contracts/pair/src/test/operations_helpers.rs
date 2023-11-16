@@ -206,7 +206,7 @@ mod tests {
     }
 
     #[test]
-    fn call_pair_client() {
+    fn mocked_mint() {
         let env: Env = Default::default();
         let alice: Address = Address::random(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
@@ -228,13 +228,32 @@ mod tests {
         let mock_auths = &[mock_auth];
         let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
         let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
-        // let pair_address = factory_api.create_a_pair();
-        // let pair_client = SoroswapClient::<PairClient>::from(&env, &pair_address);
-        // let token_0 = pair_client.token_0();
-        // let token_1 = pair_client.token_1();
-        // let token_0_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_0);
-        // let token_1_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_1);
-        // assert_ne!(token_0_client.address(), token_1_client.address());
-        
+        let pair_address = factory_api.create_a_pair();
+        let pair_client = SoroswapClient::<PairClient>::from(&env, &pair_address);
+        let token_0 = pair_client.token_0();
+        let token_1 = pair_client.token_1();
+        let token_0_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_0);
+        let token_1_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_1);
+
+        // invoke declaration
+        let bob = Address::random(&env);
+        let amount: i128 = 1001;
+        let token_0_sub_invokes = &[];
+        let token_0_invoke = SoroswapClient::<FactoryClient>::generate_mock_auth_invoke(
+            &token_0,
+            &alice,
+            "mint",
+            (bob.clone(), amount,).into_val(&env),
+            token_0_sub_invokes,
+        );
+        let mock_auth_token_0 = MockAuth {
+            address: &alice,
+            invoke: &token_0_invoke,
+        };
+        let mock_auths_token_0 = &[mock_auth_token_0];
+        let mocked_client = token_0_client.mock_auth_helper(&env, &alice, mock_auths_token_0);
+        mocked_client.mint(&alice, &bob, &amount, Some(mock_auths_token_0));
+        let balance = mocked_client.balance(&bob);
+        assert_eq!(balance, amount);
     }
 }

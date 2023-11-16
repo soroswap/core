@@ -55,25 +55,34 @@ impl<'a> SoroswapClient<'a, TokenClient<'a>> {
     pub fn from_token_address(env: &'a Env, token_address: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
         Self::TokenClient(&env, TokenClient::new(&env, token_address))
     }
-    pub fn mint(self, alice: &'a Address, recipient: &'a Address, token_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mock_auths_option: Option<&'a [MockAuth<'a>; 1]>) {
+    pub fn mint(&self, alice: &'a Address, recipient: &'a Address, amount: &'a i128, mock_auths_option: Option<&'a [MockAuth<'a>; 1]>) {
         if let Some(mockauths) = mock_auths_option {
-            match self {
-                Self::TokenClient(_, client ) => {
-                    client
-                        .mock_auths(mockauths)
-                        .mint(recipient, &amount)
-                },
-                _ => {},
-            };
+            self
+                .client()
+                .mock_auths(mockauths)
+                .mint(recipient, amount);
+            // match self {
+            //     Self::TokenClient(_, client ) => {
+            //         client
+            //             .mock_auths(mockauths)
+            //             .mint(recipient, amount)
+            //     },
+            //     _ => SoroswapClientError::WrongBindingType(&self).dispatch_error(),
+            // };
         } else {
             match self {
                 Self::TokenClient(_, client ) => {
                     client
                         .mint(recipient, &amount)
                 },
-                _ => {},
+                _ => SoroswapClientError::WrongBindingType(&self).dispatch_error(),
             };
         };
+    }
+    pub fn balance(&self, address: &'a Address) -> i128 {
+        self
+            .client()
+            .balance(address)
     }
 }
 
@@ -205,7 +214,7 @@ impl<'a> SoroswapClientTrait<'a, TokenClient<'a>> for SoroswapClient<'a, TokenCl
             _ => SoroswapClientError::WrongBindingType(&self).dispatch_error(),
         }
     }
-    fn mock_auth_helper(&'a self, env: &'a Env, alice: &'a Address, mock_auths: &   'a [MockAuth<'a>; 1]) -> Self {
+    fn mock_auth_helper(&'a self, env: &'a Env, alice: &'a Address, mock_auths: &'a [MockAuth<'a>; 1]) -> Self {
         let ref client = self.client();
         Self::TokenClient(env, client.mock_auths(mock_auths))
     }
