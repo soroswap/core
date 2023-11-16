@@ -30,8 +30,14 @@ testnet)
   SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
   FRIENDBOT_URL="https://friendbot.stellar.org/"
   ;;
+testnet-public)
+  echo "Using Futurenet network with public RPC https://soroban-testnet.stellar.org/"
+  SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+  FRIENDBOT_URL="https://friendbot.stellar.org/"
+  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
+  ;;
 *)
-  echo "Usage: $0 standalone|futurenet|testnet"
+  echo "Usage: $0 standalone|futurenet|testnet|testnet-public"
   exit 1
   ;;
 esac
