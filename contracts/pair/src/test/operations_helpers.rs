@@ -18,7 +18,9 @@ mod tests {
             SoroswapTest,
             SoroswapClient,
             SoroswapClientTrait,
-            token,
+            token::{
+                TokenClient,
+            },
             pair::{
                 WASM as PAIR_WASM,
             },
@@ -28,7 +30,7 @@ mod tests {
             },
         },
         SoroswapPair, 
-        SoroswapPairClient,
+        SoroswapPairClient as PairClient,
     };
 
     #[test]
@@ -75,7 +77,7 @@ mod tests {
         let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
         let mut factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
         let pair_address = factory_api.create_a_pair();
-        let pair_client = SoroswapPairClient::new(&env, &pair_address);
+        let pair_client = PairClient::new(&env, &pair_address);
         assert_ne!(pair_client.token_0(), pair_client.token_1());
     }
 
@@ -100,7 +102,36 @@ mod tests {
         let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
         let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
         // let pair_address = factory_api.create_a_pair();
-        // let pair_client = SoroswapPairClient::new(&env, &pair_address);
+        // let pair_client = PairClient::new(&env, &pair_address);
+        // assert_ne!(pair_client.token_0(), pair_client.token_1());
+        let pair_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
+        for n in 0..=1 {
+            let pair_address = factory_api.create_a_pair();
+        }
+    }
+
+    #[test]
+    fn create_2_pair_two_times() {
+        let env: Env = Default::default();
+        let alice: Address = Address::random(&env);
+        let factory_client = SoroswapClient::<FactoryClient>::from(&env);
+        let contract_address = factory_client.address().clone();
+        let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
+        let invoke = MockAuthInvoke {
+            contract: &contract_address,
+            fn_name: "initialize",
+            args: (alice.clone(), pair_hash.clone(),).into_val(&env),
+            sub_invokes: &[],
+        };
+        let mock_auth = MockAuth {
+            address: &alice,
+            invoke: &invoke,
+        };
+        let mock_auths = &[mock_auth];
+        let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
+        let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
+        // let pair_address = factory_api.create_a_pair();
+        // let pair_client = PairClient::new(&env, &pair_address);
         // assert_ne!(pair_client.token_0(), pair_client.token_1());
         let pair_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
         for n in 0..=1 {
@@ -166,11 +197,44 @@ mod tests {
         let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
         let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
         // let pair_address = factory_api.create_a_pair();
-        // let pair_client = SoroswapPairClient::new(&env, &pair_address);
+        // let pair_client = PairClient::new(&env, &pair_address);
         // assert_ne!(pair_client.token_0(), pair_client.token_1());
         let mut pair_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
         for n in 0..=1_000_000 {
             pair_list.push(factory_api.create_a_pair());
         }
+    }
+
+    #[test]
+    fn call_pair_client() {
+        let env: Env = Default::default();
+        let alice: Address = Address::random(&env);
+        let factory_client = SoroswapClient::<FactoryClient>::from(&env);
+        let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
+        let fn_name = "initialize";
+        let sub_invokes = &[];
+        let args = (alice.clone(), pair_hash.clone(),).into_val(&env);
+        let invoke = SoroswapClient::<FactoryClient>::generate_mock_auth_invoke(
+            factory_client.address(),
+            &alice,
+            fn_name,
+            args,
+            sub_invokes,
+        );
+        let mock_auth = MockAuth {
+            address: &alice,
+            invoke: &invoke,
+        };
+        let mock_auths = &[mock_auth];
+        let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
+        let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
+        // let pair_address = factory_api.create_a_pair();
+        // let pair_client = SoroswapClient::<PairClient>::from(&env, &pair_address);
+        // let token_0 = pair_client.token_0();
+        // let token_1 = pair_client.token_1();
+        // let token_0_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_0);
+        // let token_1_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_1);
+        // assert_ne!(token_0_client.address(), token_1_client.address());
+        
     }
 }

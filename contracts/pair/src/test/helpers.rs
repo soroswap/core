@@ -31,7 +31,7 @@ pub mod factory {
 use soroban_sdk::testutils::Address as _;
 use crate::{
     SoroswapPair, 
-    SoroswapPairClient,
+    SoroswapPairClient as PairClient,
 };
 use token::TokenClient;
 use factory::{
@@ -49,10 +49,53 @@ pub enum SoroswapClient<'a, T> {
 
 impl<'a> SoroswapClient<'a, TokenClient<'a>> {
     // initialize
-    pub fn from(env: &'a Env, address: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
-        Self::TokenClient(&env, TokenClient::new(&env, &env.register_stellar_asset_contract(address.clone())))
+    pub fn from(env: &'a Env, alice: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
+        Self::TokenClient(&env, TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone())))
     }
+    pub fn from_token_address(env: &'a Env, token_address: &Address) -> SoroswapClient<'a, TokenClient<'a>> {
+        Self::TokenClient(&env, TokenClient::new(&env, token_address))
+    }
+    pub fn mint(self, alice: &'a Address, recipient: &'a Address, token_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mock_auths_option: Option<&'a [MockAuth<'a>; 1]>) {
+        if let Some(mockauths) = mock_auths_option {
+            match self {
+                Self::TokenClient(_, client ) => {
+                    client
+                        .mock_auths(mockauths)
+                        .mint(recipient, &amount)
+                },
+                _ => {},
+            };
+        } else {
+            match self {
+                Self::TokenClient(_, client ) => {
+                    client
+                        .mint(recipient, &amount)
+                },
+                _ => {},
+            };
+        };
+    }
+}
 
+impl<'a> SoroswapClient<'a, PairClient<'a>> {
+    // initialize
+    pub fn from(env: &'a Env, address: &Address) -> SoroswapClient<'a, PairClient<'a>> {
+        Self::PairClient(&env, PairClient::new(&env, address))
+    }
+    pub fn token_0(&self) -> Address {
+        if let Self::PairClient(_, client) = self {
+            client.token_0()
+        } else {
+            SoroswapClientError::WrongBindingType(self).dispatch_error()
+        }
+    }
+    pub fn token_1(&self) -> Address{
+        if let Self::PairClient(_, client) = self {
+            client.token_1()
+        } else {
+            SoroswapClientError::WrongBindingType(self).dispatch_error()
+        }
+    }
 }
 
 impl<'a> SoroswapClient<'a, FactoryClient<'a>> {
@@ -168,7 +211,7 @@ impl<'a> SoroswapClientTrait<'a, TokenClient<'a>> for SoroswapClient<'a, TokenCl
     }
 }
 
-impl<'a> SoroswapClientTrait<'a, SoroswapPairClient<'a>> for SoroswapClient<'a, SoroswapPairClient<'a>> {
+impl<'a> SoroswapClientTrait<'a, PairClient<'a>> for SoroswapClient<'a, PairClient<'a>> {
     fn env(&'a self) -> &'a Env {
         match self {
             Self::PairClient(env, _) => { 
@@ -181,7 +224,7 @@ impl<'a> SoroswapClientTrait<'a, SoroswapPairClient<'a>> for SoroswapClient<'a, 
         let SoroswapClient::PairClient(_, client) = self else { SoroswapClientError::WrongBindingType(self).dispatch_error() };
         &client.address
     }
-    fn client(&'a self) -> &'a SoroswapPairClient<'a> {
+    fn client(&'a self) -> &'a PairClient<'a> {
         match self {
             Self::PairClient(_, client) => { 
                 &client
@@ -242,12 +285,10 @@ impl<'a, T> SoroswapTest<'a, T, SoroswapClient<'a, T>>
 }
 
 impl<'a> SoroswapTest<'a, TokenClient<'a>, SoroswapClient<'a, TokenClient<'a>>> {
-    pub fn mint(alice: &'a Address, token_client: &'a mut SoroswapClient<'a, TokenClient<'a>>, amount: i128, mocks_auths: &'a [MockAuth<'a>; 1]) {
 
-    }
 }
 
-impl<'a> SoroswapTest<'a, SoroswapPairClient<'a>, SoroswapClient<'a, SoroswapPairClient<'a>>> {
+impl<'a> SoroswapTest<'a, PairClient<'a>, SoroswapClient<'a, PairClient<'a>>> {
 
 }
 
