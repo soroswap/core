@@ -131,3 +131,19 @@ To test the Pair contract, inside the `soroban-preview-9` container run:
 ```bash
 bash initialize_factory.sh standalone
 ```
+
+# Manual Testing Using soroban-cli
+Inside the Docker image do
+```
+NETWORK="standalone"
+bash scripts/manual_testing/generate_user.sh
+bash scripts/manual_testing/mint.sh $NETWORK
+bash scripts/manual_testing/add_liquidity.sh $NETWORK
+#bash scripts/manual_testing/swap.sh $NETWORK # not working yet
+bash scripts/manual_testing/remove_liquidity.sh $NETWORK
+```
+
+Feeling lazy?
+```
+bash scripts/manual_testing/all.sh standalone
+```
