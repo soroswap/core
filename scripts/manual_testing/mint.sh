@@ -84,7 +84,7 @@ echo "Minting TOKEN_1:"
 soroban contract invoke \
   --network $NETWORK --source token-admin \
   --wasm $TOKEN_WASM \
-  --id $TOKEN_0_ADDRESS \
+  --id $TOKEN_1_ADDRESS \
   -- \
   mint \
   --to "$USER_PUBLIC" \

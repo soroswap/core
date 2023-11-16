@@ -77,19 +77,19 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 
     soroban contract invoke \
         --network $NETWORK \
-        --source "user" \
+        --source $USER_SECRET \
         --wasm $ROUTER_WASM \
         --id $ROUTER_ADDRESS \
         -- \
         add_liquidity \
-        --token_a "$TOKEN_0_ADDRESS" \
-        --token_b "$TOKEN_1_ADDRESS" \
+        --token_a $TOKEN_1_ADDRESS \
+        --token_b $TOKEN_0_ADDRESS \
         --amount_a_desired 10000000000 \
         --amount_b_desired 10000000000 \
         --amount_a_min 0 \
         --amount_b_min 0 \
-        --to $USER_PUBLIC\
-        --deadline 999999999
+        --to $USER_PUBLIC \
+        --deadline 9737055687 # year 2278
 
 # TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
 # ADMIN_PUBLIC=$(cat .soroban/token_admin_public)
