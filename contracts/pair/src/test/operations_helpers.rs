@@ -229,21 +229,25 @@ mod tests {
         let mut mocked_client = factory_client.mock_auth_helper(&env, &alice, mock_auths);
         let factory_api = SoroswapTest::<FactoryClient, SoroswapClient<FactoryClient>>::initialize(&env, &alice, &mut mocked_client, mock_auths);
         let pair_address = factory_api.create_a_pair();
+        // let mut pairs_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
+        // for _ in 0..1 { // : pair UZI
+        //     pairs_list.push(factory_api.create_a_pair());
+        // }
         let pair_client = SoroswapClient::<PairClient>::from(&env, &pair_address);
         let token_0 = pair_client.token_0();
         let token_1 = pair_client.token_1();
         let token_0_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_0);
         let token_1_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_1);
 
-        // invoke declaration
         let bob = Address::random(&env);
-        let amount: i128 = 1001;
+        // invoke declaration for token_0
+        let amount: i128 = 10_000_000_000;
         let token_0_sub_invokes = &[];
         let token_0_invoke = SoroswapClient::<FactoryClient>::generate_mock_auth_invoke(
             &token_0,
             &alice,
             "mint",
-            (bob.clone(), amount,).into_val(&env),
+            (alice.clone(), amount,).into_val(&env),
             token_0_sub_invokes,
         );
         let mock_auth_token_0 = MockAuth {
@@ -251,9 +255,37 @@ mod tests {
             invoke: &token_0_invoke,
         };
         let mock_auths_token_0 = &[mock_auth_token_0];
-        let mocked_client = token_0_client.mock_auth_helper(&env, &alice, mock_auths_token_0);
-        mocked_client.mint(&alice, &bob, &amount, Some(mock_auths_token_0));
-        let balance = mocked_client.balance(&bob);
-        assert_eq!(balance, amount);
+        // mint for token_0 of the pair
+        let mocked_client_0 = token_0_client.mock_auth_helper(&env, &alice, mock_auths_token_0);
+        mocked_client_0.mint(&alice, &alice, &amount, Some(mock_auths_token_0));
+        let balance_0 = mocked_client_0.balance(&alice);
+        assert_eq!(balance_0, amount);
+
+        // invoke declaration for token_1
+        let amount_1: i128 = 10_000_000_000;
+        let token_1_sub_invokes = &[];
+        let token_1_invoke = SoroswapClient::<FactoryClient>::generate_mock_auth_invoke(
+            &token_1,
+            &alice,
+            "mint",
+            (alice.clone(), amount_1,).into_val(&env),
+            token_1_sub_invokes,
+        );
+        let mock_auth_token_1 = MockAuth {
+            address: &alice,
+            invoke: &token_1_invoke,
+        };
+        let mock_auths_token_1 = &[mock_auth_token_1];
+        // mint for token_1 of the pair
+        let mocked_client_1 = token_1_client.mock_auth_helper(&env, &alice, mock_auths_token_1);
+        mocked_client_1.mint(&alice, &alice, &amount_1, Some(mock_auths_token_1));
+        let balance_1 = mocked_client_1.balance(&alice);
+        assert_eq!(balance_1, amount_1);
+
+        // factory_api.create_a_pair();
+        // let mut pair_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
+        // for _ in 0..=1 {
+            // pair_list.push(factory_api.create_a_pair());
+        // }
     }
 }
