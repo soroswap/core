@@ -145,7 +145,7 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 #       to: Address,
 #       deadline: u64,
 #   ) 
-soroban contract invoke \
+soroban --very-verbose contract invoke \
     --network $NETWORK \
     --source $USER_SECRET \
     --wasm $ROUTER_WASM \
