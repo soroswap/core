@@ -15,8 +15,10 @@ futurenet)
   FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
   ;;
 testnet)
-  echo "Using Futurenet network"
+  echo "Using Testnet network"
   FRIENDBOT_URL="https://friendbot.stellar.org/"
+  ## TODO: Remove when solving the rpc problem:_
+  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
   ;;
 testnet-public)
   echo "Using Futurenet network with public RPC https://soroban-testnet.stellar.org/"
