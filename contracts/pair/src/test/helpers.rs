@@ -102,6 +102,11 @@ impl<'a> SoroswapClient<'a, PairClient<'a>> {
             .client()
             .withdraw(address)
     }
+    pub fn deposit(&self, address: &'a Address) -> i128 {
+        self
+            .client()
+            .deposit(address)
+    }
 }
 
 impl<'a> SoroswapClient<'a, FactoryClient<'a>> {
