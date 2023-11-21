@@ -107,6 +107,11 @@ impl<'a> SoroswapClient<'a, PairClient<'a>> {
             .client()
             .deposit(address)
     }
+    pub fn swap(&self, amount_token_0_out: &'a i128, amount_token_1_out: &'a i128, to: &'a Address) {
+        self
+            .client()
+            .swap(amount_token_0_out, amount_token_1_out, to)
+    }
 }
 
 impl<'a> SoroswapClient<'a, FactoryClient<'a>> {
