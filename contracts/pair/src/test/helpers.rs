@@ -61,14 +61,6 @@ impl<'a> SoroswapClient<'a, TokenClient<'a>> {
                 .client()
                 .mock_auths(mockauths)
                 .mint(recipient, amount);
-            // match self {
-            //     Self::TokenClient(_, client ) => {
-            //         client
-            //             .mock_auths(mockauths)
-            //             .mint(recipient, amount)
-            //     },
-            //     _ => SoroswapClientError::WrongBindingType(&self).dispatch_error(),
-            // };
         } else {
             match self {
                 Self::TokenClient(_, client ) => {
@@ -104,6 +96,11 @@ impl<'a> SoroswapClient<'a, PairClient<'a>> {
         } else {
             SoroswapClientError::WrongBindingType(self).dispatch_error()
         }
+    }
+    pub fn withdraw(&self, address: &'a Address) -> (i128, i128) {
+        self
+            .client()
+            .withdraw(address)
     }
 }
 
