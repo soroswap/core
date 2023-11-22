@@ -27,8 +27,8 @@ futurenet)
   ;;
 testnet)
   echo "Using Testnet network"
+  SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
   FRIENDBOT_URL="https://friendbot.stellar.org/"
-  ## TODO: Remove when solving the rpc problem:_
   SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
   ;;
 testnet-public)
