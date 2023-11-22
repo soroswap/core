@@ -9,6 +9,7 @@ use soroban_sdk::{  symbol_short,
     Address, 
     BytesN, 
     Env,
+    String,
     IntoVal, Symbol};
 use crate::{SoroswapPairClient};
 
@@ -19,7 +20,9 @@ mod token {
 }
 use token::TokenClient;
 fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
-    TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
+    let token_address = &e.register_contract_wasm(None, token::WASM);
+    let token = TokenClient::new(e, token_address);
+    token
 }
 
 // FACTORY CONTRACT
@@ -86,6 +89,15 @@ impl<'a> SoroswapPairTest<'a> {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         
+        let name_0 = String::from_slice(&env, "Token 0");
+        let symbol_0 = String::from_slice(&env, "TOKEN0");
+        let name_1 = String::from_slice(&env, "Token 1");
+        let symbol_1 = String::from_slice(&env, "TOKEN1");
+        let decimals = 7;
+
+        token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
+        token_1.initialize(&admin, &decimals, &name_1, &symbol_1);
+
         token_0.mint(&user, &123_000_000_000_000_000_000);
         token_1.mint(&user, &321_000_000_000_000_000_000);
 
