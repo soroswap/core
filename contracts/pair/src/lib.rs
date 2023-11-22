@@ -10,8 +10,14 @@ mod event;
 mod uq64x64;
 mod storage;
 
+// ANY TOKEN CONTRACT
+mod any_token {
+    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    pub type TokenClient<'a> = Client<'a>;
+}
+
 use storage::*;
-use token::{Token, TokenClient, internal_mint, internal_burn};
+use token::{SoroswapPairToken, internal_mint, internal_burn};
 use uq64x64::fraction;
 
 
@@ -76,7 +82,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         put_factory(&e, factory);
 
-        Token::initialize(
+        SoroswapPairToken::initialize(
                 e.clone(),
                 e.current_contract_address(),
                 7,
@@ -317,7 +323,7 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     fn my_balance(e: Env, id: Address) -> i128 {
-        Token::balance(e.clone(), id)
+        SoroswapPairToken::balance(e.clone(), id)
     }
 
     fn k_last(e: Env) -> i128 {
@@ -338,7 +344,7 @@ impl SoroswapPairTrait for SoroswapPair {
 fn get_balance(e: &Env, contract_id: Address) -> i128 {
     // How many "contract_id" tokens does this contract holds?
     // We need to implement the token client
-    TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
+    any_token::TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
 }
 
 fn get_balance_0(e: &Env) -> i128 {
@@ -354,7 +360,7 @@ fn get_balance_1(e: &Env) -> i128 {
 fn get_balance_shares(e: &Env) -> i128 {
     // How many "SHARE" tokens does the Liquidity pool holds?
     // This shares should have been sent by the user when burning their LP positions (withdraw)
-    Token::balance(e.clone(), e.current_contract_address())
+    SoroswapPairToken::balance(e.clone(), e.current_contract_address())
 }
 
 fn burn_shares(e: &Env, amount: i128) {
@@ -372,7 +378,7 @@ fn mint_shares(e: &Env, to: &Address, amount: i128) {
 
 
 fn transfer(e: &Env, contract_id: Address, to: &Address, amount: i128) {
-    TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
+    any_token::TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
 }
 
 fn transfer_token_0_from_pair(e: &Env, to: &Address, amount: i128) {
