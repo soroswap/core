@@ -11,6 +11,7 @@ mod uq64x64;
 mod storage;
 
 // ANY TOKEN CONTRACT
+// TODO: Simplify this and use a any_token_interface
 mod any_token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
@@ -445,10 +446,10 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
     let u_64_max_into_i128: i128 = u_64_max.into();
 
     if balance_0 > u_64_max_into_i128 {
-        panic!("Soroswap: OVERFLOW")
+        panic!("SoroswapPair: OVERFLOW")
     }
     if balance_1 > u_64_max_into_i128 {
-        panic!("Soroswap: OVERFLOW")
+        panic!("SoroswapPair: OVERFLOW")
     }
 
     // uint32 blockTimestamp = uint32(block.timestamp % 2**32);

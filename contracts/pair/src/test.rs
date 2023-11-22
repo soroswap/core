@@ -1,16 +1,18 @@
 #![cfg(test)]
 extern crate std;
-use soroban_sdk::{  symbol_short,
-    testutils::{Events},
-    Vec,
-    Val,
-    vec,
+use soroban_sdk::{
+    // symbol_short,
+    // testutils::{Events},
+    // Vec,
+    // Val,
+    // vec,
     testutils::{Address as _},
     Address, 
     BytesN, 
     Env,
     String,
-    Symbol};
+    // Symbol
+};
 use crate::{SoroswapPairClient};
 
 // TOKEN CONTRACT
@@ -55,11 +57,11 @@ fn create_pair_contract<'a>(
     liqpool
 }
 
-// HELPERS
-fn last_event_vec(e: &Env) -> Vec<(Address, Vec<Val>, Val)>{
-    vec![&e, e.events().all().last().unwrap()]
-}
-const PAIR: Symbol = symbol_short!("PAIR");
+// // HELPERS
+// fn last_event_vec(e: &Env) -> Vec<(Address, Vec<Val>, Val)>{
+//     vec![&e, e.events().all().last().unwrap()]
+// }
+// const PAIR: Symbol = symbol_short!("PAIR");
 
 
 // THE TEST
@@ -125,11 +127,11 @@ impl<'a> SoroswapPairTest<'a> {
 
 // TESTS MODS (in ./test/ folder)
 mod initialize_pair;
-// mod operations;
-mod decode;
+mod operations;
+// mod decode;
 mod deposit;
 mod swap;
-// mod helpers;
+mod helpers;
 // mod operations_helpers;
 
 

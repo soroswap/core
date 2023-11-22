@@ -17,7 +17,7 @@ fn swap() {
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     add_liquidity(&test, &amount_0, &amount_1);
 
-    let mut init_time = 12345;
+    let init_time = 12345;
     test.env.ledger().with_mut(|li| {
         li.timestamp = init_time;
     });

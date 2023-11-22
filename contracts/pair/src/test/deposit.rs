@@ -19,7 +19,7 @@ fn deposit_basic() {
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
     
-    let mut init_time = 12345;
+    let init_time = 12345;
     test.env.ledger().with_mut(|li| {
         li.timestamp = init_time;
     });
