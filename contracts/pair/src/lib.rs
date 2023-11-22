@@ -2,19 +2,10 @@
 
 mod test;
 mod token;
-mod create;
 mod event;
-mod factory; 
+mod factory_mock; 
 mod uq64x64;
 mod storage;
-
-
-// mod storage::{get_factory, has_token_0, get_token_0, get_token_1,
-//     get_total_shares, get_reserve_0, get_reserve_1, get_block_timestamp_last,
-//     get_price_0_cumulative_last, get_price_1_cumulative_last, get_klast, get_balance
-//     get_balance_0, get_balance_1, get_balance_shares, put_factory, put_token_0, put_token_1,
-//     put_total_shares, put_reserve_0, put_reserve_1, put_block_timestamp_last, put_price_0_cumulative_last, 
-//     put_price_1_cumulative_last, put_klast};
 
 use storage::*;
 use num_integer::Roots; 
@@ -22,7 +13,7 @@ use soroban_sdk::{
     contract, contractimpl, contractmeta, Address, Env, IntoVal}; 
 
 use token::{Token, TokenClient, internal_mint, internal_burn};
-use factory::{FactoryClient};
+use factory_mock::{FactoryMockClient};
 use uq64x64::fraction;
 use soroban_sdk::token::Interface;
 
@@ -147,7 +138,7 @@ fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
 
 fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     let factory = get_factory(&e);
-    let factory_client = FactoryClient::new(&e, &factory);
+    let factory_client = FactoryMockClient::new(&e, &factory);
     //  address feeTo = IUniswapV2Factory(factory).feeTo();
     //  feeOn = feeTo != address(0);
     let fee_on = factory_client.fees_enabled();
