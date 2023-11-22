@@ -11,9 +11,12 @@ crate-type = ["cdylib"]
 soroban-sdk = { version = "20.0.0-rc2" }
 soroban-token-sdk = { version = "20.0.0-rc2" }
 num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
+soroswap-factory-interface={ path="../factory-interface", version="0.0.1", package="soroswap-factory-interface" }
+
 
 [dev_dependencies]
 soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] } 
+soroswap-factory-interface={path="../factory-interface"}
 
 [profile.release]
 opt-level = "z"

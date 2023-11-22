@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate std;
 use soroban_sdk::{  symbol_short,
-    testutils::{Events, Ledger},
+    testutils::{Events},
     Vec,
     Val,
     vec,
@@ -10,7 +10,7 @@ use soroban_sdk::{  symbol_short,
     BytesN, 
     Env,
     String,
-    IntoVal, Symbol};
+    Symbol};
 use crate::{SoroswapPairClient};
 
 // TOKEN CONTRACT
@@ -19,7 +19,7 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 use token::TokenClient;
-fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
+fn create_token_contract<'a>(e: &Env) -> TokenClient<'a> {
     let token_address = &e.register_contract_wasm(None, token::WASM);
     let token = TokenClient::new(e, token_address);
     token
@@ -49,10 +49,7 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
 }
 
 fn create_pair_contract<'a>(
-    e: & Env,
-    factory: & Address,
-    token_a: & Address,
-    token_b: & Address,
+    e: & Env
 ) -> SoroswapPairClient<'a> {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
     liqpool
@@ -83,8 +80,8 @@ impl<'a> SoroswapPairTest<'a> {
         env.mock_all_auths();
         let user = Address::random(&env);
         let admin = Address::random(&env);
-        let mut token_0 = create_token_contract(&env, &admin);
-        let mut token_1 = create_token_contract(&env, &admin);
+        let mut token_0 = create_token_contract(&env);
+        let mut token_1 = create_token_contract(&env);
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             std::mem::swap(&mut token_0, &mut token_1);
         }
@@ -106,9 +103,6 @@ impl<'a> SoroswapPairTest<'a> {
 
         let contract = create_pair_contract(
             &env,
-            &factory.address,
-            &token_0.address,
-            &token_1.address,
         );
 
         // TODO: Get rid of this hack?

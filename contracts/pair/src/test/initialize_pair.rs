@@ -5,7 +5,7 @@ mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
-use token::TokenClient;
+//use token::TokenClient;
 
 
 
