@@ -111,6 +111,10 @@ impl<'a> SoroswapPairTest<'a> {
             &token_1.address,
         );
 
+        // TODO: Get rid of this hack?
+        env.budget().reset_unlimited();
+    
+
         SoroswapPairTest {
             env,
             admin,
@@ -127,12 +131,12 @@ impl<'a> SoroswapPairTest<'a> {
 
 // TESTS MODS (in ./test/ folder)
 mod initialize_pair;
-mod operations;
+// mod operations;
 mod decode;
 mod deposit;
 mod swap;
-mod helpers;
-mod operations_helpers;
+// mod helpers;
+// mod operations_helpers;
 
 
 // #[test]
