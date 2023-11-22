@@ -1121,9 +1121,17 @@ dependencies = [
 
 [[package]]
 name = "soroswap-factory"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "num-integer",
+ "soroban-sdk",
+ "soroswap-factory-interface",
+]
+
+[[package]]
+name = "soroswap-factory-interface"
+version = "0.0.1"
+dependencies = [
  "soroban-sdk",
 ]
 
