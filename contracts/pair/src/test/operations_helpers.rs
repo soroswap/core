@@ -105,7 +105,7 @@ mod tests {
         // let pair_client = PairClient::new(&env, &pair_address);
         // assert_ne!(pair_client.token_0(), pair_client.token_1());
         let pair_list: alloc::vec::Vec<Address> = alloc::vec::Vec::new();
-        for n in 0..=1 {
+        for _ in 0..=1 {
             let pair_address = factory_api.create_a_pair();
         }
     }
