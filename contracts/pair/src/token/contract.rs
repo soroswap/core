@@ -18,10 +18,10 @@ fn check_nonnegative_amount(amount: i128) {
 }
 
 #[contract]
-pub struct Token;
+pub struct SoroswapPairToken;
 
 #[contractimpl]
-impl Token {
+impl SoroswapPairToken {
     pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) {
         if has_administrator(&e) {
             panic!("already initialized")
@@ -68,7 +68,7 @@ impl Token {
 }
 
 #[contractimpl]
-impl token::Interface for Token {
+impl token::Interface for SoroswapPairToken { 
     fn allowance(e: Env, from: Address, spender: Address) -> i128 {
         e.storage()
             .instance()
