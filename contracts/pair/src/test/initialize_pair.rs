@@ -1,5 +1,5 @@
 use crate::test::{SoroswapPairTest};
-use crate::token::{SoroswapPairTokenClient};
+use crate::token::{SoroswapPairTokenClient, SoroswapPairToken};
 use soroban_sdk::{String};
 
 // // TOKEN CONTRACT
@@ -49,10 +49,20 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.price_0_cumulative_last(), 0);
     assert_eq!(test.contract.price_1_cumulative_last(), 0);
-
+    
     // Test pair as token
-    //let pair_as_token_client = SoroswapPairTokenClient::new(&test.env, &test.contract.address);
-    // assert_eq!(pair_as_token_client.balance(&test.user), String::from_slice(&test.env, "SOROSWAP-LP"));
-    //assert_eq!(pair_as_token_client.balance(&test.user), 0);
+    /*
+    For the purpose of testing SoroswapPairToken functions, we would need to "register" the contract
+    again into the test env:
+    https://docs.rs/soroban-sdk/20.0.0-rc2/soroban_sdk/struct.Env.html#method.register_contract_wasm
+    This is because env.register_contract(Client) just takes into account the functions given by that client
+    And register_contract_wasm does not knows how to handle the panic errors
 
+    However, here we will use the same address, in order to get the already written info
+    */
+    
+    let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
+    assert_eq!(pair_token_client.symbol(), String::from_slice(&test.env, "SOROSWAP-LP"));
+    assert_eq!(pair_token_client.name(), String::from_slice(&test.env, "Soroswap LP Token"));
+    assert_eq!(pair_token_client.decimals(), 7);
 }
