@@ -12,13 +12,6 @@ use soroban_sdk::{  symbol_short,
     IntoVal, Symbol};
 use crate::{SoroswapPairClient};
 
-// TESTS MODS (in ./test/ folder)
-mod operations;
-mod decode;
-mod deposit;
-mod swap;
-
-
 // TOKEN CONTRACT
 mod token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
@@ -59,7 +52,6 @@ fn create_pair_contract<'a>(
     token_b: & Address,
 ) -> SoroswapPairClient<'a> {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    liqpool.initialize_pair(factory, token_a, token_b);
     liqpool
 }
 
@@ -118,27 +110,16 @@ impl<'a> SoroswapPairTest<'a> {
         }
     }
 }
-             
+           
 
-        
 
-#[test]
-fn test_initial_values() {
-    let test = SoroswapPairTest::setup();
-    assert_eq!(test.factory.fee_to(), test.admin);
-    assert_eq!(test.factory.fee_to_setter(), test.admin);
-    assert_eq!(test.factory.fees_enabled(), false);
+// TESTS MODS (in ./test/ folder)
+mod initialize_pair;
+mod operations;
+mod decode;
+mod deposit;
+mod swap;
 
-     // Test liqpool initial values:
-     assert_eq!(test.contract.token_0(), test.token_0.address);
-     assert_eq!(test.contract.token_1(), test.token_1.address);
-     assert_eq!(test.contract.factory(), test.factory.address);
-     assert_eq!(test.contract.get_reserves(), (0,0,0));
-     assert_eq!(test.contract.k_last(), 0);
-     assert_eq!(test.contract.price_0_cumulative_last(), 0);
-     assert_eq!(test.contract.price_1_cumulative_last(), 0);
-
-}
 
 // #[test]
 // fn test() {

@@ -72,6 +72,11 @@ fn get_factory(e: &Env) -> Address {
 get(&DataKey::Factory).unwrap()
 }
 
+// Helper function in order to know if the contract has been initialized or not
+pub fn has_token_0(e: &Env) -> bool {
+    e.storage().instance().has(&DataKey::Token0)
+}
+
 fn get_token_0(e: &Env) -> Address {
     e.storage().instance().
 get(&DataKey::Token0).unwrap()
@@ -383,7 +388,7 @@ contractmeta!(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address);
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address);
 
     fn deposit(e:Env, to: Address)  -> i128;
 
@@ -427,10 +432,13 @@ impl SoroswapPairTrait for SoroswapPair {
     
     // TODO: Implement name for pairs depending on the tokens
     // TODO: This cannot be called again
-    fn initialize_pair(e: Env, factory: Address, token_a: Address, token_b: Address) {
-        if token_a >= token_b {
-            panic!("token_a must be less than token_b");
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) {
+        assert!(!has_token_0(&e), "SoroswapPair: already initialized");
+
+        if token_0 >= token_1 {
+            panic!("SoroswapPair: token_0 must be less than token_1");
         }
+
         put_factory(&e, factory);
 
         Token::initialize(
@@ -441,8 +449,8 @@ impl SoroswapPairTrait for SoroswapPair {
                 "SOROSWAP-LP".into_val(&e)
             );
 
-        put_token_0(&e, token_a);
-        put_token_1(&e, token_b);
+        put_token_0(&e, token_0);
+        put_token_1(&e, token_1);
         put_total_shares(&e, 0);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
