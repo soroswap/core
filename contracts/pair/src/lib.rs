@@ -1,228 +1,21 @@
 #![no_std]
+use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, IntoVal}; 
+use soroban_sdk::token::Interface;
+use num_integer::Roots; 
+use soroswap_factory_interface::SoroswapFactoryClient;
 
 mod test;
 mod token;
 mod event;
-mod factory_mock; 
 mod uq64x64;
 mod storage;
 
 use storage::*;
-use num_integer::Roots; 
-use soroban_sdk::{ 
-    contract, contractimpl, contractmeta, Address, Env, IntoVal}; 
-
 use token::{Token, TokenClient, internal_mint, internal_burn};
-use factory_mock::{FactoryMockClient};
 use uq64x64::fraction;
-use soroban_sdk::token::Interface;
+
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
-
-// #[derive(Clone, Copy)] 
-// #[repr(u32)]
-/*
-TODO: Analize UniswapV2
-    // Use kind of SafeMath?
-    // using UQ112x112 for uint224;
-    // uint public constant MINIMUM_LIQUIDITY = 10**3;
-    // bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
-    // uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
-    // uint public price0CumulativeLast;
-    // uint public price1CumulativeLast;
-    // uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
-
-TODO: Analize reentrancy attack guard?
-
-    uint private unlocked = 1;
-    modifier lock() {
-        require(unlocked == 1, 'UniswapV2: LOCKED');
-        unlocked = 0;
-        _;
-        unlocked = 1;
-    }
-*/
-
-
-fn get_balance(e: &Env, contract_id: Address) -> i128 {
-    // How many "contract_id" tokens does this contract holds?
-    // We need to implement the token client
-    TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
-}
-
-fn get_balance_0(e: &Env) -> i128 {
-    // How many "A TOKENS" does the Liquidity Pool holds?
-    // How many "A TOKENS" does this contract holds?
-    get_balance(e, get_token_0(e))
-}
-
-fn get_balance_1(e: &Env) -> i128 {
-    get_balance(e, get_token_1(e))
-}
-
-fn get_balance_shares(e: &Env) -> i128 {
-    // How many "SHARE" tokens does the Liquidity pool holds?
-    // This shares should have been sent by the user when burning their LP positions (withdraw)
-    Token::balance(e.clone(), e.current_contract_address())
-}
-
-
-fn burn_shares(e: &Env, amount: i128) {
-    let total = get_total_shares(e);
-    internal_burn(e.clone(), e.current_contract_address(), amount);
-    put_total_shares(&e, total.checked_sub(amount).unwrap());
-}
-
-fn mint_shares(e: &Env, to: &Address, amount: i128) {
-    let total = get_total_shares(e);
-    internal_mint(e.clone(), to.clone(), amount);
-    //put_total_shares(e, total + amount);
-    put_total_shares(&e, total.checked_add(amount).unwrap());
-}
-
-
-// // Safe transfer: Solidity Specific
-// function _safeTransfer(address token, address to, uint value) private {
-//     (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
-//     require(success && (data.length == 0 || abi.decode(data, (bool))), 'UniswapV2: TRANSFER_FAILED');
-// }
-
-fn transfer(e: &Env, contract_id: Address, to: &Address, amount: i128) {
-    TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
-}
-
-fn transfer_token_0_from_pair(e: &Env, to: &Address, amount: i128) {
-    // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
-    transfer(e, get_token_0(e), &to, amount);
-}
-
-fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
-    transfer(e, get_token_1(e), &to, amount);
-}
-
-// fn get_deposit_amounts(
-//     desired_a: i128,
-//     min_a: i128,
-//     desired_b: i128,
-//     min_b: i128,
-//     reserve_0: i128,
-//     reserve_1: i128,
-// ) -> (i128, i128) {
-//     // Compare it with UniswapV2 Router
-//     if reserve_0 == 0 && reserve_1 == 0 {
-//         return (desired_a, desired_b);
-//     }
-
-//     //let amount_b = desired_a * reserve_1
-//     let amount_b = desired_a.checked_mul(reserve_1).unwrap().checked_div(reserve_0).unwrap();
-//     if amount_b <= desired_b {
-//         if amount_b < min_b {
-//             panic!("amount_b less than min")
-//         }
-//         (desired_a, amount_b)
-//     } else {
-//         //let amount_a = desired_b * reserve_0 / reserve_1;
-//         let amount_a = desired_b.checked_mul(reserve_0).unwrap().checked_div(reserve_1).unwrap();
-//         if amount_a > desired_a || desired_a < min_a {
-//             panic!("amount_a invalid")
-//         }
-//         (amount_a, desired_b)
-//     }
-// }
-
-/*
-        accumulated fees are collected only when liquidity is deposited
-        or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
-        to the fee beneficiary, immediately before any tokens are minted or burned 
-*/
-
-fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
-    let factory = get_factory(&e);
-    let factory_client = FactoryMockClient::new(&e, &factory);
-    //  address feeTo = IUniswapV2Factory(factory).feeTo();
-    //  feeOn = feeTo != address(0);
-    let fee_on = factory_client.fees_enabled();
-    let klast = get_klast(&e);
-     
-    if fee_on{
-        let fee_to: Address = factory_client.fee_to();
-
-        if klast != 0 {
-            let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
-            let root_klast = (klast).sqrt();
-            if root_k > root_klast{
-                // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                let total_shares = get_total_shares(&e);
-                let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
-        
-                // uint denominator = rootK.mul(5).add(rootKLast);
-                let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
-                // uint liquidity = numerator / denominator;
-
-                let liquidity_pool_shares_fees = numerator.checked_div(denominator).unwrap();
-
-                // if (liquidity > 0) _mint(feeTo, liquidity);
-                if liquidity_pool_shares_fees > 0 {
-                    mint_shares(&e, &fee_to,    liquidity_pool_shares_fees);
-                }
-            }
-        }
-    } else if klast != 0{
-        put_klast(&e, 0);
-    }
-
-    fee_on
-}
-
-//function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
-    // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
-    
-    // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
-    // This is becase u64 will be used to calculate the price as a UQ64x64
-    let u_64_max: u64 = u64::MAX;
-    let u_64_max_into_i128: i128 = u_64_max.into();
-
-    if balance_0 > u_64_max_into_i128 {
-        panic!("Soroswap: OVERFLOW")
-    }
-    if balance_1 > u_64_max_into_i128 {
-        panic!("Soroswap: OVERFLOW")
-    }
-
-    // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-    // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
-    // For Soroswap we can use u64, and will overflow in the year 2554,
-
-    let block_timestamp: u64 = e.ledger().timestamp();
-    let block_timestamp_last: u64 = get_block_timestamp_last(&e);
-
-    // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-    let time_elapsed: u64 = block_timestamp - block_timestamp_last;
-
-    // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
-    if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
-        //     // * never overflows, and + overflow is desired
-        //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed; 
-        
-        let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
-        let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
-        // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
-        put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
-        put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
-    }
-    // reserve0 = uint112(balance0);
-    // reserve1 = uint112(balance1);
-    put_reserve_0(&e, balance_0);
-    put_reserve_1(&e, balance_1);
-
-    // blockTimestampLast = blockTimestamp;
-    put_block_timestamp_last(&e, block_timestamp);
-
-    // emit Sync(reserve0, reserve1);
-    event::sync(&e, reserve_0, reserve_1);
-}
 
 // Metadata that is added on to the WASM custom section
 contractmeta!(
@@ -274,8 +67,6 @@ struct SoroswapPair;
 #[contractimpl]
 impl SoroswapPairTrait for SoroswapPair {
     
-    // TODO: Implement name for pairs depending on the tokens
-    // TODO: This cannot be called again
     fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) {
         assert!(!has_token_0(&e), "SoroswapPair: already initialized");
 
@@ -298,10 +89,7 @@ impl SoroswapPairTrait for SoroswapPair {
         put_total_shares(&e, 0);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
-
-
     }
-
 
     fn token_0(e: Env) -> Address {
         get_token_0(&e)
@@ -314,7 +102,7 @@ impl SoroswapPairTrait for SoroswapPair {
     fn factory(e: Env) -> Address {
         get_factory(&e)
     }
-    // function mint(address to) external lock returns (uint liquidity) {
+
     fn deposit(e: Env, to: Address) -> i128 {
         //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -505,7 +293,7 @@ impl SoroswapPairTrait for SoroswapPair {
         (amount_0,amount_1)
     }
 
-    // force balances to match reserves
+    /// force balances to match reserves
     fn skim(e: Env, to: Address) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -513,7 +301,7 @@ impl SoroswapPairTrait for SoroswapPair {
         transfer_token_1_from_pair(&e, &to, balance_1.checked_sub(reserve_1).unwrap());
     }
 
-    // force reserves to match balances
+    /// force reserves to match balances
     fn sync(e: Env) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -543,5 +331,150 @@ impl SoroswapPairTrait for SoroswapPair {
         get_price_1_cumulative_last(&e)
     }
     
+}
 
+
+
+fn get_balance(e: &Env, contract_id: Address) -> i128 {
+    // How many "contract_id" tokens does this contract holds?
+    // We need to implement the token client
+    TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
+}
+
+fn get_balance_0(e: &Env) -> i128 {
+    // How many "A TOKENS" does the Liquidity Pool holds?
+    // How many "A TOKENS" does this contract holds?
+    get_balance(e, get_token_0(e))
+}
+
+fn get_balance_1(e: &Env) -> i128 {
+    get_balance(e, get_token_1(e))
+}
+
+fn get_balance_shares(e: &Env) -> i128 {
+    // How many "SHARE" tokens does the Liquidity pool holds?
+    // This shares should have been sent by the user when burning their LP positions (withdraw)
+    Token::balance(e.clone(), e.current_contract_address())
+}
+
+fn burn_shares(e: &Env, amount: i128) {
+    let total = get_total_shares(e);
+    internal_burn(e.clone(), e.current_contract_address(), amount);
+    put_total_shares(&e, total.checked_sub(amount).unwrap());
+}
+
+fn mint_shares(e: &Env, to: &Address, amount: i128) {
+    let total = get_total_shares(e);
+    internal_mint(e.clone(), to.clone(), amount);
+    //put_total_shares(e, total + amount);
+    put_total_shares(&e, total.checked_add(amount).unwrap());
+}
+
+
+fn transfer(e: &Env, contract_id: Address, to: &Address, amount: i128) {
+    TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
+}
+
+fn transfer_token_0_from_pair(e: &Env, to: &Address, amount: i128) {
+    // Execute the transfer function in TOKEN_A to send "amount" of tokens from this Pair contract to "to"
+    transfer(e, get_token_0(e), &to, amount);
+}
+
+fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
+    transfer(e, get_token_1(e), &to, amount);
+}
+
+fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
+
+    /*
+            accumulated fees are collected only when liquidity is deposited
+            or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
+            to the fee beneficiary, immediately before any tokens are minted or burned 
+    */
+
+    let factory = get_factory(&e);
+    let factory_client = SoroswapFactoryClient::new(&e, &factory);
+    //  address feeTo = IUniswapV2Factory(factory).feeTo();
+    //  feeOn = feeTo != address(0);
+    let fee_on = factory_client.fees_enabled();
+    let klast = get_klast(&e);
+     
+    if fee_on{
+        let fee_to: Address = factory_client.fee_to();
+
+        if klast != 0 {
+            let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
+            let root_klast = (klast).sqrt();
+            if root_k > root_klast{
+                // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
+                let total_shares = get_total_shares(&e);
+                let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
+        
+                // uint denominator = rootK.mul(5).add(rootKLast);
+                let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
+                // uint liquidity = numerator / denominator;
+
+                let liquidity_pool_shares_fees = numerator.checked_div(denominator).unwrap();
+
+                // if (liquidity > 0) _mint(feeTo, liquidity);
+                if liquidity_pool_shares_fees > 0 {
+                    mint_shares(&e, &fee_to,    liquidity_pool_shares_fees);
+                }
+            }
+        }
+    } else if klast != 0{
+        put_klast(&e, 0);
+    }
+
+    fee_on
+}
+
+//function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
+fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
+    // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
+    
+    // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
+    // This is becase u64 will be used to calculate the price as a UQ64x64
+    let u_64_max: u64 = u64::MAX;
+    let u_64_max_into_i128: i128 = u_64_max.into();
+
+    if balance_0 > u_64_max_into_i128 {
+        panic!("Soroswap: OVERFLOW")
+    }
+    if balance_1 > u_64_max_into_i128 {
+        panic!("Soroswap: OVERFLOW")
+    }
+
+    // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+    // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
+    // For Soroswap we can use u64, and will overflow in the year 2554,
+
+    let block_timestamp: u64 = e.ledger().timestamp();
+    let block_timestamp_last: u64 = get_block_timestamp_last(&e);
+
+    // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
+    let time_elapsed: u64 = block_timestamp - block_timestamp_last;
+
+    // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
+    if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
+        //     // * never overflows, and + overflow is desired
+        //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
+        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed; 
+        
+        let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
+        let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
+        // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
+        put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
+        put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
+    }
+    // reserve0 = uint112(balance0);
+    // reserve1 = uint112(balance1);
+    put_reserve_0(&e, balance_0);
+    put_reserve_1(&e, balance_1);
+
+    // blockTimestampLast = blockTimestamp;
+    put_block_timestamp_last(&e, block_timestamp);
+
+    // emit Sync(reserve0, reserve1);
+    event::sync(&e, reserve_0, reserve_1);
 }
