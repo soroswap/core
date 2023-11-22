@@ -1,5 +1,6 @@
 use crate::test::{SoroswapPairTest};
-use soroban_sdk::{testutils::{Ledger}};
+use soroban_sdk::{String};
+
 
 
 #[test]
@@ -25,15 +26,20 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.factory.fee_to(), test.admin);
     assert_eq!(test.factory.fee_to_setter(), test.admin);
     assert_eq!(test.factory.fees_enabled(), false);
+    
+    assert_eq!(test.token_0.symbol(), String::from_slice(&test.env, "TOKEN0"));
+    assert_eq!(test.token_1.symbol(), String::from_slice(&test.env, "TOKEN1"));
+    assert_eq!(test.token_0.name(), String::from_slice(&test.env, "Token 0"));
+    assert_eq!(test.token_1.name(), String::from_slice(&test.env, "Token 1"));
 
-     // Test liqpool initial values:
-     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-     assert_eq!(test.contract.token_0(), test.token_0.address);
-     assert_eq!(test.contract.token_1(), test.token_1.address);
-     assert_eq!(test.contract.factory(), test.factory.address);
-     assert_eq!(test.contract.get_reserves(), (0,0,0));
-     assert_eq!(test.contract.k_last(), 0);
-     assert_eq!(test.contract.price_0_cumulative_last(), 0);
-     assert_eq!(test.contract.price_1_cumulative_last(), 0);
+    // Test liqpool initial values:
+    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    assert_eq!(test.contract.token_0(), test.token_0.address);
+    assert_eq!(test.contract.token_1(), test.token_1.address);
+    assert_eq!(test.contract.factory(), test.factory.address);
+    assert_eq!(test.contract.get_reserves(), (0,0,0));
+    assert_eq!(test.contract.k_last(), 0);
+    assert_eq!(test.contract.price_0_cumulative_last(), 0);
+    assert_eq!(test.contract.price_1_cumulative_last(), 0);
 
 }
