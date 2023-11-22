@@ -1,5 +1,11 @@
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{String};
+// TOKEN CONTRACT
+mod token {
+    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    pub type TokenClient<'a> = Client<'a>;
+}
+use token::TokenClient;
 
 
 
@@ -41,5 +47,9 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.price_0_cumulative_last(), 0);
     assert_eq!(test.contract.price_1_cumulative_last(), 0);
+
+    // Test pair as token
+    // let pair_as_token_client = TokenClient::new(&test.env, &test.contract.address);
+    // assert_eq!(pair_as_token_client.symbol(), String::from_slice(&test.env, "SOROSWAP-LP"));
 
 }
