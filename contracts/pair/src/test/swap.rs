@@ -5,6 +5,10 @@ use soroban_sdk::{testutils::{Ledger}};
 #[test]
 fn swap() {
     let test = SoroswapPairTest::setup();
+    
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+    
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);
 
