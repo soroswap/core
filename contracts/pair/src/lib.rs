@@ -153,69 +153,33 @@ impl SoroswapPairTrait for SoroswapPair {
 
     /// this low-level function should be called from a contract which performs important safety checks
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
+        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
         
-        // require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
-        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
-        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
-
-        // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         
-        // require(amount0Out < _reserve0 && amount1Out < _reserve1, 'UniswapV2: INSUFFICIENT_LIQUIDITY');
+        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
+        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
         if amount_0_out >= reserve_0|| amount_1_out >= reserve_1 { panic!("SoroswapPair: insufficient liquidity") }
-
-        //     uint balance0;
-        //     uint balance1;
-        //     { // scope for _token{0,1}, avoids stack too deep errors
-        //     address _token0 = token0;
-        //     address _token1 = token1;
-
-        //     require(to != _token0 && to != _token1, 'UniswapV2: INVALID_TO');
         if to == get_token_0(&e) || to == get_token_1(&e) {panic!("SoroswapPair: invalid to")}
-        
-        // if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
-        // if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+
         if amount_0_out > 0 {transfer_token_0_from_pair(&e, &to, amount_0_out);}
         if amount_1_out > 0 {transfer_token_1_from_pair(&e, &to, amount_1_out);}
-            
-        /*
-            In Uniswap, Flashloans are allowed. In Soroban this is not possible. Here we don't need this line:
-            // if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
-         */
-
-        //     balance0 = IERC20(_token0).balanceOf(address(this));
-        //     balance1 = IERC20(_token1).balanceOf(address(this));
+    
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        // uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
-        // uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         let amount_0_in = if balance_0 > reserve_0.checked_sub(amount_0_out).unwrap() {
             balance_0.checked_sub(reserve_0.checked_sub(amount_0_out).unwrap()).unwrap()
         } else{
             0
         };
-
         let amount_1_in = if balance_1 > reserve_1.checked_sub(amount_1_out).unwrap() {
             balance_1.checked_sub(reserve_1.checked_sub(amount_1_out).unwrap()).unwrap()
         } else{
             0
         };
 
-        //     require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
         if amount_0_in == 0 && amount_1_in == 0 {panic!("SoroswapPair: insufficient input amount")}
         if amount_0_in < 0 || amount_1_in < 0 { panic!("SoroswapPair: negatives dont supported") }
-
-        // // uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
-        // // uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
-        // let balance_0_adjusted = balance_0.checked_mul(1000).unwrap().checked_sub(amount_0_in.checked_mul(3).unwrap()).unwrap();
-        // let balance_1_adjusted = balance_1.checked_mul(1000).unwrap().checked_sub(amount_1_in.checked_mul(3).unwrap()).unwrap();
-
-        // // require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
-        // if balance_0_adjusted.checked_mul(balance_1_adjusted).unwrap() <
-        //     reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.checked_pow(2).unwrap()).unwrap() {
-        //         panic!("SoroswapPair: K constant is not met")
-        //     }
-
 
         let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
         let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
@@ -228,14 +192,8 @@ impl SoroswapPairTrait for SoroswapPair {
                 panic!("SoroswapPair: K constant is not met")
             }
 
-
-
-        // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-
-        // emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
         event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
-
 
     }
 
