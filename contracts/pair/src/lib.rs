@@ -37,7 +37,7 @@ pub trait SoroswapPairTrait{
     fn deposit(e:Env, to: Address)  -> i128;
 
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
-    fn swap (e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
 
     fn withdraw(e: Env, to: Address) -> (i128, i128);
 
@@ -224,16 +224,30 @@ impl SoroswapPairTrait for SoroswapPair {
         if amount_0_in == 0 && amount_1_in == 0 {panic!("SoroswapPair: insufficient input amount")}
         if amount_0_in < 0 || amount_1_in < 0 { panic!("SoroswapPair: negatives dont supported") }
 
-        // uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
-        // uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
-        let balance_0_adjusted = balance_0.checked_mul(1000).unwrap().checked_sub(amount_0_in.checked_mul(3).unwrap()).unwrap();
-        let balance_1_adjusted = balance_1.checked_mul(1000).unwrap().checked_sub(amount_1_in.checked_mul(3).unwrap()).unwrap();
+        // // uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
+        // // uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
+        // let balance_0_adjusted = balance_0.checked_mul(1000).unwrap().checked_sub(amount_0_in.checked_mul(3).unwrap()).unwrap();
+        // let balance_1_adjusted = balance_1.checked_mul(1000).unwrap().checked_sub(amount_1_in.checked_mul(3).unwrap()).unwrap();
 
-        // require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
-        if balance_0_adjusted.checked_mul(balance_1_adjusted).unwrap() <
-            reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.checked_pow(2).unwrap()).unwrap() {
+        // // require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
+        // if balance_0_adjusted.checked_mul(balance_1_adjusted).unwrap() <
+        //     reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.checked_pow(2).unwrap()).unwrap() {
+        //         panic!("SoroswapPair: K constant is not met")
+        //     }
+
+
+        let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
+        let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
+
+        let balance_0_minus_fee = balance_0.checked_sub(fee_0).unwrap();
+        let balance_1_minus_fee = balance_1.checked_sub(fee_1).unwrap();
+
+        if balance_0_minus_fee.checked_mul(balance_1_minus_fee).unwrap() <
+            reserve_0.checked_mul(reserve_1).unwrap() {
                 panic!("SoroswapPair: K constant is not met")
             }
+
+
 
         // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
