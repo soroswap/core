@@ -133,6 +133,7 @@ mod deposit;
 mod swap;
 mod helpers;
 // mod operations_helpers;
+mod soroswap_pair_token;
 
 
 // #[test]
