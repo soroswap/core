@@ -214,7 +214,7 @@ fn swap_tokens_for_exact_tokens() {
     path.push_back(test.token_0.address.clone());
     path.push_back(test.token_1.address.clone());
 
-    let expected_amount_out = 5_000_000;
+    let _expected_amount_out = 5_000_000;
     // For a 1 swap, get_amounts_in returns [input, output]
     // let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
 
