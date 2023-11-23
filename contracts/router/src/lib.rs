@@ -35,6 +35,12 @@ impl TryFromVal<Env, DataKey> for Val {
     }
 }
 
+fn check_nonnegative_amount(amount: i128) {
+    if amount < 0 {
+        panic!("SoroswapRouter: negative amount is not allowed: {}", amount)
+    }
+}
+
 fn put_factory(e: &Env, factory: &Address) {
     e.storage().instance().set(&DataKey::Factory, &factory);
 }
@@ -365,6 +371,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> (i128, i128, i128) {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_nonnegative_amount(amount_a_desired);
+        check_nonnegative_amount(amount_b_desired);
+        check_nonnegative_amount(amount_a_min);
+        check_nonnegative_amount(amount_b_min);
         // returns (uint amountA, uint amountB, uint liquidity)
 
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
@@ -424,6 +434,9 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> (i128, i128) {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_nonnegative_amount(liquidity);
+        check_nonnegative_amount(amount_a_min);
+        check_nonnegative_amount(amount_b_min);
         // returns (uint amountA, uint amountB)
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
         // and then take the tokens from the user
@@ -490,6 +503,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> Vec<i128> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_nonnegative_amount(amount_in);
+        check_nonnegative_amount(amount_out_min);
         
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
         // and then take the tokens from the user
@@ -550,6 +565,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
         deadline: u64,
     ) -> Vec<i128> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_nonnegative_amount(amount_out);
+        check_nonnegative_amount(amount_in_max);
 
 
         // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();

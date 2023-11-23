@@ -341,7 +341,6 @@ impl SoroswapPairTrait for SoroswapPair {
 }
 
 
-
 fn get_balance(e: &Env, contract_id: Address) -> i128 {
     // How many "contract_id" tokens does this contract holds?
     // We need to implement the token client
