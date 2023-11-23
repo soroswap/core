@@ -1,10 +1,10 @@
 //! This contract demonstrates a sample implementation of the Soroban token
 //! interface.
-use crate::token::admin::{has_administrator, read_administrator, write_administrator};
-use crate::token::allowance::{read_allowance, spend_allowance, write_allowance};
-use crate::token::balance::{read_balance, receive_balance, spend_balance};
-use crate::token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
-use crate::token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
+use crate::soroswap_pair_token::admin::{has_administrator, read_administrator, write_administrator};
+use crate::soroswap_pair_token::allowance::{read_allowance, spend_allowance, write_allowance};
+use crate::soroswap_pair_token::balance::{read_balance, receive_balance, spend_balance};
+use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::soroswap_pair_token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use soroban_sdk::token::{self, Interface as _};
 use soroban_sdk::{contract, contractimpl, Address, Env, String};
 use soroban_token_sdk::metadata::TokenMetadata;

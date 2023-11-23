@@ -1,5 +1,5 @@
 use crate::test::{SoroswapPairTest};
-use crate::token::{SoroswapPairTokenClient, SoroswapPairToken};
+use crate::soroswap_pair_token::{SoroswapPairTokenClient, SoroswapPairToken};
 use soroban_sdk::{String};
 
 // // TOKEN CONTRACT
