@@ -213,9 +213,6 @@ fn swap_token_1_optimal_plus_1() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     
-    let original_0: i128 = test.token_0.balance(&test.user);
-    let original_1: i128 = test.token_1.balance(&test.user);
-
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
