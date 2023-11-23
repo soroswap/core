@@ -49,6 +49,10 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.price_0_cumulative_last(), 0);
     assert_eq!(test.contract.price_1_cumulative_last(), 0);
+    assert_eq!(test.contract.total_shares(), 0);
+    assert_eq!(test.contract.k_last(), 0);
+    assert_eq!(test.contract.price_0_cumulative_last(), 0);
+    assert_eq!(test.contract.price_1_cumulative_last(), 0);
     
     // Test pair as token
     /*

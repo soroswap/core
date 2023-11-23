@@ -98,7 +98,7 @@ impl SoroswapPairTrait for SoroswapPair {
         put_reserve_1(&e, 0);
     }
 
-    fn token_0(e: Env) -> Address {
+    fn token_0(e: Env) -> Address { 
         get_token_0(&e)
     }
 
@@ -111,62 +111,43 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     fn deposit(e: Env, to: Address) -> i128 {
-        //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
+
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-
-        //     uint balance0 = IERC20(token0).balanceOf(address(this));
-        //     uint balance1 = IERC20(token1).balanceOf(address(this));
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-
-        //     uint amount0 = balance0.sub(_reserve0);
         let amount_0 = balance_0.checked_sub(reserve_0).unwrap();
-
-        //     uint amount1 = balance1.sub(_reserve1);
         let amount_1 = balance_1.checked_sub(reserve_1).unwrap();
+        if amount_0 <= 0 { panic!("SoroswapPair: insufficient amount of token 0 sent") }
+        if amount_1 <= 0 { panic!("SoroswapPair: insufficient amount of token 1 sent") }
 
-        //     bool feeOn = _mintFee(_reserve0, _reserve1);
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-
-        //  uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
 
-        // if (_totalSupply == 0) {
         let liquidity = if total_shares == 0 {
-            // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
-            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY); 
-            // and liquidity get's this value:
-            // liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
-            ((amount_0.checked_mul(amount_1).unwrap()).sqrt()).checked_sub(MINIMUM_LIQUIDITY).unwrap()
+            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
+            let previous_liquidity =  (amount_0.checked_mul(amount_1).unwrap()).sqrt();
+            if previous_liquidity <= MINIMUM_LIQUIDITY {
+                panic!("SoroswapPair: insufficient first liquidity minted") 
+            }
+            (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         }
         else{
-                // liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
                 let shares_a = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
                 let shares_b = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
                 shares_a.min(shares_b)
         };
         
-
-        // require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
         if liquidity <= 0 { panic!("SoroswapPair: insufficient liquidity minted") }
 
-        // _mint(to, liquidity);
         mint_shares(&e, &to, liquidity.clone());
-
-        // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
        
-        // Reserves where updated
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        // if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-
-        //emit Mint(msg.sender, amount0, amount1);
         event::deposit(&e, &to, amount_0, amount_1);
-
-        // returns (uint liquidity)
         liquidity
     }
 
