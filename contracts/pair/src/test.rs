@@ -124,16 +124,24 @@ impl<'a> SoroswapPairTest<'a> {
 }
            
 
-
-// TESTS MODS (in ./test/ folder)
+// Tests written by esteblock
 mod initialize_pair;
-mod operations;
-// mod decode;
 mod deposit;
 mod swap;
-mod helpers;
-// mod operations_helpers;
+mod withdraw;
+// mod decode; // wont be used for now
+
+// Test forked by stellar/soroban-examples
 mod soroswap_pair_token;
+
+// Uncompleted tests written by labormedia
+// now in unused_files folder
+// mod operations_helpers;
+// mod operations;
+// mod helpers;
+
+
+
 
 
 // #[test]
