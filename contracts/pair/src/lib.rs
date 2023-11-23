@@ -231,7 +231,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         // require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
         if balance_0_adjusted.checked_mul(balance_1_adjusted).unwrap() <
-            reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.pow(2)).unwrap() {
+            reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.checked_pow(2).unwrap()).unwrap() {
                 panic!("SoroswapPair: K constant is not met")
             }
 
