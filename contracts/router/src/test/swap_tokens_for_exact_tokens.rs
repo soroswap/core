@@ -22,6 +22,37 @@ fn swap_tokens_for_exact_tokens_not_initialized() {
         &0); // deadline
 }
 
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
+fn swap_tokens_for_exact_tokens_amount_out_negative() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let path: Vec<Address> = Vec::new(&test.env);
+    test.contract.swap_tokens_for_exact_tokens(
+        &-1, //amount_out
+        &0,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &0); // deadline
+}
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
+fn swap_tokens_for_exact_tokens_amount_in_max_negative() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let path: Vec<Address> = Vec::new(&test.env);
+    test.contract.swap_tokens_for_exact_tokens(
+        &0, //amount_out
+        &-1,  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &0); // deadline
+}
+
 #[test]
 #[should_panic(expected = "SoroswapRouter: expired")]
 fn swap_tokens_for_exact_tokens_expired() {
