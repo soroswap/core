@@ -5,7 +5,7 @@ use num_integer::Roots;
 use soroswap_factory_interface::SoroswapFactoryClient;
 
 mod test;
-mod token;
+mod soroswap_pair_token;
 mod event;
 mod uq64x64;
 mod storage;
@@ -18,7 +18,7 @@ mod any_token {
 }
 
 use storage::*;
-use token::{SoroswapPairToken, internal_mint, internal_burn};
+use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
 use uq64x64::fraction;
 
 

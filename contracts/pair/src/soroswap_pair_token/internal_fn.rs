@@ -1,5 +1,5 @@
-use crate::token::balance::{spend_balance, receive_balance};
-use crate::token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
+use crate::soroswap_pair_token::balance::{spend_balance, receive_balance};
+use crate::soroswap_pair_token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use soroban_token_sdk::TokenUtils;
 
 
