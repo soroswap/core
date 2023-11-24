@@ -133,9 +133,9 @@ impl SoroswapPairTrait for SoroswapPair {
             (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         }
         else{
-                let shares_a = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
-                let shares_b = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
-                shares_a.min(shares_b)
+                let shares_0 = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
+                let shares_1 = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
+                shares_0.min(shares_1)
         };
         
         if liquidity <= 0 { panic!("SoroswapPair: insufficient liquidity minted") }
