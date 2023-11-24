@@ -48,6 +48,9 @@ TOKENS_FILE="/workspace/.soroban/tokens.json"
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
 
+TOKEN_0_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_0_ADDRESS)
+TOKEN_1_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_1_ADDRESS)
+
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].symbol' "$TOKENS_FILE")
 TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].symbol' "$TOKENS_FILE")
 
@@ -59,9 +62,11 @@ echo We will use the following test tokens in the $NETWORK network
 echo "..."
 echo TOKEN_0_SYMBOL: $TOKEN_0_SYMBOL
 echo TOKEN_0_ADDRESS: $TOKEN_0_ADDRESS
+echo TOKEN_0_HEX: $TOKEN_0_HEX
 echo "..."
 echo TOKEN_1_SYMBOL: $TOKEN_1_SYMBOL
 echo TOKEN_1_ADDRESS: $TOKEN_1_ADDRESS
+echo TOKEN_1_HEX: $TOKEN_1_HEX
 
 
 
@@ -97,7 +102,7 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
         swap_exact_tokens_for_tokens \
         --amount_in 1000000000 \
         --amount_out_min 0 \
-        --path "{\"vec\":[{\"address\": {\"contract\": \"$TOKEN_0_ADDRESS\"}}, {\"address\": {\"contract\": \"$TOKEN_0_ADDRESS\"}}]}" \
+        --path "{\"vec\":[{\"address\": {\"contract\": \"$TOKEN_0_HEX\"}}, {\"address\": {\"contract\": \"$TOKEN_1_HEX\"}}]}" \
         --to $USER_PUBLIC \
         --deadline 9737055687 # year 2278
 
