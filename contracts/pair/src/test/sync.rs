@@ -2,16 +2,15 @@ use crate::test::deposit::add_liquidity;
 use crate::test::{SoroswapPairTest};
 #[test]
 #[should_panic]
-fn skim_nothing() {
+fn sync_not_initialized() {
     // zero tokens are being sent
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.skim(&test.user);
+    test.contract.sync();
 }
 
 #[test]
-fn skim_with_liquidity_nothing_to_skim() {
-    // zero tokens are being sent
+fn sync_with_liquidity_nothing_to_sync() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
@@ -29,7 +28,7 @@ fn skim_with_liquidity_nothing_to_skim() {
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
     assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
 
-    test.contract.skim(&test.user);
+    test.contract.sync();
     //no tokens where sent to the user, nothing changed
     assert_eq!(test.token_0.balance(&test.user), original_0.checked_sub(amount_0).unwrap());
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
@@ -41,8 +40,7 @@ fn skim_with_liquidity_nothing_to_skim() {
 
 
 #[test]
-fn skim() {
-    // zero tokens are being sent
+fn sync() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
@@ -69,12 +67,11 @@ fn skim() {
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1 + amount_1_extra);
     assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
 
-    test.contract.skim(&test.admin);
+    test.contract.sync();
+    //no tokens where sent to the user, nothing changed -- only reserves!
     assert_eq!(test.token_0.balance(&test.user), original_0 - amount_0 - amount_0_extra);
     assert_eq!(test.token_1.balance(&test.user), original_1 - amount_1 - amount_1_extra);
-    assert_eq!(test.token_0.balance(&test.admin), amount_0_extra);
-    assert_eq!(test.token_1.balance(&test.admin), amount_1_extra);
-    assert_eq!(test.token_0.balance(&test.contract.address), amount_0);
-    assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+    assert_eq!(test.token_0.balance(&test.contract.address), amount_0 + amount_0_extra);
+    assert_eq!(test.token_1.balance(&test.contract.address), amount_1 + amount_1_extra);
+    assert_eq!(test.contract.get_reserves(), (amount_0 + amount_0_extra, amount_1 + amount_1_extra,0));
 }
