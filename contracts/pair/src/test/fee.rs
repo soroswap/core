@@ -13,13 +13,16 @@ fn fee_off() {
     let expected_liquidity: i128 =  70_710_678;
     let minimum_liquidity: i128 = 1_000;
 
+    assert_eq!(test.contract.k_last(), 0);
     add_liquidity(&test, &amount_0, &amount_1);
+    assert_eq!(test.contract.k_last(), 0);
 
     let swap_amount_0 = 10_000_000;
     let expected_output_amount_1 = 16624979;
 
     test.token_0.transfer(&test.user, &test.contract.address, &swap_amount_0);
     test.contract.swap(&0, &expected_output_amount_1, &test.user);
+    assert_eq!(test.contract.k_last(), 0);
 
     // Now we need to treat the contract as a SoroswapPairTokenClient
     let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
@@ -30,6 +33,7 @@ fn fee_off() {
     // Now the env has that address again as a SoroswapPairClient
 
     test.contract.withdraw(&test.user);
+    assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.my_balance(&test.user), 0);
     assert_eq!(test.contract.total_shares(), minimum_liquidity);
     assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
