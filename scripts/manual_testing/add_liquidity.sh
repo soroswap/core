@@ -43,7 +43,7 @@ curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 
 
-TOKENS_FILE="/workspace/.soroban/tokens.json"
+TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
@@ -71,7 +71,7 @@ echo "..."
 echo "..."
 echo We will add liquidity: 1,000 units of each token
 echo "..."
-ROUTER_FILE="/workspace/.soroban/router.json"
+ROUTER_FILE="/workspace/public/router.json"
 ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 
