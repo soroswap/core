@@ -34,7 +34,7 @@ bash scripts/run.sh
 
 This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
 
-Remember here to choose standalone or futurenet
+Remember here to choose standalone, testnet or futurenet
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
