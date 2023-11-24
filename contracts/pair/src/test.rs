@@ -57,13 +57,6 @@ fn create_pair_contract<'a>(
     liqpool
 }
 
-// // HELPERS
-// fn last_event_vec(e: &Env) -> Vec<(Address, Vec<Val>, Val)>{
-//     vec![&e, e.events().all().last().unwrap()]
-// }
-// const PAIR: Symbol = symbol_short!("PAIR");
-
-
 // THE TEST
 pub struct SoroswapPairTest<'a> {
     env: Env,
@@ -129,6 +122,7 @@ mod initialize_pair;
 mod deposit;
 mod swap;
 mod withdraw;
+mod fee;
 // mod decode; // wont be used for now
 
 // Test forked by stellar/soroban-examples
