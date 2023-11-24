@@ -43,7 +43,7 @@ curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 
 
-TOKENS_FILE="/workspace/.soroban/tokens.json"
+TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
@@ -104,7 +104,7 @@ echo "..."
 echo "..."
 echo "..."
 
-PAIRS_FILE="/workspace/.soroban/pairs.json"
+PAIRS_FILE="/workspace/public/pairs.json"
 PAIR_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .pairs[0].pair_address' "$PAIRS_FILE")
 
 
@@ -131,7 +131,7 @@ echo We will burn all the $LP_BALANCE LP tokens:
 
 
 echo "..."
-ROUTER_FILE="/workspace/.soroban/router.json"
+ROUTER_FILE="/workspace/public/router.json"
 ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 
@@ -215,7 +215,7 @@ soroban contract invoke \
 # echo In order to get the LP balance we need first the Pair address
 # echo And first, the factory address
 # echo "..."
-# ROUTER_FILE="/workspace/.soroban/router.json"
+# ROUTER_FILE="/workspace/public/router.json"
 # ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 # echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 # ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.wasm"

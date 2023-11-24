@@ -40,7 +40,7 @@ echo ADMIN_SECRET: $ADMIN_SECRET
 echo USER_PUBLIC: $USER_PUBLIC
 
 
-TOKENS_FILE="/workspace/.soroban/tokens.json"
+TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
