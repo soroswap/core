@@ -4,12 +4,12 @@ use soroban_sdk::{testutils::{Ledger}};
     
 // Pub function that will be used in other tests:
 
-pub fn add_liquidity(test: &SoroswapPairTest, amount_0: &i128, amount_1: &i128){
+pub fn add_liquidity(test: &SoroswapPairTest, amount_0: &i128, amount_1: &i128) -> i128 {
     
     // User needs to send these tokens first to the contract
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
-    test.contract.deposit(&test.user);
+    test.contract.deposit(&test.user)
 }
     
     
