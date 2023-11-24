@@ -37,7 +37,7 @@ pub trait SoroswapPairTrait{
     fn deposit(e:Env, to: Address)  -> i128;
 
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
-    fn swap (e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
 
     fn withdraw(e: Env, to: Address) -> (i128, i128);
 
@@ -98,7 +98,7 @@ impl SoroswapPairTrait for SoroswapPair {
         put_reserve_1(&e, 0);
     }
 
-    fn token_0(e: Env) -> Address {
+    fn token_0(e: Env) -> Address { 
         get_token_0(&e)
     }
 
@@ -111,192 +111,134 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
     fn deposit(e: Env, to: Address) -> i128 {
-        //     (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
+
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-
-        //     uint balance0 = IERC20(token0).balanceOf(address(this));
-        //     uint balance1 = IERC20(token1).balanceOf(address(this));
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-
-        //     uint amount0 = balance0.sub(_reserve0);
         let amount_0 = balance_0.checked_sub(reserve_0).unwrap();
-
-        //     uint amount1 = balance1.sub(_reserve1);
         let amount_1 = balance_1.checked_sub(reserve_1).unwrap();
+        if amount_0 <= 0 { panic!("SoroswapPair: insufficient amount of token 0 sent") }
+        if amount_1 <= 0 { panic!("SoroswapPair: insufficient amount of token 1 sent") }
 
-        //     bool feeOn = _mintFee(_reserve0, _reserve1);
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-
-        //  uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
 
-        // if (_totalSupply == 0) {
         let liquidity = if total_shares == 0 {
-            // _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
-            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY); 
-            // and liquidity get's this value:
-            // liquidity = Math.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);
-            ((amount_0.checked_mul(amount_1).unwrap()).sqrt()).checked_sub(MINIMUM_LIQUIDITY).unwrap()
+            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
+            let previous_liquidity =  (amount_0.checked_mul(amount_1).unwrap()).sqrt();
+            if previous_liquidity <= MINIMUM_LIQUIDITY {
+                panic!("SoroswapPair: insufficient first liquidity minted") 
+            }
+            (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         }
         else{
-                // liquidity = Math.min(amount0.mul(_totalSupply) / _reserve0, amount1.mul(_totalSupply) / _reserve1);
                 let shares_a = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
                 let shares_b = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
                 shares_a.min(shares_b)
         };
         
-
-        // require(liquidity > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
         if liquidity <= 0 { panic!("SoroswapPair: insufficient liquidity minted") }
 
-        // _mint(to, liquidity);
         mint_shares(&e, &to, liquidity.clone());
-
-        // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
        
-        // Reserves where updated
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        // if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-
-        //emit Mint(msg.sender, amount0, amount1);
         event::deposit(&e, &to, amount_0, amount_1);
-
-        // returns (uint liquidity)
         liquidity
     }
 
     /// this low-level function should be called from a contract which performs important safety checks
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
+        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
         
-        // require(amount0Out > 0 || amount1Out > 0, 'UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
-        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
-        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
-
-        // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         
-        // require(amount0Out < _reserve0 && amount1Out < _reserve1, 'UniswapV2: INSUFFICIENT_LIQUIDITY');
+        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
+        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
         if amount_0_out >= reserve_0|| amount_1_out >= reserve_1 { panic!("SoroswapPair: insufficient liquidity") }
-
-        //     uint balance0;
-        //     uint balance1;
-        //     { // scope for _token{0,1}, avoids stack too deep errors
-        //     address _token0 = token0;
-        //     address _token1 = token1;
-
-        //     require(to != _token0 && to != _token1, 'UniswapV2: INVALID_TO');
         if to == get_token_0(&e) || to == get_token_1(&e) {panic!("SoroswapPair: invalid to")}
-        
-        // if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
-        // if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+
         if amount_0_out > 0 {transfer_token_0_from_pair(&e, &to, amount_0_out);}
         if amount_1_out > 0 {transfer_token_1_from_pair(&e, &to, amount_1_out);}
-            
-        /*
-            In Uniswap, Flashloans are allowed. In Soroban this is not possible. Here we don't need this line:
-            // if (data.length > 0) IUniswapV2Callee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
-         */
-
-        //     balance0 = IERC20(_token0).balanceOf(address(this));
-        //     balance1 = IERC20(_token1).balanceOf(address(this));
+    
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        // uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
-        // uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         let amount_0_in = if balance_0 > reserve_0.checked_sub(amount_0_out).unwrap() {
             balance_0.checked_sub(reserve_0.checked_sub(amount_0_out).unwrap()).unwrap()
         } else{
             0
         };
-
         let amount_1_in = if balance_1 > reserve_1.checked_sub(amount_1_out).unwrap() {
             balance_1.checked_sub(reserve_1.checked_sub(amount_1_out).unwrap()).unwrap()
         } else{
             0
         };
 
-        //     require(amount0In > 0 || amount1In > 0, 'UniswapV2: INSUFFICIENT_INPUT_AMOUNT');
         if amount_0_in == 0 && amount_1_in == 0 {panic!("SoroswapPair: insufficient input amount")}
         if amount_0_in < 0 || amount_1_in < 0 { panic!("SoroswapPair: negatives dont supported") }
 
-        // uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(3));
-        // uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(3));
-        let balance_0_adjusted = balance_0.checked_mul(1000).unwrap().checked_sub(amount_0_in.checked_mul(3).unwrap()).unwrap();
-        let balance_1_adjusted = balance_1.checked_mul(1000).unwrap().checked_sub(amount_1_in.checked_mul(3).unwrap()).unwrap();
+        let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
+        let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
 
-        // require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'UniswapV2: K');
-        if balance_0_adjusted.checked_mul(balance_1_adjusted).unwrap() <
-            reserve_0.checked_mul(reserve_1).unwrap().checked_mul(1000_i128.checked_pow(2).unwrap()).unwrap() {
+        let balance_0_minus_fee = balance_0.checked_sub(fee_0).unwrap();
+        let balance_1_minus_fee = balance_1.checked_sub(fee_1).unwrap();
+
+        if balance_0_minus_fee.checked_mul(balance_1_minus_fee).unwrap() <
+            reserve_0.checked_mul(reserve_1).unwrap() {
                 panic!("SoroswapPair: K constant is not met")
             }
 
-        // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-
-        // emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
         event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
-
 
     }
 
     /// this low-level function should be called from a contract which performs important safety checks
-    fn withdraw(e: Env, to: Address) -> (i128, i128) { // returns (uint amount0, uint amount1)
-        // (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+    fn withdraw(e: Env, to: Address) -> (i128, i128) {
+        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
+        
+        let balance_shares = get_balance_shares(&e); // how many shares does the pair token holds now
+        // From the first deposit, the contract holds 1000 (MINIMUM_LIQUIDITY) amounts of thares
+        // If balance_shares == 0 means that there has never been liquidity
+        if balance_shares == 0 { panic!("SoroswapPair: liquidity was not initialized yet") }
+
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-
-        // uint balance0 = IERC20(_token0).balanceOf(address(this));
-        // uint balance1 = IERC20(_token1).balanceOf(address(this));
         let (mut balance_0, mut balance_1) = (get_balance_0(&e), get_balance_1(&e));
+        let user_sent_shares = balance_shares.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
-        // uint liquidity = balanceOf[address(this)];
-        // The contract's LP token balance; that should be the ones that the user sent
-        let user_sent_shares = get_balance_shares(&e).checked_sub(MINIMUM_LIQUIDITY).unwrap();
+        if user_sent_shares <= 0 { panic!("SoroswapPair: insufficient sent shares") }
 
-        // bool feeOn = _mintFee(_reserve0, _reserve1);
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-
-        // uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         let total_shares = get_total_shares(&e);
 
-        // amount0 = liquidity.mul(balance0) / _totalSupply; // using balances ensures pro-rata distribution
-        // amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
+        // Amount of tokens that will be sent to the user
         let amount_0 = (balance_0.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
         let amount_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
 
-        // require(amount0 > 0 && amount1 > 0, 'UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
         if amount_0 <= 0 || amount_1 <= 0 {
             panic!("SoroswapPair: insufficient liquidity burned");
         }
-
-        // _burn(address(this), liquidity);
+        // Shares sent by the user will be burnt
         burn_shares(&e, user_sent_shares);
 
-        // _safeTransfer(_token0, to, amount0);
-        // _safeTransfer(_token1, to, amount1);
+        // Sent tokens from this contract (pair) to the user
         transfer_token_0_from_pair(&e, &to, amount_0);
         transfer_token_1_from_pair(&e, &to, amount_1);
 
         // The Pair balances have changed
-        // balance0 = IERC20(_token0).balanceOf(address(this));
-        // balance1 = IERC20(_token1).balanceOf(address(this));
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        // _update(balance0, balance1, _reserve0, _reserve1);
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
 
-        // if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-        // emit Burn(msg.sender, amount0, amount1, to);
-        event::withdraw(&e, &to, user_sent_shares, amount_0, amount_1, &to);
 
-        // returns (uint amount0, uint amount1)
+        event::withdraw(&e, &to, user_sent_shares, amount_0, amount_1, &to);
         (amount_0,amount_1)
     }
 

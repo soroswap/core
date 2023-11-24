@@ -21,5 +21,5 @@ esac
 bash /workspace/scripts/manual_testing/generate_user.sh
 bash /workspace/scripts/manual_testing/mint.sh $NETWORK
 bash /workspace/scripts/manual_testing/add_liquidity.sh $NETWORK
-#bash /workspace/scripts/manual_testing/swap.sh $NETWORK
+bash /workspace/scripts/manual_testing/swap.sh $NETWORK
 bash /workspace/scripts/manual_testing/remove_liquidity.sh $NETWORK

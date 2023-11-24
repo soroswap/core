@@ -1,5 +1,5 @@
 use crate::test::{SoroswapPairTest};
-use crate::soroswap_pair_token::{SoroswapPairTokenClient, SoroswapPairToken};
+use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use soroban_sdk::{String};
 
 // // TOKEN CONTRACT
@@ -46,6 +46,10 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.token_1(), test.token_1.address);
     assert_eq!(test.contract.factory(), test.factory.address);
     assert_eq!(test.contract.get_reserves(), (0,0,0));
+    assert_eq!(test.contract.k_last(), 0);
+    assert_eq!(test.contract.price_0_cumulative_last(), 0);
+    assert_eq!(test.contract.price_1_cumulative_last(), 0);
+    assert_eq!(test.contract.total_shares(), 0);
     assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.price_0_cumulative_last(), 0);
     assert_eq!(test.contract.price_1_cumulative_last(), 0);
