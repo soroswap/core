@@ -1,0 +1,12 @@
+[package]
+name = "soroswap-factory-interface"
+authors = ["esteblock"]
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[dependencies]
+soroban-sdk = { version = "20.0.0-rc2" }
+
+[dev_dependencies]
+soroban-sdk = { version = "20.0.0-rc2", features = ["testutils"] }

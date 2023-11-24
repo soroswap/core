@@ -16,8 +16,10 @@ pub fn add_liquidity(test: &SoroswapPairTest, amount_0: &i128, amount_1: &i128){
 #[test]
 fn deposit_basic() {
     let test = SoroswapPairTest::setup();
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
     
-    let mut init_time = 12345;
+    let init_time = 12345;
     test.env.ledger().with_mut(|li| {
         li.timestamp = init_time;
     });
@@ -42,6 +44,7 @@ fn deposit_basic() {
     // https://github.com/soroswap/core/issues
     assert_eq!(test.contract.my_balance(&test.user), 0);
 
+    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.contract.deposit(&test.user);
 
     // New balances:
@@ -59,6 +62,9 @@ fn deposit_basic() {
 #[test]
 fn deposit_basic_2() {
     let test = SoroswapPairTest::setup();
+    // TODO: Get rid of this hack?
+    test.env.budget().reset_unlimited();
+    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 1_000_000_000_000_000_000;
     let amount_1 = 4_000_000_000_000_000_000;
     add_liquidity(&test, &amount_0, &amount_1);

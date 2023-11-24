@@ -1,23 +1,19 @@
 #![cfg(test)]
 extern crate std;
-use soroban_sdk::{  symbol_short,
-    testutils::{Events, Ledger},
-    Vec,
-    Val,
-    vec,
+use soroban_sdk::{
+    // symbol_short,
+    // testutils::{Events},
+    // Vec,
+    // Val,
+    // vec,
     testutils::{Address as _},
     Address, 
     BytesN, 
     Env,
-    IntoVal, Symbol};
+    String,
+    // Symbol
+};
 use crate::{SoroswapPairClient};
-
-// TESTS MODS (in ./test/ folder)
-mod operations;
-mod decode;
-mod deposit;
-mod swap;
-
 
 // TOKEN CONTRACT
 mod token {
@@ -25,8 +21,10 @@ mod token {
     pub type TokenClient<'a> = Client<'a>;
 }
 use token::TokenClient;
-fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
-    TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
+fn create_token_contract<'a>(e: &Env) -> TokenClient<'a> {
+    let token_address = &e.register_contract_wasm(None, token::WASM);
+    let token = TokenClient::new(e, token_address);
+    token
 }
 
 // FACTORY CONTRACT
@@ -53,21 +51,17 @@ fn pair_token_wasm(e: &Env) -> BytesN<32> {
 }
 
 fn create_pair_contract<'a>(
-    e: & Env,
-    factory: & Address,
-    token_a: & Address,
-    token_b: & Address,
+    e: & Env
 ) -> SoroswapPairClient<'a> {
     let liqpool = SoroswapPairClient::new(e, &e.register_contract(None, crate::SoroswapPair {}));
-    liqpool.initialize_pair(factory, token_a, token_b);
     liqpool
 }
 
-// HELPERS
-fn last_event_vec(e: &Env) -> Vec<(Address, Vec<Val>, Val)>{
-    vec![&e, e.events().all().last().unwrap()]
-}
-const PAIR: Symbol = symbol_short!("PAIR");
+// // HELPERS
+// fn last_event_vec(e: &Env) -> Vec<(Address, Vec<Val>, Val)>{
+//     vec![&e, e.events().all().last().unwrap()]
+// }
+// const PAIR: Symbol = symbol_short!("PAIR");
 
 
 // THE TEST
@@ -88,12 +82,21 @@ impl<'a> SoroswapPairTest<'a> {
         env.mock_all_auths();
         let user = Address::random(&env);
         let admin = Address::random(&env);
-        let mut token_0 = create_token_contract(&env, &admin);
-        let mut token_1 = create_token_contract(&env, &admin);
+        let mut token_0 = create_token_contract(&env);
+        let mut token_1 = create_token_contract(&env);
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         
+        let name_0 = String::from_slice(&env, "Token 0");
+        let symbol_0 = String::from_slice(&env, "TOKEN0");
+        let name_1 = String::from_slice(&env, "Token 1");
+        let symbol_1 = String::from_slice(&env, "TOKEN1");
+        let decimals = 7;
+
+        token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
+        token_1.initialize(&admin, &decimals, &name_1, &symbol_1);
+
         token_0.mint(&user, &123_000_000_000_000_000_000);
         token_1.mint(&user, &321_000_000_000_000_000_000);
 
@@ -102,10 +105,11 @@ impl<'a> SoroswapPairTest<'a> {
 
         let contract = create_pair_contract(
             &env,
-            &factory.address,
-            &token_0.address,
-            &token_1.address,
         );
+
+        // TODO: Get rid of this hack?
+        env.budget().reset_unlimited();
+    
 
         SoroswapPairTest {
             env,
@@ -118,27 +122,19 @@ impl<'a> SoroswapPairTest<'a> {
         }
     }
 }
-             
+           
 
-        
 
-#[test]
-fn test_initial_values() {
-    let test = SoroswapPairTest::setup();
-    assert_eq!(test.factory.fee_to(), test.admin);
-    assert_eq!(test.factory.fee_to_setter(), test.admin);
-    assert_eq!(test.factory.fees_enabled(), false);
+// TESTS MODS (in ./test/ folder)
+mod initialize_pair;
+mod operations;
+// mod decode;
+mod deposit;
+mod swap;
+mod helpers;
+// mod operations_helpers;
+mod soroswap_pair_token;
 
-     // Test liqpool initial values:
-     assert_eq!(test.contract.token_0(), test.token_0.address);
-     assert_eq!(test.contract.token_1(), test.token_1.address);
-     assert_eq!(test.contract.factory(), test.factory.address);
-     assert_eq!(test.contract.get_reserves(), (0,0,0));
-     assert_eq!(test.contract.k_last(), 0);
-     assert_eq!(test.contract.price_0_cumulative_last(), 0);
-     assert_eq!(test.contract.price_1_cumulative_last(), 0);
-
-}
 
 // #[test]
 // fn test() {

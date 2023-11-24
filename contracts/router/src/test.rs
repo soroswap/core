@@ -136,9 +136,10 @@ impl<'a> SoroswapRouterTest<'a> {
 
 pub mod initialize;
 pub mod add_liquidity;
-pub mod swap;
+//pub mod swap;
 pub mod remove_liquidity;
 pub mod library_functions;
 pub mod swap_tokens_for_exact_tokens;
+pub mod swap_exact_tokens_for_tokens;
 
 
