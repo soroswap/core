@@ -31,6 +31,30 @@ testnet-public)
   ;;
 esac
 
+
+case "$2" in
+local)
+  echo "Using deployed contracts from .soroban folder"
+  TOKENS_FILE="/workspace/.soroban/tokens.json"
+  ROUTER_FILE="/workspace/.soroban/router.json"
+  PAIRS_FILE="/workspace/.soroban/pairs.json"
+
+  ;;
+public)
+  echo "Using deployed contracts from /public folder"
+  TOKENS_FILE="/workspace/public/tokens.json"
+  ROUTER_FILE="/workspace/public/router.json"
+  PAIRS_FILE="/workspace/public/pairs.json"
+
+  ;;
+*)
+  echo "Usage: $0 local|public"
+  echo "local: use contracts from the .soroban folder (local deployements)"
+  echo "public: use contracts from the /public folder (addresses in production?)"
+  exit 1
+  ;;
+esac
+
 USER_PUBLIC=$(cat .soroban/user_public)
 USER_SECRET=$(cat .soroban/user_secret)
 
@@ -41,9 +65,6 @@ echo Fund user account from friendbot
 echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
-
-
-TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
@@ -78,7 +99,7 @@ echo But before we will check how many tokens of each TOKEN_0, TOKEN_1 and LP...
 echo "..."
 echo "..."
 echo "..."
-TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
 echo TOKEN_0 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
@@ -104,14 +125,13 @@ echo "..."
 echo "..."
 echo "..."
 
-PAIRS_FILE="/workspace/public/pairs.json"
 PAIR_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .pairs[0].pair_address' "$PAIRS_FILE")
 
 
 echo "..."
 echo "..."
 echo "..."
-PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm"
 
 LP_BALANCE=$(soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
@@ -131,11 +151,10 @@ echo We will burn all the $LP_BALANCE LP tokens:
 
 
 echo "..."
-ROUTER_FILE="/workspace/public/router.json"
 ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 
-ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.wasm"
+ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
 
 # fn remove_liquidity(
 #       e: Env,
@@ -172,7 +191,7 @@ echo Lets check new TOKEN_0, TOKEN_1 and LP...  balances
 echo "..."
 echo "..."
 echo "..."
-TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
 echo TOKEN_0 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
@@ -218,7 +237,7 @@ soroban contract invoke \
 # ROUTER_FILE="/workspace/public/router.json"
 # ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 # echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
-# ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.wasm"
+# ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
 
 # FACTORY_ADDRESS=$(soroban contract invoke \
 #   --network $NETWORK --source $USER_SECRET \
@@ -230,7 +249,7 @@ soroban contract invoke \
 
 
 # echo we have the factory $FACTORY_ADDRESS
-# FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
+# FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm"
 
 # PAIR_ADDRESS=$(soroban contract invoke \
 #   --wasm $FACTORY_WASM \

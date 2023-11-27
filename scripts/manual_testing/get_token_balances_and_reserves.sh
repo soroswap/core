@@ -10,8 +10,8 @@ USDC_CONTRACT_ID="CDA72YPUOL3HCGARK5F33M5D475SBG23GTT73J5RU742UN3AUGF5CWON"
 WALLET_TO_CHECK="GCHR5WWPDFF3U3HP2NA6TI6FCQPYEWS3UOPIPJKZLAAFM57CEG4ZYBWP"
 PAIR_ADDRESS="CBMHTKDE3NYS7R5V5KQWQS5QSPE5GP3TPONWCPLVANFJWZCT3HYKWDG4"
 
-TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
-PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.optimized.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm"
 
 NETWORK="standalone"
 
