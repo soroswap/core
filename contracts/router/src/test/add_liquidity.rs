@@ -98,26 +98,6 @@ fn test_add_liquidity_amount_b_min_negative() {
     );
 }
 
-// false negatives could fail for multiple reasons, not only for its initialization state.
-#[test]
-#[should_panic]
-fn test_add_liquidity_initialized_prooves_false_negative() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.initialize(&test.factory.address);
-    test.contract.add_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &10000, //     amount_a_desired: i128,
-        &10000, //     amount_b_desired: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-    // assert!(true);
-}
-    
-
 #[test]
 #[should_panic(expected = "Unauthorized function call for address")]
 fn test_add_liquidity_not_authorized() {
@@ -166,7 +146,6 @@ fn test_add_liquidity_not_authorized() {
 }
 
 
-
 // #[test]
 // fn test_add_liquidity_authorized() {
 //     let test = SoroswapRouterTest::setup();
@@ -190,8 +169,8 @@ fn test_add_liquidity_not_authorized() {
 //     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
 
 //     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+//     let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
 
-//     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
 //     /*
 //         Here we test the add_liquidity function "to.require_auth();" requirement
 //         So if alice calls the function but sets "bob" in the "to" argument, this should fail
@@ -224,7 +203,7 @@ fn test_add_liquidity_not_authorized() {
 //                     args: vec![&
 //                         &test.env,
 //                         test.user.into_val(&test.env), //     to: Address, (from)
-//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         deterministic_pair_address.into_val(&test.env), //     pair: Address, (to)
 //                         amount_0.into_val(&test.env), //     amount_a: i128, (amount)
 //                     ],
 //                     sub_invokes: &[],
@@ -235,7 +214,7 @@ fn test_add_liquidity_not_authorized() {
 //                     args: vec![&
 //                         &test.env,
 //                         test.user.into_val(&test.env), //     to: Address, (from)
-//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         deterministic_pair_address.into_val(&test.env), //     pair: Address, (to)
 //                         amount_1.into_val(&test.env), //     amount_a: i128, (amount)
 //                     ],
 //                     sub_invokes: &[],
@@ -316,6 +295,7 @@ fn test_add_liquidity() {
     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
 
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+    let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
@@ -336,6 +316,7 @@ fn test_add_liquidity() {
     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
     let pair_address_other_way = test.factory.get_pair(&test.token_1.address, &test.token_0.address);
     assert_eq!(pair_address, pair_address_other_way);
+    assert_eq!(pair_address, deterministic_pair_address);
     
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
@@ -381,7 +362,7 @@ fn test_add_liquidity() {
 // We test that amount deducted from user is the same showed on reserve.
 #[test]
 fn test_add_liquidity_deducted_amount_reserve() {
-    let test = SoroswapRouterTest::setupDeductedReserve();
+    let test = SoroswapRouterTest::setup_deducted_reserve();
     test.contract.initialize(&test.factory.address);
     
     let ledger_timestamp = 100;
@@ -468,4 +449,6 @@ pub fn add_liquidity(test: &SoroswapRouterTest, amount_0: &i128, amount_1: &i128
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
+
+    test.env.budget().print();
 }

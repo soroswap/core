@@ -98,7 +98,7 @@ impl<'a> SoroswapRouterTest<'a> {
         }
     }
 
-    fn setupDeductedReserve() -> Self {
+    fn setup_deducted_reserve() -> Self {
 
         let env = Env::default();
         env.mock_all_auths();

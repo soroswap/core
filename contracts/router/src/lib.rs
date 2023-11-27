@@ -319,6 +319,13 @@ pub trait SoroswapRouterTrait {
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
+
+    /// calculates a determinisic pair address
+    fn router_pair_for(
+        e: Env,
+        token_a: Address,
+        token_b: Address) -> Address;
+
 }
 
 #[contract]
@@ -330,7 +337,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     fn initialize(e: Env, factory: Address) {
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
-    }
+    } 
 
     /// This function retrieves the factory contract's address associated with the provided environment.
     /// It also checks if the factory has been initialized and raises an assertion error if not.
@@ -375,13 +382,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(amount_b_desired);
         check_nonnegative_amount(amount_a_min);
         check_nonnegative_amount(amount_b_min);
-        // returns (uint amountA, uint amountB, uint liquidity)
 
-        // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
-        // and then take the tokens from the user
         to.require_auth();
-
-        // ensure(deadline)
         ensure_deadline(&e, deadline);
 
         // (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
@@ -659,4 +661,19 @@ impl SoroswapRouterTrait for SoroswapRouter {
         let factory = get_factory(&e);
         soroswap_library::get_amounts_in(e, factory, amount_out, path)
     }
+
+     /// calculates a determinisic pair address
+     fn router_pair_for(
+        e: Env,
+        token_a: Address,
+        token_b: Address) -> Address{
+            soroswap_library::pair_for(
+                e.clone(),
+                get_factory(&e),
+                token_a.clone(),
+                token_b.clone(),
+            )
+
+        }
+
 }

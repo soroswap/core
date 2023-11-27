@@ -88,7 +88,7 @@ fn swap_tokens_for_exact_tokens_invalid_path() {
 #[test]
 // Panics because LP does not exist; here panics with a Error(Storage, MissingValue)
 // We should implement a pair_address.exist() without needing to call the Factory
-#[should_panic()]
+#[should_panic]
 fn swap_tokens_for_exact_tokens_pair_does_not_exist() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
