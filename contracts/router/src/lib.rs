@@ -366,7 +366,6 @@ impl SoroswapRouterTrait for SoroswapRouter {
             amount_b_min,
         );
 
-        // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(
             e.clone(),
             factory,
@@ -374,12 +373,9 @@ impl SoroswapRouterTrait for SoroswapRouter {
             token_b.clone(),
         );
 
-        // TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
-        // TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
         TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
         TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
 
-        // liquidity = IUniswapV2Pair(pair).mint(to);
         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to);
 
         (amount_a, amount_b, liquidity)

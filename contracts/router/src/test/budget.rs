@@ -72,7 +72,7 @@ fn budget_remove_liquidity_equal_amount_exact_minimum_out() {
     let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
     
     test.env.budget().reset_unlimited();
-    let (removed_0,removed_1) = test.contract.remove_liquidity(
+    test.contract.remove_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &expected_liquidity, //     liquidity: i128,
