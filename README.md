@@ -27,12 +27,19 @@ bash scripts/quickstart.sh standalone # or futurenet or testnet
 bash scripts/run.sh
 ```
 
-### 2. Create N tokens, deploy factory and N/2 pairs.
+### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
 
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
-This will create the `.soroban` folder with a lot of useful `.json` files
+This will:
+- Create 8 test tokens.
+- Build and install the SoroswapPair contract in Soroban.
+- Build and Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
+- Build and Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
+- Create N^2 Pairs (all combinations between pairs) using the Router contract 
+
+This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
 
 ### 3. (For local development): Serve those .json files 
 
