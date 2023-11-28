@@ -1,6 +1,6 @@
 #![cfg(test)]
 extern crate std;
-use crate::{SoroswapRouter, SoroswapRouterClient};
+use crate::{SoroswapRouter};
 use soroban_sdk::{
     Env, 
     BytesN, 
@@ -52,8 +52,13 @@ fn create_soroswap_factory<'a>(e: & Env, setter: & Address) -> SoroswapFactoryCl
 }
 
 // SoroswapRouter Contract
+mod router {
+    soroban_sdk::contractimport!(file = "./target/wasm32-unknown-unknown/release/soroswap_router.wasm");
+    pub type SoroswapRouterClient<'a> = Client<'a>;
+}
+use router::SoroswapRouterClient;
 fn create_soroswap_router<'a>(e: &Env) -> SoroswapRouterClient<'a> {
-    SoroswapRouterClient::new(e, &e.register_contract(None, SoroswapRouter {}))
+    SoroswapRouterClient::new(e, &e.register_contract_wasm(None, router::WASM))
 }
 
 // SoroswapRouter TEST
