@@ -1,39 +1,20 @@
 #![no_std]
-// https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02
+mod pair;
+mod factory;
 mod test;
 use soroban_sdk::token::Client as TokenClient;
-use soroban_sdk::{contract, contractimpl, Address, ConversionError, Env, TryFromVal, Val, Vec};
-
-mod factory {
-    soroban_sdk::contractimport!(
-        file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
-    );
-    pub type SoroswapFactoryClient<'a> = Client<'a>;
-}
-
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec};
 use factory::SoroswapFactoryClient;
-
-mod pair {
-    soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
-    );
-    pub type SoroswapPairClient<'a> = Client<'a>;
-}
-
 use pair::SoroswapPairClient;
 
-#[derive(Clone, Copy)]
+
+#[derive(Clone)]
+#[contracttype]
+
 pub enum DataKey {
-    Factory = 0, // address public factory;
+    Factory, // Address of the Factory Contract
 }
 
-impl TryFromVal<Env, DataKey> for Val {
-    type Error = ConversionError;
-
-    fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
-        Ok((*v as u32).into())
-    }
-}
 
 fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {
@@ -90,6 +71,7 @@ fn transfer_from(e: &Env, token: &Address, from: &Address, to: &Address, value: 
 /// A tuple containing the calculated amounts of token A and B to be added to the pool.
 fn add_liquidity_amounts(
     e: Env,
+    factory: Address,
     token_a: Address,
     token_b: Address,
     amount_a_desired: i128,
@@ -97,63 +79,47 @@ fn add_liquidity_amounts(
     amount_a_min: i128,
     amount_b_min: i128,
 ) -> (i128, i128) {
-    // returns (uint amountA, uint amountB)
-    // create the pair if it doesn't exist yet
-    // if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
-    //     IUniswapV2Factory(factory).createPair(tokenA, tokenB);
-    // }
-    let factory_address = get_factory(&e);
-    let factory = SoroswapFactoryClient::new(&e, &factory_address);
-    if !factory.pair_exists(&token_a, &token_b) {
-        factory.create_pair(&token_a, &token_b);
+    // checks if the pair exist, otherwise, creates the pair
+    let factory_client = SoroswapFactoryClient::new(&e, &factory);
+    if !factory_client.pair_exists(&token_a, &token_b) {
+        factory_client.create_pair(&token_a, &token_b);
     }
 
-    //  (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
-    //  TODO: Check if we can borrow the values instead
     let (reserve_a, reserve_b) = soroswap_library::get_reserves(
         e.clone(),
-        factory_address.clone(),
+        factory.clone(),
         token_a.clone(),
         token_b.clone(),
     );
 
-    //     if (reserveA == 0 && reserveB == 0) {
+    // When there is no liquidity (first deposit)
     if reserve_a == 0 && reserve_b == 0 {
-        // (amountA, amountB) = (amountADesired, amountBDesired);
         (amount_a_desired, amount_b_desired)
     } else {
         // We try first with the amount a desired:
-        // uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
         let amount_b_optimal = soroswap_library::quote(
             amount_a_desired.clone(),
             reserve_a.clone(),
             reserve_b.clone(),
         );
-        // if (amountBOptimal <= amountBDesired) {
+
         if amount_b_optimal <= amount_b_desired {
-            // require(amountBOptimal >= amountBMin, 'UniswapV2Router: INSUFFICIENT_B_AMOUNT');
             if amount_b_optimal < amount_b_min {
                 panic!("SoroswapRouter: insufficient b amount")
             }
-            // (amountA, amountB) = (amountADesired, amountBOptimal);
             (amount_a_desired, amount_b_optimal)
         }
         // If not, we can try with the amount b desired
         else {
-            // uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
             let amount_a_optimal = soroswap_library::quote(amount_b_desired, reserve_b, reserve_a);
 
-            // assert(amountAOptimal <= amountADesired);
             // This should happen anyway. Because if we where not able to fulfill with our amount_b_desired  for our amount_a_desired
             // It is to expect that the amount_a_optimal for that lower amount_b_desired to be lower than the amount_a_desired
             assert!(amount_a_optimal <= amount_a_desired);
 
-            // require(amountAOptimal >= amountAMin, 'UniswapV2Router: INSUFFICIENT_A_AMOUNT');
             if amount_a_optimal < amount_a_min {
                 panic!("SoroswapRouter: insufficient a amount")
             }
-
-            // (amountA, amountB) = (amountAOptimal, amountBDesired);
             (amount_a_optimal, amount_b_desired)
         }
     }
@@ -346,7 +312,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Arguments
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
     fn get_factory(e: Env) -> Address {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized"); 
         let factory_address = get_factory(&e);
         factory_address
     }
@@ -386,9 +352,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to.require_auth();
         ensure_deadline(&e, deadline);
 
+        let factory = get_factory(&e);
+
         // (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         let (amount_a, amount_b) = add_liquidity_amounts(
             e.clone(),
+            factory.clone(),
             token_a.clone(),
             token_b.clone(),
             amount_a_desired,
@@ -400,7 +369,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
         let pair: Address = soroswap_library::pair_for(
             e.clone(),
-            get_factory(&e),
+            factory,
             token_a.clone(),
             token_b.clone(),
         );
