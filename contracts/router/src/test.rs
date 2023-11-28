@@ -87,6 +87,7 @@ impl<'a> SoroswapRouterTest<'a> {
         token_1.mint(&user, &10_000_000_000_000_000_000);
 
         let factory = create_soroswap_factory(&env, &admin);
+        env.budget().reset_unlimited();
 
         SoroswapRouterTest {
             env,
@@ -140,5 +141,8 @@ pub mod swap;
 pub mod remove_liquidity;
 pub mod library_functions;
 pub mod swap_tokens_for_exact_tokens;
+
+// BUDGET TEST MOD
+mod budget;
 
 
