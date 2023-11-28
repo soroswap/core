@@ -17,7 +17,7 @@ mod token {
 }
 use token::TokenClient;
 
-fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
+pub fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
@@ -65,6 +65,7 @@ pub struct SoroswapRouterTest<'a> {
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
     user: Address,
+    admin: Address,
 }
 
 impl<'a> SoroswapRouterTest<'a> {
@@ -95,7 +96,8 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            user
+            user,
+            admin
         }
     }
 
@@ -128,7 +130,8 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            user
+            user,
+            admin
         }
     }
 }
