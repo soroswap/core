@@ -3,6 +3,11 @@ use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, IntoVal};
 use soroban_sdk::token::Interface;
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
+use event::{
+    WithdrawEvent,
+    SwapEvent,
+    SyncEvent,
+    SkimEvent};
 
 mod test;
 mod soroswap_pair_token;
@@ -172,8 +177,9 @@ impl SoroswapPairTrait for SoroswapPair {
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
-        event::deposit(&e, &to, amount_0, amount_1);
-        liquidity
+
+        event::deposit(&e, to, amount_0, amount_1, liquidity, reserve_0, reserve_1);
+        liquidity 
     }
 
     /// Executes a token swap within the Soroswap pair.
