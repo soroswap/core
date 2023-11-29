@@ -497,14 +497,11 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
         put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
         put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
     }
-    // reserve0 = uint112(balance0);
-    // reserve1 = uint112(balance1);
     put_reserve_0(&e, balance_0);
     put_reserve_1(&e, balance_1);
 
     // blockTimestampLast = blockTimestamp;
     put_block_timestamp_last(&e, block_timestamp);
 
-    // emit Sync(reserve0, reserve1);
-    event::sync(&e, reserve_0.into(), reserve_1.into());
+    event::sync(&e, balance_0, balance_1);
 }

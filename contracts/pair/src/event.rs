@@ -64,6 +64,9 @@ pub(crate) fn swap(
     e.events().publish(("SoroswapPair", symbol_short!("swap")), event);
 }
 
+// WITHDRAW EVENT
+
+
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WithdrawEvent {
@@ -95,6 +98,8 @@ pub(crate) fn withdraw(
     e.events().publish(("SoroswapPair", symbol_short!("withdraw")), event);
 }
 
+// SYNC EVENT
+
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SyncEvent {
@@ -109,6 +114,9 @@ pub(crate) fn sync(e: &Env, new_reserve_0: i128, new_reserve_1: i128) {
     };
     e.events().publish(("SoroswapPair", symbol_short!("sync")), event);
 }
+
+
+// SKIM EVENT
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
