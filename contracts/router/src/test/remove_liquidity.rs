@@ -79,7 +79,7 @@ fn test_remove_liquidity_amount_b_min_negative() {
     );
 }
 
-
+// TODO: We don't know if this is corectly done
 #[test]
 #[should_panic(expected = "Unauthorized function call for address")] 
 fn test_remove_liquidity_not_authorized() {
@@ -179,6 +179,224 @@ fn test_remove_liquidity_pair_does_not_exist() {
         &desired_deadline//     deadline: u64,
     );
 }
+
+
+#[test]
+// #[should_panic(expected = "SoroswapPair: insufficient sent shares")]
+// Because we are using wasm and panic, we cannot get the message
+#[should_panic]
+fn test_remove_liquidity_insufficient_sent_shares() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    // We don't create any LP for token0 & token 1
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 10_000_000_000;
+    let amount_1: i128 = 10_000_000_000;
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    test.contract.remove_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &0, //     liquidity: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+#[test]
+fn test_remove_liquidity_sufficient_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    // We don't create any LP for token0 & token 1
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 10_000_000_000;
+    let amount_1: i128 = 20_000_000_000;
+    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+
+    let (deposited_amount_0, 
+        deposited_amount_1, 
+        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+
+    assert_eq!(deposited_amount_0, amount_0);
+    assert_eq!(deposited_amount_1, amount_1);
+    assert_eq!(received_liquidity, expected_liquidity);
+
+    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
+    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
+
+    // (10000000000 * 14142134623) / 14142135623 = 9999999292
+    let expected_to_remove_0 = 9999999292;
+
+    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
+    let expected_to_remove_1 = 19999998585;
+
+    test.contract.remove_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &received_liquidity, //     liquidity: i128,
+        &expected_to_remove_0, //     amount_a_min: i128,
+        &expected_to_remove_1 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+#[test]
+fn test_remove_liquidity_sufficient_amount_inverse() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    // We don't create any LP for token0 & token 1
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 10_000_000_000;
+    let amount_1: i128 = 20_000_000_000;
+    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+
+    let (deposited_amount_0, 
+        deposited_amount_1, 
+        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+
+    assert_eq!(deposited_amount_0, amount_0);
+    assert_eq!(deposited_amount_1, amount_1);
+    assert_eq!(received_liquidity, expected_liquidity);
+
+    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
+    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
+
+    // (10000000000 * 14142134623) / 14142135623 = 9999999292
+    let expected_to_remove_0 = 9999999292;
+
+    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
+    let expected_to_remove_1 = 19999998585;
+
+    test.contract.remove_liquidity(
+        &test.token_1.address, //     token_a: Address,
+        &test.token_0.address, //     token_b: Address,
+        &received_liquidity, //     liquidity: i128,
+        &expected_to_remove_1, //     amount_a_min: i128,
+        &expected_to_remove_0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: insufficient A amount")]
+fn test_remove_liquidity_insufficient_a_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    // We don't create any LP for token0 & token 1
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 10_000_000_000;
+    let amount_1: i128 = 20_000_000_000;
+    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+
+    let (deposited_amount_0, 
+        deposited_amount_1, 
+        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+
+    assert_eq!(deposited_amount_0, amount_0);
+    assert_eq!(deposited_amount_1, amount_1);
+    assert_eq!(received_liquidity, expected_liquidity);
+
+    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
+    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
+
+    // (10000000000 * 14142134623) / 14142135623 = 9999999292
+    let expected_to_remove_0 = 9999999292;
+
+    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
+    let expected_to_remove_1 = 19999998585;
+
+    test.contract.remove_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &received_liquidity, //     liquidity: i128,
+        &(expected_to_remove_0+1), //     amount_a_min: i128,
+        &expected_to_remove_1 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: insufficient B amount")]
+fn test_remove_liquidity_insufficient_b_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+
+    // We don't create any LP for token0 & token 1
+    let ledger_timestamp = 100;
+    let desired_deadline = 900;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 10_000_000_000;
+    let amount_1: i128 = 20_000_000_000;
+    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+
+    let (deposited_amount_0, 
+        deposited_amount_1, 
+        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+
+    assert_eq!(deposited_amount_0, amount_0);
+    assert_eq!(deposited_amount_1, amount_1);
+    assert_eq!(received_liquidity, expected_liquidity);
+
+    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
+    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
+
+    // (10000000000 * 14142134623) / 14142135623 = 9999999292
+    let expected_to_remove_0 = 9999999292;
+
+    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
+    let expected_to_remove_1 = 19999998585;
+
+    test.contract.remove_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &received_liquidity, //     liquidity: i128,
+        &expected_to_remove_0, //     amount_a_min: i128,
+        &(expected_to_remove_1+1) , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
 
 #[test]
 fn test_remove_liquidity_equal_amount_0_minimum_out() {
