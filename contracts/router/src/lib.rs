@@ -34,11 +34,11 @@ fn get_factory(e: &Env) -> Address {
     e.storage().instance().get(&DataKey::Factory).unwrap()
 }
 
-/// Panics if deadline has passed
-// modifier ensure(uint deadline) {
-//     require(deadline >= block.timestamp, 'UniswapV2Router: EXPIRED');
-//     _;
-// }
+/// Panics if the specified deadline has passed.
+///
+/// # Arguments
+/// * `e` - The runtime environment.
+/// * `timestamp` - The deadline timestamp to compare against the current ledger timestamp.
 fn ensure_deadline(e: &Env, timestamp: u64) {
     let ledger_timestamp = e.ledger().timestamp();
     if ledger_timestamp >= timestamp {
@@ -46,11 +46,6 @@ fn ensure_deadline(e: &Env, timestamp: u64) {
     }
 }
 
-/// Transfer tokens from an account to another (requires require.auth)
-fn transfer_from(e: &Env, token: &Address, from: &Address, to: &Address, value: &i128) {
-    let token_client = TokenClient::new(&e, &token);
-    token_client.transfer(&from, &to, &value);
-}
 
 /// Given a pair of tokens, a desired and minimum amount of tokens to provide as liquidity, this function calculates
 /// the correct amounts of tokens to add to the pool. If the pool doesn't exist, it creates one.
@@ -125,8 +120,15 @@ fn add_liquidity_amounts(
     }
 }
 
-// **** SWAP ****
-// requires the initial amount to have already been sent to the first pair
+/// Executes a series of token swaps along the provided trading route.
+/// Requires that the initial amount has already been sent to the first pair in the route.
+///
+/// # Arguments
+/// * `e` - The runtime environment.
+/// * `factory_address` - The address of the Soroswap factory contract.
+/// * `amounts` - A vector containing the output amounts for each step of the trading route.
+/// * `path` - A vector representing the trading route, where each element is a token address.
+/// * `_to` - The final destination address for the swapped tokens.
 fn swap(e: &Env, factory_address: &Address, amounts: &Vec<i128>, path: &Vec<Address>, _to: &Address) {
     for i in 0..path.len() - 1 {
         //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
@@ -211,7 +213,23 @@ pub trait SoroswapRouterTrait {
         deadline: u64,
     ) -> (i128, i128, i128);
 
-    /// Remove Liquidity to a Pool
+    /// Removes liquidity from a token pair's pool.
+    ///
+    /// This function facilitates the removal of liquidity from a Soroswap Liquidity Pool by burning a specified amount
+    /// of Liquidity Pool tokens (`liquidity`) owned by the caller. In return, it transfers back the corresponding
+    /// amounts of the paired tokens (`token_a` and `token_b`) to the caller's specified address (`to`).
+    ///
+    /// # Arguments
+    /// * `token_a` - The address of the first token in the Liquidity Pool.
+    /// * `token_b` - The address of the second token in the Liquidity Pool.
+    /// * `liquidity` - The desired amount of Liquidity Pool tokens to be burned.
+    /// * `amount_a_min` - The minimum required amount of the first token to receive.
+    /// * `amount_b_min` - The minimum required amount of the second token to receive.
+    /// * `to` - The address where the paired tokens will be sent to, and from where the LP tokens will be taken.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A tuple containing the amounts of `token_a` and `token_b` withdrawn from the pool.  
     fn remove_liquidity(
         e: Env,
         token_a: Address,
@@ -223,10 +241,21 @@ pub trait SoroswapRouterTrait {
         deadline: u64,
     ) -> (i128, i128);
 
-    /// Swaps an exact amount of input tokens for as many output tokens as possible,
-    /// along the route determined by the path. The first element of path is the input token,
-    /// the last is the output token, and any intermediate elements represent intermediate
-    /// pairs to trade through (if, for example, a direct pair does not exist).
+    /// Swaps an exact amount of input tokens for as many output tokens as possible
+    /// along the specified trading route. The route is determined by the `path` vector,
+    /// where the first element is the input token, the last is the output token, 
+    /// and any intermediate elements represent pairs to trade through if a direct pair does not exist.
+    ///
+    /// # Arguments
+    /// * `amount_in` - The exact amount of input tokens to be swapped.
+    /// * `amount_out_min` - The minimum required amount of output tokens to receive.
+    /// * `path` - A vector representing the trading route, where the first element is the input token 
+    ///            and the last is the output token. Intermediate elements represent pairs to trade through.
+    /// * `to` - The address where the output tokens will be sent to.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A vector containing the amounts of tokens received at each step of the trading route.
     fn swap_exact_tokens_for_tokens(
         e: Env,
         amount_in: i128,
@@ -236,6 +265,20 @@ pub trait SoroswapRouterTrait {
         deadline: u64,
     ) -> Vec<i128>;
 
+    /// Swaps tokens for an exact amount of output token, following the specified trading route.
+    /// The route is determined by the `path` vector, where the first element is the input token,
+    /// the last is the output token, and any intermediate elements represent pairs to trade through.
+    ///
+    /// # Arguments
+    /// * `amount_out` - The exact amount of output token to be received.
+    /// * `amount_in_max` - The maximum allowed amount of input tokens to be swapped.
+    /// * `path` - A vector representing the trading route, where the first element is the input token 
+    ///            and the last is the output token. Intermediate elements represent pairs to trade through.
+    /// * `to` - The address where the output tokens will be sent to.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A vector containing the amounts of tokens used at each step of the trading route.
     fn swap_tokens_for_exact_tokens(
         e: Env,
         amount_out: i128,
@@ -249,30 +292,67 @@ pub trait SoroswapRouterTrait {
     LIBRARY FUNCTIONS:
     */
 
-    /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
+    /// Given an amount of one asset and the reserves of a token pair, calculates the equivalent amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_a` - The amount of the first asset.
+    /// * `reserve_a` - The reserve of the first asset in the token pair.
+    /// * `reserve_b` - The reserve of the second asset in the token pair.
+    ///
+    /// # Returns
+    /// The equivalent amount of the second asset.
     fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128;
 
-    /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
-
-    /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
+    /// Given an input amount of one asset and the reserves of a token pair, calculates the maximum output amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_in` - The input amount of the first asset.
+    /// * `reserve_in` - The reserve of the input asset in the token pair.
+    /// * `reserve_out` - The reserve of the output asset in the token pair.
+    ///
+    /// # Returns
+    /// The maximum output amount of the second asset.    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
     fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
-    /// performs chained getAmountOut calculations on any number of pairs
+    /// Given an output amount of one asset and the reserves of a token pair, calculates the required input amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_out` - The output amount of the first asset.
+    /// * `reserve_in` - The reserve of the input asset in the token pair.
+    /// * `reserve_out` - The reserve of the output asset in the token pair.
+    ///
+    /// # Returns
+    /// The required input amount of the second asset.
     fn router_get_amounts_out(
         e: Env,
         amount_in: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
 
-    /// performs chained getAmountIn calculations on any number of pairs
+    /// Performs chained `getAmountOut` calculations on any number of token pairs in the Soroswap ecosystem.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `amount_in` - The input amount for the first token pair.
+    /// * `path` - A vector representing the trading route, where each element is a token address.
+    ///
+    /// # Returns
+    /// A vector containing the output amounts for each step of the trading route.
     fn router_get_amounts_in(
         e: Env,
         amount_out: i128,
         path: Vec<Address>,
     ) -> Vec<i128>;
 
-    /// calculates a determinisic pair address
+    /// Performs chained `getAmountIn` calculations on any number of token pairs in the Soroswap ecosystem.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `amount_out` - The output amount for the first token pair.
+    /// * `path` - A vector representing the trading route, where each element is a token address.
+    ///
+    /// # Returns
+    /// A vector containing the input amounts for each step of the trading route.
     fn router_pair_for(
         e: Env,
         token_a: Address,
@@ -340,7 +420,6 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         let factory = get_factory(&e);
 
-        // (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
         let (amount_a, amount_b) = add_liquidity_amounts(
             e.clone(),
             factory.clone(),
@@ -367,15 +446,23 @@ impl SoroswapRouterTrait for SoroswapRouter {
         (amount_a, amount_b, liquidity)
     }
 
-    /// Remove Liquidity to a Pool
-    //  function removeLiquidity(
-    // address tokenA,
-    // address tokenB,
-    // uint liquidity,
-    // uint amountAMin,
-    // uint amountBMin,
-    // address to,
-    // uint deadline
+    /// Removes liquidity from a token pair's pool.
+    ///
+    /// This function facilitates the removal of liquidity from a Soroswap Liquidity Pool by burning a specified amount
+    /// of Liquidity Pool tokens (`liquidity`) owned by the caller. In return, it transfers back the corresponding
+    /// amounts of the paired tokens (`token_a` and `token_b`) to the caller's specified address (`to`).
+    ///
+    /// # Arguments
+    /// * `token_a` - The address of the first token in the Liquidity Pool.
+    /// * `token_b` - The address of the second token in the Liquidity Pool.
+    /// * `liquidity` - The desired amount of Liquidity Pool tokens to be burned.
+    /// * `amount_a_min` - The minimum required amount of the first token to receive.
+    /// * `amount_b_min` - The minimum required amount of the second token to receive.
+    /// * `to` - The address where the paired tokens will be sent to, and from where the LP tokens will be taken.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A tuple containing the amounts of `token_a` and `token_b` withdrawn from the pool.
     fn remove_liquidity(
         e: Env,
         token_a: Address,
@@ -390,20 +477,15 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(liquidity);
         check_nonnegative_amount(amount_a_min);
         check_nonnegative_amount(amount_b_min);
-        // returns (uint amountA, uint amountB)
-        // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
-        // and then take the tokens from the user
         to.require_auth();
-
-        // ensure(deadline)
         ensure_deadline(&e, deadline);
 
-        //Require that the pair exist
+        // Ensure that the pair exists in the Soroswap factory
         let factory_address = get_factory(&e);
         let factory = SoroswapFactoryClient::new(&e, &factory_address);
         assert!(factory.pair_exists(&token_a, &token_b), "SoroswapRouter: pair does not exist");
 
-        // address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
+        // Retrieve the pair's contract address using the Soroswap library
         let pair: Address = soroswap_library::pair_for(
             e.clone(),
             get_factory(&e),
@@ -411,22 +493,21 @@ impl SoroswapRouterTrait for SoroswapRouter {
             token_b.clone(),
         );
 
-        // IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
-        transfer_from(&e, &pair, &to, &pair, &liquidity);
-
-        // (uint amount0, uint amount1) = IUniswapV2Pair(pair).burn(to);
-
+        // Transfer LP tokens from the caller to the pair contract
+        TokenClient::new(&e, &pair).transfer(&to, &pair, &liquidity);
+        
+        // Withdraw paired tokens from the pool
         let (amount_0, amount_1) = SoroswapPairClient::new(&e, &pair).withdraw(&to);
 
-        // (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        // Sort tokens to match the expected order
         let (token_0, _token_1) = soroswap_library::sort_tokens(token_a.clone(), token_b.clone());
-
-        // (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
         let (amount_a, amount_b) = if token_a == token_0 {
             (amount_0, amount_1)
         } else {
             (amount_1, amount_0)
         };
+
+        // Check if the received amounts meet the minimum requirements
         if amount_a < amount_a_min {
             panic!("SoroswapRouter: insufficient A amount")
         }
@@ -434,13 +515,25 @@ impl SoroswapRouterTrait for SoroswapRouter {
             panic!("SoroswapRouter: insufficient B amount")
         }
 
+        // Return the amounts of paired tokens withdrawn
         (amount_a, amount_b)
     }
 
-    /// Swaps an exact amount of input tokens for as many output tokens as possible,
-    /// along the route determined by the path. The first element of path is the input token,
-    /// the last is the output token, and any intermediate elements represent intermediate
-    /// pairs to trade through (if, for example, a direct pair does not exist).
+    /// Swaps an exact amount of input tokens for as many output tokens as possible
+    /// along the specified trading route. The route is determined by the `path` vector,
+    /// where the first element is the input token, the last is the output token, 
+    /// and any intermediate elements represent pairs to trade through if a direct pair does not exist.
+    ///
+    /// # Arguments
+    /// * `amount_in` - The exact amount of input tokens to be swapped.
+    /// * `amount_out_min` - The minimum required amount of output tokens to receive.
+    /// * `path` - A vector representing the trading route, where the first element is the input token 
+    ///            and the last is the output token. Intermediate elements represent pairs to trade through.
+    /// * `to` - The address where the output tokens will be sent to.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A vector containing the amounts of tokens received at each step of the trading route.
     fn swap_exact_tokens_for_tokens(
         e: Env,
         amount_in: i128,
@@ -455,6 +548,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to.require_auth();
         ensure_deadline(&e, deadline);
 
+        // Get the expected output amounts for each step of the trading route        
         let factory_address = get_factory(&e);
         let amounts = soroswap_library::get_amounts_out(
             e.clone(),
@@ -463,25 +557,45 @@ impl SoroswapRouterTrait for SoroswapRouter {
             path.clone(),
         );
 
+        // Ensure that the final output amount meets the minimum requirement        
         if amounts.get(amounts.len() - 1).unwrap() < amount_out_min {
             panic!("SoroswapRouter: insufficient output amount")
         }
-
+        
+        // Determine the pair contract address for the first step of the trading route
         let pair = soroswap_library::pair_for(
             e.clone(),
             factory_address.clone(),
             path.get(0).unwrap(),
             path.get(1).unwrap(),
         );
+        
+        // Transfer input tokens to the pair contract
         // If the pair does not exist, this will fail here: Should be implement factory.pair_exists?
         // If we implement, we will include an additional cross-contract call...
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
+        // Execute the tokens swap
         swap(&e, &factory_address, &amounts, &path, &to);
-
+    
+        // Return the amounts of tokens received at each step of the trading route
         amounts
     }
 
+    /// Swaps tokens for an exact amount of output token, following the specified trading route.
+    /// The route is determined by the `path` vector, where the first element is the input token,
+    /// the last is the output token, and any intermediate elements represent pairs to trade through.
+    ///
+    /// # Arguments
+    /// * `amount_out` - The exact amount of output token to be received.
+    /// * `amount_in_max` - The maximum allowed amount of input tokens to be swapped.
+    /// * `path` - A vector representing the trading route, where the first element is the input token 
+    ///            and the last is the output token. Intermediate elements represent pairs to trade through.
+    /// * `to` - The address where the output tokens will be sent to.
+    /// * `deadline` - The deadline for executing the operation.
+    ///
+    /// # Returns
+    /// A vector containing the amounts of tokens used at each step of the trading route.
     fn swap_tokens_for_exact_tokens(
         e: Env,
         amount_out: i128,
@@ -496,6 +610,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to.require_auth(); 
         ensure_deadline(&e, deadline);
 
+        // Get the expected input amounts for each step of the trading route
         let factory_address = get_factory(&e);
         let amounts = soroswap_library::get_amounts_in(
             e.clone(),
@@ -503,46 +618,80 @@ impl SoroswapRouterTrait for SoroswapRouter {
             amount_out,
             path.clone(),
         );
-
+        
+        // Ensure that the input amount does not exceed the maximum allowed
         if amounts.get(0).unwrap() > amount_in_max {
             panic!("SoroswapRouter: excessive input amount")
         }
 
+        // Determine the pair contract address for the first step of the trading route
         let pair = soroswap_library::pair_for(
             e.clone(),
             factory_address.clone(),
             path.get(0).unwrap(),
             path.get(1).unwrap(),
         );
+        // Transfer input tokens to the pair contract
         // If the pair does not exist, this will fail here: Should be implement factory.pair_exists?
         // If we implement, we will include an additional cross-contract call...
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
+        // Execute the token swap
         swap(&e, &factory_address, &amounts, &path, &to);
-
+    
+        // Return the amounts of tokens used at each step of the trading route
         amounts
     }
 
-    /// given some amount of an asset and pair reserves, returns an equivalent amount of the other asset
-    // function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
+    /// Given an amount of one asset and the reserves of a token pair, calculates the equivalent amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_a` - The amount of the first asset.
+    /// * `reserve_a` - The reserve of the first asset in the token pair.
+    /// * `reserve_b` - The reserve of the second asset in the token pair.
+    ///
+    /// # Returns
+    /// The equivalent amount of the second asset.
     fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> i128 {
         soroswap_library::quote(amount_a, reserve_a, reserve_b)
     }
 
-    /// given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-    // function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
+    /// Given an input amount of one asset and the reserves of a token pair, calculates the maximum output amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_in` - The input amount of the first asset.
+    /// * `reserve_in` - The reserve of the input asset in the token pair.
+    /// * `reserve_out` - The reserve of the output asset in the token pair.
+    ///
+    /// # Returns
+    /// The maximum output amount of the second asset.
     fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128 {
         soroswap_library::get_amount_out(amount_in, reserve_in, reserve_out)
     }
 
-    /// given an output amount of an asset and pair reserves, returns a required input amount of the other asset
-    // function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
+    /// Given an output amount of one asset and the reserves of a token pair, calculates the required input amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_out` - The output amount of the first asset.
+    /// * `reserve_in` - The reserve of the input asset in the token pair.
+    /// * `reserve_out` - The reserve of the output asset in the token pair.
+    ///
+    /// # Returns
+    /// The required input amount of the second asset.
     fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128 {
         soroswap_library::get_amount_in(amount_out, reserve_in, reserve_out)
     }
 
-    /// performs chained getAmountOut calculations on any number of pairs
-    // function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
+
+    /// Performs chained `getAmountOut` calculations on any number of token pairs in the Soroswap ecosystem.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `amount_in` - The input amount for the first token pair.
+    /// * `path` - A vector representing the trading route, where each element is a token address.
+    ///
+    /// # Returns
+    /// A vector containing the output amounts for each step of the trading route.
     fn router_get_amounts_out(
         e: Env,
         amount_in: i128,
@@ -553,8 +702,15 @@ impl SoroswapRouterTrait for SoroswapRouter {
         soroswap_library::get_amounts_out(e, factory, amount_in, path)
     }
 
-    /// performs chained getAmountIn calculations on any number of pairs
-    // function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
+    /// Performs chained `getAmountIn` calculations on any number of token pairs in the Soroswap ecosystem.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `amount_out` - The output amount for the first token pair.
+    /// * `path` - A vector representing the trading route, where each element is a token address.
+    ///
+    /// # Returns
+    /// A vector containing the input amounts for each step of the trading route.
     fn router_get_amounts_in(
         e: Env,
         amount_out: i128,
@@ -565,18 +721,27 @@ impl SoroswapRouterTrait for SoroswapRouter {
         soroswap_library::get_amounts_in(e, factory, amount_out, path)
     }
 
-     /// calculates a determinisic pair address
-     fn router_pair_for(
+    /// Calculates a deterministic pair address for a given pair of tokens.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `token_a` - The address of the first token.
+    /// * `token_b` - The address of the second token.
+    ///
+    /// # Returns
+    /// The address of the corresponding token pair contract.
+    fn router_pair_for(
         e: Env,
         token_a: Address,
-        token_b: Address) -> Address{
-            soroswap_library::pair_for(
-                e.clone(),
-                get_factory(&e),
-                token_a.clone(),
-                token_b.clone(),
-            )
+        token_b: Address,
+    ) -> Address {
+        soroswap_library::pair_for(
+            e.clone(),
+            get_factory(&e),
+            token_a.clone(),
+            token_b.clone(),
+        )
+    }
 
-        }
 
 }
