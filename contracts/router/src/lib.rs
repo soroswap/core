@@ -493,17 +493,9 @@ impl SoroswapRouterTrait for SoroswapRouter {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         check_nonnegative_amount(amount_out);
         check_nonnegative_amount(amount_in_max);
-
-
-        // In Soroban we don't need the user to have previously allowed, we can use to.require_auth();
-        // and then take the tokens from the user
         to.require_auth(); 
-
-        // returns (uint[] memory amounts)
-        // ensure(deadline)
         ensure_deadline(&e, deadline);
 
-        // amounts = UniswapV2Library.getAmountsIn(factory, amountOut, path);
         let factory_address = get_factory(&e);
         let amounts = soroswap_library::get_amounts_in(
             e.clone(),
@@ -512,34 +504,22 @@ impl SoroswapRouterTrait for SoroswapRouter {
             path.clone(),
         );
 
-        // require(amounts[0] <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
         if amounts.get(0).unwrap() > amount_in_max {
             panic!("SoroswapRouter: excessive input amount")
         }
 
-        // TransferHelper.safeTransferFrom(
-        //     path[0], // token
-        //     msg.sender, // from
-        //     UniswapV2Library.pairFor(factory, path[0], path[1]), // to
-        //     amounts[0] // value
-        // );
         let pair = soroswap_library::pair_for(
             e.clone(),
             factory_address.clone(),
             path.get(0).unwrap(),
             path.get(1).unwrap(),
         );
-        transfer_from(
-            &e,
-            &path.get(0).unwrap(),
-            &to,
-            &pair,
-            &amounts.get(0).unwrap(),
-        );
+        // If the pair does not exist, this will fail here: Should be implement factory.pair_exists?
+        // If we implement, we will include an additional cross-contract call...
+        TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         swap(&e, &factory_address, &amounts, &path, &to);
 
-        // returns (uint[] memory amounts)
         amounts
     }
 
