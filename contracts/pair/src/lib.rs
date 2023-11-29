@@ -244,39 +244,45 @@ impl SoroswapPairTrait for SoroswapPair {
     }
 
 
-    /// this low-level function should be called from a contract which performs important safety checks
+    /// Withdraws liquidity from the Soroswap pair, burning LP tokens and returning the corresponding tokens to the user.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `to` - The address where the withdrawn tokens will be sent.
+    ///
+    /// # Returns
+    /// A tuple containing the amounts of token 0 and token 1 withdrawn from the pair.
     fn withdraw(e: Env, to: Address) -> (i128, i128) {
         assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-        
-        let balance_shares = get_balance_shares(&e); // how many shares does the pair token holds now
-        // From the first deposit, the contract holds 1000 (MINIMUM_LIQUIDITY) amounts of thares
-        // If balance_shares == 0 means that there has never been liquidity
-        if balance_shares == 0 { panic!("SoroswapPair: liquidity was not initialized yet") }
+
+        let balance_shares = get_balance_shares(&e);
+        if balance_shares == 0 {
+            panic!("SoroswapPair: liquidity was not initialized yet");
+        }
 
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         let (mut balance_0, mut balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let user_sent_shares = balance_shares.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
-        if user_sent_shares <= 0 { panic!("SoroswapPair: insufficient sent shares") }
+        if user_sent_shares <= 0 {
+            panic!("SoroswapPair: insufficient sent shares");
+        }
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         let total_shares = get_total_shares(&e);
 
-        // Amount of tokens that will be sent to the user
         let amount_0 = (balance_0.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
         let amount_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
 
         if amount_0 <= 0 || amount_1 <= 0 {
             panic!("SoroswapPair: insufficient liquidity burned");
         }
-        // Shares sent by the user will be burnt
+
         burn_shares(&e, user_sent_shares);
 
-        // Sent tokens from this contract (pair) to the user
         transfer_token_0_from_pair(&e, &to, amount_0);
         transfer_token_1_from_pair(&e, &to, amount_1);
 
-        // The Pair balances have changed
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
@@ -287,10 +293,14 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         event::withdraw(&e, &to, user_sent_shares, amount_0, amount_1, &to);
-        (amount_0,amount_1)
+        (amount_0, amount_1)
     }
 
-    /// force balances to match reserves
+    /// Skims excess tokens from reserves and sends them to the specified address.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `to` - The address where the excess tokens will be sent.
     fn skim(e: Env, to: Address) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -298,32 +308,79 @@ impl SoroswapPairTrait for SoroswapPair {
         transfer_token_1_from_pair(&e, &to, balance_1.checked_sub(reserve_1).unwrap());
     }
 
-    /// force reserves to match balances
+    /// Forces reserves to match current balances.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
     fn sync(e: Env) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
     }
 
+    /// Returns the current reserves and the last block timestamp.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    ///
+    /// # Returns
+    /// A tuple containing the reserves of token 0 and token 1, along with the last block timestamp.
     fn get_reserves(e: Env) -> (i128, i128, u64) {
         (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
     }
 
+    /// Returns the total number of LP shares in circulation.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    ///
+    /// # Returns
+    /// The total number of LP shares.
     fn total_shares(e: Env) -> i128 {
         get_total_shares(&e)
     }
 
+    /// Returns the balance of LP shares for a specific address.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `id` - The address for which the LP share balance is queried.
+    ///
+    /// # Returns
+    /// The balance of LP shares for the specified address.
     fn my_balance(e: Env, id: Address) -> i128 {
         SoroswapPairToken::balance(e.clone(), id)
     }
 
+    /// Returns the value of the last product of reserves (`K`) stored in the contract.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    ///
+    /// # Returns
+    /// The value of the last product of reserves (`K`).
     fn k_last(e: Env) -> i128 {
         get_klast(&e)
     }
 
+    /// Returns the cumulative price of the first token since the last liquidity event.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    ///
+    /// # Returns
+    /// The cumulative price of the first token since the last liquidity event.
     fn price_0_cumulative_last(e: Env) -> u128 {
         get_price_0_cumulative_last(&e)
     }
+
+    /// Returns the cumulative price of the second token since the last liquidity event.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    ///
+    /// # Returns
+    /// The cumulative price of the second token since the last liquidity event.
     fn price_1_cumulative_last(e: Env) -> u128 {
         get_price_1_cumulative_last(&e)
     }
