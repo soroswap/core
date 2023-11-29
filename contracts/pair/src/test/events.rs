@@ -1,6 +1,6 @@
 extern crate std;
 use crate::test::{SoroswapPairTest};
-use crate::event::{DepositEvent, SwapEvent, WithdrawEvent, SyncEvent};
+use crate::event::{DepositEvent, SwapEvent, WithdrawEvent, SyncEvent, SkimEvent};
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use crate::test::deposit::add_liquidity;
 use soroban_sdk::{testutils::{Ledger, Events}, vec, IntoVal, symbol_short};
@@ -250,25 +250,91 @@ fn sync_event() {
         ]
     );
 
-    // let false_withdraw_event: WithdrawEvent = WithdrawEvent {
-    //     to: test.user.clone(),
-    //     liquidity: user_liquidity,
-    //     amount_0: 0,
-    //     amount_1: amount_1_out,
-    //     new_reserve_0: minimum_liquidity,
-    //     new_reserve_1: minimum_liquidity
-    // };
+    let false_sync_event: SyncEvent = SyncEvent {
+        new_reserve_0: (0),
+        new_reserve_1: (amount_1 + amount_1_extra),
+    };
 
-    // assert_ne!(
-    //     vec![&test.env, withdraw_event],
-    //     vec![
-    //         &test.env,
-    //         (
-    //             test.contract.address,
-    //             ("SoroswapPair", symbol_short!("withdraw")).into_val(&test.env),
-    //             (false_withdraw_event).into_val(&test.env)
-    //         ),
-    //     ]
-    // );
+    assert_ne!(
+        vec![&test.env, sync_event],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapPair", symbol_short!("sync")).into_val(&test.env),
+                (false_sync_event).into_val(&test.env)
+            ),
+        ]
+    );
 
+}
+
+
+
+#[test]
+fn skim_event() {
+    // zero tokens are being sent
+    let test = SoroswapPairTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+
+    let original_0: i128 = test.token_0.balance(&test.user);
+    let original_1: i128 = test.token_1.balance(&test.user);
+    let amount_0: i128 = 1_000_000;
+    let amount_1: i128 = 4_000_000;
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    // New balances:
+    assert_eq!(test.token_0.balance(&test.user), original_0.checked_sub(amount_0).unwrap());
+    assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
+    assert_eq!(test.token_0.balance(&test.contract.address), amount_0);
+    assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+
+    //extra tokens sent to skim:
+    let amount_0_extra: i128 = 123_000_000;
+    let amount_1_extra: i128 = 4_586_000;
+    test.token_0.transfer(&test.user, &test.contract.address, &amount_0_extra);
+    test.token_1.transfer(&test.user, &test.contract.address, &amount_1_extra);
+    assert_eq!(test.token_0.balance(&test.contract.address), amount_0 + amount_0_extra);
+    assert_eq!(test.token_1.balance(&test.contract.address), amount_1 + amount_1_extra);
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+
+    test.contract.skim(&test.admin);
+
+    let skim_event = test.env.events().all().last().unwrap();
+
+    let expected_skim_event: SkimEvent = SkimEvent {
+        skimmed_0: amount_0_extra,
+        skimmed_1: amount_1_extra,
+    };
+
+    assert_eq!(
+        vec![&test.env, skim_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapPair", symbol_short!("skim")).into_val(&test.env),
+                (expected_skim_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_skim_event: SkimEvent = SkimEvent {
+        skimmed_0: 0,
+        skimmed_1: amount_1_extra,
+    };
+
+    assert_ne!(
+        vec![&test.env, skim_event],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapPair", symbol_short!("skim")).into_val(&test.env),
+                (false_skim_event).into_val(&test.env)
+            ),
+        ]
+    );
 }
