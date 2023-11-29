@@ -9,15 +9,17 @@ mod soroswap_pair_token;
 mod event;
 mod uq64x64;
 mod storage;
+mod balances;
 
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
-mod any_token {
+pub mod any_token {
     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 
 use storage::*;
+use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
 use uq64x64::fraction;
 
@@ -74,6 +76,13 @@ struct SoroswapPair;
 #[contractimpl]
 impl SoroswapPairTrait for SoroswapPair {
     
+    /// Initializes a new Soroswap pair by setting token addresses, factory, and initial reserves.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `factory` - The address of the Soroswap factory contract.
+    /// * `token_0` - The address of the first token in the pair.
+    /// * `token_1` - The address of the second token in the pair.
     fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) {
         assert!(!has_token_0(&e), "SoroswapPair: already initialized");
 
@@ -84,12 +93,12 @@ impl SoroswapPairTrait for SoroswapPair {
         put_factory(&e, factory);
 
         SoroswapPairToken::initialize(
-                e.clone(),
-                e.current_contract_address(),
-                7,
-                "Soroswap LP Token".into_val(&e),
-                "SOROSWAP-LP".into_val(&e)
-            );
+            e.clone(),
+            e.current_contract_address(),
+            7,
+            "Soroswap LP Token".into_val(&e),
+            "SOROSWAP-LP".into_val(&e),
+        );
 
         put_token_0(&e, token_0);
         put_token_1(&e, token_1);
@@ -98,18 +107,29 @@ impl SoroswapPairTrait for SoroswapPair {
         put_reserve_1(&e, 0);
     }
 
-    fn token_0(e: Env) -> Address { 
+    /// Returns the address of the first token in the Soroswap pair.
+    fn token_0(e: Env) -> Address {
         get_token_0(&e)
     }
 
+    /// Returns the address of the second token in the Soroswap pair.
     fn token_1(e: Env) -> Address {
         get_token_1(&e)
     }
 
+    /// Returns the address of the Soroswap factory contract.
     fn factory(e: Env) -> Address {
         get_factory(&e)
     }
 
+    /// Deposits tokens into the Soroswap pair and mints LP tokens in return.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `to` - The address where the minted LP tokens will be sent.
+    ///
+    /// # Returns
+    /// The amount of minted LP tokens.
     fn deposit(e: Env, to: Address) -> i128 {
         assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
 
@@ -117,8 +137,12 @@ impl SoroswapPairTrait for SoroswapPair {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let amount_0 = balance_0.checked_sub(reserve_0).unwrap();
         let amount_1 = balance_1.checked_sub(reserve_1).unwrap();
-        if amount_0 <= 0 { panic!("SoroswapPair: insufficient amount of token 0 sent") }
-        if amount_1 <= 0 { panic!("SoroswapPair: insufficient amount of token 1 sent") }
+        if amount_0 <= 0 {
+            panic!("SoroswapPair: insufficient amount of token 0 sent")
+        }
+        if amount_1 <= 0 {
+            panic!("SoroswapPair: insufficient amount of token 1 sent")
+        }
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         let total_shares = get_total_shares(&e);
@@ -126,23 +150,24 @@ impl SoroswapPairTrait for SoroswapPair {
         let liquidity = if total_shares == 0 {
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
             mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
-            let previous_liquidity =  (amount_0.checked_mul(amount_1).unwrap()).sqrt();
+            let previous_liquidity = (amount_0.checked_mul(amount_1).unwrap()).sqrt();
             if previous_liquidity <= MINIMUM_LIQUIDITY {
-                panic!("SoroswapPair: insufficient first liquidity minted") 
+                panic!("SoroswapPair: insufficient first liquidity minted")
             }
             (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
-        }
-        else{
-                let shares_0 = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
-                let shares_1 = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
-                shares_0.min(shares_1)
+        } else {
+            let shares_0 = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
+            let shares_1 = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
+            shares_0.min(shares_1)
         };
-        
-        if liquidity <= 0 { panic!("SoroswapPair: insufficient liquidity minted") }
+
+        if liquidity <= 0 {
+            panic!("SoroswapPair: insufficient liquidity minted")
+        }
 
         mint_shares(&e, &to, liquidity.clone());
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-       
+
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
@@ -151,35 +176,57 @@ impl SoroswapPairTrait for SoroswapPair {
         liquidity
     }
 
-    /// this low-level function should be called from a contract which performs important safety checks
+    /// Executes a token swap within the Soroswap pair.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `amount_0_out` - The desired amount of the first token to receive.
+    /// * `amount_1_out` - The desired amount of the second token to receive.
+    /// * `to` - The address where the swapped tokens will be sent.
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
         assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-        
-        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        
-        if amount_0_out == 0 && amount_1_out == 0 { panic!("SoroswapPair: insufficient output amount") }
-        if amount_0_out < 0 || amount_1_out < 0 { panic!("SoroswapPair: negatives dont supported") }
-        if amount_0_out >= reserve_0|| amount_1_out >= reserve_1 { panic!("SoroswapPair: insufficient liquidity") }
-        if to == get_token_0(&e) || to == get_token_1(&e) {panic!("SoroswapPair: invalid to")}
 
-        if amount_0_out > 0 {transfer_token_0_from_pair(&e, &to, amount_0_out);}
-        if amount_1_out > 0 {transfer_token_1_from_pair(&e, &to, amount_1_out);}
-    
+        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+
+        if amount_0_out == 0 && amount_1_out == 0 {
+            panic!("SoroswapPair: insufficient output amount")
+        }
+        if amount_0_out < 0 || amount_1_out < 0 {
+            panic!("SoroswapPair: negatives dont supported")
+        }
+        if amount_0_out >= reserve_0 || amount_1_out >= reserve_1 {
+            panic!("SoroswapPair: insufficient liquidity")
+        }
+        if to == get_token_0(&e) || to == get_token_1(&e) {
+            panic!("SoroswapPair: invalid to")
+        }
+
+        if amount_0_out > 0 {
+            transfer_token_0_from_pair(&e, &to, amount_0_out);
+        }
+        if amount_1_out > 0 {
+            transfer_token_1_from_pair(&e, &to, amount_1_out);
+        }
+
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
         let amount_0_in = if balance_0 > reserve_0.checked_sub(amount_0_out).unwrap() {
             balance_0.checked_sub(reserve_0.checked_sub(amount_0_out).unwrap()).unwrap()
-        } else{
+        } else {
             0
         };
         let amount_1_in = if balance_1 > reserve_1.checked_sub(amount_1_out).unwrap() {
             balance_1.checked_sub(reserve_1.checked_sub(amount_1_out).unwrap()).unwrap()
-        } else{
+        } else {
             0
         };
 
-        if amount_0_in == 0 && amount_1_in == 0 {panic!("SoroswapPair: insufficient input amount")}
-        if amount_0_in < 0 || amount_1_in < 0 { panic!("SoroswapPair: negatives dont supported") }
+        if amount_0_in == 0 && amount_1_in == 0 {
+            panic!("SoroswapPair: insufficient input amount")
+        }
+        if amount_0_in < 0 || amount_1_in < 0 {
+            panic!("SoroswapPair: negatives dont supported")
+        }
 
         let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
         let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
@@ -189,13 +236,13 @@ impl SoroswapPairTrait for SoroswapPair {
 
         if balance_0_minus_fee.checked_mul(balance_1_minus_fee).unwrap() <
             reserve_0.checked_mul(reserve_1).unwrap() {
-                panic!("SoroswapPair: K constant is not met")
-            }
+            panic!("SoroswapPair: K constant is not met")
+        }
 
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
-
     }
+
 
     /// this low-level function should be called from a contract which performs important safety checks
     fn withdraw(e: Env, to: Address) -> (i128, i128) {
@@ -284,27 +331,7 @@ impl SoroswapPairTrait for SoroswapPair {
 }
 
 
-fn get_balance(e: &Env, contract_id: Address) -> i128 {
-    // How many "contract_id" tokens does this contract holds?
-    // We need to implement the token client
-    any_token::TokenClient::new(e, &contract_id).balance(&e.current_contract_address())
-}
 
-fn get_balance_0(e: &Env) -> i128 {
-    // How many "A TOKENS" does the Liquidity Pool holds?
-    // How many "A TOKENS" does this contract holds?
-    get_balance(e, get_token_0(e))
-}
-
-fn get_balance_1(e: &Env) -> i128 {
-    get_balance(e, get_token_1(e))
-}
-
-fn get_balance_shares(e: &Env) -> i128 {
-    // How many "SHARE" tokens does the Liquidity pool holds?
-    // This shares should have been sent by the user when burning their LP positions (withdraw)
-    SoroswapPairToken::balance(e.clone(), e.current_contract_address())
-}
 
 fn burn_shares(e: &Env, amount: i128) {
     let total = get_total_shares(e);
