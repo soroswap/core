@@ -1,5 +1,6 @@
 use crate::test::{SoroswapPairTest};
-use crate::event::{DepositEvent, SwapEvent};
+use crate::event::{DepositEvent, SwapEvent, WithdrawEvent};
+use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use crate::test::deposit::add_liquidity;
 use soroban_sdk::{testutils::{Ledger, Events}, vec, IntoVal, symbol_short};
 
@@ -20,25 +21,47 @@ fn deposit_event() {
     let deposit_event = test.env.events().all().last().unwrap();
 
     let expected_deposit_event: DepositEvent = DepositEvent {
+        to: test.user.clone(),
+        amount_0: amount_0.clone(),
+        amount_1: amount_1.clone(),
+        liquidity: expected_liquidity.clone(),
+        new_reserve_0: amount_1.clone(),
+        new_reserve_1: amount_1.clone()
+    };
+
+    assert_eq!(
+        vec![&test.env, deposit_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapPair", symbol_short!("deposit")).into_val(&test.env),
+                (expected_deposit_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_deposit_event: DepositEvent = DepositEvent {
         to: test.user,
-        amount_0: amount_0,
+        amount_0: 0,
         amount_1: amount_1,
         liquidity: expected_liquidity,
         new_reserve_0: amount_1,
         new_reserve_1: amount_1
     };
 
-    assert_eq!(
+    assert_ne!(
         vec![&test.env, deposit_event],
         vec![
             &test.env,
             (
                 test.contract.address,
                 ("SoroswapPair", symbol_short!("deposit")).into_val(&test.env),
-                (expected_deposit_event).into_val(&test.env)
+                (false_deposit_event).into_val(&test.env)
             ),
         ]
     );
+
 }
 
 
@@ -102,6 +125,75 @@ fn swap_event() {
                 test.contract.address,
                 ("SoroswapPair", symbol_short!("swap")).into_val(&test.env),
                 (false_swap_event).into_val(&test.env)
+            ),
+        ]
+    );
+}
+
+
+#[test]
+fn withdraw_event() {
+    let test = SoroswapPairTest::setup();    
+    test.env.budget().reset_unlimited();
+    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    let amount_0: i128 = 3_000_000;
+    let amount_1: i128 = 3_000_000;
+    let expected_liquidity: i128 =  3_000_000;
+    let minimum_liquidity: i128 = 1_000;
+    let user_liquidity =  expected_liquidity.checked_sub(minimum_liquidity).unwrap();
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    // Now we need to treat the contract as a SoroswapPairTokenClient
+    let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
+    pair_token_client.transfer(&test.user, &test.contract.address, &user_liquidity);
+
+    // And now we need to treat it again as a SoroswapPairClient
+    test.env.register_contract(&test.contract.address, crate::SoroswapPair {});
+    
+    // Now the env has that address again as a SoroswapPairClient
+    
+    let (amount_0_out, amount_1_out) = test.contract.withdraw(&test.user);
+    
+    let withdraw_event = test.env.events().all().last().unwrap();
+
+    let expected_withdraw_event: WithdrawEvent = WithdrawEvent {
+        to: test.user.clone(),
+        liquidity: user_liquidity,
+        amount_0: amount_0_out,
+        amount_1: amount_1_out,
+        new_reserve_0: minimum_liquidity,
+        new_reserve_1: minimum_liquidity
+    };
+
+    assert_eq!(
+        vec![&test.env, withdraw_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapPair", symbol_short!("withdraw")).into_val(&test.env),
+                (expected_withdraw_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_withdraw_event: WithdrawEvent = WithdrawEvent {
+        to: test.user.clone(),
+        liquidity: user_liquidity,
+        amount_0: 0,
+        amount_1: amount_1_out,
+        new_reserve_0: minimum_liquidity,
+        new_reserve_1: minimum_liquidity
+    };
+
+    assert_ne!(
+        vec![&test.env, withdraw_event],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapPair", symbol_short!("withdraw")).into_val(&test.env),
+                (false_withdraw_event).into_val(&test.env)
             ),
         ]
     );

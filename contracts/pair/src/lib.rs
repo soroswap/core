@@ -294,7 +294,7 @@ impl SoroswapPairTrait for SoroswapPair {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
 
-        event::withdraw(&e, &to, user_sent_shares, amount_0, amount_1, &to);
+        event::withdraw(&e, to, user_sent_shares, amount_0, amount_1, reserve_0, reserve_1);
         (amount_0, amount_1)
     }
 
@@ -306,8 +306,11 @@ impl SoroswapPairTrait for SoroswapPair {
     fn skim(e: Env, to: Address) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        transfer_token_0_from_pair(&e, &to, balance_0.checked_sub(reserve_0).unwrap());
-        transfer_token_1_from_pair(&e, &to, balance_1.checked_sub(reserve_1).unwrap());
+        let skimmed_0 = balance_0.checked_sub(reserve_0).unwrap();
+        let skimmed_1 = balance_1.checked_sub(reserve_1).unwrap();
+        transfer_token_0_from_pair(&e, &to, skimmed_0);
+        transfer_token_1_from_pair(&e, &to, skimmed_1);
+        event::skim(&e, skimmed_0, skimmed_1);
     }
 
     /// Forces reserves to match current balances.
@@ -503,5 +506,5 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
     put_block_timestamp_last(&e, block_timestamp);
 
     // emit Sync(reserve0, reserve1);
-    event::sync(&e, reserve_0, reserve_1);
+    event::sync(&e, reserve_0.into(), reserve_1.into());
 }
