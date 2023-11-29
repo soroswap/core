@@ -3,11 +3,6 @@ use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, IntoVal};
 use soroban_sdk::token::Interface;
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
-use event::{
-    WithdrawEvent,
-    SwapEvent,
-    SyncEvent,
-    SkimEvent};
 
 mod test;
 mod soroswap_pair_token;
@@ -246,7 +241,8 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
-        event::swap(&e, &to, amount_0_in, amount_1_in, amount_0_out, amount_1_out, &to);
+        
+        event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
     }
 
 

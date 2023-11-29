@@ -35,6 +35,36 @@ pub(crate) fn deposit(
 }
 
 
+// SWAP EVENT
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SwapEvent {
+    pub to: Address,
+    pub amount_0_in: i128,
+    pub amount_1_in: i128,
+    pub amount_0_out: i128,
+    pub amount_1_out: i128,
+}
+
+pub(crate) fn swap(
+    e: &Env,
+    to: Address,
+    amount_0_in: i128,
+    amount_1_in: i128,
+    amount_0_out: i128,
+    amount_1_out: i128,
+) {
+    let event: SwapEvent = SwapEvent {
+        to: to,
+        amount_0_in: amount_0_in,
+        amount_1_in: amount_1_in,
+        amount_0_out: amount_0_out,
+        amount_1_out: amount_1_out,
+    };
+    e.events().publish(("SoroswapPair", symbol_short!("swap")), event);
+}
+
 
  
 pub(crate) fn withdraw(
@@ -61,42 +91,6 @@ pub struct WithdrawEvent {
 }
 
 
-/*
-event Swap(
-     address indexed sender,
-     uint amount0In,
-     uint amount1In,
-     uint amount0Out,
-     uint amount1Out,
-     address indexed to
- );
-*/
-
-pub(crate) fn swap(
-    e: &Env,
-    sender: &Address,
-    amount_0_in: i128,
-    amount_1_in: i128,
-    amount_0_out: i128,
-    amount_1_out: i128,
-    to: &Address,
-) {
-    let topics = (PAIR, Symbol::new(e, "swap"), sender);
-    e.events().publish(topics, (amount_0_in, amount_1_in, amount_0_out,amount_1_out,  to));
-}
-
-
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct SwapEvent {
-    pub to: Address,
-    pub amount_0_in: i128,
-    pub amount_1_in: i128,
-    pub amount_0_out: i128,
-    pub amount_1_out: i128,
-    pub new_reserve_0: i128,
-    pub new_reserve_1: i128,
-}
 
 
 // event Sync(uint112 reserve0, uint112 reserve1);
