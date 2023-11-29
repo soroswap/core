@@ -311,6 +311,17 @@ pub trait SoroswapRouterTrait {
     /// * `reserve_out` - The reserve of the output asset in the token pair.
     ///
     /// # Returns
+    /// The maximum output amount of the second asset.
+    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
+    
+    /// Given an input amount of one asset and the reserves of a token pair, calculates the maximum output amount of the other asset.
+    ///
+    /// # Arguments
+    /// * `amount_in` - The input amount of the first asset.
+    /// * `reserve_in` - The reserve of the input asset in the token pair.
+    /// * `reserve_out` - The reserve of the output asset in the token pair.
+    ///
+    /// # Returns
     /// The maximum output amount of the second asset.    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> i128;
     fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> i128;
 
