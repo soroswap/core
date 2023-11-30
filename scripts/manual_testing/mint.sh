@@ -4,6 +4,7 @@ case "$1" in
 standalone)
   echo "Using standalone network"
   SOROBAN_NETWORK_PASSPHRASE="Standalone Network ; February 2017"
+  SOROBAN_RPC_HOST="http://stellar:8000"
   FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
   ;;
 futurenet)
@@ -30,6 +31,24 @@ testnet-public)
 esac
 
 
+case "$2" in
+local)
+  echo "Using deployed contracts from .soroban folder"
+  TOKENS_FILE="/workspace/.soroban/tokens.json"
+  ;;
+public)
+  echo "Using deployed contracts from /public folder"
+  TOKENS_FILE="/workspace/public/tokens.json"
+  ;;
+*)
+  echo "Usage: $0 local|public"
+  echo "local: use contracts from the .soroban folder (local deployements)"
+  echo "public: use contracts from the /public folder (addresses in production?)"
+  exit 1
+  ;;
+esac
+
+
 echo We are going to mint 2 test tokens
 echo We are going to use the admin private key and the user public key
 
@@ -38,9 +57,6 @@ USER_PUBLIC=$(cat .soroban/user_public)
 
 echo ADMIN_SECRET: $ADMIN_SECRET
 echo USER_PUBLIC: $USER_PUBLIC
-
-
-TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
@@ -69,7 +85,7 @@ echo "..."
 echo "..."
 echo We will mint you 25,000,000 units ..plus 7 decimals.. of each token 
 echo "..."
-TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
 echo "Minting TOKEN_0:"
 soroban contract invoke \
   --network $NETWORK --source token-admin \

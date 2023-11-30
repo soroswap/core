@@ -7,6 +7,7 @@ test: build
 
 build:
 	soroban contract build
+	soroban contract optimize --wasm target/wasm32-unknown-unknown/release/soroban_token_contract.wasm
 	@ls -l target/wasm32-unknown-unknown/release/*.wasm
 
 fmt:

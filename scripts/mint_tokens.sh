@@ -18,7 +18,7 @@ TOKEN_B_ID="CA7X4NFKFRED2SY27L63IPOCZDWCUHWMHQGMQA2BWQTN5KKL2NUFQGR6"
 # Get the token admin address
 TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
-TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.optimized.wasm"
 
 # BALANCE_BEFORE="$(soroban contract invoke \
 #     --network $NETWORK \

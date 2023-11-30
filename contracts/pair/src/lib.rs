@@ -133,9 +133,9 @@ impl SoroswapPairTrait for SoroswapPair {
             (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         }
         else{
-                let shares_a = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
-                let shares_b = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
-                shares_a.min(shares_b)
+                let shares_0 = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
+                let shares_1 = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
+                shares_0.min(shares_1)
         };
         
         if liquidity <= 0 { panic!("SoroswapPair: insufficient liquidity minted") }
@@ -206,7 +206,7 @@ impl SoroswapPairTrait for SoroswapPair {
         // If balance_shares == 0 means that there has never been liquidity
         if balance_shares == 0 { panic!("SoroswapPair: liquidity was not initialized yet") }
 
-        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
+        let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         let (mut balance_0, mut balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let user_sent_shares = balance_shares.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
@@ -234,6 +234,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
 
+        (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
             put_klast(&e, reserve_0.checked_mul(reserve_1).unwrap());
         }
@@ -342,8 +343,6 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
 
     let factory = get_factory(&e);
     let factory_client = SoroswapFactoryClient::new(&e, &factory);
-    //  address feeTo = IUniswapV2Factory(factory).feeTo();
-    //  feeOn = feeTo != address(0);
     let fee_on = factory_client.fees_enabled();
     let klast = get_klast(&e);
      
@@ -354,19 +353,13 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
             let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
             let root_klast = (klast).sqrt();
             if root_k > root_klast{
-                // uint numerator = totalSupply.mul(rootK.sub(rootKLast));
                 let total_shares = get_total_shares(&e);
                 let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
-        
-                // uint denominator = rootK.mul(5).add(rootKLast);
                 let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
-                // uint liquidity = numerator / denominator;
-
                 let liquidity_pool_shares_fees = numerator.checked_div(denominator).unwrap();
 
-                // if (liquidity > 0) _mint(feeTo, liquidity);
                 if liquidity_pool_shares_fees > 0 {
-                    mint_shares(&e, &fee_to,    liquidity_pool_shares_fees);
+                    mint_shares(&e, &fee_to, liquidity_pool_shares_fees);
                 }
             }
         }

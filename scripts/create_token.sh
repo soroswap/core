@@ -22,7 +22,7 @@ echo "Compile token contract"
 cd /workspace/contracts/token
 make build
 cd /workspace/
-TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm"
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
 
 echo Deploying token to network $NETWORK
 echo $NETWORK

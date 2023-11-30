@@ -10,9 +10,9 @@ echo "$USER_PUBLIC" > .soroban/user_public
 
 NEW_KEYS_OBJECT="{ \"user_public\": \"$USER_PUBLIC\", \"user_secret\": \"$USER_SECRET\" }"
 
-KEYS_FILE="/workspace/public/user_keys.json"
-touch $KEYS_FILE
-echo "$NEW_KEYS_OBJECT" > "$KEYS_FILE"
-CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
-echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
+# KEYS_FILE="/workspace/public/user_keys.json"
+# touch $KEYS_FILE
+# echo "$NEW_KEYS_OBJECT" > "$KEYS_FILE"
+# CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
+# echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
 

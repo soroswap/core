@@ -1,4 +1,5 @@
 use crate::test::{SoroswapRouterTest, SoroswapPairClient};
+extern crate std;
 
 use soroban_sdk::{
     Address,
@@ -9,6 +10,37 @@ use soroban_sdk::{
         Ledger},
     vec,
     IntoVal};
+
+
+// Pub function that will be used in other tests:
+
+
+pub fn add_liquidity(
+    test: &SoroswapRouterTest, 
+    amount_0: &i128,
+    amount_1: &i128) -> (i128, i128, i128){
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
+    assert!(desired_deadline > ledger_timestamp);
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+
+        test.env.budget().reset_unlimited();
+        test.contract.add_liquidity(
+            &test.token_0.address, //     token_a: Address,
+            &test.token_1.address, //     token_b: Address,
+            &amount_0, //     amount_a_desired: i128,
+            &amount_1, //     amount_b_desired: i128,
+            &0, //     amount_a_min: i128,
+            &0 , //     amount_b_min: i128,
+            &test.user, //     to: Address,
+            &desired_deadline//     deadline: u64,
+        )
+
+}
+
 
 
 #[test]
@@ -98,26 +130,6 @@ fn test_add_liquidity_amount_b_min_negative() {
     );
 }
 
-// false negatives could fail for multiple reasons, not only for its initialization state.
-#[test]
-#[should_panic]
-fn test_add_liquidity_initialized_prooves_false_negative() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.initialize(&test.factory.address);
-    test.contract.add_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &10000, //     amount_a_desired: i128,
-        &10000, //     amount_b_desired: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-    // assert!(true);
-}
-    
-
 #[test]
 #[should_panic(expected = "Unauthorized function call for address")]
 fn test_add_liquidity_not_authorized() {
@@ -166,7 +178,6 @@ fn test_add_liquidity_not_authorized() {
 }
 
 
-
 // #[test]
 // fn test_add_liquidity_authorized() {
 //     let test = SoroswapRouterTest::setup();
@@ -190,8 +201,8 @@ fn test_add_liquidity_not_authorized() {
 //     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
 
 //     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
+//     let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
 
-//     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
 //     /*
 //         Here we test the add_liquidity function "to.require_auth();" requirement
 //         So if alice calls the function but sets "bob" in the "to" argument, this should fail
@@ -224,7 +235,7 @@ fn test_add_liquidity_not_authorized() {
 //                     args: vec![&
 //                         &test.env,
 //                         test.user.into_val(&test.env), //     to: Address, (from)
-//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         deterministic_pair_address.into_val(&test.env), //     pair: Address, (to)
 //                         amount_0.into_val(&test.env), //     amount_a: i128, (amount)
 //                     ],
 //                     sub_invokes: &[],
@@ -235,7 +246,7 @@ fn test_add_liquidity_not_authorized() {
 //                     args: vec![&
 //                         &test.env,
 //                         test.user.into_val(&test.env), //     to: Address, (from)
-//                         pair_address.into_val(&test.env), //     pair: Address, (to)
+//                         deterministic_pair_address.into_val(&test.env), //     pair: Address, (to)
 //                         amount_1.into_val(&test.env), //     amount_a: i128, (amount)
 //                     ],
 //                     sub_invokes: &[],
@@ -291,6 +302,8 @@ fn test_add_liquidity_deadline_expired() {
         &desired_deadline//     deadline: u64,
     );
 }
+// test pair exist, pair does not exist
+
 
 #[test]
 fn test_add_liquidity() {
@@ -316,7 +329,8 @@ fn test_add_liquidity() {
     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
 
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
-    test.contract.add_liquidity(
+    let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
+    let (added_token_0, added_token_1, added_liquidity) = test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &amount_0, //     amount_a_desired: i128,
@@ -327,6 +341,10 @@ fn test_add_liquidity() {
         &desired_deadline//     deadline: u64,
     );
 
+    assert_eq!(added_token_0, amount_0);
+    assert_eq!(added_token_1, amount_1);
+    assert_eq!(added_liquidity, expected_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap());
+
     // TODO: Test events:
 
     // We test that the pair now exist
@@ -335,7 +353,10 @@ fn test_add_liquidity() {
     // We test that the pair was created succesfully
     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
     let pair_address_other_way = test.factory.get_pair(&test.token_1.address, &test.token_0.address);
+
+    // We test that the addresses where correctly generated
     assert_eq!(pair_address, pair_address_other_way);
+    assert_eq!(pair_address, deterministic_pair_address);
     
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
@@ -366,7 +387,7 @@ fn test_add_liquidity() {
     assert_eq!(pair_client.balance(&test.user), expected_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap());
 
     // We can provide liquidity again and should not panic
-    test.contract.add_liquidity(
+    let (new_added_token_0, new_added_token_1, new_added_liquidity) = test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &amount_0, //     amount_a_desired: i128,
@@ -376,12 +397,16 @@ fn test_add_liquidity() {
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
+
+    assert_eq!(new_added_token_0, amount_0);
+    assert_eq!(new_added_token_1, amount_1);
+    assert_eq!(new_added_liquidity, expected_liquidity);
 }
 
 // We test that amount deducted from user is the same showed on reserve.
 #[test]
 fn test_add_liquidity_deducted_amount_reserve() {
-    let test = SoroswapRouterTest::setupDeductedReserve();
+    let test = SoroswapRouterTest::setup_deducted_reserve();
     test.contract.initialize(&test.factory.address);
     
     let ledger_timestamp = 100;
@@ -446,26 +471,143 @@ fn test_add_liquidity_deducted_amount_reserve() {
 
 }
 
-// Pub function that will be used in other tests:
+// insufficient ammount (a and b)
 
-
-pub fn add_liquidity(test: &SoroswapRouterTest, amount_0: &i128, amount_1: &i128){
+#[test]
+#[should_panic(expected = "SoroswapRouter: insufficient b amount")]
+fn insufficient_b_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    
     let ledger_timestamp = 100;
     let desired_deadline = 1000;
+
     assert!(desired_deadline > ledger_timestamp);
+
     test.env.ledger().with_mut(|li| {
         li.timestamp = ledger_timestamp;
     });
 
-
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+    
+    add_liquidity(&test, &amount_0, &amount_1);
+    
+    // We can provide liquidity again and should not panic
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &amount_0, //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
+        &(amount_0), //     amount_a_min: i128,
+        &(amount_1+1) , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+#[test]
+#[should_panic(expected = "SoroswapRouter: insufficient a amount")]
+fn insufficient_a_amount() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
+
+    assert!(desired_deadline > ledger_timestamp);
+
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+    
+    add_liquidity(&test, &amount_0, &amount_1);
+    
+    // We can provide liquidity again and should not panic
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &(amount_0+1), //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
+        &(amount_0+1), //     amount_a_min: i128,
+        &(amount_1) , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+}
+
+
+#[test]
+fn amount_a_desired_higher() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
+
+    assert!(desired_deadline > ledger_timestamp);
+
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+    
+    add_liquidity(&test, &amount_0, &amount_1);
+    
+    // We can provide liquidity again and should not panic
+    let (new_added_token_0, new_added_token_1, _new_added_liquidity) = test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &(amount_0+1), //     amount_a_desired: i128,
         &amount_1, //     amount_b_desired: i128,
         &0, //     amount_a_min: i128,
         &0 , //     amount_b_min: i128,
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
+
+    assert_eq!(new_added_token_0, amount_0);
+    assert_eq!(new_added_token_1, amount_1);
+}
+
+
+#[test]
+fn amount_b_desired_higher() {
+    let test = SoroswapRouterTest::setup();
+    test.contract.initialize(&test.factory.address);
+    
+    let ledger_timestamp = 100;
+    let desired_deadline = 1000;
+
+    assert!(desired_deadline > ledger_timestamp);
+
+    test.env.ledger().with_mut(|li| {
+        li.timestamp = ledger_timestamp;
+    });
+
+    let amount_0: i128 = 1_000_000_000_000_000_000;
+    let amount_1: i128 = 4_000_000_000_000_000_000;
+    
+    add_liquidity(&test, &amount_0, &amount_1);
+    
+    // We can provide liquidity again and should not panic
+    let (new_added_token_0, new_added_token_1, _new_added_liquidity) = test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &(amount_0), //     amount_a_desired: i128,
+        &(amount_1+1), //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &desired_deadline//     deadline: u64,
+    );
+
+    assert_eq!(new_added_token_0, amount_0);
+    assert_eq!(new_added_token_1, amount_1);
 }

@@ -123,6 +123,8 @@ mod deposit;
 mod swap;
 mod withdraw;
 mod fee;
+mod skim;
+mod sync;
 // mod decode; // wont be used for now
 
 // Test forked by stellar/soroban-examples

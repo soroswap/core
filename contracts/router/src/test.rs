@@ -17,7 +17,7 @@ mod token {
 }
 use token::TokenClient;
 
-fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
+pub fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
@@ -65,6 +65,7 @@ pub struct SoroswapRouterTest<'a> {
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
     user: Address,
+    admin: Address
 }
 
 impl<'a> SoroswapRouterTest<'a> {
@@ -87,6 +88,7 @@ impl<'a> SoroswapRouterTest<'a> {
         token_1.mint(&user, &10_000_000_000_000_000_000);
 
         let factory = create_soroswap_factory(&env, &admin);
+        env.budget().reset_unlimited();
 
         SoroswapRouterTest {
             env,
@@ -94,11 +96,12 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            user
+            user,
+            admin
         }
     }
 
-    fn setupDeductedReserve() -> Self {
+    fn setup_deducted_reserve() -> Self {
 
         let env = Env::default();
         env.mock_all_auths();
@@ -127,7 +130,8 @@ impl<'a> SoroswapRouterTest<'a> {
             token_0,
             token_1,
             factory,
-            user
+            user,
+            admin
         }
     }
 }
@@ -141,5 +145,8 @@ pub mod remove_liquidity;
 pub mod library_functions;
 pub mod swap_tokens_for_exact_tokens;
 pub mod swap_exact_tokens_for_tokens;
+
+// BUDGET TEST MOD
+mod budget;
 
 

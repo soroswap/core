@@ -1,8 +1,5 @@
 # Soroswap core Smart Contracts
-Make sure to compile contracts in the right order: pair, factory, library, router
-
-You'll need node, yarn and Docker installed
-
+Make sure to compile contracts in the right order: token, pair, factory, library, router. If you just do `cd contracts && make build`, this will be done in the correct order ;)
 
 Check the documentation in
 - https://github.com/soroswap/docs/
@@ -21,16 +18,16 @@ git clone http://github.com/soroswap/core.git
 ```
 yarn 
 ```
-1.3 In one terminal: (choose standalone or futurenet)
+1.3 In one terminal: (choose standalone, futurenet or testnet)
 ```
-bash scripts/quickstart.sh standalone # or futurenet
+bash scripts/quickstart.sh standalone # or futurenet or testnet
 ```
 1.4. In another terminal
 ```
 bash scripts/run.sh
 ```
 
-### 2. Create N tokens, deploy factory and 4 pairs.
+### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
 
 This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
 
@@ -38,6 +35,14 @@ Remember here to choose standalone, testnet or futurenet
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
+This will:
+- Create 8 test tokens.
+- Build and install the SoroswapPair contract in Soroban.
+- Build and Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
+- Build and Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
+- Create N^2 Pairs (all combinations between pairs) using the Router contract 
+
+This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
 
 ### 3. (For local development): Serve those .json files 
 
@@ -49,15 +54,16 @@ bash scripts/serve_with_docker.sh
 This will serve:
 - List of tokens at http://localhost:8010/api/tokens
 - Factory addresses http://localhost:8010/api/factory
+- Router addresses http://localhost:8010/api/router
 - Admin keys http://localhost:8010/api/keys
 - Created pairs http://localhost:8010/api/keys
 
 The created pairs won't be readed by the front-end, however will be useful to debug
 
-#### 5. (For production): Public those .json files and serve them using Vercel
+### 4. (For production): Public those .json files and serve them using Vercel
 From project root:
 ```
-bash run.sh
+bash scripts/run.sh
 bash scripts/upload_addresses.sh
 ```
 Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on ./public and push them to main.
@@ -73,61 +79,52 @@ https://api.soroswap.finance/api/pairs
 #### Note:
 If you want to deploy both in standalone an futurenet you can deploy first on futurenet and then on standalone. Then your dapp will connect to standalone using your quickstart containter and to futurenet using the public RPC.
 
-If you want to serve both networks locally, check how it's done in github.com/esteblock/multichain-dapp
-
-____
-____
 ____
 
 
-# Environment Preparation:
+# Compile and Test the contracts
+## Prepare
  
-1.- Run the Stellar Quicktart and the @esteblock/soroban-preview:9 Docker containers
-Currently, Soroswap Protocol supports PREVIEW-9:
+1.- Run the Stellar Quickstart and the @esteblock/soroban-preview Docker containers
 Here you can choose to use an `standalone` or `futurenet` instance 
 ```
 bash scripts/quickstart.sh standalone
 ```
-With this, a `stellar` container and a `soroban-preview-9` will run, sharing the `soroban-network` network in Docker
-
-2.- Run a terminal of the soroban-preview
+2.- Run a terminal with the `@esteblock/soroban-preview` image container
 ```
 bash scripts/run.sh
 ```
-
-## 2.- Compile
-Inside the soroban-preview container, compile both the `pair` and the `factory` contract inside the `contracts`
+## Compile
+3.- Inside the soroban-preview container, compile all contracts:
 ```
+cd contracts
 make build
 ```
 If you ran this command in the `/workspace` path, this will compile both contracts
-
-## 3.- Run rust test
-1.- Run tests of the Pair contract:
+## Test
+4.- Run tests in all contracts
 ```
-cd pair
-make test
-```
-2.- Run tests of the Factory contract:
-```
-cd factory
 make test
 ```
 
-## 4.- Experiment the Pair and the Factory contract using the soroban CLI
-
-A full tutorial has been written showing in detail, step-by-step how to experiment with these contracts using the soroban CLI
-
-Check it in: [docs.soroswap.finance](https://docs.soroswap.finance/), on a [6 chapters dev.to tutorial: ](https://dev.to/esteblock/series/22986) or directly on the [soroswap/docs repo](https://github.com/soroswap/docs)
-
-If you want to go fast to the soroban CLI experiment, just run:
-
-To test the Pair contract, inside the `soroban-preview-9` container run:
-```bash
-bash initialize_pair.sh standalone
+## Check budget usage
+If you want to know how the memory and CPU instructions usage, you can go, for each contract and do:
 ```
-
-To test the Pair contract, inside the `soroban-preview-9` container run:
-```bash
-bash initialize_factory.sh standalone
+cd router
+cargo test budget -- --nocapture
 ```
+This will run the `/contracts/router/budget.rs` test that by using `env.budget`, calculates the budget.
+
+## Experiment using the soroban CLI
+
+We have some tutorials about this. Check [docs.soroswap.finance](https://docs.soroswap.finance/),  [6 chapters dev.to tutorial: ](https://dev.to/esteblock/series/22986) or the [soroswap/docs repo](https://github.com/soroswap/docs)
+
+If you want to go fast to the soroban CLI "manual experiment":
+
+```bash
+bash scripts/manual_testing/all.sh standalone local
+```
+This will take all standalone deployments available in `.soroban` (local) and will do 1) Mint test tokens, 2) Provide Liqudiity 3) Swap 4) Remove Liquidity.
+
+You can change `standalone` for `testnet` and use the `testnet` deployed address.
+You can change `local` for `public` in order to take addresses from the `./public` folder

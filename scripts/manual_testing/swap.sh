@@ -31,6 +31,31 @@ testnet-public)
   ;;
 esac
 
+
+case "$2" in
+local)
+  echo "Using deployed contracts from .soroban folder"
+  TOKENS_FILE="/workspace/.soroban/tokens.json"
+  ROUTER_FILE="/workspace/.soroban/router.json"
+  PAIRS_FILE="/workspace/.soroban/pairs.json"
+
+  ;;
+public)
+  echo "Using deployed contracts from /public folder"
+  TOKENS_FILE="/workspace/public/tokens.json"
+  ROUTER_FILE="/workspace/public/router.json"
+  PAIRS_FILE="/workspace/public/pairs.json"
+
+  ;;
+*)
+  echo "Usage: $0 local|public"
+  echo "local: use contracts from the .soroban folder (local deployements)"
+  echo "public: use contracts from the /public folder (addresses in production?)"
+  exit 1
+  ;;
+esac
+
+
 USER_PUBLIC=$(cat .soroban/user_public)
 USER_SECRET=$(cat .soroban/user_secret)
 
@@ -41,9 +66,6 @@ echo Fund user account from friendbot
 echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
-
-
-TOKENS_FILE="/workspace/public/tokens.json"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
@@ -87,11 +109,10 @@ echo "..."
 #         deadline: u64,
 #     ) -> Vec<i128>;
 
-ROUTER_FILE="/workspace/public/router.json"
 ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 
-ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.wasm"
+ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
 
     soroban contract invoke \
         --network $NETWORK \
