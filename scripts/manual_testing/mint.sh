@@ -34,10 +34,12 @@ esac
 case "$2" in
 local)
   echo "Using deployed contracts from .soroban folder"
+  ADMIN_KEYS_FILE="/workspace/.soroban/token_admin_keys.json"
   TOKENS_FILE="/workspace/.soroban/tokens.json"
   ;;
 public)
   echo "Using deployed contracts from /public folder"
+  ADMIN_KEYS_FILE="/workspace/public/token_admin_keys.json"
   TOKENS_FILE="/workspace/public/tokens.json"
   ;;
 *)
@@ -52,7 +54,7 @@ esac
 echo We are going to mint 2 test tokens
 echo We are going to use the admin private key and the user public key
 
-ADMIN_SECRET=$(cat .soroban/token_admin_secret)
+ADMIN_SECRET=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .admin_secret' $ADMIN_KEYS_FILE)
 USER_PUBLIC=$(cat .soroban/user_public)
 
 echo ADMIN_SECRET: $ADMIN_SECRET
