@@ -244,21 +244,17 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         */
         let pair_wasm_hash = get_pair_wasm_hash(&e);
         let pair = create_contract(&e, pair_wasm_hash, &token_pair);
-        // TODO: Implement name of the pair depending on the token names
+
         pair::Client::new(&e, &pair).initialize_pair(
             &e.current_contract_address(),
-            &token_pair.token_a(), &token_pair.token_b()
+            &token_pair.token_0(), 
+            &token_pair.token_1()
         );
 
-        // getPair[token0][token1] = pair;
-        // getPair[token1][token0] = pair; // populate mapping in the reverse direction
         add_pair_to_mapping(&e, &token_pair, &pair);
-
-        // allPairs.push(pair);
         add_pair_to_all_pairs(&e, &pair);
 
-        // emit PairCreated(token0, token1, pair, allPairs.length);
-        event::pair_created(&e, token_pair.token_a(), token_pair.token_b(), &pair, get_all_pairs(&e).len());
+        event::new_pair(&e, token_pair.token_0().clone(), token_pair.token_1().clone(), pair.clone(), get_all_pairs(&e).len());
         pair
     }
 }
