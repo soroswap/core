@@ -190,33 +190,79 @@ fn new_pair_event() {
 }
 
 
+#[test]
+fn fee_to_event() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+    test.contract.set_fee_to(&test.user);
 
-// // NEW PAIR CREATED EVENT: new_pair
-// #[contracttype]
-// #[derive(Clone, Debug, Eq, PartialEq)]
-// pub struct NewPair {
-//     pub token_0: Address,
-//     pub token_1: Address,
-//     pub pair: Address,
-//     pub new_pairs_length: u32
-// }
+    let fee_to_event = test.env.events().all().last().unwrap();
 
-// pub(crate) fn new_pair(
-//     e: &Env, 
-//     token_0: Address,
-//     token_1: Address,
-//     pair: Address,
-//     new_pairs_length: u32) {
+    let expected_fee_to_event: FeeToSettedEvent = FeeToSettedEvent {
+        setter: test.admin.clone(),
+        old: test.admin.clone(),
+        new: test.user.clone(),
+    };
+
+    assert_eq!(
+        vec![&test.env, fee_to_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("fee_to")).into_val(&test.env),
+                (expected_fee_to_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_fee_to_event: FeeToSettedEvent = FeeToSettedEvent {
+        setter: test.admin.clone(),
+        old: test.user.clone(),
+        new: test.user.clone(),
+    };
+
+    assert_ne!(
+        vec![&test.env, fee_to_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("fee_to")).into_val(&test.env),
+                (false_fee_to_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+
+    // Wront symbol_short
+    assert_ne!(
+        vec![&test.env, fee_to_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("fee_too")).into_val(&test.env),
+                (expected_fee_to_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    // Wront string
+    assert_ne!(
+        vec![&test.env, fee_to_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapFactoryy", symbol_short!("fee_to")).into_val(&test.env),
+                (expected_fee_to_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+}
     
-//     let event: NewPair = NewPair {
-//         token_0: token_0,
-//         token_1: token_1,
-//         pair: pair,
-//         new_pairs_length: new_pairs_length,
-//     };
-//     e.events().publish(("SoroswapFactory", symbol_short!("new_pair")), event);
-// }
-
 
 
 // // NEW "FEE TO" SETTED: new_fee_to // Event is "fee_to"
