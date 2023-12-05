@@ -52,6 +52,8 @@ pub struct SoroswapFactoryTest<'a> {
     user: Address,
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
+    token_2: TokenClient<'a>,
+    token_3: TokenClient<'a>,
     pair_wasm: BytesN<32>,
     contract: SoroswapFactoryClient<'a>,
 }
@@ -68,15 +70,17 @@ impl<'a> SoroswapFactoryTest<'a> {
         if &token_1.address.contract_id() < &token_0.address.contract_id() {
             std::mem::swap(&mut token_0, &mut token_1);
         }
-        
-        let name_0 = String::from_slice(&env, "Token 0");
-        let symbol_0 = String::from_slice(&env, "TOKEN0");
-        let name_1 = String::from_slice(&env, "Token 1");
-        let symbol_1 = String::from_slice(&env, "TOKEN1");
-        let decimals = 7;
 
-        token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
-        token_1.initialize(&admin, &decimals, &name_1, &symbol_1);
+        let mut token_2 = create_token_contract(&env);
+        let mut token_3 = create_token_contract(&env);
+        if &token_3.address.contract_id() < &token_2.address.contract_id() {
+            std::mem::swap(&mut token_2, &mut token_3);
+        }
+
+        token_0.initialize(&admin, &7, &String::from_slice(&env, "Token 0"), &String::from_slice(&env, "TOKEN0"));
+        token_1.initialize(&admin, &7, &String::from_slice(&env, "Token 1"), &String::from_slice(&env, "TOKEN1"));
+        token_2.initialize(&admin, &7, &String::from_slice(&env, "Token 2"), &String::from_slice(&env, "TOKEN2"));
+        token_3.initialize(&admin, &7, &String::from_slice(&env, "Token 3"), &String::from_slice(&env, "TOKEN3"));
 
         
         let pair_wasm = pair_token_wasm(&env);  
@@ -92,6 +96,8 @@ impl<'a> SoroswapFactoryTest<'a> {
             user,
             token_0,
             token_1,
+            token_2,
+            token_3,
             pair_wasm,
             contract,
         }
@@ -101,5 +107,6 @@ impl<'a> SoroswapFactoryTest<'a> {
 mod initialize;
 mod fee_to_setter;
 mod pairs;
+mod events;
 
 pub mod deterministic;

@@ -6,6 +6,7 @@ use soroban_sdk::{
         AuthorizedInvocation,
         AuthorizedFunction
     },
+    Vec,
     Symbol
 };
 

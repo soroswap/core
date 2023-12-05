@@ -19,7 +19,7 @@ pub(crate) fn initialized(e: &Env, setter: Address) {
 // NEW PAIR CREATED EVENT: new_pair
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct NewPair {
+pub struct NewPairEvent {
     pub token_0: Address,
     pub token_1: Address,
     pub pair: Address,
@@ -33,7 +33,7 @@ pub(crate) fn new_pair(
     pair: Address,
     new_pairs_length: u32) {
     
-    let event: NewPair = NewPair {
+    let event: NewPairEvent = NewPairEvent {
         token_0: token_0,
         token_1: token_1,
         pair: pair,
@@ -47,7 +47,7 @@ pub(crate) fn new_pair(
 // NEW "FEE TO" SETTED: new_fee_to // Event is "fee_to"
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct FeeToSetted {
+pub struct FeeToSettedEvent {
     pub setter: Address,
     pub old: Address,
     pub new: Address
@@ -59,7 +59,7 @@ pub(crate) fn new_fee_to(
     old: Address,
     new: Address) {
     
-    let event: FeeToSetted = FeeToSetted {
+    let event: FeeToSettedEvent = FeeToSettedEvent {
         setter: setter,
         old: old,
         new: new
