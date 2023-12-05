@@ -404,21 +404,3 @@ fn fees_enabled_event() {
     );
 
 }
-
-
-// // NEW "FEES ENABLED" BOOL
-// #[contracttype]
-// #[derive(Clone, Debug, Eq, PartialEq)]
-// pub struct NewFeesEnabledEvent {
-//     pub fees_enabled: bool
-// }
-
-// pub(crate) fn new_fees_enabled(
-//     e: &Env,
-//     fees_enabled: bool) {
-    
-//     let event: NewFeesEnabledEvent = NewFeesEnabledEvent {
-//         fees_enabled: fees_enabled,
-//     };
-//     e.events().publish(("SoroswapFactory", symbol_short!("fees")), event);
-// }

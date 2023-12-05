@@ -41,7 +41,7 @@ fn create_pair_one_way() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
+#[should_panic(expected = "SoroswapFactory: pair already exists between token_a and token_b")]
 fn double_pair_creation() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
@@ -51,7 +51,7 @@ fn double_pair_creation() {
 }
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: pair already exist between token_0 and token_1")]
+#[should_panic(expected = "SoroswapFactory: pair already exists between token_a and token_b")]
 fn double_pair_creation_other_way() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
