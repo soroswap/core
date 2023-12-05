@@ -1,6 +1,21 @@
 //! Definition of the Events used in the contract
 use soroban_sdk::{contracttype, symbol_short, Env, Address};
 
+// INITIALIZED
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct InitializedEvent {
+    pub setter: Address
+}
+
+pub(crate) fn initialized(e: &Env, setter: Address) {
+    
+    let event: InitializedEvent = InitializedEvent {
+        setter: setter
+    };
+    e.events().publish(("SoroswapFactory", symbol_short!("init")), event);
+}
+
 // NEW PAIR CREATED EVENT: new_pair
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -29,7 +44,7 @@ pub(crate) fn new_pair(
 
 
 
-// NEW "FEE TO" SETTED: fee_to_setted // Event is "fee_to"
+// NEW "FEE TO" SETTED: new_fee_to // Event is "fee_to"
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FeeToSetted {
@@ -38,7 +53,7 @@ pub struct FeeToSetted {
     pub new: Address
 }
 
-pub(crate) fn fee_to_setted(
+pub(crate) fn new_fee_to(
     e: &Env,
     setter: Address, 
     old: Address,
@@ -52,4 +67,24 @@ pub(crate) fn fee_to_setted(
     e.events().publish(("SoroswapFactory", symbol_short!("fee_to")), event);
 }
 
+
+// NEW "SETTER"
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct NewSetterEvent {
+    pub old: Address,
+    pub new: Address
+}
+
+pub(crate) fn new_setter(
+    e: &Env,
+    old: Address,
+    new: Address) {
+    
+    let event: NewSetterEvent = NewSetterEvent {
+        old: old,
+        new: new
+    };
+    e.events().publish(("SoroswapFactory", symbol_short!("setter")), event);
+}
 

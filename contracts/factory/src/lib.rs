@@ -185,8 +185,9 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // }
         // write_administrator(&e, &admin);
         put_fee_to_setter(&e, &setter);
-        put_fee_to(&e, setter);
+        put_fee_to(&e, setter.clone());
         put_pair_wasm_hash(&e, pair_wasm_hash);
+        event::initialized(&e, setter);
     }
 
     fn set_fee_to(e: Env, to: Address) {
@@ -194,7 +195,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         setter.require_auth();
         let old = get_fee_to(&e);
         put_fee_to(&e, to.clone());
-        event::fee_to_setted(&e, setter, old, to);
+        event::new_fee_to(&e, setter, old, to);
     }
 
     // function setFeeToSetter(address) external;
@@ -202,6 +203,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
         put_fee_to_setter(&e, &new_setter);
+        event::new_setter(&e, setter, new_setter);
     }
 
     fn set_fees_enabled(e: Env, is_enabled: bool) {
