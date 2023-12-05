@@ -102,6 +102,13 @@ fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
     e.storage().instance().set(&DataKey::PairWasmHash, &pair_wasm_hash)
 }
 
+
+// Helper function in order to know if the contract has been initialized or not
+pub fn has_pair_wasm_hash(e: &Env) -> bool {
+    e.storage().instance().has(&DataKey::PairWasmHash)
+}
+
+
 fn add_pair_to_mapping(e: &Env, token_pair: &Pair, pair: &Address) {
     // Get the pairs mapping
     let mut pairs_mapping = get_pairs_mapping(e);
@@ -132,27 +139,32 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // feeTo is the recipient of the charge.
     // function feeTo() external view returns (address);
     fn fee_to(e: Env) -> Address {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         get_fee_to(&e)
     }
 
     // The address allowed to change feeTo.
     // function feeToSetter() external view returns (address);
     fn fee_to_setter(e: Env) -> Address {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         get_fee_to_setter(&e)
     }
 
     fn fees_enabled(e: Env) -> bool {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         get_fees_enabled(&e)
     }
 
     // Returns the total number of pairs created through the factory so far.
     // function allPairsLength() external view returns (uint);
     fn all_pairs_length(e: Env) -> u32 {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         get_all_pairs(&e).len()
     }
 
     // Returns the address of the pair for token_a and token_b, if it has been created, else Panics
     fn get_pair(e: Env, token_a: Address, token_b: Address) -> Address {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         // Get the mapping of pairs from storage in the current environment.
         let pairs_mapping = get_pairs_mapping(&e);
         // Create a tuple of (Address, Address) using the two input addresses to use as the key.
@@ -167,11 +179,13 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     // Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
     // function allPairs(uint) external view returns (address pair);
     fn all_pairs(e: Env, n: u32) -> Address {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         // TODO: Implement error if n does not exist
         get_all_pairs(&e).get(n).unwrap()
     }
 
     fn pair_exists(e: Env, token_a: Address, token_b: Address) -> bool {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         get_pair_exists(&e, &Pair::new(token_a, token_b))
     }
 
@@ -179,11 +193,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // Sets the fee_to_setter address
     fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) {
-        // TODO: This should be called only once, and by the contract creator
-        // if has_administrator(&e) {
-        //     panic!("already initialized")
-        // }
-        // write_administrator(&e, &admin);
+        assert!(!has_pair_wasm_hash(&e), "SoroswapFactory: already initialized");
         put_fee_to_setter(&e, &setter);
         put_fee_to(&e, setter.clone());
         put_pair_wasm_hash(&e, pair_wasm_hash);
@@ -191,6 +201,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     fn set_fee_to(e: Env, to: Address) {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
         let old = get_fee_to(&e);
@@ -200,6 +211,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     // function setFeeToSetter(address) external;
     fn set_fee_to_setter(e: Env, new_setter: Address) {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
         put_fee_to_setter(&e, &new_setter);
@@ -207,15 +219,18 @@ impl SoroswapFactoryTrait for SoroswapFactory {
     }
 
     fn set_fees_enabled(e: Env, is_enabled: bool) {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
-        put_fees_enabled(&e, &is_enabled)
+        put_fees_enabled(&e, &is_enabled);
+        event::new_fees_enabled(&e, is_enabled);
     }
 
     //Creates a pair for token_a and token_b if one doesn't exist already.
     // function createPair(address token_a, address token_b) external returns (address pair);
     // token0 is guaranteed to be strictly less than token1 by sort order.
     fn create_pair(e: Env, token_a: Address, token_b: Address) -> Address {
+        assert!(has_pair_wasm_hash(&e), "SoroswapFactory: not yet initialized");
         //require(tokenA != tokenB, 'UniswapV2: IDENTICAL_ADDRESSES');
         if token_a == token_b {
             panic!("SoroswapFactory: token_a and token_b have identical addresses");
