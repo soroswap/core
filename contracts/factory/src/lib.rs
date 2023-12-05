@@ -185,15 +185,14 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // }
         // write_administrator(&e, &admin);
         put_fee_to_setter(&e, &setter);
+        put_fee_to(&e, setter);
         put_pair_wasm_hash(&e, pair_wasm_hash);
-        Self::set_fee_to(e, setter)
     }
 
     fn set_fee_to(e: Env, to: Address) {
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
         let old = get_fee_to(&e);
-
         put_fee_to(&e, to.clone());
         event::fee_to_setted(&e, setter, old, to);
     }
