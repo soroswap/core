@@ -29,20 +29,23 @@ pub(crate) fn new_pair(
 
 
 
-// PAIR CREATED EVENT
+// NEW "FEE TO" SETTED: fee_to_setted // Event is "fee_to"
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FeeToSetted {
+    pub setter: Address,
     pub old: Address,
     pub new: Address
 }
 
 pub(crate) fn fee_to_setted(
-    e: &Env, 
+    e: &Env,
+    setter: Address, 
     old: Address,
     new: Address) {
     
     let event: FeeToSetted = FeeToSetted {
+        setter: setter,
         old: old,
         new: new
     };

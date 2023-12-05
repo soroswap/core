@@ -127,18 +127,6 @@ struct SoroswapFactory;
 
 #[contractimpl]
 impl SoroswapFactoryTrait for SoroswapFactory {
-    // Sets the fee_to_setter address
-    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) {
-        // TODO: This should be called only once, and by the contract creator
-        // if has_administrator(&e) {
-        //     panic!("already initialized")
-        // }
-        // write_administrator(&e, &admin);
-        put_fee_to_setter(&e, &setter);
-        put_pair_wasm_hash(&e, pair_wasm_hash);
-        Self::set_fee_to(e, setter)
-    }
-
     /*  *** Read only functions: *** */
 
     // feeTo is the recipient of the charge.
@@ -189,11 +177,25 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 
     /*  *** State-Changing Functions: *** */
 
-    // function setFeeTo(address) external;
+    // Sets the fee_to_setter address
+    fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) {
+        // TODO: This should be called only once, and by the contract creator
+        // if has_administrator(&e) {
+        //     panic!("already initialized")
+        // }
+        // write_administrator(&e, &admin);
+        put_fee_to_setter(&e, &setter);
+        put_pair_wasm_hash(&e, pair_wasm_hash);
+        Self::set_fee_to(e, setter)
+    }
+
     fn set_fee_to(e: Env, to: Address) {
         let setter = get_fee_to_setter(&e);
         setter.require_auth();
-        put_fee_to(&e, to);
+        let old = get_fee_to(&e);
+
+        put_fee_to(&e, to.clone());
+        event::fee_to_setted(&e, setter, old, to);
     }
 
     // function setFeeToSetter(address) external;
