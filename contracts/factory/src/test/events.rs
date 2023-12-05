@@ -235,7 +235,7 @@ fn fee_to_event() {
     );
 
 
-    // Wront symbol_short
+    // Wrong symbol_short
     assert_ne!(
         vec![&test.env, fee_to_event.clone()],
         vec![
@@ -248,7 +248,7 @@ fn fee_to_event() {
         ]
     );
 
-    // Wront string
+    // Wrong string
     assert_ne!(
         vec![&test.env, fee_to_event.clone()],
         vec![
@@ -262,53 +262,148 @@ fn fee_to_event() {
     );
 
 }
-    
 
 
-// // NEW "FEE TO" SETTED: new_fee_to // Event is "fee_to"
-// #[contracttype]
-// #[derive(Clone, Debug, Eq, PartialEq)]
-// pub struct FeeToSetted {
-//     pub setter: Address,
-//     pub old: Address,
-//     pub new: Address
-// }
+#[test]
+fn setter_event() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+    test.contract.set_fee_to_setter(&test.user);
 
-// pub(crate) fn new_fee_to(
-//     e: &Env,
-//     setter: Address, 
-//     old: Address,
-//     new: Address) {
-    
-//     let event: FeeToSetted = FeeToSetted {
-//         setter: setter,
-//         old: old,
-//         new: new
-//     };
-//     e.events().publish(("SoroswapFactory", symbol_short!("fee_to")), event);
-// }
+    let new_setter_event = test.env.events().all().last().unwrap();
+
+    let expected_new_setter_event: NewSetterEvent = NewSetterEvent {
+        old: test.admin.clone(),
+        new: test.user.clone(),
+    };
+
+    assert_eq!(
+        vec![&test.env, new_setter_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("setter")).into_val(&test.env),
+                (expected_new_setter_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_new_setter: NewSetterEvent = NewSetterEvent {
+        old: test.user.clone(),
+        new: test.user.clone(),
+    };
+
+    assert_ne!(
+        vec![&test.env, new_setter_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("setter")).into_val(&test.env),
+                (false_new_setter).into_val(&test.env)
+            ),
+        ]
+    );
 
 
-// // NEW "SETTER"
-// #[contracttype]
-// #[derive(Clone, Debug, Eq, PartialEq)]
-// pub struct NewSetterEvent {
-//     pub old: Address,
-//     pub new: Address
-// }
+    // Wrong symbol_short
+    assert_ne!(
+        vec![&test.env, new_setter_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("settero")).into_val(&test.env),
+                (expected_new_setter_event).into_val(&test.env)
+            ),
+        ]
+    );
 
-// pub(crate) fn new_setter(
-//     e: &Env,
-//     old: Address,
-//     new: Address) {
-    
-//     let event: NewSetterEvent = NewSetterEvent {
-//         old: old,
-//         new: new
-//     };
-//     e.events().publish(("SoroswapFactory", symbol_short!("setter")), event);
-// }
+    // Wrong string
+    assert_ne!(
+        vec![&test.env, new_setter_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapFactoryy", symbol_short!("setter")).into_val(&test.env),
+                (expected_new_setter_event).into_val(&test.env)
+            ),
+        ]
+    );
 
+}
+
+
+#[test]
+fn fees_enabled_event() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+    test.contract.set_fees_enabled(&true);
+
+    let fees_enabled_event = test.env.events().all().last().unwrap();
+
+    let expected_fees_enabled_event: NewFeesEnabledEvent = NewFeesEnabledEvent {
+        fees_enabled: true,
+    };
+
+    assert_eq!(
+        vec![&test.env, fees_enabled_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("fees")).into_val(&test.env),
+                (expected_fees_enabled_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    let false_fees_enabled_event: NewFeesEnabledEvent = NewFeesEnabledEvent {
+        fees_enabled: false,
+    };
+
+    assert_ne!(
+        vec![&test.env, fees_enabled_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("fees")).into_val(&test.env),
+                (false_fees_enabled_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+
+    // Wrong symbol_short
+    assert_ne!(
+        vec![&test.env, fees_enabled_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapFactory", symbol_short!("feess")).into_val(&test.env),
+                (expected_fees_enabled_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    // Wrong string
+    assert_ne!(
+        vec![&test.env, fees_enabled_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapFactoryy", symbol_short!("fees")).into_val(&test.env),
+                (expected_fees_enabled_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+}
 
 
 // // NEW "FEES ENABLED" BOOL
