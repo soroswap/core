@@ -1,9 +1,12 @@
 #![no_std]
+use soroban_sdk::token::Client as TokenClient;
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec};
+
 mod pair;
 mod factory;
 mod test;
-use soroban_sdk::token::Client as TokenClient;
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec};
+mod event;
+
 use factory::SoroswapFactoryClient;
 use pair::SoroswapPairClient;
 
@@ -380,7 +383,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
     fn initialize(e: Env, factory: Address) {
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
-    } 
+        event::initialized(&e, factory);
+    }  
 
     /// This function retrieves the factory contract's address associated with the provided environment.
     /// It also checks if the factory has been initialized and raises an assertion error if not.
