@@ -1,0 +1,16 @@
+{
+  "tokens": [
+    {
+      "symbol": "XLM",
+      "name": "StellarLumens",
+      "logoURI": "https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png",
+      "asset": "native"
+    },
+    {
+      "symbol": "USDC",
+      "name": "centre.ioUSDCoin",
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+      "asset": "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+    }
+  ]
+}
