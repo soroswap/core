@@ -16,37 +16,53 @@ pub(crate) fn initialized(e: &Env, factory: Address) {
     e.events().publish(("SoroswapRouter", symbol_short!("init")), event);
 }
 
-// // DEPOSIT EVENT
-// #[contracttype] 
-// #[derive(Clone, Debug, Eq, PartialEq)]
-// pub struct DepositEvent {
-//     pub to: Address,
-//     pub amount_0: i128,
-//     pub amount_1: i128,
-//     pub liquidity: i128,
-//     pub new_reserve_0: i128,
-//     pub new_reserve_1: i128,
-// }
+// ADD LIQUIDITY EVENT
+#[contracttype] 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AddLiquidityEvent {
+    pub token_a: Address,
+    pub token_b: Address,
+    pub pair: Address,
+    pub amount_a: i128,
+    pub amount_b: i128,
+    pub liquidity: i128,
+    pub to: Address
+}
 
-// pub(crate) fn deposit(
-//     e: &Env, 
-//     to: Address,
-//     amount_0: i128,
-//     amount_1: i128,
-//     liquidity: i128,
-//     new_reserve_0: i128,
-//     new_reserve_1: i128) {
-    
-//     let event: DepositEvent = DepositEvent {
-//         to: to,
-//         amount_0: amount_0,
-//         amount_1: amount_1,
-//         liquidity: liquidity,
-//         new_reserve_0: new_reserve_0,
-//         new_reserve_1: new_reserve_1
-//     };
-//     e.events().publish(("SoroswapPair", symbol_short!("deposit")), event);
-// }
+/// Publishes an `AddLiquidityEvent` to the event stream.
+/// 
+/// # Arguments
+/// 
+/// * `e` - An instance of the `Env` struct.
+/// * `token_a` - The address of the first token in the liquidity pair.
+/// * `token_b` - The address of the second token in the liquidity pair.
+/// * `pair` - The address of the liquidity pair.
+/// * `amount_a` - The amount of `token_a` to add to the liquidity.
+/// * `amount_b` - The amount of `token_b` to add to the liquidity.
+/// * `liquidity` - The amount of liquidity tokens minted.
+/// * `to` - The address to receive the liquidity tokens.
+pub(crate) fn add_liquidity(
+    e: &Env,
+    token_a: Address,
+    token_b: Address,
+    pair: Address,
+    amount_a: i128,
+    amount_b: i128,
+    liquidity: i128,
+    to: Address,
+) {
+    let event = AddLiquidityEvent {
+        token_a,
+        token_b,
+        pair,
+        amount_a,
+        amount_b,
+        liquidity,
+        to,
+    };
+
+    e.events().publish(("SoroswapRouter", symbol_short!("add_liq")), event);
+}
 
 
 // // SWAP EVENT

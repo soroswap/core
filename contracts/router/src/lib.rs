@@ -458,6 +458,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to);
 
+        event::add_liquidity(
+            &e,
+            token_a,
+            token_b,
+            pair,
+            amount_a,
+            amount_b,
+            liquidity,
+            to);
+            
         (amount_a, amount_b, liquidity)
     }
 
