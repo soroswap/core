@@ -23,8 +23,8 @@ fn create_pair_one_way() {
     let mut salt = Bytes::new(&test.env);
     salt.append(&test.token_0.address.clone().to_xdr(&test.env)); 
     salt.append(&test.token_1.address.clone().to_xdr(&test.env));
-    let bytesN_32_salt=test.env.crypto().sha256(&salt);
-    let deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), bytesN_32_salt.clone()).deployed_address();
+    let bytes_n_32_salt=test.env.crypto().sha256(&salt);
+    let deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), bytes_n_32_salt.clone()).deployed_address();
 
     let pair_address = test.contract.get_pair(&test.token_0.address, &test.token_1.address);
     let pair_address_other_way = test.contract.get_pair(&test.token_0.address, &test.token_1.address);

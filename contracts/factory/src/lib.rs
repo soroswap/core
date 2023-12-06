@@ -24,9 +24,6 @@ pub enum DataKey {
     FeesEnabled = 5, // bool is taking fees?
 }
 
-
-
-
 impl TryFromVal<Env, DataKey> for Val {
     type Error = ConversionError;
 
@@ -375,6 +372,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
         // Check if the pair already exists between token_a and token_b
         if get_pair_exists(&e, &token_pair) {
             panic!("SoroswapFactory: pair already exists between token_a and token_b");
+            
         }
 
         // Implementation of contract creation

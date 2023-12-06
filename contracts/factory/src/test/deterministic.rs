@@ -1,8 +1,6 @@
 use soroban_sdk::{
     Env,
     Address,
-    BytesN,
-    symbol_short,
     testutils::{
         Address as _, 
         AuthorizedFunction, 
@@ -10,8 +8,6 @@ use soroban_sdk::{
         MockAuth,
         MockAuthInvoke,
     },
-    Vec,
-    Val,
     IntoVal,
     Symbol,
     xdr::{
@@ -25,7 +21,6 @@ use soroban_sdk::{
     },
     Bytes,
     TryFromVal,
-    String,
 };
 use core::mem;
 
@@ -243,9 +238,9 @@ pub fn compare_deterministic_address() {
     salt.append(&factory_test.token_0.address.clone().to_xdr(&env)); 
     salt.append(&factory_test.token_1.address.clone().to_xdr(&env));
     // Hash the salt using SHA256 to generate a new BytesN<32> value
-    let bytesN_32_salt=env.crypto().sha256(&salt);
+    let bytes_n_32_salt=env.crypto().sha256(&salt);
     
-    let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytesN_32_salt.clone()).deployed_address();
+    let calculated_pair_address = env.deployer().with_address(factory_test.factory.address.clone(), bytes_n_32_salt.clone()).deployed_address();
     assert_eq!(&factory_test.pair.address, &calculated_pair_address);
 }
 
@@ -336,7 +331,7 @@ pub fn authorized_invocation() {
     //     sub_invocations:[].into()
     // };
 
-    let r = factory
+    let _r = factory
         .mock_auths(&[MockAuth {
             address: &alice,
             invoke: &MockAuthInvoke {
@@ -377,7 +372,7 @@ pub fn non_authorized_invocation() {
     //     sub_invocations:[].into()
     // };
 
-    let r = factory
+    let _r = factory
         .mock_auths(&[MockAuth {
             address: &bob,
             invoke: &MockAuthInvoke {

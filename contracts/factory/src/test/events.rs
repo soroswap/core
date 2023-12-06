@@ -88,8 +88,8 @@ fn new_pair_event() {
     let mut salt = Bytes::new(&test.env);
     salt.append(&test.token_0.address.clone().to_xdr(&test.env)); 
     salt.append(&test.token_1.address.clone().to_xdr(&test.env));
-    let bytesN_32_salt=test.env.crypto().sha256(&salt);
-    let deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), bytesN_32_salt.clone()).deployed_address();
+    let bytes_n_32_salt=test.env.crypto().sha256(&salt);
+    let deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), bytes_n_32_salt.clone()).deployed_address();
 
     let new_pair_event = test.env.events().all().last().unwrap();
 
@@ -164,8 +164,8 @@ fn new_pair_event() {
     let mut new_salt = Bytes::new(&test.env);
     new_salt.append(&test.token_2.address.clone().to_xdr(&test.env)); 
     new_salt.append(&test.token_3.address.clone().to_xdr(&test.env));
-    let new_bytesN_32_salt=test.env.crypto().sha256(&new_salt);
-    let new_deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), new_bytesN_32_salt.clone()).deployed_address();
+    let new_bytes_n_32_salt=test.env.crypto().sha256(&new_salt);
+    let new_deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), new_bytes_n_32_salt.clone()).deployed_address();
 
 
     let new_expected_new_pair_event: NewPairEvent = NewPairEvent {
