@@ -613,6 +613,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Execute the tokens swap
         swap(&e, &factory_address, &amounts, &path, &to);
     
+        event::swap(
+            &e,
+            path,
+            amounts.clone(),
+            to);
+
         // Return the amounts of tokens received at each step of the trading route
         amounts
     }
@@ -674,6 +680,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Execute the token swap
         swap(&e, &factory_address, &amounts, &path, &to);
     
+        event::swap(
+            &e,
+            path,
+            amounts.clone(),
+            to);
+
         // Return the amounts of tokens used at each step of the trading route
         amounts
     }
