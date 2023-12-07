@@ -394,3 +394,102 @@ fn swap_exact_tokens_for_tokens_event() {
     );
     
 }
+
+
+
+#[test]
+fn swap_tokens_for_exact_tokens_event() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+    let amount_0: i128 = 1_000_000_000;
+    let amount_1: i128 = 4_000_000_000;
+
+    add_liquidity(&test, &amount_0, &amount_1);
+
+    let expected_amount_out = 5_000_000;
+    let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
+
+    let executed_amounts = test.contract.swap_tokens_for_exact_tokens(
+        &expected_amount_out, //amount_out
+        &(amount_in_should),  // amount_in_max
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+
+    let swap_event = test.env.events().all().last().unwrap();
+
+    let expected_swap_event: SwapEvent = SwapEvent {
+        path: path.clone(),
+        amounts: executed_amounts.clone(),
+        to: test.user.clone(),
+    };
+
+    assert_eq!(
+        vec![&test.env, swap_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapRouter", symbol_short!("swap")).into_val(&test.env),
+                (expected_swap_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+
+    let mut false_path: Vec<Address> = Vec::new(&test.env);
+    false_path.push_back(test.token_1.address.clone());
+    false_path.push_back(test.token_0.address.clone());
+
+
+    let false_swap_event: SwapEvent = SwapEvent {
+        path: false_path.clone(),
+        amounts: executed_amounts.clone(),
+        to: test.user.clone(),
+    };
+
+    assert_ne!(
+        vec![&test.env, swap_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapRouter", symbol_short!("swap")).into_val(&test.env),
+                (false_swap_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    // Wrong symbol_short
+    assert_ne!(
+        vec![&test.env, swap_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address.clone(),
+                ("SoroswapRouter", symbol_short!("swape")).into_val(&test.env),
+                (expected_swap_event).into_val(&test.env)
+            ),
+        ]
+    );
+
+    // Wrong string
+    assert_ne!(
+        vec![&test.env, swap_event.clone()],
+        vec![
+            &test.env,
+            (
+                test.contract.address,
+                ("SoroswapRouterr", symbol_short!("swap")).into_val(&test.env),
+                (expected_swap_event).into_val(&test.env)
+            ),
+        ]
+    );
+}
