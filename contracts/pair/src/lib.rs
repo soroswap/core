@@ -41,7 +41,7 @@ pub trait SoroswapPairTrait{
     fn deposit(e:Env, to: Address)  -> Result<i128, Error>;
 
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
-    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), Error>;
 
     fn withdraw(e: Env, to: Address) -> (i128, i128);
 
@@ -202,22 +202,24 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `amount_0_out` - The desired amount of the first token to receive.
     /// * `amount_1_out` - The desired amount of the second token to receive.
     /// * `to` - The address where the swapped tokens will be sent.
-    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), Error> {
+        if !has_token_0(&e) {
+            return Err(Error::NotInitialized);
+        }
+    
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-
+    
         if amount_0_out == 0 && amount_1_out == 0 {
-            panic!("SoroswapPair: insufficient output amount")
+            return Err(Error::SwapInsufficientOutputAmount);
         }
         if amount_0_out < 0 || amount_1_out < 0 {
-            panic!("SoroswapPair: negatives dont supported")
+            return Err(Error::SwapNegativesOutNotSupported);
         }
         if amount_0_out >= reserve_0 || amount_1_out >= reserve_1 {
-            panic!("SoroswapPair: insufficient liquidity")
+            return Err(Error::SwapInsufficientLiquidity);
         }
         if to == get_token_0(&e) || to == get_token_1(&e) {
-            panic!("SoroswapPair: invalid to")
+            return Err(Error::SwapInvalidTo);
         }
 
         if amount_0_out > 0 {
@@ -241,10 +243,10 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         if amount_0_in == 0 && amount_1_in == 0 {
-            panic!("SoroswapPair: insufficient input amount")
+            return Err(Error::SwapInsufficientInputAmount);
         }
         if amount_0_in < 0 || amount_1_in < 0 {
-            panic!("SoroswapPair: negatives dont supported")
+            return Err(Error::SwapNegativesInNotSupported);
         }
 
         let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
@@ -255,12 +257,14 @@ impl SoroswapPairTrait for SoroswapPair {
 
         if balance_0_minus_fee.checked_mul(balance_1_minus_fee).unwrap() <
             reserve_0.checked_mul(reserve_1).unwrap() {
-            panic!("SoroswapPair: K constant is not met")
+            return Err(Error::SwapKConstantNotMet);
         }
 
         update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
         event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
+
+        Ok(())
     }
 
 
