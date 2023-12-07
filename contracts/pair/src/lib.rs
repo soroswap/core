@@ -43,7 +43,7 @@ pub trait SoroswapPairTrait{
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), Error>;
 
-    fn withdraw(e: Env, to: Address) -> (i128, i128);
+    fn withdraw(e: Env, to: Address) -> Result<(i128, i128), Error>;
 
     // transfers the excess token balances from the pair to the specified to address, 
     // ensuring that the balances match the reserves by subtracting the reserve amounts 
@@ -183,7 +183,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         mint_shares(&e, &to, liquidity.clone());
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -270,7 +270,7 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(Error::SwapKConstantNotMet);
         }
 
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
         
         event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
 
@@ -286,12 +286,14 @@ impl SoroswapPairTrait for SoroswapPair {
     ///
     /// # Returns
     /// A tuple containing the amounts of token 0 and token 1 withdrawn from the pair.
-    fn withdraw(e: Env, to: Address) -> (i128, i128) {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-
+    fn withdraw(e: Env, to: Address) -> Result<(i128, i128), Error> {
+        if !has_token_0(&e) {
+            return Err(Error::NotInitialized);
+        }
+    
         let balance_shares = get_balance_shares(&e);
         if balance_shares == 0 {
-            panic!("SoroswapPair: liquidity was not initialized yet");
+            return Err(Error::WithdrawLiquidityNotInitialized);
         }
 
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -299,8 +301,9 @@ impl SoroswapPairTrait for SoroswapPair {
         let user_sent_shares = balance_shares.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
         if user_sent_shares <= 0 {
-            panic!("SoroswapPair: insufficient sent shares");
+            return Err(Error::WithdrawInsufficientSentShares);
         }
+    
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         let total_shares = get_total_shares(&e);
@@ -309,7 +312,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let amount_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
 
         if amount_0 <= 0 || amount_1 <= 0 {
-            panic!("SoroswapPair: insufficient liquidity burned");
+            return Err(Error::WithdrawInsufficientLiquidityBurned);
         }
 
         burn_shares(&e, user_sent_shares);
@@ -319,7 +322,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -327,7 +330,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         event::withdraw(&e, to, user_sent_shares, amount_0, amount_1, reserve_0, reserve_1);
-        (amount_0, amount_1)
+        Ok((amount_0, amount_1))
     }
 
     /// Skims excess tokens from reserves and sends them to the specified address.
@@ -352,7 +355,7 @@ impl SoroswapPairTrait for SoroswapPair {
     fn sync(e: Env) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
     }
 
     /// Returns the current reserves and the last block timestamp.
@@ -492,20 +495,18 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
 }
 
 //function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
+fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64)-> Result<(), Error> {
     // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
     
     // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
     // This is becase u64 will be used to calculate the price as a UQ64x64
     let u_64_max: u64 = u64::MAX;
-    let u_64_max_into_i128: i128 = u_64_max.into();
+    let u64_max_into_i128: i128 = u_64_max.into();
 
-    if balance_0 > u_64_max_into_i128 {
-        panic!("SoroswapPair: OVERFLOW")
+    if balance_0 > u64_max_into_i128 || balance_1 > u64_max_into_i128 {
+        return Err(Error::UpdateOverflow);
     }
-    if balance_1 > u_64_max_into_i128 {
-        panic!("SoroswapPair: OVERFLOW")
-    }
+    
 
     // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
     // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
@@ -536,4 +537,5 @@ fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: 
     put_block_timestamp_last(&e, block_timestamp);
 
     event::sync(&e, balance_0, balance_1);
+    Ok(())
 }
