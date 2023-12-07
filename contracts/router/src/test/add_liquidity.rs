@@ -407,6 +407,7 @@ fn test_add_liquidity() {
 #[test]
 fn test_add_liquidity_deducted_amount_reserve() {
     let test = SoroswapRouterTest::setup_deducted_reserve();
+    test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
     
     let ledger_timestamp = 100;
@@ -422,6 +423,7 @@ fn test_add_liquidity_deducted_amount_reserve() {
     let amount_0: i128 = 1_000_000_000_000;
     let amount_1: i128 = 10_000_000_000_000;
 
+    test.env.budget().reset_unlimited();
     // Check initial user value of every token:
     assert_eq!(test.token_0.balance(&test.user), initial_user_balance);
     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
@@ -442,6 +444,7 @@ fn test_add_liquidity_deducted_amount_reserve() {
 
     // We test that the pair now exist
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), true);
+    test.env.budget().reset_unlimited();
 
     // We test that the pair was created succesfully
     let pair_address = test.factory.get_pair(&test.token_0.address, &test.token_1.address);
@@ -459,6 +462,7 @@ fn test_add_liquidity_deducted_amount_reserve() {
     assert_eq!(pair_client.factory(), test.factory.address);
     assert_eq!(pair_client.token_0(), test.token_0.address);
     assert_eq!(pair_client.token_1(), test.token_1.address);
+    test.env.budget().reset_unlimited();
 
     // Check new balances:
     assert_eq!(test.token_0.balance(&test.user), initial_user_balance.checked_sub(amount_0).unwrap());

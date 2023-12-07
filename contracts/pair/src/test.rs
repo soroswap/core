@@ -125,6 +125,7 @@ mod withdraw;
 mod fee;
 mod skim;
 mod sync;
+mod events;
 // mod decode; // wont be used for now
 
 // Test forked by stellar/soroban-examples
