@@ -4,12 +4,13 @@ use soroban_sdk::token::Interface;
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
 
-mod test;
 mod soroswap_pair_token;
-mod event;
 mod uq64x64;
 mod storage;
 mod balances;
+mod event;
+mod error; 
+mod test;
 
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
