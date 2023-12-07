@@ -540,6 +540,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
             panic!("SoroswapRouter: insufficient B amount")
         }
 
+        event::remove_liquidity(
+            &e,
+            token_a,
+            token_b,
+            pair,
+            amount_a,
+            amount_b,
+            liquidity,
+            to);
+
         // Return the amounts of paired tokens withdrawn
         (amount_a, amount_b)
     }

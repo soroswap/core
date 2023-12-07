@@ -61,7 +61,58 @@ pub(crate) fn add_liquidity(
         to,
     };
 
-    e.events().publish(("SoroswapRouter", symbol_short!("add_liq")), event);
+    e.events().publish(("SoroswapRouter", symbol_short!("add")), event);
+}
+
+ 
+
+// REMOVE LIQUIDITY EVENT
+#[contracttype] 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RemoveLiquidityEvent {
+    pub token_a: Address,
+    pub token_b: Address,
+    pub pair: Address,
+    pub amount_a: i128,
+    pub amount_b: i128,
+    pub liquidity: i128,
+    pub to: Address
+}
+
+
+/// Publishes an `RemoveLiquidityEvent` to the event stream.
+/// 
+/// # Arguments
+/// 
+/// * `e` - An instance of the `Env` struct.
+/// * `token_a` - The address of the first token in the liquidity pair.
+/// * `token_b` - The address of the second token in the liquidity pair.
+/// * `pair` - The address of the liquidity pair.
+/// * `amount_a` - The amount of `token_a` removed from the pool.
+/// * `amount_b` - The amount of `token_b` removed from the pool.
+/// * `liquidity` - The amount of liquidity tokens burned.
+/// * `to` - The address to receive the token_a and token_b.
+pub(crate) fn remove_liquidity(
+    e: &Env,
+    token_a: Address,
+    token_b: Address,
+    pair: Address,
+    amount_a: i128,
+    amount_b: i128,
+    liquidity: i128,
+    to: Address,
+) {
+    let event = RemoveLiquidityEvent {
+        token_a,
+        token_b,
+        pair,
+        amount_a,
+        amount_b,
+        liquidity,
+        to,
+    };
+
+    e.events().publish(("SoroswapRouter", symbol_short!("remove")), event);
 }
 
 
