@@ -202,6 +202,20 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `amount_0_out` - The desired amount of the first token to receive.
     /// * `amount_1_out` - The desired amount of the second token to receive.
     /// * `to` - The address where the swapped tokens will be sent.
+    ///
+    /// # Errors
+    /// Returns an error if the swap cannot be executed. Possible errors include:
+    /// - `Error::NotInitialized`: If the pair is not yet initialized.
+    /// - `Error::SwapInsufficientOutputAmount`: If both `amount_0_out` and `amount_1_out` are zero.
+    /// - `Error::SwapNegativesOutNotSupported`: If either `amount_0_out` or `amount_1_out` is negative.
+    /// - `Error::SwapInsufficientLiquidity`: If the desired output amounts exceed the available liquidity.
+    /// - `Error::SwapInvalidTo`: If the target address is one of the pair's tokens.
+    /// - `Error::SwapInsufficientInputAmount`: If both `amount_0_in` and `amount_1_in` are zero.
+    /// - `Error::SwapNegativesInNotSupported`: If either `amount_0_in` or `amount_1_in` is negative.
+    /// - `Error::SwapKConstantNotMet`: If the K constant condition is not met after the swap.
+    ///
+    /// # Panics
+    /// The function may panic if there are arithmetic overflow/underflow during the swap calculations.
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), Error> {
         if !has_token_0(&e) {
             return Err(Error::NotInitialized);
