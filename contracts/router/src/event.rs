@@ -126,7 +126,15 @@ pub struct SwapEvent {
     pub to: Address
 }
 
-
+/// Publishes an `SwapEvent` to the event stream.
+/// 
+/// # Arguments
+/// 
+/// * `e` - An instance of the `Env` struct.
+/// * `path` - A vector representing the trading route, where the first element is the input token 
+///            and the last is the output token. Intermediate elements represent pairs to trade through.
+/// * `amounts` - A vector containing the amounts of tokens traded at each step of the trading route.
+/// * `to` - The address where the output tokens will be sent to.
 pub(crate) fn swap(
     e: &Env,
     path: Vec<Address>,
