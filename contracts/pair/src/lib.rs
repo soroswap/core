@@ -23,6 +23,7 @@ use storage::*;
 use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
 use uq64x64::fraction;
+use error::Error;
 
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
@@ -35,9 +36,9 @@ contractmeta!(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address);
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address)-> Result<(), Error>;
 
-    fn deposit(e:Env, to: Address)  -> i128;
+    fn deposit(e:Env, to: Address)  -> Result<i128, Error>;
 
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
@@ -84,11 +85,13 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `factory` - The address of the Soroswap factory contract.
     /// * `token_0` - The address of the first token in the pair.
     /// * `token_1` - The address of the second token in the pair.
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) {
-        assert!(!has_token_0(&e), "SoroswapPair: already initialized");
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) -> Result<(), Error> {
+        if has_token_0(&e) {
+            return Err(Error::InitializeAlreadyInitialized);
+        }
 
         if token_0 >= token_1 {
-            panic!("SoroswapPair: token_0 must be less than token_1");
+            return Err(Error::InitializeTokenOrderInvalid);
         }
 
         put_factory(&e, factory);
@@ -106,6 +109,8 @@ impl SoroswapPairTrait for SoroswapPair {
         put_total_shares(&e, 0);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
+
+        Ok(())
     }
 
     /// Returns the address of the first token in the Soroswap pair.
@@ -131,18 +136,29 @@ impl SoroswapPairTrait for SoroswapPair {
     ///
     /// # Returns
     /// The amount of minted LP tokens.
-    fn deposit(e: Env, to: Address) -> i128 {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
+    /// Possible errors:
+    /// - `Error::NotInitialized`: The Soroswap pair has not been initialized.
+    /// - `Error::DepositInsufficientAmountToken0`: Insufficient amount of token 0 sent.
+    /// - `Error::DepositInsufficientAmountToken1`: Insufficient amount of token 1 sent.
+    /// - `Error::DepositInsufficientFirstLiquidity`: Insufficient first liquidity minted.
+    /// - `Error::DepositInsufficientLiquidityMinted`: Insufficient liquidity minted.
+    /// - `Error::UpdateOverflow`: Overflow occurred during update.
+    fn deposit(e: Env, to: Address) -> Result<i128, Error> {
+        if !has_token_0(&e){
+            return Err(Error::NotInitialized)
+        }
 
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let amount_0 = balance_0.checked_sub(reserve_0).unwrap();
-        let amount_1 = balance_1.checked_sub(reserve_1).unwrap();
+        let amount_0 = balance_0.checked_sub(reserve_0).ok_or(Error::DepositInsufficientAmountToken0)?;
+        let amount_1 = balance_1.checked_sub(reserve_1).ok_or(Error::DepositInsufficientAmountToken1)?;
+
         if amount_0 <= 0 {
-            panic!("SoroswapPair: insufficient amount of token 0 sent")
+            return Err(Error::DepositInsufficientAmountToken0);
         }
+
         if amount_1 <= 0 {
-            panic!("SoroswapPair: insufficient amount of token 1 sent")
+            return Err(Error::DepositInsufficientAmountToken1);
         }
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
@@ -153,7 +169,7 @@ impl SoroswapPairTrait for SoroswapPair {
             mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
             let previous_liquidity = (amount_0.checked_mul(amount_1).unwrap()).sqrt();
             if previous_liquidity <= MINIMUM_LIQUIDITY {
-                panic!("SoroswapPair: insufficient first liquidity minted")
+                return Err(Error::DepositInsufficientFirstLiquidity);
             }
             (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         } else {
@@ -163,7 +179,7 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         if liquidity <= 0 {
-            panic!("SoroswapPair: insufficient liquidity minted")
+            return Err(Error::DepositInsufficientLiquidityMinted);
         }
 
         mint_shares(&e, &to, liquidity.clone());
@@ -175,7 +191,8 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         event::deposit(&e, to, amount_0, amount_1, liquidity, reserve_0, reserve_1);
-        liquidity 
+
+        Ok(liquidity)
     }
 
     /// Executes a token swap within the Soroswap pair.

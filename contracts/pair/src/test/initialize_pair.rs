@@ -1,30 +1,26 @@
 use crate::test::{SoroswapPairTest}; 
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use soroban_sdk::{String};
-
-// // TOKEN CONTRACT
-// mod token {
-//     soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
-//     pub type TokenClient<'a> = Client<'a>;
-// }
-// //use token::TokenClient;
-
-
+use crate::error::Error;
 
 #[test]
-#[should_panic(expected = "SoroswapPair: token_0 must be less than token_1")]
+// #[should_panic(expected = "SoroswapPair: token_0 must be less than token_1")]
 fn initialize_pair_token_1_less_than_token_0() {
     let test = SoroswapPairTest::setup();
-    test.contract.initialize_pair(&test.factory.address, &test.token_1.address, &test.token_0.address);    
+    let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_1.address, &test.token_0.address);    
+    assert_eq!(res, Err(Ok(Error::InitializeTokenOrderInvalid))); 
+
 }
 
 
 #[test]
-#[should_panic(expected = "SoroswapPair: already initialized")]
+// #[should_panic(expected = "SoroswapPair: already initialized")]
 fn double_initialize_pair() {
     let test = SoroswapPairTest::setup();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    assert_eq!(res, Err(Ok(Error::InitializeAlreadyInitialized))); 
+
 }
 
 

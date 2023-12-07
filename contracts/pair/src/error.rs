@@ -5,7 +5,7 @@ use soroban_sdk::{self, contracterror};
 #[repr(u32)]
 pub enum Error {
     /// SoroswapPair: already initialized
-    AlreadyInitialized = 1,
+    InitializeAlreadyInitialized = 1,
     /// SoroswapPair: not yet initialized
     NotInitialized = 2,
 
