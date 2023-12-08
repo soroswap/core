@@ -4,12 +4,32 @@
 NETWORK="$1"
 DECIMAL=7
 LOGO=""
+JSON_FILE="/workspace/.soroban/random_tokens.json"
+# Using /var/tmp which is specific to the Docker container
+FLAG_FILE="/var/tmp/soroban_first_run_completed"
 
 # Validate the input arguments
 if [ -z "$NETWORK" ]; then
     echo "Error: Network name must be provided."
     echo "Usage: bash /workspace/scripts/deploy_random_tokens.sh <network>"
     exit 1
+fi
+
+# Initialize or read the existing JSON structure
+if [ -f "$JSON_FILE" ]; then
+    JSON_DATA=$(cat "$JSON_FILE")
+else
+    JSON_DATA='[]'
+fi
+
+# Check if the script has run before in this Docker instance
+if [ -f "$FLAG_FILE" ]; then
+    # Script has run before in this Docker instance
+    FIRST_RUN=false
+else
+    # First run of the script in this Docker instance
+    FIRST_RUN=true
+    touch "$FLAG_FILE"
 fi
 
 # Get the token admin address
@@ -23,6 +43,7 @@ name_parts=("bel" "nar" "xis" "mik" "tar" "rin" "jas" "kel" "fen" "lor"
 
 echo Deploying tokens to network $NETWORK
 
+TOKENS_ARRAY="[]"
 for i in {1..4}
 do
     # Generate a random name
@@ -53,7 +74,27 @@ do
 
     TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_ID)"
 
-    # Save the token contract address and token id to a file on .soroban/temp_token.json
-    echo "{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}"
-
+    TOKEN_JSON="{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}"
+    TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$TOKEN_JSON]")
+    echo $TOKEN_JSON
 done
+
+# Check if the network object already exists in the JSON data
+NETWORK_EXISTS=$(echo $JSON_DATA | jq "any(.[]; .network == \"$NETWORK\")")
+
+if [ "$NETWORK_EXISTS" = "true" ]; then
+    if [ "$NETWORK" = "standalone" ] && [ "$FIRST_RUN" = true ]; then
+        # For the first run on standalone, replace the tokens array
+        JSON_DATA=$(echo $JSON_DATA | jq "map(if .network == \"$NETWORK\" then .tokens = $TOKENS_ARRAY else . end)")
+    else
+        # Append new tokens to the existing array
+        JSON_DATA=$(echo $JSON_DATA | jq "map(if .network == \"$NETWORK\" then .tokens += $TOKENS_ARRAY else . end)")
+    fi
+else
+    # Add a new network object
+    NEW_NETWORK_JSON="{\"network\": \"$NETWORK\", \"tokens\": $TOKENS_ARRAY}"
+    JSON_DATA=$(echo $JSON_DATA | jq ". += [$NEW_NETWORK_JSON]")
+fi
+
+# Write the updated JSON back to the file
+echo $JSON_DATA | jq '.' > "$JSON_FILE"
