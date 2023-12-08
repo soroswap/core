@@ -174,3 +174,26 @@ soroban lab token wrap --asset native --network standalone --source-account my-a
 
 #PS: If it gives an error... or the token is already wrapped or your source account is not funded
 ```
+
+## `deploy_random_tokens.sh` Script Documentation
+
+#### Overview
+
+The `deploy_random_tokens.sh` script is designed to deploy a specified number of random test tokens to a chosen blockchain network (standalone, futurenet, or testnet). It automates the process of token creation, deployment, and registration in the Soroswap ecosystem.
+
+```bash
+bash scripts/deploy_random_tokens.sh <network> <number_of_tokens>
+# Replace <network> with standalone, futurenet, or testnet
+# Replace <number_of_tokens> with a number (optional, default is 4)
+```
+
+This script will:
+
+- Create a specified number of test tokens.
+- Save token details in the .soroban/random_tokens.json file.
+- Append new tokens to the existing list on futurenet and testnet networks.
+- Replace or append tokens for the standalone network based on whether the script has been run before in the current Docker instance.
+
+#### Network Reset Handling
+
+If a network reset occurs on futurenet or testnet, manually update or delete the random_tokens.json file as these tokens will no longer exist on the reset network.

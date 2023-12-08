@@ -2,6 +2,7 @@
 
 # This script takes two arguments:
 NETWORK="$1"
+N_TOKENS=${2:-4}
 DECIMAL=7
 LOGO=""
 JSON_FILE="/workspace/.soroban/random_tokens.json"
@@ -11,7 +12,7 @@ FLAG_FILE="/var/tmp/soroban_first_run_completed"
 # Validate the input arguments
 if [ -z "$NETWORK" ]; then
     echo "Error: Network name must be provided."
-    echo "Usage: bash /workspace/scripts/deploy_random_tokens.sh <network>"
+    echo "Usage: bash /workspace/scripts/deploy_random_tokens.sh <network> <number_of_tokens(optional)>"
     exit 1
 fi
 
@@ -41,10 +42,10 @@ name_parts=("bel" "nar" "xis" "mik" "tar" "rin" "jas" "kel" "fen" "lor"
             "eva" "lio" "ria" "dor" "ael" "nia" "the" "sia" "cal" "ian"
             "ora" "ron" "lyn" "dan" "gav" "zoe" "axl" "nix" "kye" "rey")
 
-echo Deploying tokens to network $NETWORK
+echo Deploying $N_TOKENS tokens to network $NETWORK
 
 TOKENS_ARRAY="[]"
-for i in {1..4}
+for ((i=1; i<=N_TOKENS; i++))
 do
     # Generate a random name
     part1=${name_parts[$RANDOM % ${#name_parts[@]}]}
