@@ -289,14 +289,13 @@ pub trait SoroswapRouterTrait {
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `token_a` - The address of the first token.
     /// * `token_b` - The address of the second token.
     ///
     /// # Returns
     ///
     /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn router_pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError>;
+    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError>;
 
     /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
     ///
@@ -342,28 +341,26 @@ pub trait SoroswapRouterTrait {
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `amount_in` - The input amount.
     /// * `path` - Vector of token addresses representing the path.
     ///
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
+    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
     
     /// Performs chained get_amount_in calculations on any number of pairs.
     ///
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `amount_out` - The output amount.
     /// * `path` - Vector of token addresses representing the path.
     ///
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
+    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
 
     
 
@@ -594,7 +591,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         // Execute the tokens swap
-        swap(&e, &factory_address, &amounts, &path, &to);
+        let _ = swap(&e, &factory_address, &amounts, &path, &to);
     
         event::swap(
             &e,
@@ -661,7 +658,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         // Execute the token swap
-        swap(&e, &factory_address, &amounts, &path, &to);
+        let _ = swap(&e, &factory_address, &amounts, &path, &to);
     
         event::swap(
             &e,
@@ -695,14 +692,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `token_a` - The address of the first token.
     /// * `token_b` - The address of the second token.
     ///
     /// # Returns
     ///
     /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn router_pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError> {
+    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError> {
         soroswap_library::pair_for(
             e.clone(),
             get_factory(&e),
@@ -763,14 +759,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `amount_in` - The input amount.
     /// * `path` - Vector of token addresses representing the path.
     ///
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         let factory = get_factory(&e);
         soroswap_library::get_amounts_out(e, factory, amount_in, path)
@@ -781,14 +776,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Arguments
     ///
     /// * `e` - The environment.
-    /// * `factory` - The factory address.
     /// * `amount_out` - The output amount.
     /// * `path` - Vector of token addresses representing the path.
     ///
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         let factory = get_factory(&e);
         soroswap_library::get_amounts_in(e, factory, amount_out, path)

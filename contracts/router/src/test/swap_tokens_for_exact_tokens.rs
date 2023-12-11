@@ -1,12 +1,8 @@
+use soroban_sdk::{Address, testutils::{Ledger},vec, Vec};
+use soroswap_library::SoroswapLibraryError;
+
 use crate::test::{SoroswapRouterTest, create_token_contract};
 use crate::test::add_liquidity::add_liquidity;
-
-use soroban_sdk::{
-    Address,
-    testutils::{
-        
-        Ledger},
-    vec, Vec};
 
 #[test]
 #[should_panic(expected = "SoroswapRouter: not yet initialized")] 
@@ -69,19 +65,20 @@ fn swap_tokens_for_exact_tokens_expired() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapLibrary: invalid path")]
-fn swap_tokens_for_exact_tokens_invalid_path() {
+fn try_swap_tokens_for_exact_tokens_invalid_path() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;    
-    let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone()];
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
+    let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
 
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline, // deadline
+    );
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
 }
 
 
@@ -108,11 +105,10 @@ fn swap_tokens_for_exact_tokens_pair_does_not_exist() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
-fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
+fn try_swap_tokens_for_exact_tokens_insufficient_output_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -124,13 +120,16 @@ fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
     add_liquidity(&test, &amount_0, &amount_1);
 
     test.env.budget().reset_unlimited();
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline, // deadline
+    );
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientOutputAmount)));
 }
+
 
 #[test]
 #[should_panic(expected = "SoroswapRouter: excessive input amount")]
