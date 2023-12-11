@@ -3,6 +3,9 @@ Library that enables efficient and optimized code execution across different con
 
 This can be used as a Library Contract that can be deployed in the Soroban Blockchain or as a crate in your contract
 
+Check https://crates.io/crates/soroswap-library
+
+
 ## Usage as a crate
 
 1.- Add this to your Cargo.toml:

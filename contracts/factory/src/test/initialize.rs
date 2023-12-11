@@ -8,94 +8,87 @@ use soroban_sdk::{
     },
     Symbol
 };
+//use super::*; // Import the necessary modules and types
+use soroswap_factory_interface::{FactoryError};
+
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_fee_to() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.fee_to();
+    let res = test.contract.try_fee_to();
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_fee_to_setter() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.fee_to_setter();
+    let res = test.contract.try_fee_to_setter();
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_fee_enabled() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.fees_enabled();
+    let res = test.contract.try_fees_enabled();
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_all_pairs_length() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.all_pairs_length();
+    let res = test.contract.try_all_pairs_length();
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_get_pair() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.get_pair(&test.token_0.address, &test.token_1.address);
+    let res = test.contract.try_get_pair(&test.token_0.address, &test.token_1.address);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_all_pairs() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.all_pairs(&0);
+    let res = test.contract.try_all_pairs(&0);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_set_fee_to() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.set_fee_to(&test.admin);
+    let res = test.contract.try_set_fee_to(&test.admin);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_set_fee_to_setter() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.set_fee_to_setter(&test.admin);
+    let res = test.contract.try_set_fee_to_setter(&test.admin);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_set_fees_enabled() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.set_fees_enabled(&true);
+    let res = test.contract.try_set_fees_enabled(&true);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: not yet initialized")]
 fn not_yet_initialized_create_pair() {
     let test = SoroswapFactoryTest::setup();
-    test.contract.create_pair(&test.token_0.address, &test.token_1.address);
+    let res = test.contract.try_create_pair(&test.token_0.address, &test.token_1.address);
+    assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
-
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: already initialized")]
 fn double_initialize_factory() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
-    test.contract.initialize(&test.admin, &test.pair_wasm);
+    let res = test.contract.try_initialize(&test.admin, &test.pair_wasm);
+    assert_eq!(res, Err(Ok(FactoryError::InitializeAlreadyInitialized)));
 }
-
 
 #[test]
 fn initialize_basic_info() {

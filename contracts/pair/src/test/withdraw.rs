@@ -1,39 +1,42 @@
 use crate::test::{SoroswapPairTest};
 use crate::test::deposit::add_liquidity;
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
+use crate::error::SoroswapPairError;
 
 
-    
 #[test]
-#[should_panic(expected = "SoroswapPair: not yet initialized")]
-fn withdraw_not_yet_initialized() {
+// #[should_panic(expected = "SoroswapPair: not yet initialized")]
+fn try_withdraw_not_yet_initialized() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.withdraw(&test.user);
+    let result = test.contract.try_withdraw(&test.user);
+    assert_eq!(result, Err(Ok(SoroswapPairError::NotInitialized)));
 }
 
-   
 #[test]
-#[should_panic(expected = "SoroswapPair: liquidity was not initialized yet")]
-fn withdraw_not_yet_deposited() {
-    let test = SoroswapPairTest::setup();    
+// #[should_panic(expected = "SoroswapPair: liquidity was not initialized yet")]
+fn try_withdraw_not_yet_deposited() {
+    let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    test.contract.withdraw(&test.user);
+    let result = test.contract.try_withdraw(&test.user);
+    assert_eq!(result, Err(Ok(SoroswapPairError::WithdrawLiquidityNotInitialized)));
 }
 
-   
 #[test]
-#[should_panic(expected = "SoroswapPair: insufficient sent shares")]
-fn withdraw_not_shares_sent() {
-    let test = SoroswapPairTest::setup();    
+// #[should_panic(expected = "SoroswapPair: insufficient sent shares")]
+fn try_withdraw_not_shares_sent() {
+    let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
-    test.contract.withdraw(&test.user);
+    let result = test.contract.try_withdraw(&test.user);
+    assert_eq!(result, Err(Ok(SoroswapPairError::WithdrawInsufficientSentShares)));
 }
+
+
 
 
 #[test]

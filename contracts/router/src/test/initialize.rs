@@ -1,6 +1,7 @@
-use crate::test::SoroswapRouterTest;
-
 use soroban_sdk::{Address, testutils::Address as _};
+
+use crate::error::CombinedRouterError;
+use crate::test::SoroswapRouterTest;
 
 
 
@@ -12,17 +13,22 @@ fn test_initialize_and_get_factory() {
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: not yet initialized")]
 fn test_get_factory_not_yet_initialized() {
     let test = SoroswapRouterTest::setup();
-    test.contract.get_factory();
+    let result = test.contract.try_get_factory();
+
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterNotInitialized)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: already initialized")]
 fn test_initialize_twice() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
+
     let factory_another = Address::random(&test.env);
-    test.contract.initialize(&factory_another);
+    let result_second_init = test.contract.try_initialize(&factory_another);
+    assert_eq!(
+        result_second_init,
+        Err(Ok(CombinedRouterError::RouterInitializeAlreadyInitialized))
+    );
 }

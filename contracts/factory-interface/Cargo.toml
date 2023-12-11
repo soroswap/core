@@ -1,6 +1,6 @@
 [package]
 name = "soroswap-factory-interface"
-authors = ["esteblock"]
+authors = ["esteblock <esteblock@paltalabs.io>"]
 version = "0.0.1"
 edition = "2021"
 publish = false

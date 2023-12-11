@@ -1,5 +1,7 @@
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{testutils::{Ledger}};
+use crate::error::SoroswapPairError;
+
 
     
 // Pub function that will be used in other tests:
@@ -12,49 +14,52 @@ pub fn add_liquidity(test: &SoroswapPairTest, amount_0: &i128, amount_1: &i128) 
     test.contract.deposit(&test.user)
 }
     
-    
 #[test]
-#[should_panic(expected = "SoroswapPair: not yet initialized")]
+// #[should_panic(expected = "SoroswapPair: not yet initialized")]
 fn deposit_not_yet_initialized() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.deposit(&test.user);
+    let res = test.contract.try_deposit(&test.user);
+    assert_eq!(res, Err(Ok(SoroswapPairError::NotInitialized)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapPair: insufficient amount of token 0 sent")]
+// #[should_panic(expected = "SoroswapPair: insufficient amount of token 0 sent")]
 fn deposit_zero_tokens_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    test.contract.deposit(&test.user);
+    let res = test.contract.try_deposit(&test.user);
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken0)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapPair: insufficient amount of token 1 sent")]
+// #[should_panic(expected = "SoroswapPair: insufficient amount of token 1 sent")]
 fn deposit_only_token_0_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     let amount_0: i128 = 1_000_000;
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
-    test.contract.deposit(&test.user);
+    let res = test.contract.try_deposit(&test.user);
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken1)));
 }
-   
 
 #[test]
-#[should_panic(expected = "SoroswapPair: insufficient first liquidity minted")]
+// #[should_panic(expected = "SoroswapPair: insufficient first liquidity minted")]
 fn deposit_insufficient_first_liquidity() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     // If we just send 1,000 of each, the liq to be minted will be sqrt(1000*1000) - 1000 = 0, not enough
-    let amount_0: i128 = 1_000; //
-    let amount_1: i128 = 1_000; //
+    let amount_0: i128 = 1_000;
+    let amount_1: i128 = 1_000;
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
-    test.contract.deposit(&test.user);
+    let res = test.contract.try_deposit(&test.user);
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientFirstLiquidity)));
 }
+
 
 
 #[test]
