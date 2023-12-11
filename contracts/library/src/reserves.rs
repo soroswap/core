@@ -10,7 +10,18 @@ mod pair {
 use pair::Client as SoroswapPairClient;
 
 
-/// fetches and sorts the reserves for a pair
+/// Fetches and sorts the reserves for a pair of tokens.
+///
+/// # Arguments
+///
+/// * `e` - The environment.
+/// * `factory` - The factory address.
+/// * `token_a` - The address of the first token.
+/// * `token_b` - The address of the second token.
+///
+/// # Returns
+///
+/// Returns `Result<(i128, i128), LibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
 pub fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128,i128), LibraryError>{
     let (token_0,token_1) = sort_tokens(token_a.clone(), token_b.clone())?;
     let pair_address = pair_for(e.clone(), factory, token_0.clone(), token_1.clone())?;
