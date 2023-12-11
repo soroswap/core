@@ -26,7 +26,7 @@ fn sync_with_liquidity_nothing_to_sync() {
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0);
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 
     test.contract.sync();
     //no tokens where sent to the user, nothing changed
@@ -34,7 +34,7 @@ fn sync_with_liquidity_nothing_to_sync() {
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0);
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 }
 
 
@@ -56,7 +56,7 @@ fn sync() {
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0);
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 
     //extra tokens sent to skim:
     let amount_0_extra: i128 = 123_000_000;
@@ -65,7 +65,7 @@ fn sync() {
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1_extra);
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0 + amount_0_extra);
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1 + amount_1_extra);
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 
     test.contract.sync();
     //no tokens where sent to the user, nothing changed -- only reserves!
@@ -73,5 +73,5 @@ fn sync() {
     assert_eq!(test.token_1.balance(&test.user), original_1 - amount_1 - amount_1_extra);
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0 + amount_0_extra);
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1 + amount_1_extra);
-    assert_eq!(test.contract.get_reserves(), (amount_0 + amount_0_extra, amount_1 + amount_1_extra,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0 + amount_0_extra, amount_1 + amount_1_extra,));
 }

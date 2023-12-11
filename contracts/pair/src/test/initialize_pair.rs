@@ -41,14 +41,10 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.token_0(), test.token_0.address);
     assert_eq!(test.contract.token_1(), test.token_1.address);
     assert_eq!(test.contract.factory(), test.factory.address);
-    assert_eq!(test.contract.get_reserves(), (0,0,0));
+    assert_eq!(test.contract.get_reserves(), (0,0));
     assert_eq!(test.contract.k_last(), 0);
-    assert_eq!(test.contract.price_0_cumulative_last(), 0);
-    assert_eq!(test.contract.price_1_cumulative_last(), 0);
     assert_eq!(test.contract.total_shares(), 0);
     assert_eq!(test.contract.k_last(), 0);
-    assert_eq!(test.contract.price_0_cumulative_last(), 0);
-    assert_eq!(test.contract.price_1_cumulative_last(), 0);
     
     // Test pair as token
     /*

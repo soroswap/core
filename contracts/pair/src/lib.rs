@@ -5,7 +5,6 @@ use num_integer::Roots;
 use soroswap_factory_interface::SoroswapFactoryClient;
 
 mod soroswap_pair_token;
-mod uq64x64;
 mod storage;
 mod balances;
 mod event;
@@ -22,7 +21,6 @@ pub mod any_token {
 use storage::*;
 use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
-use uq64x64::fraction;
 use error::SoroswapPairError;
 
 
@@ -61,10 +59,7 @@ pub trait SoroswapPairTrait{
 
     fn k_last(e: Env) -> i128;
 
-    fn price_0_cumulative_last(e: Env) -> u128;
-    fn price_1_cumulative_last(e: Env) -> u128;
-
-    fn get_reserves(e: Env) -> (i128, i128, u64);
+    fn get_reserves(e: Env) -> (i128, i128);
 
     // TODO: Just use the token "balance" function
     fn my_balance(e: Env, id: Address) -> i128;
@@ -183,7 +178,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         mint_shares(&e, &to, liquidity.clone());
-        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -270,7 +265,7 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(SoroswapPairError::SwapKConstantNotMet);
         }
 
-        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
         
         event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
 
@@ -322,7 +317,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -354,8 +349,7 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `e` - The runtime environment.
     fn sync(e: Env) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        let _ = update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        update(&e, balance_0, balance_1);
     }
 
     /// Returns the current reserves and the last block timestamp.
@@ -364,9 +358,9 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `e` - The runtime environment.
     ///
     /// # Returns
-    /// A tuple containing the reserves of token 0 and token 1, along with the last block timestamp.
-    fn get_reserves(e: Env) -> (i128, i128, u64) {
-        (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
+    /// A tuple containing the reserves of token 0 and token 1.
+    fn get_reserves(e: Env) -> (i128, i128) {
+        (get_reserve_0(&e), get_reserve_1(&e))
     }
 
     /// Returns the total number of LP shares in circulation.
@@ -403,27 +397,6 @@ impl SoroswapPairTrait for SoroswapPair {
         get_klast(&e)
     }
 
-    /// Returns the cumulative price of the first token since the last liquidity event.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    ///
-    /// # Returns
-    /// The cumulative price of the first token since the last liquidity event.
-    fn price_0_cumulative_last(e: Env) -> u128 {
-        get_price_0_cumulative_last(&e)
-    }
-
-    /// Returns the cumulative price of the second token since the last liquidity event.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    ///
-    /// # Returns
-    /// The cumulative price of the second token since the last liquidity event.
-    fn price_1_cumulative_last(e: Env) -> u128 {
-        get_price_1_cumulative_last(&e)
-    }
     
 }
 
@@ -494,48 +467,8 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     fee_on
 }
 
-//function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64)-> Result<(), SoroswapPairError> {
-    // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
-    
-    // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
-    // This is becase u64 will be used to calculate the price as a UQ64x64
-    let u_64_max: u64 = u64::MAX;
-    let u64_max_into_i128: i128 = u_64_max.into();
-
-    if balance_0 > u64_max_into_i128 || balance_1 > u64_max_into_i128 {
-        return Err(SoroswapPairError::UpdateOverflow);
-    }
-    
-
-    // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-    // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
-    // For Soroswap we can use u64, and will overflow in the year 2554,
-
-    let block_timestamp: u64 = e.ledger().timestamp();
-    let block_timestamp_last: u64 = get_block_timestamp_last(&e);
-
-    // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-    let time_elapsed: u64 = block_timestamp - block_timestamp_last;
-
-    // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
-    if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
-        //     // * never overflows, and + overflow is desired
-        //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed; 
-        
-        let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
-        let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
-        // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
-        put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
-        put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
-    }
+fn update(e: &Env, balance_0: i128, balance_1: i128) {
     put_reserve_0(&e, balance_0);
     put_reserve_1(&e, balance_1);
-
-    // blockTimestampLast = blockTimestamp;
-    put_block_timestamp_last(&e, block_timestamp);
-
     event::sync(&e, balance_0, balance_1);
-    Ok(())
 }

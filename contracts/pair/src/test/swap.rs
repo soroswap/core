@@ -165,7 +165,7 @@ fn swap_token_0() {
     
     assert_eq!(test.contract.get_reserves(),
         (amount_0.checked_add(swap_amount_0).unwrap(),
-        amount_1.checked_sub(expected_output_amount_1).unwrap(),init_time));
+        amount_1.checked_sub(expected_output_amount_1).unwrap()));
 
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0.checked_add(swap_amount_0).unwrap());
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1.checked_sub(expected_output_amount_1).unwrap());
@@ -202,7 +202,7 @@ fn swap_token_1() {
     
     assert_eq!(test.contract.get_reserves(),
         (amount_0.checked_sub(expected_output_amount_0).unwrap(),
-        amount_1.checked_add(swap_amount_1).unwrap(),init_time));
+        amount_1.checked_add(swap_amount_1).unwrap()));
 
     assert_eq!(test.token_0.balance(&test.contract.address), amount_0.checked_sub(expected_output_amount_0).unwrap());
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1.checked_add(swap_amount_1).unwrap());

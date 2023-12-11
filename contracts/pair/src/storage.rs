@@ -63,32 +63,7 @@ pub fn get_reserve_1(e: &Env) -> i128 {
 get(&DataKey::Reserve1).unwrap()
 }
 
-pub fn get_block_timestamp_last(e: &Env) -> u64 {
-    if let Some(block_timestamp_last) = e.storage().instance().
-get(&DataKey::BlockTimestampLast) {
-        block_timestamp_last
-    } else {
-        0
-    }
-}
 
-pub fn get_price_0_cumulative_last(e: &Env) -> u128 {
-    if let Some(price) = e.storage().instance().
-get(&DataKey::Price0CumulativeLast) {
-        price
-    } else {
-        0
-    }
-}
-
-pub fn get_price_1_cumulative_last(e: &Env) -> u128 {
-    if let Some(price) = e.storage().instance().
-get(&DataKey::Price1CumulativeLast) {
-        price
-    } else {
-        0
-    }
-}
 
 pub fn get_klast(e: &Env) -> i128 {
     if let Some(klast) = e.storage().instance().
@@ -135,20 +110,6 @@ pub fn put_reserve_1(e: &Env, amount: i128) {
 set(&DataKey::Reserve1, &amount)
 }
 
-pub fn put_block_timestamp_last(e: &Env, block_timestamp_last: u64) {
-    e.storage().instance().
-set(&DataKey::BlockTimestampLast, &block_timestamp_last);
-}
-
-pub fn put_price_0_cumulative_last(e: &Env, price_0_cumulative_last: u128) {
-    e.storage().instance().
-set(&DataKey::Price0CumulativeLast, &price_0_cumulative_last);
-}
-
-pub fn put_price_1_cumulative_last(e: &Env, price_1_cumulative_last: u128) {
-    e.storage().instance().
-set(&DataKey::Price1CumulativeLast, &price_1_cumulative_last);
-}
 
 pub fn put_klast(e: &Env, klast: i128) {
     e.storage().instance().

@@ -114,7 +114,7 @@ fn deposit_basic() {
     // New LP balance:
     assert_eq!(test.contract.my_balance(&test.user), expected_liquidity- minimum_liquidity);
     // Reserves
-    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1,init_time));
+    assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 }
 
 
