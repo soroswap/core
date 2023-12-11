@@ -58,7 +58,8 @@ struct SoroswapLibraryTest<'a> {
     token_0: TokenClient<'a>,
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
-    //pair: SoroswapPairClient<'a>,
+    pair: SoroswapPairClient<'a>,
+    user: Address,
 }
 
 impl<'a> SoroswapLibraryTest<'a> {
@@ -99,6 +100,7 @@ impl<'a> SoroswapLibraryTest<'a> {
         //     )
 
         //pair.deposit(&user, &10000, &0, &10000, &0);
+        env.budget().reset_unlimited();
         
         SoroswapLibraryTest {
             env,
@@ -106,7 +108,8 @@ impl<'a> SoroswapLibraryTest<'a> {
             token_0,
             token_1,
             factory,
-            //pair,
+            pair,
+            user
         }
     }
 }

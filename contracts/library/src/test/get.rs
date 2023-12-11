@@ -63,6 +63,12 @@ fn get_amounts_out() {
     let test = SoroswapLibraryTest::setup();
     
     let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone(), test.token_1.address.clone()];
+
+    // User needs to send these tokens first to the contract
+    test.token_0.transfer(&test.user, &test.pair.address, &10000);
+    test.token_1.transfer(&test.user, &test.pair.address, &10000);
+    test.pair.deposit(&test.user);
+
     let expected_amounts_out = vec![&test.env, 2, 1];
     let amounts_out = test.contract.get_amounts_out(&test.factory.address, &2, &path);
     assert_eq!(expected_amounts_out,amounts_out);
@@ -78,8 +84,14 @@ fn get_amounts_out_invalid_path() {
 #[test]
 fn get_amounts_in() {
     let test = SoroswapLibraryTest::setup();
-    
+
     let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone(), test.token_1.address.clone()];
+
+    // User needs to send these tokens first to the contract
+    test.token_0.transfer(&test.user, &test.pair.address, &10000);
+    test.token_1.transfer(&test.user, &test.pair.address, &10000);
+    test.pair.deposit(&test.user);
+    
     let expected_amounts_in = vec![&test.env, 2, 1];
     let amounts_out = test.contract.get_amounts_in(&test.factory.address, &1, &path);
     assert_eq!(expected_amounts_in,amounts_out);
@@ -87,6 +99,7 @@ fn get_amounts_in() {
 #[test]
 fn get_amounts_in_invalid_path() {
     let test = SoroswapLibraryTest::setup();
+
     let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
     let result = test.contract.try_get_amounts_in(&test.factory.address, &1, &path);
     assert_eq!(result, Err(Ok(LibraryError::InvalidPath)));
