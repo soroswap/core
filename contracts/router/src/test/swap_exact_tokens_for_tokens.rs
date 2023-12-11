@@ -1,8 +1,8 @@
 use soroban_sdk::{Address, vec, Vec};
-use soroswap_library::SoroswapLibraryError;
 
 use crate::test::{SoroswapRouterTest, create_token_contract};
 use crate::test::add_liquidity::add_liquidity;
+use crate::error::CombinedRouterError;
 
 
 #[test]
@@ -80,7 +80,7 @@ fn try_swap_exact_tokens_for_tokens_invalid_path() {
         &test.user, // to
         &deadline, // deadline
     );
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInvalidPath)));
 }
 
 
@@ -129,7 +129,7 @@ fn try_swap_exact_tokens_for_tokens_insufficient_input_amount() {
         &test.user, // to
         &deadline, // deadline
     );
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientInputAmount)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientInputAmount)));
 }
 
 

@@ -8,27 +8,41 @@ mod factory;
 mod test;
 mod event;
 mod storage;
+mod error;
 
 use factory::SoroswapFactoryClient;
 use pair::SoroswapPairClient;
 use storage::{put_factory, has_factory, get_factory};
+pub use error::{SoroswapRouterError, CombinedRouterError};
 
-/// Panics if the amoint given is negative.
-fn check_nonnegative_amount(amount: i128) {
+
+// impl From<soroban_sdk::Error> for CombinedRouterError {
+//     fn from(err: soroban_sdk::Error) -> Self {
+//         // You can choose to map soroban_sdk::Error to either LibraryError or RouterError here
+//         CombinedRouterError::LibraryError(SoroswapLibraryError::from(err))
+//     }
+// }
+
+pub fn check_nonnegative_amount(amount: i128) -> Result<(), CombinedRouterError> {
     if amount < 0 {
-        panic!("SoroswapRouter: negative amount is not allowed: {}", amount)
+        Err(CombinedRouterError::RouterNegativeNotAllowed)
+    } else {
+        Ok(())
     }
 }
+
 
 /// Panics if the specified deadline has passed.
 ///
 /// # Arguments
 /// * `e` - The runtime environment.
 /// * `timestamp` - The deadline timestamp to compare against the current ledger timestamp.
-fn ensure_deadline(e: &Env, timestamp: u64) {
+fn ensure_deadline(e: &Env, timestamp: u64) -> Result<(), CombinedRouterError> {
     let ledger_timestamp = e.ledger().timestamp();
     if ledger_timestamp >= timestamp {
-        panic!("SoroswapRouter: expired")
+        Err(SoroswapRouterError::DeadlineExpired.into())
+    } else {
+        Ok(())
     }
 }
 
@@ -59,8 +73,8 @@ fn add_liquidity_amounts(
     amount_b_desired: i128,
     amount_a_min: i128,
     amount_b_min: i128,
-) -> Result<(i128, i128), SoroswapLibraryError> {
-    // checks if the pair exist, otherwise, creates the pair
+) -> Result<(i128, i128), CombinedRouterError> {
+    // checks if the pair exists; otherwise, creates the pair
     let factory_client = SoroswapFactoryClient::new(&e, &factory);
     if !factory_client.pair_exists(&token_a, &token_b) {
         factory_client.create_pair(&token_a, &token_b);
@@ -86,20 +100,20 @@ fn add_liquidity_amounts(
 
         if amount_b_optimal <= amount_b_desired {
             if amount_b_optimal < amount_b_min {
-                panic!("SoroswapRouter: insufficient b amount")
+                return Err(SoroswapRouterError::InsufficientBAmount.into());
             }
             Ok((amount_a_desired, amount_b_optimal))
         }
         // If not, we can try with the amount b desired
         else {
-            let amount_a_optimal = soroswap_library::quote(amount_b_desired, reserve_b, reserve_a)?;
+            let amount_a_optimal = soroswap_library::quote(amount_b_desired, reserve_b, reserve_a).map_err(SoroswapLibraryError::from)?;
 
-            // This should happen anyway. Because if we where not able to fulfill with our amount_b_desired  for our amount_a_desired
+            // This should happen anyway. Because if we were not able to fulfill with our amount_b_desired for our amount_a_desired
             // It is to expect that the amount_a_optimal for that lower amount_b_desired to be lower than the amount_a_desired
             assert!(amount_a_optimal <= amount_a_desired);
 
             if amount_a_optimal < amount_a_min {
-                panic!("SoroswapRouter: insufficient a amount")
+                return Err(SoroswapRouterError::InsufficientAAmount.into());
             }
             Ok((amount_a_optimal, amount_b_desired))
         }
@@ -115,7 +129,7 @@ fn add_liquidity_amounts(
 /// * `amounts` - A vector containing the output amounts for each step of the trading route.
 /// * `path` - A vector representing the trading route, where each element is a token address.
 /// * `_to` - The final destination address for the swapped tokens.
-fn swap(e: &Env, factory_address: &Address, amounts: &Vec<i128>, path: &Vec<Address>, _to: &Address) -> Result<(), SoroswapLibraryError>{
+fn swap(e: &Env, factory_address: &Address, amounts: &Vec<i128>, path: &Vec<Address>, _to: &Address) -> Result<(), CombinedRouterError>{
     for i in 0..path.len() - 1 {
         //  represents a half-open range, which includes the start value (0) but excludes the end value (path.len() - 1)
         let (input, output): (Address, Address) = (path.get(i).unwrap(), path.get(i + 1).unwrap());
@@ -192,7 +206,7 @@ pub trait SoroswapRouterTrait {
         amount_b_min: i128,
         to: Address,
         deadline: u64,
-    ) -> Result<(i128, i128, i128), SoroswapLibraryError>;
+    ) -> Result<(i128, i128, i128), CombinedRouterError>;
 
     /// Removes liquidity from a token pair's pool.
     ///
@@ -220,7 +234,7 @@ pub trait SoroswapRouterTrait {
         amount_b_min: i128,
         to: Address,
         deadline: u64,
-    ) -> Result<(i128, i128), SoroswapLibraryError>;
+    ) -> Result<(i128, i128), CombinedRouterError>;
 
     /// Swaps an exact amount of input tokens for as many output tokens as possible
     /// along the specified trading route. The route is determined by the `path` vector,
@@ -244,7 +258,7 @@ pub trait SoroswapRouterTrait {
         path: Vec<Address>,
         to: Address,
         deadline: u64,
-    ) -> Result<Vec<i128>, SoroswapLibraryError>;
+    ) -> Result<Vec<i128>, CombinedRouterError>;
 
     /// Swaps tokens for an exact amount of output token, following the specified trading route.
     /// The route is determined by the `path` vector, where the first element is the input token,
@@ -267,7 +281,7 @@ pub trait SoroswapRouterTrait {
         path: Vec<Address>,
         to: Address,
         deadline: u64,
-    ) -> Result<Vec<i128>, SoroswapLibraryError>;
+    ) -> Result<Vec<i128>, CombinedRouterError>;
 
     /*  *** Read only functions: *** */
 
@@ -295,7 +309,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError>;
+    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, CombinedRouterError>;
 
     /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
     ///
@@ -308,7 +322,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
-    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, SoroswapLibraryError>;
+    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, CombinedRouterError>;
 
     /// Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset.
     ///
@@ -321,7 +335,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
-    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError>;
+    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, CombinedRouterError>;
 
     /// Given an output amount of an asset and pair reserves, returns a required input amount of the other asset.
     ///
@@ -334,7 +348,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
-    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError>;
+    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, CombinedRouterError>;
 
     /// Performs chained get_amount_out calculations on any number of pairs.
     ///
@@ -347,7 +361,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
+    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError>;
     
     /// Performs chained get_amount_in calculations on any number of pairs.
     ///
@@ -360,7 +374,7 @@ pub trait SoroswapRouterTrait {
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
+    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError>;
 
     
 
@@ -403,15 +417,15 @@ impl SoroswapRouterTrait for SoroswapRouter {
         amount_b_min: i128,
         to: Address,
         deadline: u64,
-    ) -> Result<(i128, i128, i128), SoroswapLibraryError> {
+    ) -> Result<(i128, i128, i128), CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        check_nonnegative_amount(amount_a_desired);
-        check_nonnegative_amount(amount_b_desired);
-        check_nonnegative_amount(amount_a_min);
-        check_nonnegative_amount(amount_b_min);
+        let _ = check_nonnegative_amount(amount_a_desired);
+        let _ = check_nonnegative_amount(amount_b_desired);
+        let _ = check_nonnegative_amount(amount_a_min);
+        let _ = check_nonnegative_amount(amount_b_min);
 
         to.require_auth();
-        ensure_deadline(&e, deadline);
+        let _ = ensure_deadline(&e, deadline);
 
         let factory = get_factory(&e);
 
@@ -431,7 +445,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
             factory,
             token_a.clone(),
             token_b.clone(),
-        )?;
+        ).map_err(SoroswapLibraryError::from)?;
 
         TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
         TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
@@ -477,13 +491,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
         amount_b_min: i128,
         to: Address,
         deadline: u64,
-    ) -> Result<(i128, i128), SoroswapLibraryError> {
+    ) -> Result<(i128, i128), CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        check_nonnegative_amount(liquidity);
-        check_nonnegative_amount(amount_a_min);
-        check_nonnegative_amount(amount_b_min);
+        let _ = check_nonnegative_amount(liquidity);
+        let _ = check_nonnegative_amount(amount_a_min);
+        let _ = check_nonnegative_amount(amount_b_min);
         to.require_auth();
-        ensure_deadline(&e, deadline);
+        let _ = ensure_deadline(&e, deadline);
 
         // Ensure that the pair exists in the Soroswap factory
         let factory_address = get_factory(&e);
@@ -556,12 +570,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         path: Vec<Address>,
         to: Address,
         deadline: u64,
-    ) -> Result<Vec<i128>, SoroswapLibraryError> {
+    ) -> Result<Vec<i128>, CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        check_nonnegative_amount(amount_in);
-        check_nonnegative_amount(amount_out_min);
+        let _ = check_nonnegative_amount(amount_in);
+        let _ = check_nonnegative_amount(amount_out_min);
         to.require_auth();
-        ensure_deadline(&e, deadline);
+        let _ = ensure_deadline(&e, deadline);
 
         // Get the expected output amounts for each step of the trading route        
         let factory_address = get_factory(&e);
@@ -624,12 +638,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         path: Vec<Address>,
         to: Address,
         deadline: u64,
-    ) -> Result<Vec<i128>, SoroswapLibraryError> {
+    ) -> Result<Vec<i128>, CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        check_nonnegative_amount(amount_out);
-        check_nonnegative_amount(amount_in_max);
+        let _ = check_nonnegative_amount(amount_out);
+        let _ = check_nonnegative_amount(amount_in_max);
         to.require_auth(); 
-        ensure_deadline(&e, deadline);
+        let _ = ensure_deadline(&e, deadline);
 
         // Get the expected input amounts for each step of the trading route
         let factory_address = get_factory(&e);
@@ -698,13 +712,13 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError> {
-        soroswap_library::pair_for(
+    fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, CombinedRouterError> {
+        Ok(soroswap_library::pair_for(
             e.clone(),
             get_factory(&e),
             token_a.clone(),
             token_b.clone(),
-        )
+        )?)
     }
 
 
@@ -719,8 +733,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
-    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, SoroswapLibraryError> {
-        soroswap_library::quote(amount_a, reserve_a, reserve_b)
+    fn router_quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, CombinedRouterError> {
+        Ok(soroswap_library::quote(amount_a, reserve_a, reserve_b)?)
     }
 
     /// Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset.
@@ -734,8 +748,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
-    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
-        soroswap_library::get_amount_out(amount_in, reserve_in, reserve_out)
+    fn router_get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, CombinedRouterError> {
+        Ok(soroswap_library::get_amount_out(amount_in, reserve_in, reserve_out)?)
     }
 
     /// Given an output amount of an asset and pair reserves, returns a required input amount of the other asset.
@@ -749,8 +763,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
-    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
-        soroswap_library::get_amount_in(amount_out, reserve_in, reserve_out)
+    fn router_get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, CombinedRouterError> {
+        Ok(soroswap_library::get_amount_in(amount_out, reserve_in, reserve_out)?)
     }
 
 
@@ -765,10 +779,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+    fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         let factory = get_factory(&e);
-        soroswap_library::get_amounts_out(e, factory, amount_in, path)
+        Ok(soroswap_library::get_amounts_out(e, factory, amount_in, path)?)
     }
 
     /// Performs chained get_amount_in calculations on any number of pairs.
@@ -782,10 +796,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// # Returns
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+    fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
         assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
         let factory = get_factory(&e);
-        soroswap_library::get_amounts_in(e, factory, amount_out, path)
+        Ok(soroswap_library::get_amounts_in(e, factory, amount_out, path)?)
     }
 
 

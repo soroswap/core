@@ -1,9 +1,8 @@
 use soroban_sdk::{vec};
-use soroswap_library::SoroswapLibraryError;
 
 use crate::test::{SoroswapRouterTest};
 use crate::test::add_liquidity::add_liquidity;
-
+use crate::error::CombinedRouterError;
 
 
 
@@ -20,21 +19,21 @@ fn test_quote() {
 fn test_quote_insufficient_amount() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_quote(&0, &100, &200);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientAmount)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientAmount)));
 }
 
 #[test]
 fn test_quote_insufficient_liquidity_0() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_quote(&1, &0, &200);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 #[test]
 fn test_quote_insufficient_liquidity_1() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_quote(&1, &100, &0);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 // router_get_amount_out
@@ -49,21 +48,21 @@ fn test_get_amount_out() {
 fn try_router_get_amount_out_insufficient_input_amount() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_out(&0, &100, &100);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientInputAmount)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientInputAmount)));
 }
 
 #[test]
 fn try_router_get_amount_out_insufficient_liquidity_0() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_out(&2, &0, &100);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 #[test]
 fn try_router_get_amount_out_insufficient_liquidity_1() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_out(&2, &100, &0);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 
@@ -80,21 +79,21 @@ fn test_get_amount_in() {
 fn try_router_get_amount_in_insufficient_output_amount() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_in(&0, &100, &100);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientOutputAmount)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientOutputAmount)));
 }
 
 #[test]
 fn try_router_get_amount_in_insufficient_liquidity_0() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_in(&1, &0, &100);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 #[test]
 fn try_router_get_amount_in_insufficient_liquidity_1() {
     let test = SoroswapRouterTest::setup();
     let result = test.contract.try_router_get_amount_in(&1, &100, &0);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientLiquidity)));
 }
 
 
@@ -107,7 +106,7 @@ fn try_router_get_amounts_out_invalid_path() {
     test.contract.initialize(&test.factory.address);
     let path = vec![&test.env, test.token_0.address];
     let result = test.contract.try_router_get_amounts_out(&2, &path);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInvalidPath)));
 }
 
 #[test]
@@ -147,7 +146,7 @@ fn try_router_get_amounts_in_invalid_path() {
     test.contract.initialize(&test.factory.address);
     let path = vec![&test.env, test.token_0.address];
     let result = test.contract.try_router_get_amounts_in(&1, &path);
-    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInvalidPath)));
 }
 
 #[test]
