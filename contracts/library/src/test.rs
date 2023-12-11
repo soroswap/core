@@ -98,7 +98,7 @@ impl<'a> SoroswapLibraryTest<'a> {
         //       overrides
         //     )
 
-        pair.deposit(&user, &10000, &0, &10000, &0);
+        //pair.deposit(&user, &10000, &0, &10000, &0);
         
         SoroswapLibraryTest {
             env,
