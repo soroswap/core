@@ -5,7 +5,7 @@ use soroban_sdk::{Env, BytesN, Address, testutils::Address as _};
 use crate::{SoroswapLibrary, SoroswapLibraryClient};
 
 mod token {
-    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 

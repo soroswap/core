@@ -14,7 +14,7 @@ mod test;
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
 pub mod any_token {
-    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 

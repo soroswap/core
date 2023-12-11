@@ -17,7 +17,7 @@ use soroban_sdk::{
 use num_integer::Roots;
 
 mod token {
-    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 mod pair {
