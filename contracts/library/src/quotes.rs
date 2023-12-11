@@ -102,7 +102,18 @@ pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Addr
     Ok(amounts)
 }
 
-/// performs chained getAmountIn calculations on any number of pairs
+/// Performs chained getAmountIn calculations on any number of pairs.
+///
+/// # Arguments
+///
+/// * `e` - The environment.
+/// * `factory` - The factory address.
+/// * `amount_out` - The output amount.
+/// * `path` - Vector of token addresses representing the path.
+///
+/// # Returns
+///
+/// Returns `Result<Vec<i128>, LibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
 pub fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, LibraryError> {
     if path.len() < 2 {
         return Err(LibraryError::InvalidPath);
