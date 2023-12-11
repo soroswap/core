@@ -5,46 +5,46 @@ use soroban_sdk::{self, contracterror};
 #[repr(u32)]
 pub enum Error {
     /// SoroswapPair: already initialized
-    InitializeAlreadyInitialized = 1,
+    InitializeAlreadyInitialized = 101,
     /// SoroswapPair: not yet initialized
-    NotInitialized = 2,
+    NotInitialized = 102,
 
     /// SoroswapPair: token_0 must be less than token_1 while initializing
-    InitializeTokenOrderInvalid = 3,
+    InitializeTokenOrderInvalid = 103,
 
     /// SoroswapPair: insufficient amount of token 0 sent while doing deposit
-    DepositInsufficientAmountToken0 = 4,
+    DepositInsufficientAmountToken0 = 104,
     /// SoroswapPair: insufficient amount of token 1 sent while doing deposit
-    DepositInsufficientAmountToken1 = 5,
+    DepositInsufficientAmountToken1 = 105,
     /// SoroswapPair: insufficient first liquidity minted while doing deposit
-    DepositInsufficientFirstLiquidity = 6,
+    DepositInsufficientFirstLiquidity = 106,
     /// SoroswapPair: insufficient liquidity minted while doing deposit
-    DepositInsufficientLiquidityMinted = 7,
+    DepositInsufficientLiquidityMinted = 107,
     /// SoroswapPair: insufficient output amount while doing deposDepositit
 
-    SwapInsufficientOutputAmount = 8,
+    SwapInsufficientOutputAmount = 108,
     /// SoroswapPair: negatives amounts out dont supported while doing swap
-    SwapNegativesOutNotSupported = 9,
+    SwapNegativesOutNotSupported = 109,
     /// SoroswapPair: insufficient liquidity to do the swap
-    SwapInsufficientLiquidity = 10,
+    SwapInsufficientLiquidity = 110,
     /// SoroswapPair: invalid to to do the swap
-    SwapInvalidTo = 11,
+    SwapInvalidTo = 111,
     /// SoroswapPair: insufficient input amount while doing swap
-    SwapInsufficientInputAmount = 12,
+    SwapInsufficientInputAmount = 112,
     /// SoroswapPair: negatives amounts in dont supported while doing swap
-    SwapNegativesInNotSupported = 13,
+    SwapNegativesInNotSupported = 113,
     /// SoroswapPair: K constant is not met while doing swap
-    SwapKConstantNotMet = 14,
+    SwapKConstantNotMet = 114,
 
     /// SoroswapPair: liquidity was not initialized yet while doing withdraw
-    WithdrawLiquidityNotInitialized = 15,
+    WithdrawLiquidityNotInitialized = 115,
     /// SoroswapPair: insufficient sent shares while doing withdraw
-    WithdrawInsufficientSentShares = 16,
+    WithdrawInsufficientSentShares = 116,
     /// SoroswapPair: insufficient liquidity burned while doing withdraw
-    WithdrawInsufficientLiquidityBurned = 17,
+    WithdrawInsufficientLiquidityBurned = 117,
 
     /// SoroswapPair: OVERFLOW while updating
-    UpdateOverflow = 18,
+    UpdateOverflow = 118,
 }
 
 
