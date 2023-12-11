@@ -177,7 +177,7 @@ fn swap(e: &Env, factory_address: &Address, amounts: &Vec<i128>, path: &Vec<Addr
 pub trait SoroswapRouterTrait {
 
     /// Initializes the contract and sets the factory address
-    fn initialize(e: Env, factory: Address);
+    fn initialize(e: Env, factory: Address) -> Result<(), CombinedRouterError>;
 
     /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
     /// of both tokens are added, subject to minimum requirements.
@@ -387,10 +387,15 @@ struct SoroswapRouter;
 #[contractimpl]
 impl SoroswapRouterTrait for SoroswapRouter {
     /// Initializes the contract and sets the factory address
-    fn initialize(e: Env, factory: Address) {
-        assert!(!has_factory(&e), "SoroswapRouter: already initialized");
-        put_factory(&e, &factory);
-        event::initialized(&e, factory);
+    fn initialize(e: Env, factory: Address) -> Result<(), CombinedRouterError> {
+        if !has_factory(&e) {
+            put_factory(&e, &factory);
+            event::initialized(&e, factory);
+            Ok(())
+        } else {
+            Err(SoroswapRouterError::InitializeAlreadyInitialized.into())
+        }
+        
     }  
 
     /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
@@ -529,10 +534,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // Check if the received amounts meet the minimum requirements
         if amount_a < amount_a_min {
-            panic!("SoroswapRouter: insufficient A amount")
+            return Err(SoroswapRouterError::InsufficientAAmount.into());
         }
         if amount_b < amount_b_min {
-            panic!("SoroswapRouter: insufficient B amount")
+            return Err(SoroswapRouterError::InsufficientBAmount.into());
         }
 
         event::remove_liquidity(
@@ -589,7 +594,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         // Ensure that the final output amount meets the minimum requirement        
         if amounts.get(amounts.len() - 1).unwrap() < amount_out_min {
-            panic!("SoroswapRouter: insufficient output amount")
+            return Err(SoroswapRouterError::InsufficientOutputAmount.into());
         }
         
         // Determine the pair contract address for the first step of the trading route
@@ -657,7 +662,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         
         // Ensure that the input amount does not exceed the maximum allowed
         if amounts.get(0).unwrap() > amount_in_max {
-            panic!("SoroswapRouter: excessive input amount")
+            return Err(SoroswapRouterError::ExcessiveInputAmount.into());
         }
 
         // Determine the pair contract address for the first step of the trading route

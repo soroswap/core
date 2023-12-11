@@ -1,5 +1,6 @@
 use crate::test::{SoroswapRouterTest, SoroswapPairClient};
 use crate::test::add_liquidity::add_liquidity;
+use crate::error::CombinedRouterError;
 
 use num_integer::Roots; 
 use soroban_sdk::{
@@ -14,70 +15,77 @@ use soroban_sdk::{
 
 
 
-#[test]
-#[should_panic(expected = "SoroswapRouter: not yet initialized")]
-fn test_remove_liquidity_not_yet_initialized() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &0, //     liquidity: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-}
-
-
-#[test]
-#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
-fn test_remove_liquidity_liquidity_negative() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.initialize(&test.factory.address);
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &-1, //     liquidity: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-}
-
-#[test]
-#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
-fn test_remove_liquidity_amount_a_min_negative() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.initialize(&test.factory.address);
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &0, //     liquidity: i128,
-        &-1, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-}
-
-
-#[test]
-#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
-fn test_remove_liquidity_amount_b_min_negative() {
-    let test = SoroswapRouterTest::setup();
-    test.contract.initialize(&test.factory.address);
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &0, //     liquidity: i128,
-        &0, //     amount_a_min: i128,
-        &-1 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &0//     deadline: u64,
-    );
-}
+    #[test]
+    fn test_remove_liquidity_not_yet_initialized() {
+        let test = SoroswapRouterTest::setup();
+        
+        let result = test.contract.try_remove_liquidity(
+            &test.token_0.address,  // token_a: Address,
+            &test.token_1.address,  // token_b: Address,
+            &0,                      // liquidity: i128,
+            &0,                      // amount_a_min: i128,
+            &0,                      // amount_b_min: i128,
+            &test.user,              // to: Address,
+            &0                       // deadline: u64,
+        );
+    
+        assert_eq!(result, Err(Ok(CombinedRouterError::RouterNotInitialized)));
+    }
+    
+    #[test]
+    fn test_remove_liquidity_liquidity_negative() {
+        let test = SoroswapRouterTest::setup();
+        test.contract.initialize(&test.factory.address);
+        
+        let result = test.contract.try_remove_liquidity(
+            &test.token_0.address,  // token_a: Address,
+            &test.token_1.address,  // token_b: Address,
+            &-1,                     // liquidity: i128,
+            &0,                      // amount_a_min: i128,
+            &0,                      // amount_b_min: i128,
+            &test.user,              // to: Address,
+            &0                       // deadline: u64,
+        );
+    
+        assert_eq!(result, Err(Ok(CombinedRouterError::RouterNegativeNotAllowed)));
+    }
+    
+    #[test]
+    fn test_remove_liquidity_amount_a_min_negative() {
+        let test = SoroswapRouterTest::setup();
+        test.contract.initialize(&test.factory.address);
+        
+        let result = test.contract.try_remove_liquidity(
+            &test.token_0.address,  // token_a: Address,
+            &test.token_1.address,  // token_b: Address,
+            &0,                      // liquidity: i128,
+            &-1,                     // amount_a_min: i128,
+            &0,                      // amount_b_min: i128,
+            &test.user,              // to: Address,
+            &0                       // deadline: u64,
+        );
+    
+        assert_eq!(result, Err(Ok(CombinedRouterError::RouterNegativeNotAllowed)));
+    }
+    
+    #[test]
+    fn test_remove_liquidity_amount_b_min_negative() {
+        let test = SoroswapRouterTest::setup();
+        test.contract.initialize(&test.factory.address);
+        
+        let result = test.contract.try_remove_liquidity(
+            &test.token_0.address,  // token_a: Address,
+            &test.token_1.address,  // token_b: Address,
+            &0,                      // liquidity: i128,
+            &0,                      // amount_a_min: i128,
+            &-1,                     // amount_b_min: i128,
+            &test.user,              // to: Address,
+            &0                       // deadline: u64,
+        );
+    
+        assert_eq!(result, Err(Ok(CombinedRouterError::RouterNegativeNotAllowed)));
+    }
+    
 
 // TODO: We don't know if this is corectly done
 #[test]
@@ -127,8 +135,8 @@ fn test_remove_liquidity_not_authorized() {
 
 
 
+    
 #[test]
-#[should_panic(expected = "SoroswapRouter: expired")]
 fn test_remove_liquidity_deadline_expired() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -140,15 +148,19 @@ fn test_remove_liquidity_deadline_expired() {
         li.timestamp = ledger_timestamp;
     });
 
-    // Here we test the case when deadline has passed
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &0, //     liquidity: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &desired_deadline//     deadline: u64,
+    let result = test.contract.try_remove_liquidity(
+        &test.token_0.address,  // token_a: Address,
+        &test.token_1.address,  // token_b: Address,
+        &0,                      // liquidity: i128,
+        &0,                      // amount_a_min: i128,
+        &0,                      // amount_b_min: i128,
+        &test.user,              // to: Address,
+        &desired_deadline        // deadline: u64,
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterDeadlineExpired))
     );
 }
 
@@ -305,7 +317,6 @@ fn test_remove_liquidity_sufficient_amount_inverse() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: insufficient A amount")]
 fn test_remove_liquidity_insufficient_a_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -320,39 +331,35 @@ fn test_remove_liquidity_insufficient_a_amount() {
 
     let amount_0: i128 = 10_000_000_000;
     let amount_1: i128 = 20_000_000_000;
-    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+    let expected_liquidity: i128 = 14142134623;
 
-    let (deposited_amount_0, 
-        deposited_amount_1, 
-        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+    let (deposited_amount_0, deposited_amount_1, received_liquidity) =
+        add_liquidity(&test, &amount_0, &amount_1);
 
     assert_eq!(deposited_amount_0, amount_0);
     assert_eq!(deposited_amount_1, amount_1);
     assert_eq!(received_liquidity, expected_liquidity);
 
-    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
-    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
-
-    // (10000000000 * 14142134623) / 14142135623 = 9999999292
     let expected_to_remove_0 = 9999999292;
-
-    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
     let expected_to_remove_1 = 19999998585;
 
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &received_liquidity, //     liquidity: i128,
-        &(expected_to_remove_0+1), //     amount_a_min: i128,
-        &expected_to_remove_1 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &desired_deadline//     deadline: u64,
+    let result = test.contract.try_remove_liquidity(
+        &test.token_0.address,  // token_a: Address,
+        &test.token_1.address,  // token_b: Address,
+        &received_liquidity,    // liquidity: i128,
+        &(expected_to_remove_0 + 1), // amount_a_min: i128,
+        &expected_to_remove_1,        // amount_b_min: i128,
+        &test.user,                   // to: Address,
+        &desired_deadline            // deadline: u64,
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterInsufficientAAmount))
     );
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapRouter: insufficient B amount")]
 fn test_remove_liquidity_insufficient_b_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -367,33 +374,31 @@ fn test_remove_liquidity_insufficient_b_amount() {
 
     let amount_0: i128 = 10_000_000_000;
     let amount_1: i128 = 20_000_000_000;
-    let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
+    let expected_liquidity: i128 = 14142134623;
 
-    let (deposited_amount_0, 
-        deposited_amount_1, 
-        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
+    let (deposited_amount_0, deposited_amount_1, received_liquidity) =
+        add_liquidity(&test, &amount_0, &amount_1);
 
     assert_eq!(deposited_amount_0, amount_0);
     assert_eq!(deposited_amount_1, amount_1);
     assert_eq!(received_liquidity, expected_liquidity);
 
-    // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
-    // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
-
-    // (10000000000 * 14142134623) / 14142135623 = 9999999292
     let expected_to_remove_0 = 9999999292;
-
-    // (20000000000 * 14142134623) / 14142135623 = 19999998585;
     let expected_to_remove_1 = 19999998585;
 
-    test.contract.remove_liquidity(
-        &test.token_0.address, //     token_a: Address,
-        &test.token_1.address, //     token_b: Address,
-        &received_liquidity, //     liquidity: i128,
-        &expected_to_remove_0, //     amount_a_min: i128,
-        &(expected_to_remove_1+1) , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &desired_deadline//     deadline: u64,
+    let result = test.contract.try_remove_liquidity(
+        &test.token_0.address,  // token_a: Address,
+        &test.token_1.address,  // token_b: Address,
+        &received_liquidity,    // liquidity: i128,
+        &expected_to_remove_0,  // amount_a_min: i128,
+        &(expected_to_remove_1 + 1), // amount_b_min: i128,
+        &test.user,                   // to: Address,
+        &desired_deadline            // deadline: u64,
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterInsufficientBAmount))
     );
 }
 
