@@ -1,4 +1,4 @@
-# Soroswap core Smart Contracts
+# Soroswap core Smart Contracts.
 
 Make sure to compile contracts in the right order: token, pair, factory, library, router. If you just do `cd contracts && make build`, this will be done in the correct order ;)
 
