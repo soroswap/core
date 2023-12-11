@@ -15,14 +15,6 @@ use pair::SoroswapPairClient;
 use storage::{put_factory, has_factory, get_factory};
 pub use error::{SoroswapRouterError, CombinedRouterError};
 
-
-// impl From<soroban_sdk::Error> for CombinedRouterError {
-//     fn from(err: soroban_sdk::Error) -> Self {
-//         // You can choose to map soroban_sdk::Error to either LibraryError or RouterError here
-//         CombinedRouterError::LibraryError(SoroswapLibraryError::from(err))
-//     }
-// }
-
 pub fn check_nonnegative_amount(amount: i128) -> Result<(), CombinedRouterError> {
     if amount < 0 {
         Err(CombinedRouterError::RouterNegativeNotAllowed)
@@ -43,6 +35,15 @@ fn ensure_deadline(e: &Env, timestamp: u64) -> Result<(), CombinedRouterError> {
         Err(SoroswapRouterError::DeadlineExpired.into())
     } else {
         Ok(())
+    }
+}
+
+
+fn check_initialized(e: &Env) -> Result<(), CombinedRouterError> {
+    if has_factory(e) {
+        Ok(())
+    } else {
+        Err(CombinedRouterError::RouterNotInitialized)
     }
 }
 
@@ -291,7 +292,7 @@ pub trait SoroswapRouterTrait {
     ///
     /// # Arguments
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
-    fn get_factory(e: Env) -> Address;
+    fn get_factory(e: Env) -> Result<Address, CombinedRouterError>;
 
     /*
     LIBRARY FUNCTIONS:
@@ -418,14 +419,14 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Result<(i128, i128, i128), CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        let _ = check_nonnegative_amount(amount_a_desired);
-        let _ = check_nonnegative_amount(amount_b_desired);
-        let _ = check_nonnegative_amount(amount_a_min);
-        let _ = check_nonnegative_amount(amount_b_min);
+        check_initialized(&e)?;
+        check_nonnegative_amount(amount_a_desired)?;
+        check_nonnegative_amount(amount_b_desired)?;
+        check_nonnegative_amount(amount_a_min)?;
+        check_nonnegative_amount(amount_b_min)?;
 
         to.require_auth();
-        let _ = ensure_deadline(&e, deadline);
+        ensure_deadline(&e, deadline)?;
 
         let factory = get_factory(&e);
 
@@ -492,12 +493,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Result<(i128, i128), CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        let _ = check_nonnegative_amount(liquidity);
-        let _ = check_nonnegative_amount(amount_a_min);
-        let _ = check_nonnegative_amount(amount_b_min);
+        check_initialized(&e)?;
+        check_nonnegative_amount(liquidity)?;
+        check_nonnegative_amount(amount_a_min)?;
+        check_nonnegative_amount(amount_b_min)?;
         to.require_auth();
-        let _ = ensure_deadline(&e, deadline);
+        ensure_deadline(&e, deadline)?;
 
         // Ensure that the pair exists in the Soroswap factory
         let factory_address = get_factory(&e);
@@ -571,11 +572,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Result<Vec<i128>, CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        let _ = check_nonnegative_amount(amount_in);
-        let _ = check_nonnegative_amount(amount_out_min);
+        check_initialized(&e)?;
+        check_nonnegative_amount(amount_in)?;
+        check_nonnegative_amount(amount_out_min)?;
         to.require_auth();
-        let _ = ensure_deadline(&e, deadline);
+        ensure_deadline(&e, deadline)?;
 
         // Get the expected output amounts for each step of the trading route        
         let factory_address = get_factory(&e);
@@ -605,7 +606,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         // Execute the tokens swap
-        let _ = swap(&e, &factory_address, &amounts, &path, &to);
+        swap(&e, &factory_address, &amounts, &path, &to)?;
     
         event::swap(
             &e,
@@ -639,11 +640,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         to: Address,
         deadline: u64,
     ) -> Result<Vec<i128>, CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
-        let _ = check_nonnegative_amount(amount_out);
-        let _ = check_nonnegative_amount(amount_in_max);
+        check_initialized(&e)?;
+        check_nonnegative_amount(amount_out)?;
+        check_nonnegative_amount(amount_in_max)?;
         to.require_auth(); 
-        let _ = ensure_deadline(&e, deadline);
+        ensure_deadline(&e, deadline)?;
 
         // Get the expected input amounts for each step of the trading route
         let factory_address = get_factory(&e);
@@ -672,7 +673,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
 
         // Execute the token swap
-        let _ = swap(&e, &factory_address, &amounts, &path, &to);
+        swap(&e, &factory_address, &amounts, &path, &to)?;
     
         event::swap(
             &e,
@@ -693,10 +694,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
     ///
     /// # Arguments
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
-    fn get_factory(e: Env) -> Address {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized"); 
+    fn get_factory(e: Env) -> Result<Address, CombinedRouterError> {
+        check_initialized(&e)?; 
         let factory_address = get_factory(&e);
-        factory_address
+        Ok(factory_address)
     }
 
 
@@ -780,7 +781,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
     fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_initialized(&e)?;
         let factory = get_factory(&e);
         Ok(soroswap_library::get_amounts_out(e, factory, amount_in, path)?)
     }
@@ -797,7 +798,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     ///
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
     fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized");
+        check_initialized(&e)?;
         let factory = get_factory(&e);
         Ok(soroswap_library::get_amounts_in(e, factory, amount_out, path)?)
     }
