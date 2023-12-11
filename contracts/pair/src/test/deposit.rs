@@ -1,6 +1,6 @@
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{testutils::{Ledger}};
-use crate::error::Error;
+use crate::error::SoroswapPairError;
 
 
     
@@ -20,7 +20,7 @@ fn deposit_not_yet_initialized() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     let res = test.contract.try_deposit(&test.user);
-    assert_eq!(res, Err(Ok(Error::NotInitialized)));
+    assert_eq!(res, Err(Ok(SoroswapPairError::NotInitialized)));
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn deposit_zero_tokens_sent() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let res = test.contract.try_deposit(&test.user);
-    assert_eq!(res, Err(Ok(Error::DepositInsufficientAmountToken0)));
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken0)));
 }
 
 #[test]
@@ -42,7 +42,7 @@ fn deposit_only_token_0_sent() {
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     let res = test.contract.try_deposit(&test.user);
-    assert_eq!(res, Err(Ok(Error::DepositInsufficientAmountToken1)));
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken1)));
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn deposit_insufficient_first_liquidity() {
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
     let res = test.contract.try_deposit(&test.user);
-    assert_eq!(res, Err(Ok(Error::DepositInsufficientFirstLiquidity)));
+    assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientFirstLiquidity)));
 }
 
 

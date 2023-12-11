@@ -1,7 +1,7 @@
 use crate::test::{SoroswapPairTest};
 use crate::test::deposit::add_liquidity;
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
-use crate::error::Error;
+use crate::error::SoroswapPairError;
 
 
 #[test]
@@ -10,7 +10,7 @@ fn try_withdraw_not_yet_initialized() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     let result = test.contract.try_withdraw(&test.user);
-    assert_eq!(result, Err(Ok(Error::NotInitialized)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::NotInitialized)));
 }
 
 #[test]
@@ -20,7 +20,7 @@ fn try_withdraw_not_yet_deposited() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_withdraw(&test.user);
-    assert_eq!(result, Err(Ok(Error::WithdrawLiquidityNotInitialized)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::WithdrawLiquidityNotInitialized)));
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn try_withdraw_not_shares_sent() {
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_withdraw(&test.user);
-    assert_eq!(result, Err(Ok(Error::WithdrawInsufficientSentShares)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::WithdrawInsufficientSentShares)));
 }
 
 

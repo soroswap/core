@@ -1,7 +1,7 @@
 use crate::test::deposit::add_liquidity;
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{testutils::{Ledger}};
-use crate::error::Error;
+use crate::error::SoroswapPairError;
 
     
 #[test]
@@ -10,7 +10,7 @@ fn try_swap_not_yet_initialized() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     let result = test.contract.try_swap(&0, &0, &test.user);
-    assert_eq!(result, Err(Ok(Error::NotInitialized)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::NotInitialized)));
 }
 
 #[test]
@@ -20,7 +20,7 @@ fn try_swap_amounts_zero() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&0, &0, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapInsufficientOutputAmount)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientOutputAmount)));
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn try_swap_amount_0_negative() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&-1, &1, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapNegativesOutNotSupported)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn try_swap_amount_1_negative() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&1, &-1, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapNegativesOutNotSupported)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
 }
 
 #[test]
@@ -50,7 +50,7 @@ fn try_swap_no_liquidity() {
     test.env.budget().reset_unlimited();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&1, &1, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapInsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientLiquidity)));
 }
 
 #[test]
@@ -63,7 +63,7 @@ fn try_swap_to_token_0() {
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&1000, &0, &test.token_0.address);
-    assert_eq!(result, Err(Ok(Error::SwapInvalidTo)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInvalidTo)));
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn try_swap_to_token_1() {
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&1000, &0, &test.token_1.address);
-    assert_eq!(result, Err(Ok(Error::SwapInvalidTo)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInvalidTo)));
 }
 
 
@@ -90,7 +90,7 @@ fn try_swap_token_0_insufficient_input() {
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&1000, &0, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapInsufficientInputAmount)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientInputAmount)));
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn try_swap_token_1_insufficient_input() {
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&0, &1000, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapInsufficientInputAmount)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientInputAmount)));
 }
 
 #[test]
@@ -117,7 +117,7 @@ fn try_swap_token_0_low_sent() {
     add_liquidity(&test, &amount_0, &amount_1);
     test.token_0.transfer(&test.user, &test.contract.address, &1);
     let result = test.contract.try_swap(&0, &1000, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapKConstantNotMet)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn try_swap_token_1_low_sent() {
     add_liquidity(&test, &amount_0, &amount_1);
     test.token_1.transfer(&test.user, &test.contract.address, &1);
     let result = test.contract.try_swap(&1000, &0, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapKConstantNotMet)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }
 
 
@@ -233,5 +233,5 @@ fn try_swap_token_1_optimal_plus_1() {
     test.token_1.transfer(&test.user, &test.contract.address, &swap_amount_1);
 
     let result = test.contract.try_swap(&expected_output_amount_0, &0, &test.user);
-    assert_eq!(result, Err(Ok(Error::SwapKConstantNotMet)));
+    assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }

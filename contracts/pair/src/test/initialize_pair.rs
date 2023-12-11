@@ -1,14 +1,14 @@
 use crate::test::{SoroswapPairTest}; 
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use soroban_sdk::{String};
-use crate::error::Error;
+use crate::error::SoroswapPairError;
 
 #[test]
 // #[should_panic(expected = "SoroswapPair: token_0 must be less than token_1")]
 fn initialize_pair_token_1_less_than_token_0() {
     let test = SoroswapPairTest::setup();
     let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_1.address, &test.token_0.address);    
-    assert_eq!(res, Err(Ok(Error::InitializeTokenOrderInvalid))); 
+    assert_eq!(res, Err(Ok(SoroswapPairError::InitializeTokenOrderInvalid))); 
 
 }
 
@@ -19,7 +19,7 @@ fn double_initialize_pair() {
     let test = SoroswapPairTest::setup();
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    assert_eq!(res, Err(Ok(Error::InitializeAlreadyInitialized))); 
+    assert_eq!(res, Err(Ok(SoroswapPairError::InitializeAlreadyInitialized))); 
 
 }
 
