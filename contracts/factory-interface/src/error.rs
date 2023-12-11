@@ -5,20 +5,20 @@ use soroban_sdk::{self, contracterror};
 #[repr(u32)]
 pub enum FactoryError {
     /// SoroswapFactory: not yet initialized
-    NotInitialized = 1,
+    NotInitialized = 201,
 
     /// SoroswapFactory: token_a and token_b have identical addresses
-    CreatePairIdenticalTokens = 2,
+    CreatePairIdenticalTokens = 202,
     /// SoroswapFactory: pair already exists between token_a and token_b
-    CreatePairAlreadyExists = 3,
+    CreatePairAlreadyExists = 203,
 
     /// SoroswapFactory: already initialized
-    InitializeAlreadyInitialized = 4,
+    InitializeAlreadyInitialized = 204,
 
     /// SoroswapFactory: pair does not exist
-    PairDoesNotExist = 5,
+    PairDoesNotExist = 205,
 
     /// SoroswapFactory: index does not exist
-    IndexDoesNotExist = 6,
+    IndexDoesNotExist = 206,
 }
 
