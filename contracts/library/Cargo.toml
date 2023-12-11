@@ -1,6 +1,6 @@
 [package]
 name = "soroswap-library"
-version = "0.2.3"
+version = "0.2.4"
 description = "Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol"
 homepage = "https://github.com/soroswap/core/tree/main/contracts/library"
 repository = "https://github.com/soroswap/core/tree/main/contracts/library"

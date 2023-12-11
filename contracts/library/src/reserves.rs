@@ -26,7 +26,7 @@ pub fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address)
     let (token_0,token_1) = sort_tokens(token_a.clone(), token_b.clone())?;
     let pair_address = pair_for(e.clone(), factory, token_0.clone(), token_1.clone())?;
     let pair_client = SoroswapPairClient::new(&e, &pair_address);
-    let (reserve_0, reserve_1, _block_timestamp_last) = pair_client.get_reserves();
+    let (reserve_0, reserve_1) = pair_client.get_reserves();
     
     let (reserve_a, reseve_b) =
         if token_a == token_0 {

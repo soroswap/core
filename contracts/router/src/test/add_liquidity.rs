@@ -376,7 +376,7 @@ fn test_add_liquidity() {
     assert_eq!(test.token_1.balance(&pair_address), amount_1);
    
     // Check initial reserves
-    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1,ledger_timestamp));
+    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1));
 
     // Check initial total_shares
     assert_eq!(pair_client.total_shares(), expected_liquidity);
@@ -470,7 +470,7 @@ fn test_add_liquidity_deducted_amount_reserve() {
     assert_eq!(test.token_1.balance(&pair_address), amount_1);
    
     // Check initial reserves
-    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1,ledger_timestamp));
+    assert_eq!(pair_client.get_reserves(), (amount_0, amount_1));
 
 }
 
