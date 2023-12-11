@@ -2,6 +2,12 @@ use crate::test::{SoroswapRouterTest, SoroswapPairClient};
 use crate::test::add_liquidity::add_liquidity;
 use crate::error::CombinedRouterError;
 
+// Pair Contract
+mod pair {
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
+}
+use pair::SoroswapPairError;
+
 use num_integer::Roots; 
 use soroban_sdk::{
     Address,
@@ -195,9 +201,6 @@ fn test_remove_liquidity_pair_does_not_exist() {
 
 
 #[test]
-// #[should_panic(expected = "SoroswapPair: insufficient sent shares")]
-// Because we are using wasm and panic, we cannot get the message
-#[should_panic]
 fn test_remove_liquidity_insufficient_sent_shares() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -214,7 +217,7 @@ fn test_remove_liquidity_insufficient_sent_shares() {
     let amount_1: i128 = 10_000_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
 
-    test.contract.remove_liquidity(
+    let result = test.contract.try_remove_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &0, //     liquidity: i128,
@@ -222,6 +225,13 @@ fn test_remove_liquidity_insufficient_sent_shares() {
         &0 , //     amount_b_min: i128,
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(soroban_sdk::Error::from_contract_error(
+            SoroswapPairError::WithdrawInsufficientSentShares as u32
+        )))
     );
 }
 
