@@ -24,6 +24,15 @@ app.get('/api/tokens', (req, res) => {
   res.status(404).send({ error: 'file not found' });
 });
 
+app.get('/api/random_tokens', (req, res) => {
+  const tokensFile = path.join(directory, 'random_tokens.json');
+  if (fs.existsSync(tokensFile)) {
+    return res.sendFile(tokensFile);
+  }
+
+  res.status(404).send({ error: 'file not found' });
+});
+
 app.get('/api/factory', (req, res) => {
   const factoryFile = `${directory}/factory.json`;
 

@@ -2,7 +2,6 @@
 #![allow(unused)]
 use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
-// Import the Soroban Token contract from its WASM file
 soroban_sdk::contractimport!(
     file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
 );
@@ -22,7 +21,7 @@ impl Pair {
     pub fn salt(&self, e: &Env) -> BytesN<32> {
         let mut salt = Bytes::new(e);
 
-        // Append the bytes of token_a and token_b to the salt
+        // Append the bytes of token_0 and token_1 to the salt
         salt.append(&self.0.clone().to_xdr(e)); // can be simplified to salt.append(&self.clone().to_xdr(e)); but changes the hash
         salt.append(&self.1.clone().to_xdr(e));
 
@@ -30,11 +29,11 @@ impl Pair {
         e.crypto().sha256(&salt)
     }
 
-    pub fn token_a(&self) -> &Address {
+    pub fn token_0(&self) -> &Address {
         &self.0
     }
 
-    pub fn token_b(&self) -> &Address {
+    pub fn token_1(&self) -> &Address {
         &self.1
     }
 }

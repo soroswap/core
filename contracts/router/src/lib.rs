@@ -1,37 +1,22 @@
 #![no_std]
+use soroban_sdk::token::Client as TokenClient;
+use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
+
 mod pair;
 mod factory;
 mod test;
-use soroban_sdk::token::Client as TokenClient;
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Vec};
+mod event;
+mod storage;
+
 use factory::SoroswapFactoryClient;
 use pair::SoroswapPairClient;
+use storage::{put_factory, has_factory, get_factory};
 
-
-#[derive(Clone)]
-#[contracttype]
-
-pub enum DataKey {
-    Factory, // Address of the Factory Contract
-}
-
-
+/// Panics if the amoint given is negative.
 fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {
         panic!("SoroswapRouter: negative amount is not allowed: {}", amount)
     }
-}
-
-fn put_factory(e: &Env, factory: &Address) {
-    e.storage().instance().set(&DataKey::Factory, &factory);
-}
-
-fn has_factory(e: &Env) -> bool {
-    e.storage().instance().has(&DataKey::Factory)
-}
-
-fn get_factory(e: &Env) -> Address {
-    e.storage().instance().get(&DataKey::Factory).unwrap()
 }
 
 /// Panics if the specified deadline has passed.
@@ -175,14 +160,6 @@ pub trait SoroswapRouterTrait {
     /// Initializes the contract and sets the factory address
     fn initialize(e: Env, factory: Address);
 
-    /// This function retrieves the factory contract's address associated with the provided environment.
-    /// It also checks if the factory has been initialized and raises an assertion error if not.
-    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
-    ///
-    /// # Arguments
-    /// * `e` - The contract environment (`Env`) in which the contract is executing.
-    fn get_factory(e: Env) -> Address;
-
     /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
     /// of both tokens are added, subject to minimum requirements.
     ///
@@ -288,6 +265,16 @@ pub trait SoroswapRouterTrait {
         deadline: u64,
     ) -> Vec<i128>;
 
+    /*  *** Read only functions: *** */
+
+    /// This function retrieves the factory contract's address associated with the provided environment.
+    /// It also checks if the factory has been initialized and raises an assertion error if not.
+    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
+    ///
+    /// # Arguments
+    /// * `e` - The contract environment (`Env`) in which the contract is executing.
+    fn get_factory(e: Env) -> Address;
+
     /*
     LIBRARY FUNCTIONS:
     */
@@ -380,19 +367,8 @@ impl SoroswapRouterTrait for SoroswapRouter {
     fn initialize(e: Env, factory: Address) {
         assert!(!has_factory(&e), "SoroswapRouter: already initialized");
         put_factory(&e, &factory);
-    } 
-
-    /// This function retrieves the factory contract's address associated with the provided environment.
-    /// It also checks if the factory has been initialized and raises an assertion error if not.
-    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
-    ///
-    /// # Arguments
-    /// * `e` - The contract environment (`Env`) in which the contract is executing.
-    fn get_factory(e: Env) -> Address {
-        assert!(has_factory(&e), "SoroswapRouter: not yet initialized"); 
-        let factory_address = get_factory(&e);
-        factory_address
-    }
+        event::initialized(&e, factory);
+    }  
 
     /// Adds liquidity to a token pair's pool, creating it if it doesn't exist. Ensures that exactly the desired amounts
     /// of both tokens are added, subject to minimum requirements.
@@ -454,6 +430,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
 
         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to);
 
+        event::add_liquidity(
+            &e,
+            token_a,
+            token_b,
+            pair,
+            amount_a,
+            amount_b,
+            liquidity,
+            to);
+            
         (amount_a, amount_b, liquidity)
     }
 
@@ -526,6 +512,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
             panic!("SoroswapRouter: insufficient B amount")
         }
 
+        event::remove_liquidity(
+            &e,
+            token_a,
+            token_b,
+            pair,
+            amount_a,
+            amount_b,
+            liquidity,
+            to);
+
         // Return the amounts of paired tokens withdrawn
         (amount_a, amount_b)
     }
@@ -589,6 +585,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Execute the tokens swap
         swap(&e, &factory_address, &amounts, &path, &to);
     
+        event::swap(
+            &e,
+            path,
+            amounts.clone(),
+            to);
+
         // Return the amounts of tokens received at each step of the trading route
         amounts
     }
@@ -650,8 +652,28 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Execute the token swap
         swap(&e, &factory_address, &amounts, &path, &to);
     
+        event::swap(
+            &e,
+            path,
+            amounts.clone(),
+            to);
+
         // Return the amounts of tokens used at each step of the trading route
         amounts
+    }
+
+    /*  *** Read only functions: *** */
+
+    /// This function retrieves the factory contract's address associated with the provided environment.
+    /// It also checks if the factory has been initialized and raises an assertion error if not.
+    /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
+    ///
+    /// # Arguments
+    /// * `e` - The contract environment (`Env`) in which the contract is executing.
+    fn get_factory(e: Env) -> Address {
+        assert!(has_factory(&e), "SoroswapRouter: not yet initialized"); 
+        let factory_address = get_factory(&e);
+        factory_address
     }
 
     /// Given an amount of one asset and the reserves of a token pair, calculates the equivalent amount of the other asset.
