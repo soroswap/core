@@ -5,20 +5,20 @@ use soroban_sdk::{self, contracterror};
 #[repr(u32)]
 pub enum SoroswapLibraryError {
     /// SoroswapLibrary: insufficient amount 
-    InsufficientAmount = 1,
+    InsufficientAmount = 301,
 
     /// SoroswapLibrary: insufficient liquidity
-    InsufficientLiquidity = 2,
+    InsufficientLiquidity = 302,
 
     /// SoroswapLibrary: insufficient input amount
-    InsufficientInputAmount = 3,
+    InsufficientInputAmount = 303,
 
     /// SoroswapLibrary: insufficient output amount
-    InsufficientOutputAmount = 4,
+    InsufficientOutputAmount = 304,
 
     /// SoroswapLibrary: invalid path
-    InvalidPath = 5,
+    InvalidPath = 305,
 
     /// SoroswapLibrary: token_a and token_b have identical addresses
-    SortIdenticalTokens = 6,
+    SortIdenticalTokens = 306,
 }
