@@ -110,11 +110,11 @@ fn try_router_get_amounts_out_invalid_path() {
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: not yet initialized")]
 fn test_get_amounts_out_not_yet_initialized() {
     let test = SoroswapRouterTest::setup();   
     let path = vec![&test.env, test.token_0.address, test.token_1.address];
-    test.contract.router_get_amounts_out(&2, &path);
+    let result = test.contract.try_router_get_amounts_out(&2, &path);
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterNotInitialized)));
 }
 
 
@@ -150,11 +150,11 @@ fn try_router_get_amounts_in_invalid_path() {
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: not yet initialized")]
 fn test_get_amounts_in_not_yet_initialized() {
     let test = SoroswapRouterTest::setup();   
     let path = vec![&test.env, test.token_0.address, test.token_1.address];
-    test.contract.router_get_amounts_in(&1, &path);
+    let result = test.contract.try_router_get_amounts_in(&1, &path);
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterNotInitialized)));
 }
 
 
