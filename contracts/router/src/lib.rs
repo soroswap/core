@@ -508,7 +508,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Ensure that the pair exists in the Soroswap factory
         let factory_address = get_factory(&e);
         let factory = SoroswapFactoryClient::new(&e, &factory_address);
-        assert!(factory.pair_exists(&token_a, &token_b), "SoroswapRouter: pair does not exist");
+
+        if !factory.pair_exists(&token_a, &token_b) {
+            return Err(SoroswapRouterError::PairDoesNotExist.into());
+        }
 
         // Retrieve the pair's contract address using the Soroswap library
         let pair: Address = soroswap_library::pair_for(

@@ -167,7 +167,6 @@ fn test_remove_liquidity_deadline_expired() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: pair does not exist")]
 fn test_remove_liquidity_pair_does_not_exist() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
@@ -180,8 +179,7 @@ fn test_remove_liquidity_pair_does_not_exist() {
         li.timestamp = ledger_timestamp;
     });
 
-
-    test.contract.remove_liquidity(
+    let result = test.contract.try_remove_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
         &0, //     liquidity: i128,
@@ -190,7 +188,10 @@ fn test_remove_liquidity_pair_does_not_exist() {
         &test.user, //     to: Address,
         &desired_deadline//     deadline: u64,
     );
+
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterPairDoesNotExist)));
 }
+
 
 
 #[test]
