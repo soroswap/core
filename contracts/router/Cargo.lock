@@ -1097,9 +1097,9 @@ dependencies = [
 
 [[package]]
 name = "soroswap-library"
-version = "0.1.1"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84cebb24a8d947db81a0c2928f56e5a15b5913ed97a13e281dd3771cc2b83794"
+checksum = "5959a20ee9667855ac86d0bacf2374c52d8b2f70c2bcf254fb0ea3c2fb140379"
 dependencies = [
  "num-integer",
  "soroban-sdk",

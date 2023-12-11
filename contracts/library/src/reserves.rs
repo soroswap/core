@@ -1,6 +1,6 @@
 use soroban_sdk::{Address, Env};
 use crate::tokens::{sort_tokens, pair_for};
-use crate::error::LibraryError;
+use crate::error::SoroswapLibraryError;
 
 mod pair {
     soroban_sdk::contractimport!(
@@ -21,8 +21,8 @@ use pair::Client as SoroswapPairClient;
 ///
 /// # Returns
 ///
-/// Returns `Result<(i128, i128), LibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
-pub fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128,i128), LibraryError>{
+/// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
+pub fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128,i128), SoroswapLibraryError>{
     let (token_0,token_1) = sort_tokens(token_a.clone(), token_b.clone())?;
     let pair_address = pair_for(e.clone(), factory, token_0.clone(), token_1.clone())?;
     let pair_client = SoroswapPairClient::new(&e, &pair_address);

@@ -24,7 +24,7 @@ pub use quotes::{
     get_amounts_out, 
     get_amounts_in
 };
-use error::LibraryError;
+pub use error::SoroswapLibraryError;
 
 
 
@@ -41,8 +41,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<(Address, Address), LibraryError>` where `Ok` contains a tuple with the sorted token addresses, and `Err` indicates an error such as identical tokens.
-    fn sort_tokens(token_a: Address, token_b: Address) -> Result<(Address, Address), LibraryError>;
+    /// Returns `Result<(Address, Address), SoroswapLibraryError>` where `Ok` contains a tuple with the sorted token addresses, and `Err` indicates an error such as identical tokens.
+    fn sort_tokens(token_a: Address, token_b: Address) -> Result<(Address, Address), SoroswapLibraryError>;
 
     /// Calculates the deterministic address for a pair without making any external calls.
     /// check <https://github.com/paltalabs/deterministic-address-soroban>
@@ -56,8 +56,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Address, LibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, LibraryError>;
+    /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError>;
 
     /// Fetches and sorts the reserves for a pair of tokens.
     ///
@@ -70,8 +70,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<(i128, i128), LibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), LibraryError>;
+    /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError>;
 
     /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
     ///
@@ -83,8 +83,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
-    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, LibraryError>;
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, SoroswapLibraryError>;
 
     /// Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset.
     ///
@@ -96,8 +96,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
-    fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, LibraryError>;
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
+    fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError>;
 
     /// Given an output amount of an asset and pair reserves, returns a required input amount of the other asset.
     ///
@@ -109,8 +109,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
-    fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, LibraryError>;
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
+    fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError>;
 
     /// Performs chained get_amount_out calculations on any number of pairs.
     ///
@@ -123,8 +123,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Vec<i128>, LibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, LibraryError>;
+    /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
     
     /// Performs chained get_amount_in calculations on any number of pairs.
     ///
@@ -137,8 +137,8 @@ pub trait SoroswapLibraryTrait {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Vec<i128>, LibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, LibraryError>;
+    /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
+    fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError>;
     
 
 
@@ -160,8 +160,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<(Address, Address), LibraryError>` where `Ok` contains a tuple with the sorted token addresses, and `Err` indicates an error such as identical tokens.
-    fn sort_tokens(token_a: Address, token_b: Address) ->  Result<(Address, Address), LibraryError> {
+    /// Returns `Result<(Address, Address), SoroswapLibraryError>` where `Ok` contains a tuple with the sorted token addresses, and `Err` indicates an error such as identical tokens.
+    fn sort_tokens(token_a: Address, token_b: Address) ->  Result<(Address, Address), SoroswapLibraryError> {
         sort_tokens(token_a, token_b)
     }
 
@@ -178,8 +178,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Address, LibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, LibraryError> {
+    /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn pair_for(e: Env, factory: Address, token_a: Address, token_b: Address) -> Result<Address, SoroswapLibraryError> {
         pair_for(e, factory, token_a, token_b)
     }
 
@@ -195,8 +195,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<(i128, i128), LibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), LibraryError> {
+    /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError> {
         get_reserves(e, factory, token_a, token_b)
 
     }
@@ -211,8 +211,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
-    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, LibraryError> {
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
+    fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, SoroswapLibraryError> {
         quote(amount_a, reserve_a, reserve_b)
     }
     
@@ -227,8 +227,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
-    fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, LibraryError> {
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
+    fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
         get_amount_out(amount_in, reserve_in, reserve_out)
     }
 
@@ -242,8 +242,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<i128, LibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
-    fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, LibraryError> {
+    /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
+    fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
         get_amount_in(amount_out, reserve_in, reserve_out)
     }
 
@@ -258,8 +258,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Vec<i128>, LibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, LibraryError> {
+    /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
+    fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
         get_amounts_out(e, factory, amount_in, path)
     }
 
@@ -274,8 +274,8 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     ///
     /// # Returns
     ///
-    /// Returns `Result<Vec<i128>, LibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-    fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, LibraryError> {
+    /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
+    fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
         get_amounts_in(e, factory, amount_out, path)
     }
 

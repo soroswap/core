@@ -1,6 +1,6 @@
 use soroban_sdk::{Address, vec, Vec};
 use crate::test::{SoroswapLibraryTest};
-use crate::error::LibraryError;
+use crate::error::SoroswapLibraryError;
 
 
 #[test]
@@ -13,21 +13,21 @@ fn get_amount_out() {
 fn get_amount_out_insufficient_input_amount() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_out(&0, &100, &100);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientInputAmount)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientInputAmount)));
 }
 
 #[test]
 fn get_amount_out_insufficient_liquidity_0() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_out(&2, &0, &100);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
 }
 
 #[test]
 fn get_amount_out_insufficient_liquidity_1() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_out(&2, &100, &0);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
 }
 
     
@@ -40,21 +40,21 @@ fn get_amount_in() {
 fn get_amount_in_insufficient_output_amount() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_in(&0, &100, &100);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientOutputAmount)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientOutputAmount)));
 }
 
 #[test]
 fn get_amount_in_insufficient_liquidity_0() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_in(&1, &0, &100);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
 }
 
 #[test]
 fn get_amount_in_insufficient_liquidity_1() {
     let test = SoroswapLibraryTest::setup();
     let result = test.contract.try_get_amount_in(&1, &100, &0);
-    assert_eq!(result, Err(Ok(LibraryError::InsufficientLiquidity)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InsufficientLiquidity)));
 }
 
 
@@ -78,7 +78,7 @@ fn get_amounts_out_invalid_path() {
     let test = SoroswapLibraryTest::setup();
     let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
     let result = test.contract.try_get_amounts_out(&test.factory.address, &2, &path);
-    assert_eq!(result, Err(Ok(LibraryError::InvalidPath)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
 }
 
 #[test]
@@ -102,5 +102,5 @@ fn get_amounts_in_invalid_path() {
 
     let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
     let result = test.contract.try_get_amounts_in(&test.factory.address, &1, &path);
-    assert_eq!(result, Err(Ok(LibraryError::InvalidPath)));
+    assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
 }

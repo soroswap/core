@@ -1,6 +1,7 @@
 #![no_std]
 use soroban_sdk::token::Client as TokenClient;
 use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
+use soroswap_library::{SoroswapLibraryError};
 
 mod pair;
 mod factory;
@@ -58,7 +59,7 @@ fn add_liquidity_amounts(
     amount_b_desired: i128,
     amount_a_min: i128,
     amount_b_min: i128,
-) -> (i128, i128) {
+) -> Result<(i128, i128), SoroswapLibraryError> {
     // checks if the pair exist, otherwise, creates the pair
     let factory_client = SoroswapFactoryClient::new(&e, &factory);
     if !factory_client.pair_exists(&token_a, &token_b) {
@@ -70,7 +71,7 @@ fn add_liquidity_amounts(
         factory.clone(),
         token_a.clone(),
         token_b.clone(),
-    );
+    )?;
 
     // When there is no liquidity (first deposit)
     if reserve_a == 0 && reserve_b == 0 {
