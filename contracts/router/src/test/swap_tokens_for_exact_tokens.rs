@@ -1,87 +1,105 @@
+use soroban_sdk::{Address, testutils::{Ledger},vec, Vec};
+
 use crate::test::{SoroswapRouterTest, create_token_contract};
 use crate::test::add_liquidity::add_liquidity;
+use crate::error::CombinedRouterError;
 
-use soroban_sdk::{
-    Address,
-    testutils::{
-        
-        Ledger},
-    vec, Vec};
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: not yet initialized")] 
 fn swap_tokens_for_exact_tokens_not_initialized() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     let path: Vec<Address> = Vec::new(&test.env);
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &0); // deadline
+        &0,        // deadline
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterNotInitialized))
+    );
 }
 
-
 #[test]
-#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
 fn swap_tokens_for_exact_tokens_amount_out_negative() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
     let path: Vec<Address> = Vec::new(&test.env);
-    test.contract.swap_tokens_for_exact_tokens(
-        &-1, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &-1,       // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &0); // deadline
+        &0,        // deadline
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterNegativeNotAllowed))
+    );
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: negative amount is not allowed: -1")]
 fn swap_tokens_for_exact_tokens_amount_in_max_negative() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
     let path: Vec<Address> = Vec::new(&test.env);
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &-1,  // amount_in_max
-        &path, // path
+
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &-1,       // amount_in_max
+        &path,     // path
         &test.user, // to
-        &0); // deadline
+        &0,        // deadline
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterNegativeNotAllowed))
+    );
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: expired")]
 fn swap_tokens_for_exact_tokens_expired() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
     let path: Vec<Address> = Vec::new(&test.env);
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &0); // deadline
+        &0,        // deadline
+    );
+
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterDeadlineExpired)));
 }
 
 
 #[test]
-#[should_panic(expected = "SoroswapLibrary: invalid path")]
-fn swap_tokens_for_exact_tokens_invalid_path() {
+fn try_swap_tokens_for_exact_tokens_invalid_path() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;    
-    let path: Vec<Address> =  vec![&test.env, test.token_0.address.clone()];
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
+    let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
 
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline, // deadline
+    );
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInvalidPath)));
 }
 
 
@@ -108,11 +126,10 @@ fn swap_tokens_for_exact_tokens_pair_does_not_exist() {
 
 
 #[test]
-#[should_panic(expected = "SoroswapLibrary: insufficient output amount")]
-fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
+fn try_swap_tokens_for_exact_tokens_insufficient_output_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -124,21 +141,22 @@ fn swap_tokens_for_exact_tokens_insufficient_output_amount() {
     add_liquidity(&test, &amount_0, &amount_1);
 
     test.env.budget().reset_unlimited();
-    test.contract.swap_tokens_for_exact_tokens(
-        &0, //amount_out
-        &0,  // amount_in_max
-        &path, // path
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &0,        // amount_out
+        &0,        // amount_in_max
+        &path,     // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline, // deadline
+    );
+    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientOutputAmount)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: excessive input amount")]
 fn swap_tokens_for_exact_tokens_amount_in_max_not_enough() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -151,21 +169,26 @@ fn swap_tokens_for_exact_tokens_amount_in_max_not_enough() {
 
     let expected_amount_out = 5_000_000;
 
-    test.contract.swap_tokens_for_exact_tokens(
-        &expected_amount_out, //amount_out
-        &0,  // amount_in_max
-        &path, // path
-        &test.user, // to
-        &deadline); // deadline
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &expected_amount_out, // amount_out
+        &0,                   // amount_in_max
+        &path,                // path
+        &test.user,           // to
+        &deadline,            // deadline
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterExcessiveInputAmount))
+    );
 }
 
 #[test]
-#[should_panic(expected = "SoroswapRouter: excessive input amount")]
 fn swap_tokens_for_exact_tokens_amount_in_max_not_enough_amount_in_should_minus_1() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -177,15 +200,26 @@ fn swap_tokens_for_exact_tokens_amount_in_max_not_enough_amount_in_should_minus_
     add_liquidity(&test, &amount_0, &amount_1);
 
     let expected_amount_out = 5_000_000;
-    let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
+    let amount_in_should = test
+        .contract
+        .router_get_amounts_in(&expected_amount_out, &path)
+        .get(0)
+        .unwrap();
 
-    test.contract.swap_tokens_for_exact_tokens(
-        &expected_amount_out, //amount_out
-        &(amount_in_should-1),  // amount_in_max
-        &path, // path
-        &test.user, // to
-        &deadline); // deadline
+    let result = test.contract.try_swap_tokens_for_exact_tokens(
+        &expected_amount_out, // amount_out
+        &(amount_in_should - 1), // amount_in_max
+        &path,                // path
+        &test.user,           // to
+        &deadline,            // deadline
+    );
+
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::RouterExcessiveInputAmount))
+    );
 }
+
 
 #[test]
 fn swap_tokens_for_exact_tokens_amount_in_should() {

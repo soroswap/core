@@ -4,24 +4,24 @@ use soroban_sdk::token::Interface;
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
 
-mod test;
 mod soroswap_pair_token;
-mod event;
-mod uq64x64;
 mod storage;
 mod balances;
+mod event;
+mod error; 
+mod test;
 
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
 pub mod any_token {
-    soroban_sdk::contractimport!(file = "../token/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 
 use storage::*;
 use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
-use uq64x64::fraction;
+use error::SoroswapPairError;
 
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
@@ -34,14 +34,14 @@ contractmeta!(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address);
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address)-> Result<(), SoroswapPairError>;
 
-    fn deposit(e:Env, to: Address)  -> i128;
+    fn deposit(e:Env, to: Address)  -> Result<i128, SoroswapPairError>;
 
     // Swaps. This function should be called from another contract that has already sent tokens to the pair contract
-    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address);
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), SoroswapPairError>;
 
-    fn withdraw(e: Env, to: Address) -> (i128, i128);
+    fn withdraw(e: Env, to: Address) -> Result<(i128, i128), SoroswapPairError>;
 
     // transfers the excess token balances from the pair to the specified to address, 
     // ensuring that the balances match the reserves by subtracting the reserve amounts 
@@ -59,10 +59,7 @@ pub trait SoroswapPairTrait{
 
     fn k_last(e: Env) -> i128;
 
-    fn price_0_cumulative_last(e: Env) -> u128;
-    fn price_1_cumulative_last(e: Env) -> u128;
-
-    fn get_reserves(e: Env) -> (i128, i128, u64);
+    fn get_reserves(e: Env) -> (i128, i128);
 
     // TODO: Just use the token "balance" function
     fn my_balance(e: Env, id: Address) -> i128;
@@ -83,11 +80,13 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `factory` - The address of the Soroswap factory contract.
     /// * `token_0` - The address of the first token in the pair.
     /// * `token_1` - The address of the second token in the pair.
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) {
-        assert!(!has_token_0(&e), "SoroswapPair: already initialized");
+    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) -> Result<(), SoroswapPairError> {
+        if has_token_0(&e) {
+            return Err(SoroswapPairError::InitializeAlreadyInitialized);
+        }
 
         if token_0 >= token_1 {
-            panic!("SoroswapPair: token_0 must be less than token_1");
+            return Err(SoroswapPairError::InitializeTokenOrderInvalid);
         }
 
         put_factory(&e, factory);
@@ -105,6 +104,8 @@ impl SoroswapPairTrait for SoroswapPair {
         put_total_shares(&e, 0);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
+
+        Ok(())
     }
 
     /// Returns the address of the first token in the Soroswap pair.
@@ -130,18 +131,29 @@ impl SoroswapPairTrait for SoroswapPair {
     ///
     /// # Returns
     /// The amount of minted LP tokens.
-    fn deposit(e: Env, to: Address) -> i128 {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
+    /// Possible errors:
+    /// - `SoroswapPairError::NotInitialized`: The Soroswap pair has not been initialized.
+    /// - `SoroswapPairError::DepositInsufficientAmountToken0`: Insufficient amount of token 0 sent.
+    /// - `SoroswapPairError::DepositInsufficientAmountToken1`: Insufficient amount of token 1 sent.
+    /// - `SoroswapPairError::DepositInsufficientFirstLiquidity`: Insufficient first liquidity minted.
+    /// - `SoroswapPairError::DepositInsufficientLiquidityMinted`: Insufficient liquidity minted.
+    /// - `SoroswapPairError::UpdateOverflow`: Overflow occurred during update.
+    fn deposit(e: Env, to: Address) -> Result<i128, SoroswapPairError> {
+        if !has_token_0(&e){
+            return Err(SoroswapPairError::NotInitialized)
+        }
 
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let amount_0 = balance_0.checked_sub(reserve_0).unwrap();
-        let amount_1 = balance_1.checked_sub(reserve_1).unwrap();
+        let amount_0 = balance_0.checked_sub(reserve_0).ok_or(SoroswapPairError::DepositInsufficientAmountToken0)?;
+        let amount_1 = balance_1.checked_sub(reserve_1).ok_or(SoroswapPairError::DepositInsufficientAmountToken1)?;
+
         if amount_0 <= 0 {
-            panic!("SoroswapPair: insufficient amount of token 0 sent")
+            return Err(SoroswapPairError::DepositInsufficientAmountToken0);
         }
+
         if amount_1 <= 0 {
-            panic!("SoroswapPair: insufficient amount of token 1 sent")
+            return Err(SoroswapPairError::DepositInsufficientAmountToken1);
         }
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
@@ -152,7 +164,7 @@ impl SoroswapPairTrait for SoroswapPair {
             mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
             let previous_liquidity = (amount_0.checked_mul(amount_1).unwrap()).sqrt();
             if previous_liquidity <= MINIMUM_LIQUIDITY {
-                panic!("SoroswapPair: insufficient first liquidity minted")
+                return Err(SoroswapPairError::DepositInsufficientFirstLiquidity);
             }
             (previous_liquidity).checked_sub(MINIMUM_LIQUIDITY).unwrap()
         } else {
@@ -162,11 +174,11 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         if liquidity <= 0 {
-            panic!("SoroswapPair: insufficient liquidity minted")
+            return Err(SoroswapPairError::DepositInsufficientLiquidityMinted);
         }
 
         mint_shares(&e, &to, liquidity.clone());
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -174,7 +186,8 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         event::deposit(&e, to, amount_0, amount_1, liquidity, reserve_0, reserve_1);
-        liquidity 
+
+        Ok(liquidity)
     }
 
     /// Executes a token swap within the Soroswap pair.
@@ -184,22 +197,34 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `amount_0_out` - The desired amount of the first token to receive.
     /// * `amount_1_out` - The desired amount of the second token to receive.
     /// * `to` - The address where the swapped tokens will be sent.
-    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-
+    ////// # Errors
+    /// Returns an error if the swap cannot be executed. Possible errors include:
+    /// - `SoroswapPairError::NotInitialized`
+    /// - `SoroswapPairError::SwapInsufficientOutputAmount`
+    /// - `SoroswapPairError::SwapNegativesOutNotSupported`
+    /// - `SoroswapPairError::SwapInsufficientLiquidity`
+    /// - `SoroswapPairError::SwapInvalidTo`
+    /// - `SoroswapPairError::SwapInsufficientInputAmount`
+    /// - `SoroswapPairError::SwapNegativesInNotSupported`
+    /// - `SoroswapPairError::SwapKConstantNotMet`: If the K constant condition is not met after the swap.
+    fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), SoroswapPairError> {
+        if !has_token_0(&e) {
+            return Err(SoroswapPairError::NotInitialized);
+        }
+    
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-
+    
         if amount_0_out == 0 && amount_1_out == 0 {
-            panic!("SoroswapPair: insufficient output amount")
+            return Err(SoroswapPairError::SwapInsufficientOutputAmount);
         }
         if amount_0_out < 0 || amount_1_out < 0 {
-            panic!("SoroswapPair: negatives dont supported")
+            return Err(SoroswapPairError::SwapNegativesOutNotSupported);
         }
         if amount_0_out >= reserve_0 || amount_1_out >= reserve_1 {
-            panic!("SoroswapPair: insufficient liquidity")
+            return Err(SoroswapPairError::SwapInsufficientLiquidity);
         }
         if to == get_token_0(&e) || to == get_token_1(&e) {
-            panic!("SoroswapPair: invalid to")
+            return Err(SoroswapPairError::SwapInvalidTo);
         }
 
         if amount_0_out > 0 {
@@ -223,10 +248,10 @@ impl SoroswapPairTrait for SoroswapPair {
         };
 
         if amount_0_in == 0 && amount_1_in == 0 {
-            panic!("SoroswapPair: insufficient input amount")
+            return Err(SoroswapPairError::SwapInsufficientInputAmount);
         }
         if amount_0_in < 0 || amount_1_in < 0 {
-            panic!("SoroswapPair: negatives dont supported")
+            return Err(SoroswapPairError::SwapNegativesInNotSupported);
         }
 
         let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
@@ -237,12 +262,14 @@ impl SoroswapPairTrait for SoroswapPair {
 
         if balance_0_minus_fee.checked_mul(balance_1_minus_fee).unwrap() <
             reserve_0.checked_mul(reserve_1).unwrap() {
-            panic!("SoroswapPair: K constant is not met")
+            return Err(SoroswapPairError::SwapKConstantNotMet);
         }
 
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
         
         event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
+
+        Ok(())
     }
 
 
@@ -254,12 +281,14 @@ impl SoroswapPairTrait for SoroswapPair {
     ///
     /// # Returns
     /// A tuple containing the amounts of token 0 and token 1 withdrawn from the pair.
-    fn withdraw(e: Env, to: Address) -> (i128, i128) {
-        assert!(has_token_0(&e), "SoroswapPair: not yet initialized");
-
+    fn withdraw(e: Env, to: Address) -> Result<(i128, i128), SoroswapPairError> {
+        if !has_token_0(&e) {
+            return Err(SoroswapPairError::NotInitialized);
+        }
+    
         let balance_shares = get_balance_shares(&e);
         if balance_shares == 0 {
-            panic!("SoroswapPair: liquidity was not initialized yet");
+            return Err(SoroswapPairError::WithdrawLiquidityNotInitialized);
         }
 
         let (mut reserve_0, mut reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -267,8 +296,9 @@ impl SoroswapPairTrait for SoroswapPair {
         let user_sent_shares = balance_shares.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
         if user_sent_shares <= 0 {
-            panic!("SoroswapPair: insufficient sent shares");
+            return Err(SoroswapPairError::WithdrawInsufficientSentShares);
         }
+    
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
         let total_shares = get_total_shares(&e);
@@ -277,7 +307,7 @@ impl SoroswapPairTrait for SoroswapPair {
         let amount_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
 
         if amount_0 <= 0 || amount_1 <= 0 {
-            panic!("SoroswapPair: insufficient liquidity burned");
+            return Err(SoroswapPairError::WithdrawInsufficientLiquidityBurned);
         }
 
         burn_shares(&e, user_sent_shares);
@@ -287,7 +317,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        let _ = update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -295,7 +325,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         event::withdraw(&e, to, user_sent_shares, amount_0, amount_1, reserve_0, reserve_1);
-        (amount_0, amount_1)
+        Ok((amount_0, amount_1))
     }
 
     /// Skims excess tokens from reserves and sends them to the specified address.
@@ -319,8 +349,7 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `e` - The runtime environment.
     fn sync(e: Env) {
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
-        let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
-        update(&e, balance_0, balance_1, reserve_0.try_into().unwrap(), reserve_1.try_into().unwrap());
+        update(&e, balance_0, balance_1);
     }
 
     /// Returns the current reserves and the last block timestamp.
@@ -329,9 +358,9 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `e` - The runtime environment.
     ///
     /// # Returns
-    /// A tuple containing the reserves of token 0 and token 1, along with the last block timestamp.
-    fn get_reserves(e: Env) -> (i128, i128, u64) {
-        (get_reserve_0(&e), get_reserve_1(&e), get_block_timestamp_last(&e))
+    /// A tuple containing the reserves of token 0 and token 1.
+    fn get_reserves(e: Env) -> (i128, i128) {
+        (get_reserve_0(&e), get_reserve_1(&e))
     }
 
     /// Returns the total number of LP shares in circulation.
@@ -368,27 +397,6 @@ impl SoroswapPairTrait for SoroswapPair {
         get_klast(&e)
     }
 
-    /// Returns the cumulative price of the first token since the last liquidity event.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    ///
-    /// # Returns
-    /// The cumulative price of the first token since the last liquidity event.
-    fn price_0_cumulative_last(e: Env) -> u128 {
-        get_price_0_cumulative_last(&e)
-    }
-
-    /// Returns the cumulative price of the second token since the last liquidity event.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    ///
-    /// # Returns
-    /// The cumulative price of the second token since the last liquidity event.
-    fn price_1_cumulative_last(e: Env) -> u128 {
-        get_price_1_cumulative_last(&e)
-    }
     
 }
 
@@ -459,49 +467,8 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
     fee_on
 }
 
-//function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
-fn update(e: &Env, balance_0: i128, balance_1: i128, reserve_0: u64, reserve_1: u64) {
-    // require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'UniswapV2: OVERFLOW');
-    
-    // Here we accept balances as i128, but we don't want them to be greater than the u64 MAX
-    // This is becase u64 will be used to calculate the price as a UQ64x64
-    let u_64_max: u64 = u64::MAX;
-    let u_64_max_into_i128: i128 = u_64_max.into();
-
-    if balance_0 > u_64_max_into_i128 {
-        panic!("SoroswapPair: OVERFLOW")
-    }
-    if balance_1 > u_64_max_into_i128 {
-        panic!("SoroswapPair: OVERFLOW")
-    }
-
-    // uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-    // In Uniswap this is done for gas usage optimization in Solidity. This will overflow in the year 2106. 
-    // For Soroswap we can use u64, and will overflow in the year 2554,
-
-    let block_timestamp: u64 = e.ledger().timestamp();
-    let block_timestamp_last: u64 = get_block_timestamp_last(&e);
-
-    // uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
-    let time_elapsed: u64 = block_timestamp - block_timestamp_last;
-
-    // if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
-    if time_elapsed > 0 && reserve_0 != 0 && reserve_1 != 0 {
-        //     // * never overflows, and + overflow is desired
-        //     price0CumulativeLast += uint(UQ112x112.encode(_reserve1).uqdiv(_reserve0)) * timeElapsed;
-        //     price1CumulativeLast += uint(UQ112x112.encode(_reserve0).uqdiv(_reserve1)) * timeElapsed; 
-        
-        let price_0_cumulative_last: u128 = get_price_0_cumulative_last(&e);
-        let price_1_cumulative_last: u128 = get_price_1_cumulative_last(&e);
-        // TODO: Check in detail if this can or not overflow. We don't want functions to panic because of this
-        put_price_0_cumulative_last(&e, price_0_cumulative_last + fraction(reserve_1, reserve_0).checked_mul(time_elapsed.into()).unwrap());
-        put_price_1_cumulative_last(&e, price_1_cumulative_last + fraction(reserve_0, reserve_1).checked_mul(time_elapsed.into()).unwrap());
-    }
+fn update(e: &Env, balance_0: i128, balance_1: i128) {
     put_reserve_0(&e, balance_0);
     put_reserve_1(&e, balance_1);
-
-    // blockTimestampLast = blockTimestamp;
-    put_block_timestamp_last(&e, block_timestamp);
-
     event::sync(&e, balance_0, balance_1);
 }

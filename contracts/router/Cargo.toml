@@ -20,7 +20,7 @@ soroban-sdk = { version = "20.0.0-rc2" }
 num-integer = { version = "0.1.45", default-features = false, features = [
   "i128",
 ] }
-soroswap-library = "0.1.1"
+soroswap-library = "0.2.4"
 
 
 [dev_dependencies]

@@ -1,8 +1,9 @@
 use crate::test::{SoroswapFactoryTest, SoroswapPairClient};
 use soroban_sdk::{xdr::{ToXdr},
     Bytes,
-    
 };
+use soroswap_factory_interface::{FactoryError};
+
 
 #[test]
 fn create_pair_one_way() {
@@ -31,6 +32,9 @@ fn create_pair_one_way() {
     assert_eq!(pair_address, deterministic_pair_address);
     assert_eq!(pair_address_other_way, deterministic_pair_address);
 
+    let get_pair_0 = test.contract.all_pairs(&0);
+    assert_eq!(pair_address, get_pair_0);
+
     let pair_client = SoroswapPairClient::new(&test.env, &pair_address);
     assert_eq!(pair_client.factory(), test.contract.address);
 
@@ -39,24 +43,66 @@ fn create_pair_one_way() {
 }
 
 
-
 #[test]
-#[should_panic(expected = "SoroswapFactory: pair already exists between token_a and token_b")]
 fn double_pair_creation() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
 
     test.contract.create_pair(&test.token_0.address, &test.token_1.address);
-    test.contract.create_pair(&test.token_0.address, &test.token_1.address);
+    let res = test.contract.try_create_pair(&test.token_0.address, &test.token_1.address);
+
+    assert_eq!(res, Err(Ok(FactoryError::CreatePairAlreadyExists)));
 }
 
 #[test]
-#[should_panic(expected = "SoroswapFactory: pair already exists between token_a and token_b")]
 fn double_pair_creation_other_way() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
 
     test.contract.create_pair(&test.token_0.address, &test.token_1.address);
-    test.contract.create_pair(&test.token_1.address, &test.token_0.address);
+    let res = test.contract.try_create_pair(&test.token_1.address, &test.token_0.address);
+
+    assert_eq!(res, Err(Ok(FactoryError::CreatePairAlreadyExists)));
 }
 
+#[test]
+fn get_pair_does_not_exist() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+
+    let res = test.contract.try_get_pair(&test.token_0.address, &test.token_1.address);
+    assert_eq!(res, Err(Ok(FactoryError::PairDoesNotExist)));
+}
+
+
+#[test]
+fn create_identical_tokens() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+
+    let res = test.contract.try_create_pair(&test.token_0.address, &test.token_0.address);
+
+    assert_eq!(res, Err(Ok(FactoryError::CreatePairIdenticalTokens)));
+}
+
+
+#[test]
+fn create_pair_index_does_not_exist() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+
+    test.contract.create_pair(&test.token_0.address, &test.token_1.address);
+
+    let res = test.contract.try_all_pairs(&1);
+    assert_eq!(res, Err(Ok(FactoryError::IndexDoesNotExist)));
+
+}
+
+#[test]
+fn no_pair_index_does_not_exist() {
+    let test = SoroswapFactoryTest::setup();
+    test.contract.initialize(&test.admin, &test.pair_wasm);
+    let res = test.contract.try_all_pairs(&0);
+    assert_eq!(res, Err(Ok(FactoryError::IndexDoesNotExist)));
+
+}

@@ -12,8 +12,6 @@ N_TOKENS=$(jq '.tokens | length' "$ASSETS_DIRECTORY")
 
 # Directory of the tokens.json file
 TOKENS_DIRECTORY="/workspace/.soroban/tokens.json"
-# Read the entire tokens.json file into a variable
-TOKENS_JSON=$(cat "$TOKENS_DIRECTORY")
 
 if [ "$NETWORK" == "standalone" ]; then
     # Attempt to run the command and capture its exit status
@@ -27,6 +25,9 @@ if [ "$NETWORK" == "standalone" ]; then
 fi
 
 for i in $(seq 1 $N_TOKENS); do
+    # Reload the tokens.json file to get the latest state
+    TOKENS_JSON=$(cat "$TOKENS_DIRECTORY")
+
     # Extract symbol, name, logoURI, and asset values for the current index
     SYMBOL=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].symbol")
     NAME=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].name")

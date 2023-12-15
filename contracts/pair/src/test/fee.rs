@@ -17,7 +17,7 @@ fn fee_off() {
 
     assert_eq!(test.contract.k_last(), 0);
     add_liquidity(&test, &amount_0, &amount_1);
-    assert_eq!(test.contract.get_reserves(), (amount_0,amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0,amount_1,));
     assert_eq!(test.contract.k_last(), 0);
 
     let swap_amount_0 = 10_000_000;
@@ -25,7 +25,7 @@ fn fee_off() {
 
     test.token_0.transfer(&test.user, &test.contract.address, &swap_amount_0);
     test.contract.swap(&0, &expected_output_amount_1, &test.user);
-    assert_eq!(test.contract.get_reserves(), (amount_0+swap_amount_0,amount_1-expected_output_amount_1,0));
+    assert_eq!(test.contract.get_reserves(), (amount_0+swap_amount_0,amount_1-expected_output_amount_1,));
     assert_eq!(test.contract.k_last(), 0);
 
     // Now we need to treat the contract as a SoroswapPairTokenClient
@@ -43,7 +43,7 @@ fn fee_off() {
     assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
     assert_eq!(test.token_0.balance(&test.contract.address), 849);
     assert_eq!(test.token_1.balance(&test.contract.address), 1180);
-    assert_eq!(test.contract.get_reserves(), (849,1180,0));
+    assert_eq!(test.contract.get_reserves(), (849,1180,));
 
 }
 
@@ -81,7 +81,7 @@ fn fee_on_add_swap_remove() {
     assert_eq!(test.contract.k_last(), amount_0.checked_mul(amount_1).unwrap());
     let new_expected_reserve_0= amount_0+swap_amount_0; // 60000000
     let new_expected_reserve_1= amount_1-expected_output_amount_1; // 83375021
-    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1,0));
+    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1));
     
     let k2_root=70728362; // new_expected_reserve_0.checked_mul(new_expected_reserve_1).unwrap().sqrt();
     assert_eq!(new_expected_reserve_0.checked_mul(new_expected_reserve_1).unwrap().sqrt(), k2_root);
@@ -147,7 +147,7 @@ fn fee_on_add_swap_remove() {
     let after_withdraw_expected_reserve_1= 4653; //amount_1-expected_output_amount_1-expected_user_out_token_1; // 4653
     assert_eq!(after_withdraw_expected_reserve_0, amount_0+swap_amount_0-expected_user_out_token_0);
     assert_eq!(after_withdraw_expected_reserve_1, amount_1-expected_output_amount_1-expected_user_out_token_1);
-    assert_eq!(test.contract.get_reserves(), (after_withdraw_expected_reserve_0,after_withdraw_expected_reserve_1,0));
+    assert_eq!(test.contract.get_reserves(), (after_withdraw_expected_reserve_0,after_withdraw_expected_reserve_1,));
     assert_eq!(test.contract.k_last(), after_withdraw_expected_reserve_0.checked_mul(after_withdraw_expected_reserve_1).unwrap());
     // assert_eq!(test.contract.my_balance(&test.user), 0);
     
@@ -220,7 +220,7 @@ fn fee_on_add_swap_add() {
     let new_expected_reserve_1= 83375021; // amount_1-expected_output_amount_1; // 83375021
     assert_eq!(new_expected_reserve_1, amount_1-expected_output_amount_1);
 
-    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1,0));
+    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1));
     assert_eq!(test.token_0.balance(&test.user), original_0-amount_0-swap_amount_0);
     assert_eq!(test.token_1.balance(&test.user), original_1-amount_1+expected_output_amount_1);
     
@@ -237,7 +237,7 @@ fn fee_on_add_swap_add() {
 
     // ***************** DEPOSIT AGAIN! *****************
     assert_eq!(test.contract.total_shares(), expected_liquidity);
-    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1,0));
+    assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1));
     let new_amount_0: i128 = 1_000_000;
     let new_amount_1: i128 = 1389583; //(new_amount_0*new_expected_reserve_1)/new_expected_reserve_0);
     assert_eq!(new_amount_1, (new_amount_0*new_expected_reserve_1)/new_expected_reserve_0);

@@ -1,6 +1,7 @@
 [package]
 name = "soroswap-pair"
 version = "0.0.1"
+authors = ["esteblock <esteblock@paltalabs.io>"]
 edition = "2021"
 publish = false
 
