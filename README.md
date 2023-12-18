@@ -161,7 +161,7 @@ You can change `local` for `public` in order to take addresses from the `./publi
 
 ## Stellar Assets
 
-The script `scripts/setup_stellar_classic_assets.sh` gets all the Stellar Assets from `stellar_classic_assets.json` and puts them into the tokens.json file for the API
+The script `scripts/setup_stellar_classic_assets.sh` gets all the Stellar Assets from `known_stellar_classic_assets.json` and puts them into the tokens.json file for the API
 
 This will get the token id and wrap the native (XLM) token if the network is standalone
 

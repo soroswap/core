@@ -51,18 +51,22 @@ echo -e "${GREEN}Deploying and initializing the factory...${NC}"
 bash /workspace/scripts/deploy_initialize_factory.sh $NETWORK $N_TOKENS false
 
 # Step 3: Deploy and initialize pairs
-echo -e "${GREEN}Deploying and initializing pairs...${NC}"
-bash /workspace/scripts/deploy_pairs.sh $NETWORK $N_TOKENS false
+# echo -e "${GREEN}Deploying and initializing pairs...${NC}"
+# bash /workspace/scripts/deploy_pairs.sh $NETWORK $N_TOKENS false
 
 # Step 4: Deploy router
 echo -e "${GREEN}Deploying router...${NC}"
 bash /workspace/scripts/deploy_initialize_router.sh $NETWORK false
 
-# Step 5: Setup classic assets
+# Step 5: We need to issue test stellar classic Assets
+echo -e "${GREEN}Issuing Stellar Classic Assets...${NC}"
+node /workspace/scripts/issue_stellar_assets.js $NETWORK
+
+# Step 6: Setup classic assets
 echo -e "${GREEN}Setting up classic assets...${NC}"
 bash /workspace/scripts/setup_stellar_classic_assets.sh $NETWORK
 
-# Step 6: Deploy random tokens
+# Step 7: Deploy random tokens
 echo -e "${GREEN}Deploying random tokens...${NC}"
 bash /workspace/scripts/deploy_random_tokens.sh $NETWORK
 

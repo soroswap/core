@@ -6,9 +6,15 @@
 NETWORK="$1"
 DECIMAL=7 # Is 7 the default on stellar network?
 
-ASSETS_DIRECTORY="/workspace/scripts/stellar_classic_assets.json"
-CLASSIC_ASSETS_JSON=$(cat $ASSETS_DIRECTORY)
-N_TOKENS=$(jq '.tokens | length' "$ASSETS_DIRECTORY")
+ASSETS_DIRECTORY="/workspace/scripts/known_stellar_classic_assets.json"
+GENERATED_STELLAR_ASSETS="/workspace/.soroban/generated_stellar_assets.json"
+
+CLASSIC_ASSETS_JSON=$(jq '.tokens' "$ASSETS_DIRECTORY")
+GENERATED_ASSETS_JSON=$(jq '.tokens' "$GENERATED_STELLAR_ASSETS")
+
+MERGED_TOKENS=$(jq -s '.[0] + .[1]' <(echo "$CLASSIC_ASSETS_JSON") <(echo "$GENERATED_ASSETS_JSON"))
+FINAL_TOKENS_JSON=$(jq -n --argjson tokens "$MERGED_TOKENS" '{"tokens": $tokens}')
+N_TOKENS=$(echo "$FINAL_TOKENS_JSON" | jq '.tokens | length')
 
 # Directory of the tokens.json file
 TOKENS_DIRECTORY="/workspace/.soroban/tokens.json"
@@ -29,10 +35,10 @@ for i in $(seq 1 $N_TOKENS); do
     TOKENS_JSON=$(cat "$TOKENS_DIRECTORY")
 
     # Extract symbol, name, logoURI, and asset values for the current index
-    SYMBOL=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].symbol")
-    NAME=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].name")
-    LOGO=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].logoURI")
-    ASSET=$(echo "$CLASSIC_ASSETS_JSON" | jq -r ".tokens[$i-1].asset")
+    SYMBOL=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].symbol")
+    NAME=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].name")
+    LOGO=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].logoURI")
+    ASSET=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].asset")
 
     TOKEN_ADDRESS=$(soroban lab token id --network "$NETWORK" --asset "$ASSET")
 
