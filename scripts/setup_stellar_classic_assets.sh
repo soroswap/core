@@ -19,20 +19,21 @@ N_TOKENS=$(echo "$FINAL_TOKENS_JSON" | jq '.tokens | length')
 # Directory of the tokens.json file
 TOKENS_DIRECTORY="/workspace/.soroban/tokens.json"
 
-if [ "$NETWORK" == "standalone" ]; then
-    # Attempt to run the command and capture its exit status
-    soroban lab token wrap --asset native --network $NETWORK --source-account token-admin
-    EXIT_STATUS=$?
-
-    # Check if the command failed (non-zero exit status)
-    if [ $EXIT_STATUS -ne 0 ]; then
-        echo "Notice: 'soroban lab token wrap' command already executed or failed with status $EXIT_STATUS. Continuing..."
-    fi
-fi
-
 for i in $(seq 1 $N_TOKENS); do
     # Reload the tokens.json file to get the latest state
     TOKENS_JSON=$(cat "$TOKENS_DIRECTORY")
+    
+    if [ "$NETWORK" == "standalone" ]; then
+        # Attempt to run the command and capture its exit status
+        echo "ASSET: $ASSET"
+        soroban lab token wrap --asset "$ASSET" --network "$NETWORK" --source-account token-admin
+        EXIT_STATUS=$?
+
+        # Check if the command failed (non-zero exit status)
+        if [ $EXIT_STATUS -ne 0 ]; then
+            echo "Notice: 'soroban lab token wrap' command already executed or failed with status $EXIT_STATUS. Continuing..."
+        fi
+    fi
 
     # Extract symbol, name, logoURI, and asset values for the current index
     SYMBOL=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].symbol")
