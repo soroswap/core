@@ -17,6 +17,14 @@ NEW_KEYS_OBJECT="{ \"user_public\": \"$USER_PUBLIC\", \"user_secret\": \"$USER_S
 # CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
 # echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
 
+soroban config identity generate asset_deployer
+ASSET_DEPLOYER_SECRET=$(soroban config identity show asset_deployer)
+ASSET_DEPLOYER_PUBLIC=$(soroban config identity address asset_deployer)
+
+echo "$ASSET_DEPLOYER_SECRET" > .soroban/asset_deployer_secret
+echo "$ASSET_DEPLOYER_PUBLIC" > .soroban/asset_deployer_public
+
+
 echo "   "
 echo "   "
 
