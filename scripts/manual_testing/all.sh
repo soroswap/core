@@ -33,6 +33,8 @@ public)
   exit 1
   ;;
 esac
+echo ===
+echo "   "
 
 
 bash /workspace/scripts/manual_testing/generate_user.sh 
