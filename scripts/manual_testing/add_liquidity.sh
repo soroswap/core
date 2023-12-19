@@ -275,7 +275,6 @@ TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/sor
 STELLAR_ASSET_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $STELLAR_ASSET_CONTRACT_ID \
   -- \
   balance \
@@ -283,7 +282,6 @@ STELLAR_ASSET_BALANCE_OF_USER="$(soroban contract invoke \
 TOKEN_1_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_1_ADDRESS \
   -- \
   balance \
@@ -298,7 +296,6 @@ echo "Then, we will add liquidity with one of the previous tokens"
 soroban contract invoke \
     --network $NETWORK \
     --source $USER_SECRET \
-    --wasm $ROUTER_WASM \
     --id $ROUTER_ADDRESS \
     -- \
     add_liquidity \
@@ -322,7 +319,6 @@ echo "SOROBAN_TOKEN_B_ID: $SOROBAN_TOKEN_B_ID"
 SOROBAN_TOKEN_A_ID_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_A_ID \
   -- \
   balance \
@@ -330,7 +326,6 @@ SOROBAN_TOKEN_A_ID_BALANCE_OF_USER="$(soroban contract invoke \
 SOROBAN_TOKEN_B_ID_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_B_ID \
   -- \
   balance \
@@ -344,7 +339,6 @@ soroban token B: ${SOROBAN_TOKEN_B_ID_BALANCE_OF_USER}"
 soroban contract invoke \
     --network $NETWORK \
     --source $USER_SECRET \
-    --wasm $ROUTER_WASM \
     --id $ROUTER_ADDRESS \
     -- \
     add_liquidity \

@@ -141,7 +141,6 @@ echo $SOROBAN_TOKEN_B_ID > $SOROBAN_TOKENS_FOLDER/token_b_id
 echo "Initializing tokens"
 soroban contract invoke \
   --network $NETWORK --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_A_ID \
   -- \
   initialize \
@@ -152,7 +151,6 @@ soroban contract invoke \
 
 soroban contract invoke \
   --network $NETWORK --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_B_ID \
   -- \
   initialize \
@@ -164,7 +162,6 @@ soroban contract invoke \
 echo "Minting tokens"
 soroban contract invoke \
   --network $NETWORK --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_A_ID \
   -- \
   mint \
@@ -173,7 +170,6 @@ soroban contract invoke \
 
 soroban contract invoke \
   --network $NETWORK --source asset_deployer \
-  --wasm $TOKEN_WASM \
   --id $SOROBAN_TOKEN_B_ID \
   -- \
   mint \

@@ -36,6 +36,7 @@ TOKEN_A_ID="$(
   --network $NETWORK
   )"
 TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
+echo Deployed with TOKEN_A_ADDRESS: $TOKEN_A_ADDRESS
 
 # echo TOKEN_A_ID: $TOKEN_A_ID
 
