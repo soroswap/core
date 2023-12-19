@@ -117,7 +117,6 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
     soroban contract invoke \
         --network $NETWORK \
         --source $USER_SECRET \
-        --wasm $ROUTER_WASM \
         --id $ROUTER_ADDRESS \
         -- \
         swap_exact_tokens_for_tokens \

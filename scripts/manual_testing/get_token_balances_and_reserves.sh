@@ -19,7 +19,6 @@ echo "XLM Balance of User: ${WALLET_TO_CHECK}"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $XLM_CONTRACT_ID \
   -- \
   balance \
@@ -30,7 +29,6 @@ echo "XLM Balance of Contract: ${PAIR_ADDRESS}"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $XLM_CONTRACT_ID \
   -- \
   balance \
@@ -40,7 +38,6 @@ echo "USDC Balance of User: ${WALLET_TO_CHECK}"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $USDC_CONTRACT_ID \
   -- \
   balance \
@@ -51,7 +48,6 @@ echo "USDC Balance of Contract: ${PAIR_ADDRESS}"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $USDC_CONTRACT_ID \
   -- \
   balance \
@@ -61,7 +57,6 @@ echo "Reserves of Pair Contract:  ${PAIR_ADDRESS}"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $PAIR_WASM \
   --id $PAIR_ADDRESS \
   -- \
   get_reserves

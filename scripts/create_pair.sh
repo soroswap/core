@@ -22,7 +22,6 @@ echo "create pair"
 
 PAIR_ID=$(soroban contract invoke \
   $ARGS \
-  --wasm $FACTORY_WASM \
   --id $FACTORY_ID \
   -- \
   create_pair \

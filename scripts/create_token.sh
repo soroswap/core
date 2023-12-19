@@ -27,12 +27,14 @@ TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/sor
 echo Deploying token to network $NETWORK
 echo $NETWORK
 echo $TOKEN_WASM
-
+echo Will deploy the token now
+echo using WASM: $TOKEN_WASM
 TOKEN_A_ID="$(
-  soroban contract deploy --network $NETWORK --source token-admin \
-    --wasm $TOKEN_WASM
+  soroban contract deploy \
+  --wasm /workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm \
+  --source token-admin \
+  --network $NETWORK
   )"
-
 TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
 
 # echo TOKEN_A_ID: $TOKEN_A_ID
@@ -45,12 +47,12 @@ TOKEN_A_ADDRESS="$(node ./scripts/address_workaround.js $TOKEN_A_ID)"
 #                   name: Bytes,
 #                   symbol: Bytes) {
 #   "
-# echo Initializing token with NAME $NAME and SYMBOL $SYMBOL
+echo "--"
+echo Initializing token with NAME $NAME and SYMBOL $SYMBOL
 
 
 soroban contract invoke \
   --network $NETWORK --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_A_ID \
   -- \
   initialize \
@@ -60,7 +62,7 @@ soroban contract invoke \
   --symbol "$SYMBOL"
 
 TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_A_ID)"
-
+echo "Saving to temp_token.json"
 # Save the token contract address and token id to a file on .soroban/temp_token.json
 echo "{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}" > /workspace/.soroban/temp_token.json
 

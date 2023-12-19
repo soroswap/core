@@ -90,7 +90,6 @@ TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/sor
 echo "Minting TOKEN_0:"
 soroban contract invoke \
   --network $NETWORK --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_0_ADDRESS \
   -- \
   mint \
@@ -101,7 +100,6 @@ echo "..."
 echo "Minting TOKEN_1:"
 soroban contract invoke \
   --network $NETWORK --source token-admin \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_1_ADDRESS \
   -- \
   mint \

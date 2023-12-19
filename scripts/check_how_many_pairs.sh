@@ -43,7 +43,6 @@ fi
 # The 'all_pairs_length' function is called to retrieve the number of token pairs
 soroban contract invoke \
   $ARGS \
-  --wasm $FACTORY_WASM \
   --id $FACTORY_ID \
   -- \
   all_pairs_length \

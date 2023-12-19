@@ -34,7 +34,6 @@ TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.optimized.wasm"
 MINT_RESULT="$(soroban contract invoke \
     --network $NETWORK \
     --source token-admin \
-    --wasm $TOKEN_WASM \
     --id $TOKEN_A_ID \
     -- \
     mint \
@@ -45,7 +44,6 @@ echo "MINT_RESULT: $MINT_RESULT"
 MINT_RESULT="$(soroban contract invoke \
     --network $NETWORK \
     --source token-admin \
-    --wasm $TOKEN_WASM \
     --id $TOKEN_B_ID \
     -- \
     mint \
