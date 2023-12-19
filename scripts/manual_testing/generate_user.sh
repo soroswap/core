@@ -1,3 +1,4 @@
+echo "=== GENERATE_USER.SH ==="
 soroban config identity generate user
 USER_SECRET=$(soroban config identity show user)
 USER_PUBLIC="$(soroban config identity address user)"
@@ -15,4 +16,7 @@ NEW_KEYS_OBJECT="{ \"user_public\": \"$USER_PUBLIC\", \"user_secret\": \"$USER_S
 # echo "$NEW_KEYS_OBJECT" > "$KEYS_FILE"
 # CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
 # echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
+
+echo "   "
+echo "   "
 
