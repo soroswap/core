@@ -41,6 +41,9 @@ bash scripts/run.sh
 
 ### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
 
+This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
+
+Remember here to choose standalone, testnet or futurenet
 ```
 bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
 ```
@@ -200,3 +203,22 @@ scripts/deploy_random_tokens.sh <network> [<number_of_tokens>]
 #### Handling Network Resets
 
 Manually update or delete random_tokens.json post-reset on futurenet or testnet.
+
+# Manual Testing
+
+The following example showcase a local manual testing.
+Make sure you have deployed the contracts to testnet and saved it locally 
+
+
+We provide code for manual testing of the contracts using `soroban-cli`. This will allow us to play aroung without the need of an User Interface.
+
+To run all the transsactions we could do on soroswap protocol just run (inside soroban-preview image):
+```bash
+# Usage:
+# ./all.sh [network] [local_or_public]
+# network: Type of the network to configure (standalone, futurenet, testnet, testnet-public)
+# local_or_public: Type of contract deployment (local or public)
+
+bash scripts/manual_testing/all.sh testnet local
+```
+

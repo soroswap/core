@@ -63,6 +63,7 @@ ROUTER_ID="$(
   soroban contract deploy $ARGS \
     --wasm $ROUTER_WASM
 )"
+echo "Ready"
 echo "$ROUTER_ID" > /workspace/.soroban/router_id
 echo "SoroswapRouter deployed successfully with ROUTER_ID: $ROUTER_ID"
 
@@ -79,7 +80,6 @@ FACTORY_ADDRESS="$(node /workspace/scripts/address_workaround.js $FACTORY_ID)"
 echo "Initialize the SoroswapRouter contract"
 soroban contract invoke \
   $ARGS \
-  --wasm $ROUTER_WASM \
   --id $ROUTER_ID \
   -- \
   initialize \

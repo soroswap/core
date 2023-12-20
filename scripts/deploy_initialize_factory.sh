@@ -97,11 +97,9 @@ echo "--"
 # Get the token admin address
 TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
 
-# Initialize the SoroswapFactory contract
 echo "Initialize the SoroswapFactory contract"
 soroban contract invoke \
   $ARGS \
-  --wasm $FACTORY_WASM \
   --id $FACTORY_ID \
   -- \
   initialize \

@@ -103,7 +103,6 @@ TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/sor
 echo TOKEN_0 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_0_ADDRESS \
   -- \
   balance \
@@ -116,7 +115,6 @@ echo "..."
 echo TOKEN_1 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_1_ADDRESS \
   -- \
   balance \
@@ -135,7 +133,6 @@ PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soros
 
 LP_BALANCE=$(soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $PAIR_WASM \
   --id $PAIR_ADDRESS \
   -- \
   my_balance \
@@ -156,20 +153,9 @@ echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
 
 ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
 
-# fn remove_liquidity(
-#       e: Env,
-#       token_a: Address,
-#       token_b: Address,
-#       liquidity: i128,
-#       amount_a_min: i128,
-#       amount_b_min: i128,
-#       to: Address,
-#       deadline: u64,
-#   ) 
 soroban contract invoke \
     --network $NETWORK \
     --source $USER_SECRET \
-    --wasm $ROUTER_WASM \
     --id $ROUTER_ADDRESS \
     -- \
     remove_liquidity \
@@ -195,7 +181,6 @@ TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/sor
 echo TOKEN_0 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_0_ADDRESS \
   -- \
   balance \
@@ -208,7 +193,6 @@ echo "..."
 echo TOKEN_1 balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $TOKEN_WASM \
   --id $TOKEN_1_ADDRESS \
   -- \
   balance \
@@ -220,7 +204,6 @@ echo "..."
 echo LP balance:
 soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
-  --wasm $PAIR_WASM \
   --id $PAIR_ADDRESS \
   -- \
   my_balance \
@@ -228,44 +211,5 @@ soroban contract invoke \
 
 
 
-
-
-
-# echo In order to get the LP balance we need first the Pair address
-# echo And first, the factory address
-# echo "..."
-# ROUTER_FILE="/workspace/public/router.json"
-# ROUTER_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
-# echo Using ROUTER_ADDRESS: $ROUTER_ADDRESS
-# ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
-
-# FACTORY_ADDRESS=$(soroban contract invoke \
-#   --network $NETWORK --source $USER_SECRET \
-#   --wasm $ROUTER_WASM \
-#   --id $ROUTER_ADDRESS \
-#   -- \
-#   get_factory)
-# FACTORY_ADDRESS=$(echo $FACTORY_ADDRESS | tr -d '"')
-
-
-# echo we have the factory $FACTORY_ADDRESS
-# FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm"
-
-# PAIR_ADDRESS=$(soroban contract invoke \
-#   --wasm $FACTORY_WASM \
-#   --id $FACTORY_ADDRESS \
-#   -- \
-#   get_pair \
-#   --token_a "$TOKEN_0_ADDRESS" \
-#   --token_b "$TOKEN_1_ADDRESS" )
-
-#   soroban contract invoke \
-#   $ARGS \
-#   --wasm $FACTORY_WASM \
-#   --id $FACTORY_ID \
-#   -- \
-#   get_pair \
-#   --token_a "$TOKEN_A_ADDRESS" \
-#   --token_b "$TOKEN_B_ADDRESS" 
 
 
