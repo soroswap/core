@@ -1,9 +1,9 @@
+#!/bin/bash
 NETWORK="$1"
 
-SOROBAN_RPC_HOST="http://stellar:8000"
+source /workspace/scripts/manual_testing/utils.sh
 
-SOROBAN_RPC_URL="$SOROBAN_RPC_HOST/soroban/rpc"
-
+display_colored_text PURPLE " === ADD LIQUIDITY.SH === "
 
 case "$1" in
 standalone)
@@ -68,22 +68,39 @@ curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].address' "$TOKENS_FILE")
 
-TOKEN30_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
-TOKEN41_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].symbol' "$TOKENS_FILE")
+TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
+TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].symbol' "$TOKENS_FILE")
 
-echo3"..."
-echo4"..."
+echo "..."
+echo "..."
 echo "..."
 echo "..."
 echo We will use the following test tokens in the $NETWORK network
 echo "..."
+
+PREV_TOKEN_0_BALANCE="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_0_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+
+PREV_TOKEN_1_BALANCE="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_1_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+  
 echo TOKEN_0_SYMBOL: $TOKEN_0_SYMBOL
 echo TOKEN_0_ADDRESS: $TOKEN_0_ADDRESS
+echo TOKEN_0_BALANCE: $PREV_TOKEN_0_BALANCE
 echo "..."
 echo TOKEN_1_SYMBOL: $TOKEN_1_SYMBOL
 echo TOKEN_1_ADDRESS: $TOKEN_1_ADDRESS
-
-
+echo TOKEN_1_BALANCE: $PREV_TOKEN_0_BALANCE
 
 echo "..."
 echo "..."
@@ -271,7 +288,6 @@ echo "STELLAR_ASSET_CONTRACT_ID: $STELLAR_ASSET_CONTRACT_ID"
 echo "We verify the asset is wrapped and balances are OK"
 
 TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
-
 STELLAR_ASSET_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
@@ -279,6 +295,7 @@ STELLAR_ASSET_BALANCE_OF_USER="$(soroban contract invoke \
   -- \
   balance \
   --id "$USER_PUBLIC"   )"
+#Show token balances
 TOKEN_1_BALANCE_OF_USER="$(soroban contract invoke \
   --network $NETWORK \
   --source asset_deployer \
@@ -307,7 +324,7 @@ soroban contract invoke \
     --amount_b_min 0 \
     --to $USER_PUBLIC \
     --deadline 9737055687 # year 2278
-
+#add balance display and confirm add liquidity
 echo "Then, we will add liquidity with the tokens deployed not by token-admin"
 
 SOROBAN_TOKEN_A_ID=$(cat $SOROBAN_TOKENS_FOLDER/token_a_id)
@@ -350,3 +367,37 @@ soroban contract invoke \
     --amount_b_min 0 \
     --to $USER_PUBLIC \
     --deadline 9737055687 # year 2278
+
+POST_TOKEN_0_BALANCE="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_0_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+
+POST_TOKEN_1_BALANCE="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_1_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+
+PREV_TOKEN_0_BALANCE_INT=${PREV_TOKEN_0_BALANCE//[!0-9]/}
+POST_TOKEN_0_BALANCE_INT=${POST_TOKEN_0_BALANCE//[!0-9]/}
+TOKEN_0_LIQUIDITY_DIFF=$((PREV_TOKEN_0_BALANCE_INT - POST_TOKEN_0_BALANCE_INT))
+
+PREV_TOKEN_1_BALANCE_INT=${PREV_TOKEN_1_BALANCE//[!0-9]/}
+POST_TOKEN_1_BALANCE_INT=${POST_TOKEN_1_BALANCE//[!0-9]/}
+TOKEN_1_LIQUIDITY_DIFF=$((PREV_TOKEN_1_BALANCE_INT - POST_TOKEN_1_BALANCE_INT))
+
+echo ""
+display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
+display_colored_text BLUE " | Token Name | Balance before add_liquidity |   Balance after add_liquidity   | Liquidity added | "
+display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
+display_colored_text BLUE " | $TOKEN_0_SYMBOL       | $PREV_TOKEN_0_BALANCE            |   $POST_TOKEN_0_BALANCE             | $TOKEN_0_LIQUIDITY_DIFF     | "
+display_colored_text BLUE " | $TOKEN_1_SYMBOL       | $PREV_TOKEN_1_BALANCE            |   $POST_TOKEN_1_BALANCE             | $TOKEN_1_LIQUIDITY_DIFF     | "
+display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
+echo ""
+

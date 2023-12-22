@@ -1,5 +1,8 @@
 NETWORK="$1"
-echo "=== MINT.SH ==="
+
+source /workspace/scripts/manual_testing/utils.sh
+
+display_colored_text PURPLE " === MINT.SH === "
 
 case "$1" in
 standalone)
@@ -125,7 +128,12 @@ soroban contract invoke \
     --wasm $TOKEN_WASM
   )"
   echo SOROBAN_TOKEN_A_ID: $SOROBAN_TOKEN_A_ID
-  SOROBAN_TOKEN_B_ID="$(
+  SOROBAN_TOKEN_B_ID="$(STELLAR_ASSET_CONTRACT_ID="$(
+  soroban lab token id \
+  --network standalone \
+  --source asset_deployer \
+  --asset "AstroDollar:$ASSET_DEPLOYER_PUBLIC"
+)"
   soroban contract deploy --network $NETWORK --source asset_deployer \
     --wasm $TOKEN_WASM
   )"
@@ -178,4 +186,37 @@ soroban contract invoke \
 
 USER_SECRET=$(cat .soroban/user_secret)
 ASSET_DEPLOYER_SECRET=$(cat .soroban/asset_deployer_secret)
+
+#Print balances for every token and verify users balance
 node /workspace/scripts/manual_testing/deployStellarAsset.js $NETWORK $USER_SECRET $ASSET_DEPLOYER_SECRET
+
+TOKEN_0_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_0_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+
+TOKEN_1_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_1_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+
+echo ""
+# Print table header
+display_colored_text BLUE " --------------------------------------- "
+display_colored_text BLUE " | Token Name | Balance                | "
+display_colored_text BLUE " --------------------------------------- "
+# Print token balance
+display_colored_text BLUE " | $TOKEN_0_SYMBOL       | $TOKEN_0_BALANCE_OF_USER      | "
+display_colored_text BLUE " --------------------------------------- "
+display_colored_text BLUE " | $TOKEN_1_SYMBOL       | $TOKEN_1_BALANCE_OF_USER      | "
+
+# Print table footer
+display_colored_text BLUE " --------------------------------------- "
+
+echo ""
