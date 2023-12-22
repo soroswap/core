@@ -26,7 +26,7 @@ echo "deadline $DEADLINE"
 soroban contract invoke \
   --network $NETWORK \
   --source token-admin \
-  --wasm $ROUTER_WASM \
+  # --wasm $ROUTER_WASM \
   --id $ROUTER_CONTRACT \
   -- \
   add_liquidity \

@@ -64,7 +64,6 @@ do
 
     soroban contract invoke \
       --network $NETWORK --source token-admin \
-      --wasm $TOKEN_WASM \
       --id $TOKEN_ID \
       -- \
       initialize \

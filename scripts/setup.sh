@@ -43,6 +43,14 @@ testnet-public)
   ;;
 esac
 
+echo "==="
+echo "   "
+echo SOROBAN_NETWORK_PASSPHRASE: $SOROBAN_NETWORK_PASSPHRASE
+echo FRIENDBOT_URL: $FRIENDBOT_URL
+echo SOROBAN_RPC_URL: $SOROBAN_RPC_URL
+echo "   "
+echo "==="
+
 # Always set a net configuration 
 echo Add the $NETWORK network to cli client
 soroban config network add "$NETWORK" \

@@ -37,11 +37,14 @@ local)
   echo "Using deployed contracts from .soroban folder"
   TOKENS_FILE="/workspace/.soroban/tokens.json"
   ROUTER_FILE="/workspace/.soroban/router.json"
+  SOROBAN_TOKENS_FOLDER="/workspace/.soroban/soroban_tokens/"
   ;;
 public)
   echo "Using deployed contracts from /public folder"
   TOKENS_FILE="/workspace/public/tokens.json"
   ROUTER_FILE="/workspace/public/router.json"
+  SOROBAN_TOKENS_FOLDER="/workspace/public/soroban_tokens/"
+
   ;;
 *)
   echo "Usage: $0 local|public"
@@ -62,14 +65,14 @@ echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 
-TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
-TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
+TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
+TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].address' "$TOKENS_FILE")
 
-TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].symbol' "$TOKENS_FILE")
-TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].symbol' "$TOKENS_FILE")
+TOKEN30_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
+TOKEN41_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].symbol' "$TOKENS_FILE")
 
-echo "..."
-echo "..."
+echo3"..."
+echo4"..."
 echo "..."
 echo "..."
 echo We will use the following test tokens in the $NETWORK network
@@ -96,7 +99,6 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
     soroban contract invoke \
         --network $NETWORK \
         --source $USER_SECRET \
-        --wasm $ROUTER_WASM \
         --id $ROUTER_ADDRESS \
         -- \
         add_liquidity \
@@ -243,3 +245,108 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 #         --path "CACEEMMWGVDM6RZD7ZL6Z75Y32MI5ZWBGVTXTSCLCXXOW57OD63KKDTD,CDMOQLZXRDQMQBJDKFNPE3ORBUXZ7PY6JMN2XFL4TVASPFK4BG65TKQP" \
 #         --to $LOCAL_USER_ADDRESS \
 #         --deadline 1699721331
+
+echo "..."
+echo "..."
+echo "..."
+echo "..."
+echo We will add liquidity for stellar asset
+echo "..."
+
+echo "we will first wrap the token"  
+ASSET_DEPLOYER_PUBLIC="$(soroban config identity address asset_deployer)"
+
+soroban lab token wrap \
+  --network standalone \
+  --source asset_deployer \
+  --asset "AstroDollar:$ASSET_DEPLOYER_PUBLIC"
+
+STELLAR_ASSET_CONTRACT_ID="$(
+  soroban lab token id \
+  --network standalone \
+  --source asset_deployer \
+  --asset "AstroDollar:$ASSET_DEPLOYER_PUBLIC"
+)"
+echo "STELLAR_ASSET_CONTRACT_ID: $STELLAR_ASSET_CONTRACT_ID"
+echo "We verify the asset is wrapped and balances are OK"
+
+TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
+
+STELLAR_ASSET_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $STELLAR_ASSET_CONTRACT_ID \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+TOKEN_1_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $TOKEN_1_ADDRESS \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+echo "Balances of User: ${USER_PUBLIC}, 
+  Stellar Asset: ${STELLAR_ASSET_BALANCE_OF_USER}
+  Token 1: ${TOKEN_1_BALANCE_OF_USER}"
+
+
+echo "Then, we will add liquidity with one of the previous tokens"
+
+soroban contract invoke \
+    --network $NETWORK \
+    --source $USER_SECRET \
+    --id $ROUTER_ADDRESS \
+    -- \
+    add_liquidity \
+    --token_a $TOKEN_1_ADDRESS \
+    --token_b $STELLAR_ASSET_CONTRACT_ID \
+    --amount_a_desired 10000000000 \
+    --amount_b_desired 10000000000 \
+    --amount_a_min 0 \
+    --amount_b_min 0 \
+    --to $USER_PUBLIC \
+    --deadline 9737055687 # year 2278
+
+echo "Then, we will add liquidity with the tokens deployed not by token-admin"
+
+SOROBAN_TOKEN_A_ID=$(cat $SOROBAN_TOKENS_FOLDER/token_a_id)
+SOROBAN_TOKEN_B_ID=$(cat $SOROBAN_TOKENS_FOLDER/token_b_id)
+echo "SOROBAN_TOKEN_A_ID: $SOROBAN_TOKEN_A_ID"
+echo "SOROBAN_TOKEN_B_ID: $SOROBAN_TOKEN_B_ID"
+
+
+SOROBAN_TOKEN_A_ID_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $SOROBAN_TOKEN_A_ID \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+SOROBAN_TOKEN_B_ID_BALANCE_OF_USER="$(soroban contract invoke \
+  --network $NETWORK \
+  --source asset_deployer \
+  --id $SOROBAN_TOKEN_B_ID \
+  -- \
+  balance \
+  --id "$USER_PUBLIC"   )"
+echo "We check balances..."
+echo "Balances of User: ${USER_PUBLIC}, 
+soroban token A: ${SOROBAN_TOKEN_A_ID_BALANCE_OF_USER}
+soroban token B: ${SOROBAN_TOKEN_B_ID_BALANCE_OF_USER}"
+
+
+soroban contract invoke \
+    --network $NETWORK \
+    --source $USER_SECRET \
+    --id $ROUTER_ADDRESS \
+    -- \
+    add_liquidity \
+    --token_a $SOROBAN_TOKEN_A_ID \
+    --token_b $SOROBAN_TOKEN_B_ID \
+    --amount_a_desired 10000000000 \
+    --amount_b_desired 10000000000 \
+    --amount_a_min 0 \
+    --amount_b_min 0 \
+    --to $USER_PUBLIC \
+    --deadline 9737055687 # year 2278

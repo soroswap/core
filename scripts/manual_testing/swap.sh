@@ -67,14 +67,14 @@ echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 
-TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].address' "$TOKENS_FILE")
-TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].address' "$TOKENS_FILE")
+TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
+TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].address' "$TOKENS_FILE")
 
 TOKEN_0_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_0_ADDRESS)
 TOKEN_1_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_1_ADDRESS)
 
-TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[0].symbol' "$TOKENS_FILE")
-TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[1].symbol' "$TOKENS_FILE")
+TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
+TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[3].symbol' "$TOKENS_FILE")
 
 echo "..."
 echo "..."
@@ -117,7 +117,6 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
     soroban contract invoke \
         --network $NETWORK \
         --source $USER_SECRET \
-        --wasm $ROUTER_WASM \
         --id $ROUTER_ADDRESS \
         -- \
         swap_exact_tokens_for_tokens \
