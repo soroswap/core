@@ -4,6 +4,9 @@ SOROBAN_RPC_HOST="http://stellar:8000"
 
 SOROBAN_RPC_URL="$SOROBAN_RPC_HOST/soroban/rpc"
 
+source /workspace/scripts/manual_testing/utils.sh
+
+display_colored_text PURPLE " === SWAP.SH === "
 
 case "$1" in
 standalone)

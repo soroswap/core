@@ -1,10 +1,15 @@
-echo "=== GENERATE_USER.SH ==="
+source /workspace/scripts/manual_testing/utils.sh
+
+display_colored_text PURPLE " === GENERATE_USER.SH === "
+
 soroban config identity generate user
 USER_SECRET=$(soroban config identity show user)
 USER_PUBLIC="$(soroban config identity address user)"
 
+display_colored_text GREEN " Generated user keys "
 echo USER_SECRET: $USER_SECRET
 echo USER_PUBLIC: $USER_PUBLIC
+
 
 echo "$USER_SECRET" > .soroban/user_secret
 echo "$USER_PUBLIC" > .soroban/user_public
