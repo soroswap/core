@@ -125,10 +125,11 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
         swap_exact_tokens_for_tokens \
         --amount_in 1000000000 \
         --amount_out_min 0 \
-        --path "{\"vec\":[{\"address\": {\"contract\": \"$TOKEN_0_HEX\"}}, {\"address\": {\"contract\": \"$TOKEN_1_HEX\"}}]}" \
+        --path "{\"vec\":[{\"address\": \"$TOKEN_0_ADDRESS\"}, {\"address\": \"$TOKEN_1_ADDRESS\"}]}"  \
         --to $USER_PUBLIC \
         --deadline 9737055687 # year 2278
 
+# "{\"vec\":[{\"address\": {\"contract\": \"$TOKEN_0_HEX\"}}, {\"address\": {\"contract\": \"$TOKEN_1_HEX\"}}]}"
 
 # "{\"vec\":[{\"address\": \"$TOKEN_0_ADDRESS\"}, {\"address\": \"$TOKEN_1_ADDRESS\"}]}"
 
