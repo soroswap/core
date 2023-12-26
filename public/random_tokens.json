@@ -1,0 +1,152 @@
+[
+  {
+    "network": "standalone",
+    "tokens": [
+      {
+        "address": "CB3LMTMB7NWY2JTI2SW2ERIAT254QLQPYLWGTHTEYLAW6KPU3C2MH3K7",
+        "name": "belcal",
+        "symbol": "BELC",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBSOL6QYJFU47MH4D3MATO5L6KD25ZIEPXMIFCYRCTL6GA725Z7YDYPB",
+        "name": "tarkai",
+        "symbol": "TARK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDUY42QNLASM77RRV224ZG5S4DOGOIL3CXKBTOM2B65X2GHUXIYVRBL3",
+        "name": "aelaxl",
+        "symbol": "AELA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBW2NVFYJLBF773RSTJCPZAT6TLDETQWKV2OTQS5RJMITAQUQF6SEIA2",
+        "name": "seraxl",
+        "symbol": "SERA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCAAW564225XG2OF4LCLNSVIBFEKOKWKU27FE2TUQGUKII5TZ6TWX5O5",
+        "name": "arazel",
+        "symbol": "ARAZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBHDAVDRCUH4ZCDINTCWEPL67TEERKO7PIAY3MA2PDXTLC3F7MYZUXWJ",
+        "name": "fenbel",
+        "symbol": "FENB",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CB27J6MS37UOLTMGLLQOGAGUBCRDY4WGFYZ2YLJJUDCKLIMDQ6DVGRI2",
+        "name": "kelxis",
+        "symbol": "KELX",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDKEVKWTNCDZKZQW3ZCMRDKN2C53IK7VQY4ITOG7B5Z2HW2MVEFSXAB5",
+        "name": "tarzoe",
+        "symbol": "TARZ",
+        "logoURI": "",
+        "decimals": 7
+      }
+    ]
+  },
+  {
+    "network": "testnet",
+    "tokens": [
+      {
+        "address": "CCSNNJRVK7CF33XYUAKAMDGCOOYWI4S4WFJ6LPBIYNIFS5MXTWVQSE45",
+        "name": "lordor",
+        "symbol": "LORD",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBJTGJCCZXZRW5IO7ACVHC4T2FWKTJE7Z2PUGSX7J72UEKJQMJNXFYGJ",
+        "name": "leoaxl",
+        "symbol": "LEOA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDNSZRSBUYD4T234PDC2YAG6PCO6FM6CQ7W5V7YJWT4P6W335POCKOTJ",
+        "name": "aelron",
+        "symbol": "AELR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CADGCWSL4Q2ECP2RVQCOI5PQHT2ICHT2KR4TLXOY32RHYWHKZBQ7PRFU",
+        "name": "anabel",
+        "symbol": "ANAB",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CD7QLTRGHWQSPSRW4VHT43ZWDXW2WDMMISNOMURBR43HBA3XVXRK6AXT",
+        "name": "dordan",
+        "symbol": "DORD",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAJMK7HD4WGMPRRFOM3PPXWV4BWGGIXMTHNGXEQBM2JNLPSGSBBVWCKJ",
+        "name": "axlael",
+        "symbol": "AXLA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCZZTQRAUTCDXGEBNJAVKVGHPSUZVKZRWEWNEVOXLSDBSITSWZA4AUWP",
+        "name": "keltar",
+        "symbol": "KELT",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCULUIZ234NAPHFJUTBVWW7NPAZVHCJRV5EEEIBA2Y7QHHBPNVLXM45D",
+        "name": "gavlor",
+        "symbol": "GAVL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CACMEUQCEJ2FDZYXO2KEQSJB4LFPXFKKHPM56A2RC4IHFHBLU4OIJPE6",
+        "name": "niaxis",
+        "symbol": "NIAX",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCIOXUSGYNDXU54FZSYXY73NB67UJL6VUBOXOE7HVKAW7TN6YAYYNTGU",
+        "name": "leocal",
+        "symbol": "LEOC",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAO5S2G6LZ5JEWAFSASDWB2773ESFBRKW2NBUYGTWFLMY57WB7WZVYDG",
+        "name": "rinkai",
+        "symbol": "RINK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCUQ6UT2OBHI7HL76FA3X4FZDAUC3MFDV7BBDYTJDFZ3HWDL6YVYIUVP",
+        "name": "lorleo",
+        "symbol": "LORL",
+        "logoURI": "",
+        "decimals": 7
+      }
+    ]
+  }
+]
