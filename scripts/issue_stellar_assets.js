@@ -39,8 +39,8 @@ const name_parts = [
 // Function to generate a random name
 function generateRandomName() {
   const part1 = name_parts[Math.floor(Math.random() * name_parts.length)];
-  const part2 = name_parts[Math.floor(Math.random() * name_parts.length)];
-  return part1 + part2;
+  //const part2 = name_parts[Math.floor(Math.random() * name_parts.length)];
+  return "CA" + part1; //+ part2;
 }
 
 function getAdminKeys() {
