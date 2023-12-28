@@ -32,7 +32,7 @@ docker run --volume ${currentDir}/:/workspace \
            --tty \
            --detach \
            --publish-all \
-           --net-alias ${containerName} \
+           --network soroban-network \
            ${imageName}:${versionTag}
 
 # Connect to bash on Docker container
