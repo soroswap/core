@@ -8,7 +8,7 @@ test: build
 build:
 	$(MAKE) -C ../token || break;
 	$(MAKE) -C ../pair || break;
-	cargo build --target wasm32-unknown-unknown --release
+	cargo +1.74.1 build --target wasm32-unknown-unknown --release
 	soroban contract optimize --wasm target/wasm32-unknown-unknown/release/soroswap_factory.wasm 
 	@ls -l target/wasm32-unknown-unknown/release/*.wasm
 fmt:
