@@ -17,6 +17,7 @@ display_colored_text() {
 NETWORK="$1"
 USER_PUBLIC=$(cat /workspace/.soroban/user_public)
 TOKENS_FILE="/workspace/.soroban/tokens.json"
+USER_SECRET=$(cat /workspace/.soroban/user_secret)
 
 getTokenBalance() {
     local tokenAddress="$1"
@@ -34,7 +35,15 @@ getTokenBalance() {
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
 
-
+getLPBalance(){
+    local LP_BALANCE=$(soroban contract invoke \
+    --network $NETWORK --source $USER_SECRET \
+    --id $1 \
+    -- \
+    my_balance \
+    --id "$USER_PUBLIC")
+    echo $LP_BALANCE
+}
 #to make it work, we need to pass the token symbol and the token address in that specific order
 #printTokensTable $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS ...
 printTokensTable() {
@@ -63,33 +72,43 @@ printTokensTable() {
 
 #Recives (operation: ['add_liquidity', 'remove_liquidity', 'swap']) (token_symbol) (token_address) (token_balance_before)
 printTokensBalanceDiff(){
-    count=0
-    token_symbol=""
-    token_balance_before=""
-    token_balance_after=""
+    local count=0
+    local token_symbol=""
+    local token_balance_before=""
+    local token_balance_after=""
+    local delta_balance=""
     echo ""
-    display_colored_text BLUE " -------------------------------------------------------------------------- "
-    printf "\033[1;44;30m |  Token Name |  %-15s  |  %-15s  | %-16s | \033[0m\n" "Initial Balance" "Actual Balance" "$1"
-    display_colored_text BLUE " -------------------------------------------------------------------------- "
+    display_colored_text BLUE " ------------------------------------------------------------------------------------- "
+    printf "\033[1;44;30m |  %-10s |  %-10s  |  %-15s  | %-27s | \033[0m\n" "Token Name" "Initial Balance" "Actual Balance" "Diff after $1"
+    display_colored_text BLUE " ------------------------------------------------------------------------------------- "
     for ((i=2; i<=$#; i++)); do
       case $count in
         0)
-          token_symbol="${!i}"
-          ;;
+            token_symbol="${!i}"
+            ;;
         1)
-          token="${!i}"
-          token_balance_after=$(getTokenBalance "$token")
-          ;;
+            token="${!i}"
+            token_balance_after=$(getTokenBalance "$token")
+            ;;
         2)
-          token_balance_before="${!i}"
-          ;;
+            token_balance_before="${!i}"
+            ;;
       esac
       ((count++))
       if ((count % 3 == 0)); then
-        printf "\033[1;44;30m | %-10s  | %-16s  |  %-15s  | %-16s | \033[0m\n" "$token_symbol" "$token_balance_before" "$token_balance_after" "$(( $token_balance_before - $token_balance_after ))"
-        display_colored_text BLUE " -------------------------------------------------------------------------- " 
+        delta_balance=$(($token_balance_after - $token_balance_before))
+        if (($delta_balance > 1)); then
+            delta_balance="+$delta_balance"
+        fi
+        printf "\033[1;44;30m | %-10s  | %-16s  |  %-15s  | %-27s | \033[0m\n" "$token_symbol" "$token_balance_before" "$token_balance_after" "$delta_balance"
+        display_colored_text BLUE " ------------------------------------------------------------------------------------- " 
         count=0
       fi
     done
+}
+printLPTable(){
+    local LP_BALANCE=$(getLPBalance $1)
+    printf "\033[1;44;30m | %-39s | %-39s | \033[0m\n" "LP Balance" "$LP_BALANCE"
+    display_colored_text BLUE " ------------------------------------------------------------------------------------- "
     echo ""
 }

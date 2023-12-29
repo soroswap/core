@@ -215,7 +215,7 @@ soroban contract invoke \
   --id "$USER_PUBLIC"
 
 printTokensBalanceDiff "Remove_liquidity" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE
-
+printLPTable $PAIR_ADDRESS
 
 
 
