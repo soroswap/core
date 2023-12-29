@@ -23,7 +23,6 @@ getTokenBalance() {
     local tokenAddress="$1"
     local TOKEN_BALANCE="$(soroban contract invoke \
     --network $NETWORK \
-    --source asset_deployer \
     --id $tokenAddress \
     -- \
     balance \
@@ -35,15 +34,6 @@ getTokenBalance() {
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
 
-getLPBalance(){
-    local LP_BALANCE=$(soroban contract invoke \
-    --network $NETWORK --source $USER_SECRET \
-    --id $1 \
-    -- \
-    my_balance \
-    --id "$USER_PUBLIC")
-    echo $LP_BALANCE
-}
 #to make it work, we need to pass the token symbol and the token address in that specific order
 #printTokensTable $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS ...
 printTokensTable() {
@@ -106,9 +96,9 @@ printTokensBalanceDiff(){
       fi
     done
 }
-printLPTable(){
-    local LP_BALANCE=$(getLPBalance $1)
-    printf "\033[1;44;30m | %-39s | %-39s | \033[0m\n" "LP Balance" "$LP_BALANCE"
-    display_colored_text BLUE " ------------------------------------------------------------------------------------- "
-    echo ""
+
+# Function to print yesterday's date
+printYesterdayDate() {
+    local yesterday=$(date -d "yesterday" +"%Y-%m-%d")
+    echo "Yesterday's date: $yesterday"
 }

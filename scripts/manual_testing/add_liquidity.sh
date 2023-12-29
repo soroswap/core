@@ -38,13 +38,14 @@ local)
   TOKENS_FILE="/workspace/.soroban/tokens.json"
   ROUTER_FILE="/workspace/.soroban/router.json"
   SOROBAN_TOKENS_FOLDER="/workspace/.soroban/soroban_tokens/"
+  PAIRS_FILE="/workspace/.soroban/pairs.json"
   ;;
 public)
   echo "Using deployed contracts from /public folder"
   TOKENS_FILE="/workspace/public/tokens.json"
   ROUTER_FILE="/workspace/public/router.json"
   SOROBAN_TOKENS_FOLDER="/workspace/public/soroban_tokens/"
-
+  PAIRS_FILE="/workspace/public/pairs.json"
   ;;
 *)
   echo "Usage: $0 local|public"
@@ -67,12 +68,16 @@ curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[6].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[7].address' "$TOKENS_FILE")
+PAIR_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .pairs[0].pair_address' "$PAIRS_FILE")
+
 
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[6].symbol' "$TOKENS_FILE")
 TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[7].symbol' "$TOKENS_FILE")
 
+
 TOKEN_0_FIRST_BALANCE=$(getTokenBalance $TOKEN_0_ADDRESS)
 TOKEN_1_FIRST_BALANCE=$(getTokenBalance $TOKEN_1_ADDRESS)
+TOKEN_LP_FIRST_BALANCE=$(getTokenBalance $PAIR_ADDRESS)
 
 echo "..."
 echo "..."
@@ -356,4 +361,5 @@ soroban contract invoke \
     --to $USER_PUBLIC \
     --deadline 9737055687 # year 2278
 
-printTokensBalanceDiff "Add Liquidity" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE
+echo $PAIR_ADDRESS
+printTokensBalanceDiff "Add Liquidity" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE "LP Token" $PAIR_ADDRESS $TOKEN_LP_FIRST_BALANCE

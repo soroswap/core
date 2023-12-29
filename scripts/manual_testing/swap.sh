@@ -72,6 +72,8 @@ curl  -X POST "$FRIENDBOT_URL?addr=$USER_PUBLIC"
 
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[6].address' "$TOKENS_FILE")
 TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[7].address' "$TOKENS_FILE")
+PAIR_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .pairs[0].pair_address' "$PAIRS_FILE")
+
 
 TOKEN_0_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_0_ADDRESS)
 TOKEN_1_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_1_ADDRESS)
@@ -81,6 +83,7 @@ TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWO
 
 TOKEN_0_FIRST_BALANCE=$(getTokenBalance $TOKEN_0_ADDRESS)
 TOKEN_1_FIRST_BALANCE=$(getTokenBalance $TOKEN_1_ADDRESS)
+TOKEN_LP_FIRST_BALANCE=$(getTokenBalance $PAIR_ADDRESS)
 
 echo "..."
 echo "..."
@@ -138,4 +141,4 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 
 #         error: parsing argument path: unknown variant `CBGIMY6IVEG73E4QFHSIFXOD4OTMHRAJEDOZS4VMUWGGQ7IKO46GHMEX`, expected `account` or `contract`
 
-printTokensBalanceDiff "SWAP" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE
+printTokensBalanceDiff "SWAP" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE "LP Balance" $PAIR_ADDRESS $TOKEN_LP_FIRST_BALANCE
