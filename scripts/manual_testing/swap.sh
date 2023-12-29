@@ -79,6 +79,9 @@ TOKEN_1_HEX=$(node /workspace/scripts/address_to_hex.js $TOKEN_1_ADDRESS)
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[6].symbol' "$TOKENS_FILE")
 TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[7].symbol' "$TOKENS_FILE")
 
+TOKEN_0_FIRST_BALANCE=$(getTokenBalance $TOKEN_0_ADDRESS)
+TOKEN_1_FIRST_BALANCE=$(getTokenBalance $TOKEN_1_ADDRESS)
+
 echo "..."
 echo "..."
 echo "..."
@@ -134,3 +137,5 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 # "{\"vec\":[{\"address\": \"$TOKEN_0_ADDRESS\"}, {\"address\": \"$TOKEN_1_ADDRESS\"}]}"
 
 #         error: parsing argument path: unknown variant `CBGIMY6IVEG73E4QFHSIFXOD4OTMHRAJEDOZS4VMUWGGQ7IKO46GHMEX`, expected `account` or `contract`
+
+printTokensBalanceDiff "SWAP" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE
