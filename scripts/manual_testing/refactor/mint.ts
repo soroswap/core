@@ -1,4 +1,4 @@
-import { colors, tokens, loadAccounts, saveContracts} from "./utils/utils";
+import { colors, loadAccounts, loadTokens, saveContracts} from "./utils/utils";
 import { TransactionBuilder } from "./utils/TransactionBuilder";
 import { testAccount, tokenContract, token } from './utils/types'
 
@@ -14,12 +14,14 @@ const txBuilder = new TransactionBuilder(
     network1
 ); */
 
+
 /**
- * Mints tokens and performs various operations related to token contracts.
+ * Mints tokens for a given network.
  * 
- * @param txMaker The transaction builder used for interacting with the blockchain.
+ * @param txMaker The transaction builder object.
+ * @param network The network to mint tokens on.
  */
-export const mint = async (txMaker: TransactionBuilder) => {
+export const mint = async (txMaker: TransactionBuilder, network: string) => {
     console.log('')
     console.log(colors.purple, '===========')
     console.log(colors.purple, '= MINT.ts =')
@@ -30,6 +32,8 @@ export const mint = async (txMaker: TransactionBuilder) => {
     const accounts = loadAccounts() as testAccount[]
     const user = accounts[0] as testAccount
     const issuer = accounts[1] as testAccount
+
+    const tokens = loadTokens(network) as token[]
     const token0 = tokens[6] as token
     const token1 = tokens[7] as token
     console.log(colors.green, "User account:", user)
