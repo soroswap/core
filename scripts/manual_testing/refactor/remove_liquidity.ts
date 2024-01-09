@@ -12,7 +12,13 @@ import { testAccount, tokenContract } from './utils/types'
         routerContractAddress,
         network1
     ); */
-export const remove_liquidity = async (txMaker:TransactionBuilder) => {
+/**
+ * Removes liquidity from a Soroban pool.
+ * 
+ * @param txMaker The transaction builder object.
+ * @returns A promise that resolves when the liquidity is successfully removed.
+ */
+export const removeLiquidity = async (txMaker:TransactionBuilder) => {
     
     console.log('')
     console.log(colors.purple, '=======================')

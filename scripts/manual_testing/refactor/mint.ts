@@ -14,6 +14,11 @@ const txBuilder = new TransactionBuilder(
     network1
 ); */
 
+/**
+ * Mints tokens and performs various operations related to token contracts.
+ * 
+ * @param txMaker The transaction builder used for interacting with the blockchain.
+ */
 export const mint = async (txMaker: TransactionBuilder) => {
     console.log('')
     console.log(colors.purple, '===========')
