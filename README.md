@@ -220,5 +220,42 @@ To run all the transsactions we could do on soroswap protocol just run (inside s
 # local_or_public: Type of contract deployment (local or public)
 
 bash scripts/manual_testing/all.sh testnet local
+
+```
+
+## Running the typescript tests
+
+
+**Step 1: Start the development environment**
+
+The first step is to start the development environment. This can be done by executing the following command:
+
+
+```
+bash scripts/quickstart.sh standalone
+
+```
+
+This command will start a standalone development environment with the contracts running.
+
+**Step 2: Start the test environment**
+
+Once the development environment is started, the next step is to start the test environment. This can be done by executing the following command:
+```
+bash scripts/runTest.sh
+
+```
+
+This command will start the test environment and load the contracts.
+
+**Step 3: Run the tests**
+
+Once the test environment is started, the final step is to run the tests. This can be done by executing the following command on test environment terminal:
+```
+yarn test
+
+```
+
+This command will run all of the tests for the contracts.
 ```
 
