@@ -2,6 +2,18 @@ import { colors, tokens, loadAccounts, saveContracts} from "./utils/utils";
 import { TransactionBuilder } from "./utils/TransactionBuilder";
 import { testAccount, tokenContract, token } from './utils/types'
 
+
+/* const network1 = "standalone"
+const rpcUri1 = "http://stellar"
+const routerContractAddress = "CDPOUV6Q2DLFOQZ3TA5ACUADUWB56HCQAAJWLVV27INLWC7MVAJXY3EU"
+const txBuilder = new TransactionBuilder(
+    `${rpcUri1}:8000`,
+    `${rpcUri1}:8000/soroban/rpc`,
+    `${rpcUri1}:8000/friendbot?addr=`,
+    routerContractAddress,
+    network1
+); */
+
 export const mint = async (txMaker: TransactionBuilder) => {
     console.log('')
     console.log(colors.purple, '===========')
@@ -13,32 +25,35 @@ export const mint = async (txMaker: TransactionBuilder) => {
     const accounts = loadAccounts() as testAccount[]
     const user = accounts[0] as testAccount
     const issuer = accounts[1] as testAccount
-    const token_0 = tokens[6] as token
-    const token_1 = tokens[7] as token
+    const token0 = tokens[6] as token
+    const token1 = tokens[7] as token
+    console.log(colors.green, "User account:", user)
+    console.log(colors.green, "Issuer account:", issuer)
 
     console.log(colors.cyan, "Funding accounts...")
     await txMaker.fundAccount(issuer)
     await txMaker.fundAccount(user)
 
+    console.log(colors.cyan, "Uploading token contract wasm...")
     const uploadTokenContractWasmResponse = await txMaker.uploadTokenContractWasm(issuer)
     if (uploadTokenContractWasmResponse.status == "SUCCESS") {
         console.log(colors.green, "Token contract wasm uploaded successfully")
     }
     if (uploadTokenContractWasmResponse.status == "error") console.log("uploadTokenContractWasmResponse.error:", uploadTokenContractWasmResponse.error)
 
-    console.log(colors.cyan, `Creating token contract for ${token_0.symbol}...`)
+    console.log(colors.cyan, `Creating token contract for ${token0.symbol}...`)
     const tokenSorobanContractId1 = await txMaker.createTokenContract(issuer)
 
     if (typeof tokenSorobanContractId1 === "string") {
-        console.log(`Initializing token contract for ${token_0.symbol} on ${tokenSorobanContractId1}...`)
+        console.log(`Initializing token contract for ${token0.symbol} on ${tokenSorobanContractId1}...`)
         const initializeTokenContractResponse = await txMaker.initializeTokenContract({
             contractId: tokenSorobanContractId1 ?? "",
             source: issuer,
-            name: token_0.name,
-            symbol: token_0.symbol,
+            name: token0.name,
+            symbol: token0.symbol,
         })
         if (initializeTokenContractResponse.status == "SUCCESS") {
-            console.log(colors.green, `Token ${token_0.symbol} initialized successfully`)
+            console.log(colors.green, `Token ${token0.symbol} initialized successfully`)
         }
         const mintTokensResponse = await txMaker.mintTokens({
             contractId: tokenSorobanContractId1 ?? "",
@@ -47,7 +62,7 @@ export const mint = async (txMaker: TransactionBuilder) => {
             destination: user.publicKey
         }).catch((error) => { console.log(error) })
         if(mintTokensResponse.status == "SUCCESS") {
-            console.log(colors.green, `Token ${token_0.symbol} minted successfully`)
+            console.log(colors.green, `Token ${token0.symbol} minted successfully`)
         }
     }
     else {
@@ -56,19 +71,19 @@ export const mint = async (txMaker: TransactionBuilder) => {
         return
     }
 
-    console.log(colors.cyan, `Creating token contract for ${token_1.symbol}...`)
+    console.log(colors.cyan, `Creating token contract for ${token1.symbol}...`)
     const tokenSorobanContractId2 = await txMaker.createTokenContract(issuer)
 
     if (typeof tokenSorobanContractId2 === "string") {
-        console.log(`Initializing token contract for ${token_1.symbol} on ${tokenSorobanContractId2}...`)
+        console.log(`Initializing token contract for ${token1.symbol} on ${tokenSorobanContractId2}...`)
         const initializeTokenContractResponse = await txMaker.initializeTokenContract({
             contractId: tokenSorobanContractId2 ?? "",
             source: issuer,
-            name: token_1.name,
-            symbol: token_1.symbol,
+            name: token1.name,
+            symbol: token1.symbol,
         })
         if (initializeTokenContractResponse.status == "SUCCESS") {
-            console.log(colors.green, `Token ${token_1.symbol} initialized successfully`)
+            console.log(colors.green, `Token ${token1.symbol} initialized successfully`)
         }
         const mintTokensResponse = await txMaker.mintTokens({
             contractId: tokenSorobanContractId2 ?? "",
@@ -77,7 +92,7 @@ export const mint = async (txMaker: TransactionBuilder) => {
             destination: user.publicKey
         }).catch((error) => { console.log(error) })
         if(mintTokensResponse.status == "SUCCESS") {
-            console.log(colors.green, `Token ${token_1.symbol} minted successfully`)
+            console.log(colors.green, `Token ${token1.symbol} minted successfully`)
         }
     }
     else {
@@ -89,19 +104,21 @@ export const mint = async (txMaker: TransactionBuilder) => {
     console.log(colors.cyan, "saving contracts...")
     const tokenContracts: tokenContract[] = [
         {
-            address: token_0.address,
-            name: token_0.name,
+            address: token0.address,
+            name: token0.name,
             contractId: tokenSorobanContractId1,
-            symbol: token_0.symbol
+            symbol: token0.symbol,
+        
         },
         {
-            address: token_1.address,
-            name: token_1.name,
+            address: token1.address,
+            name: token1.name,
             contractId: tokenSorobanContractId2,
-            symbol: token_1.symbol
+            symbol: token1.symbol,
+        
         }
     ]
-    saveContracts(tokenContracts)
+    console.log(saveContracts(tokenContracts))
     console.log(colors.green, "contracts:", tokenContracts)
     console.log(colors.green, "saved successfully.")
     console.log('')
@@ -109,9 +126,9 @@ export const mint = async (txMaker: TransactionBuilder) => {
     console.log(colors.cyan, "Fetching token balances...")
     const balance = await txMaker.getTokenBalance({source: user, contractId: tokenSorobanContractId1})
     const balance2 = await txMaker.getTokenBalance({source: user, contractId: tokenSorobanContractId2})
-    console.log(colors.cyan, `${token_0.symbol}_balance: `, balance)
-    console.log(colors.cyan, `${token_1.symbol}_balance: `, balance2)
-    
+    console.log(colors.cyan, `${token0.symbol}_balance: `, balance)
+    console.log(colors.cyan, `${token1.symbol}_balance: `, balance2)
     console.log(colors.green, '- Done. -')
 }
-    
+
+//mint(txBuilder)

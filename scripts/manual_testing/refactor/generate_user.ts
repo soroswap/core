@@ -9,9 +9,9 @@ console.log(colors.purple, '====================')
 console.log('')
 console.log(colors.cyan, 'Configuring accounts...')
 const user = await generateUser()
-const asset_deployer = await generateUser()
+const assetDeployer = await generateUser()
 
-saveAccounts([user, asset_deployer])
+saveAccounts([user, assetDeployer])
 const accounts = await loadAccounts() as testAccount[]
 
 console.log(colors.green, 'User account:', accounts[0])
