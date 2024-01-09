@@ -226,17 +226,27 @@ bash scripts/manual_testing/all.sh testnet local
 ## Running the typescript tests
 
 
+
 **Step 1: Start the development environment**
 
-The first step is to start the development environment. This can be done by executing the following command:
-
-
+ 1. Start the development environment. This can be done by executing the
+    following command:
 ```
 bash scripts/quickstart.sh standalone
-
+```
+2.  Start the development container. To start the development container, in a new terminal, run the command:
+ ```
+bash scripts/run.sh
 ```
 
-This command will start a standalone development environment with the contracts running.
+3.  Deploy the tokens. Once the development container is started, run the command:
+```
+bash scripts/deploy_tokens_n_pairs"
+```
+ >[!TIP]
+ >Remember to run it with the arguments described in the setup section in step #2
+
+This will start a standalone development environment with the contracts running.
 
 **Step 2: Start the test environment**
 
