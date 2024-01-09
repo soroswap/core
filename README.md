@@ -241,10 +241,10 @@ bash scripts/run.sh
 
 3.  Deploy the tokens. Once the development container is started, run the command:
 ```
-bash scripts/deploy_tokens_n_pairs"
+bash scripts/deploy_tokens_n_pairs standalone 8
 ```
  >[!TIP]
- >Remember to run it with the arguments described in the setup section in step #2
+ >8 is a suggestion, you can put any even number to not to break the pair creation
 
 This will start a standalone development environment with the contracts running.
 
