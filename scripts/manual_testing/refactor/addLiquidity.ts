@@ -60,9 +60,7 @@ export const addLiquidity = async (txMaker:TransactionBuilder) => {
     console.log(colors.green, `${token0.symbol}_Balance:`, token0FirstBalance)
     console.log(colors.green, `${token1.symbol}_Balance:`, token1FirstBalance)
 
-    console.log(colors.cyan, "Adding liquidity...")
-    console.log(colors.yellow, await txMaker.getRouterContractAddress())
-    
+    console.log(colors.cyan, "Adding liquidity...")    
     const addLiquidityResponse = await txMaker.addLiquiditySoroswap({
         tokenA: token0.contractId,
         tokenB: token1.contractId,

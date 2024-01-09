@@ -1,20 +1,21 @@
 Arguments: 
-  /root/.nvm/versions/node/v17.9.1/bin/node /root/.node/corepack/yarn/1.22.15/bin/yarn.js remove node-fetch
+  /usr/local/bin/node /opt/yarn-v1.22.19/bin/yarn.js
 
 PATH: 
-  /root/.nvm/versions/node/v17.9.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.cargo/bin
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 Yarn version: 
-  1.22.15
+  1.22.19
 
 Node version: 
-  17.9.1
+  18.18.2
 
 Platform: 
   linux x64
 
 Trace: 
-  Error: ENOENT: no such file or directory, open '/usr/local/share/.cache/yarn/v6/npm-esbuild-linux-s390x-0.14.47-a458af939b52f2cd32fc561410d441a51f69d41f-integrity/node_modules/esbuild-linux-s390x/.yarn-metadata.json'
+  Error: connect ENETUNREACH 104.16.27.34:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)
 
 npm manifest: 
   {
