@@ -4,8 +4,6 @@ import axios from "axios";
 import fs from "fs";
 import { testAccount, ApiErrorResponse, tokenContract } from './types'
 import tokensFile from '../../../../.soroban/tokens.json'
-import tokenContractsFile from '../../../../.soroban/test/tokenContracts.json'
-import pairsFile from '../../../../.soroban/pairs.json'
 
 export const colors = {
   red: '\x1b[31m%s\x1b[0m',
@@ -17,9 +15,6 @@ export const colors = {
   
 export const tokens = tokensFile[0]?.tokens || [];
 
-export const tokenContracts = tokenContractsFile
-
-export const pairs = pairsFile[0]?.pairs
 
 export const generateUser = (): testAccount => {
   const keypair = sdk.Keypair.random()
@@ -58,7 +53,23 @@ export function saveContracts(tokens: tokenContract[]): void {
   }
 
   const data = JSON.stringify(tokens, null, 2);
-  fs.writeFileSync(filepath, data);
+  fs.writeFileSync(filepath, data, 'utf8');
+}
+
+/**
+ * Loads the token contracts from a JSON file.
+ * @returns An array of token contracts if the file exists, otherwise undefined.
+ */
+export function loadContracts(): tokenContract[] | undefined {
+  const filepath = path.join('/workspace/', './.soroban/test', 'tokenContracts.json');
+
+  if(fs.existsSync(filepath)) {
+    const data = fs.readFileSync(filepath, 'utf8');
+    return JSON.parse(data) as tokenContract[];
+  } else {
+    console.log('No contracts file found.');
+    return undefined;
+  }
 }
 
 /**

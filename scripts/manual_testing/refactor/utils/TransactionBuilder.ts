@@ -164,7 +164,8 @@ export class TransactionBuilder {
             console.error("ERROR!", error);
             showErrorResultCodes(error);
         }
-    }
+    } 
+
 
     /**
      * Uploads a token contract WebAssembly (Wasm) file to the Soroban network.
@@ -179,11 +180,12 @@ export class TransactionBuilder {
         const op = sdk.Operation.uploadContractWasm({ wasm: wasmBuffer });
 
         // Get the source account and keypair
-        const source = await this.sorobanServer.getAccount(signer.publicKey);
+        const source = await this.sorobanServer.getAccount(signer.publicKey)
+        .catch((error) => { console.error(colors.red, "Error:", error) });
         const sourceKeypair = sdk.Keypair.fromSecret(signer.privateKey);
 
         // Build the transaction
-        let tx = this.buildTransaction(source, sourceKeypair, op);
+        let tx = this.buildTransaction(source as sdk.Account, sourceKeypair, op);
 
         try {
             // Prepare and sign the transaction
@@ -324,11 +326,8 @@ export class TransactionBuilder {
             new sdk.Address(args.to.publicKey).toScVal(),
             sdk.nativeToScVal(getCurrentTimePlusOneHour(), { type: "u64" }),
         ];
-
         const op = routerContract.call("add_liquidity", ...scValParams);
-
         const transaction = this.buildTransaction(account, sourceKeypair, op);
-
         const preparedTransaction = await this.sorobanServer.prepareTransaction(transaction);
         preparedTransaction.sign(sourceKeypair);
 
@@ -337,6 +336,7 @@ export class TransactionBuilder {
             const confirmation = await waitForConfirmation(txRes.hash, this.sorobanServer);
             return confirmation;
         } catch (error) {
+            console.log(colors.red ,'Error')
             showErrorResultCodes(error);
             console.error(error);
         }
@@ -429,5 +429,8 @@ export class TransactionBuilder {
             showErrorResultCodes(error);
             console.error(error);
         }
+    }
+    getRouterContractAddress() {
+        return this.routerContractAddress
     }
 }

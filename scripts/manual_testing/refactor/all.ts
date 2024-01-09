@@ -1,5 +1,5 @@
 import * as sdk from "stellar-sdk";
-import {getRouterContractAddress} from "./utils/utils";
+import {getRouterContractAddress, colors} from "./utils/utils";
 import { TransactionBuilder } from "./utils/TransactionBuilder";
 import {
     generateUsers,
@@ -24,24 +24,7 @@ const networkPassphrase = network === "testnet" ?
         sdk.Networks.STANDALONE :
         sdk.Networks.PUBLIC;
 
-if (network === "testnet") {
-    let server = new sdk.Horizon.Server("https://horizon-testnet.stellar.org")
-} else if (network === "standalone") {
-    let server = new sdk.Horizon.Server("http://stellar:8000", { allowHttp: true })
-    let apiUri = "http://soroswapCoreApi:8010"
-    let rpcUri = "http://stellar"
-    let routerContractAddress: any;
-    getRouterContractAddress(apiUri, network).then((address) => {
-        routerContractAddress = address;
-    }); 
-    txMaker = new TransactionBuilder(
-        `${rpcUri}:8000`,
-        `${rpcUri}:8000/soroban/rpc`,
-        `${rpcUri}:8000/friendbot?addr=`,
-        routerContractAddress,
-        network
-    );
-}
+
 switch (mode) {
     case "local":
         console.log("Using deployed contracts from .soroban folder")
@@ -56,8 +39,19 @@ switch (mode) {
         break;
 }
 
-
 const testAll = async () => {
+    let apiUri = "http://soroswapCoreApi:8010"
+    let rpcUri = "http://stellar"
+    let routerContractAddress = await getRouterContractAddress(apiUri, network)
+
+    txMaker = new TransactionBuilder(
+        `${rpcUri}:8000`,
+        `${rpcUri}:8000/soroban/rpc`,
+        `${rpcUri}:8000/friendbot?addr=`,
+        routerContractAddress,
+        network
+    );
+    await txMaker.getRouterContractAddress()
     await generateUsers();
     await mint(txMaker);
     await add_liquidity(txMaker);
