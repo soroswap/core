@@ -18,7 +18,6 @@ import {
 
 
 export class TransactionBuilder {
-    private horizonServer: sdk.Horizon.Server;
     private sorobanServer: sdk.SorobanRpc.Server;
     private friendbotURI: string;
     private routerContractAddress: string;
@@ -38,9 +37,7 @@ export class TransactionBuilder {
             routerContractAddress: string, 
             network: string
         ) {
-        this.horizonServer = new sdk.Horizon.Server(horizonServer, {
-            allowHttp: true
-        });
+
         this.sorobanServer = new sdk.SorobanRpc.Server(sorobanServer, {
             allowHttp: true
         });
@@ -56,6 +53,7 @@ export class TransactionBuilder {
      * @param operations The operations to be added to the transaction.
      * @returns The built transaction.
      */
+
     buildTransaction(source: sdk.Account, signer: sdk.Keypair, ...operations: sdk.xdr.Operation[]): sdk.Transaction {
         const transaction: sdk.TransactionBuilder = new sdk.TransactionBuilder(source, {
             fee: sdk.BASE_FEE,
@@ -74,6 +72,7 @@ export class TransactionBuilder {
      * @param args - The arguments for minting tokens.
      * @returns A promise that resolves with the confirmation of the minting transaction.
      */
+
     async mintTokens(args: mintTokensArgs): Promise<any> {
         const source = await this.sorobanServer.getAccount(args.source.publicKey);
         const sourceKeypair = sdk.Keypair.fromSecret(args.source.privateKey);

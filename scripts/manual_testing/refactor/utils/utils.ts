@@ -3,7 +3,6 @@ import * as path from 'path';
 import axios from "axios";
 import fs from "fs";
 import { testAccount, ApiErrorResponse, tokenContract, token } from './types'
-import tokensFile from '../../../../.soroban/tokens.json'
 
 export const colors = {
   red: '\x1b[31m%s\x1b[0m',
@@ -12,12 +11,6 @@ export const colors = {
   cyan: '\x1b[36m%s\x1b[0m',
   purple: '\x1b[35;1m%s\x1b[0m',
 }
-  
-/**
- * Array of tokens.
- * @type {Array<token>}
- */
-export const tokens = tokensFile[0]?.tokens || [];
 
 /**
  * Generates a user with a random keypair.
@@ -99,9 +92,40 @@ export function loadAccounts(): testAccount[] | undefined {
   }
 }
 
+/**
+ * Loads tokens from a file based on the specified network.
+ * @param network - The network to load tokens from ('standalone' or 'testnet').
+ * @returns An array of tokens if the file exists, otherwise undefined.
+ */
+export function loadTokens(network: string): token[] | undefined {
+  let filepath: string;
+  switch (network) {
+    case 'standalone':
+      filepath = path.join('/workspace/', './.soroban', 'tokens.json');
+      if (fs.existsSync(filepath)) {
+        const data = fs.readFileSync(filepath, 'utf8');
+        return JSON.parse(data) as token[];
+      } else {
+        console.error(colors.red, 'No tokens file found.');
+        return undefined;
+      }
+ 
+    case 'testnet':
+      filepath = path.join('/workspace/', './public', 'tokens.json');
+      if (fs.existsSync(filepath)) {
+        const data = fs.readFileSync(filepath, 'utf8');
+        return JSON.parse(data) as token[];
+      } else {
+        console.error(colors.red, 'No tokens file found.');
+        return undefined;
+      }
 
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+    default:
+      console.log(colors.yellow, "Please pass your selected network as an argument")
+      console.log(colors.yellow, "Usage: ts-node all.ts standalone|testnet")
+      return undefined
+  }
+}
 
 
 /**
@@ -158,49 +182,6 @@ export async function waitForConfirmation(hash: string, server: sdk.SorobanRpc.S
 }
 
 /**
- * Retrieves the balance of a specific asset for a given account.
- * @param args An object containing the account and asset information.
- * @param args.account The Horizon account response object.
- * @param args.asset The asset for which the balance is requested.
- * @returns The balance of the specified asset for the account, or undefined if the asset is not found.
- */
-export function getAssetBalance(args: { account: sdk.Horizon.AccountResponse, asset: sdk.Asset }): string | undefined {
-  const balance = args.account.balances.find((balance) => {
-    if (balance.asset_type === "native") {
-      return args.asset.isNative();
-    } else if (balance.asset_type === "liquidity_pool_shares") {
-      // todo: handle liquidity pool shares
-      console.log("Liquidity pool shares not supported yet");
-      return false;
-    } else {
-      return balance.asset_code === args.asset.code && balance.asset_issuer === args.asset.issuer;
-    }
-  });
-  return balance?.balance;
-}
-
-/**
- * Creates a new liquidity pool asset with the specified assets.
- * @param assetA The first asset of the liquidity pool.
- * @param assetB The second asset of the liquidity pool.
- * @returns A new instance of the `sdk.LiquidityPoolAsset` class representing the created liquidity pool asset.
- */
-export function createLiquidityPoolAsset(assetA: sdk.Asset, assetB: sdk.Asset): sdk.LiquidityPoolAsset {
-  return new sdk.LiquidityPoolAsset(assetA, assetB, sdk.LiquidityPoolFeeV18);
-}
-
-/**
- * Retrieves the ID of a liquidity pool asset.
- * @param liquidityPoolAsset The liquidity pool asset for which the ID is requested.
- * @returns The ID of the liquidity pool asset as a hexadecimal string.
- */
-export function getLiquidityPoolId(liquidityPoolAsset: sdk.LiquidityPoolAsset): string {
-  return sdk.getLiquidityPoolId("constant_product",
-    liquidityPoolAsset.getLiquidityPoolParameters()
-  ).toString("hex");
-}
-
-/**
  * Converts a hexadecimal string to a byte array.
  * @param hexString The hexadecimal string to convert.
  * @returns The byte array representation of the hexadecimal string.
@@ -254,14 +235,4 @@ export async function getRouterContractAddress(uri: string, network: string): Pr
   }
   
   return "error";
-}
-
-/**
- * Creates a new asset with the specified name and issuer public key.
- * @param name The name of the asset.
- * @param issuerPublicKey The public key of the asset issuer.
- * @returns A new instance of the `sdk.Asset` class representing the created asset.
- */
-export function createAsset(name: string, issuerPublicKey: string): sdk.Asset {
-  return new sdk.Asset(name, issuerPublicKey);
 }
