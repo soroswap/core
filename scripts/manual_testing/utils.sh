@@ -22,7 +22,7 @@ USER_SECRET=$(cat /workspace/.soroban/user_secret)
 getTokenBalance() {
     local tokenAddress="$1"
     local TOKEN_BALANCE="$(soroban contract invoke \
-    --network $NETWORK \
+    --network $NETWORK --source $USER_SECRET \
     --id $tokenAddress \
     -- \
     balance \
