@@ -241,7 +241,7 @@ bash scripts/run.sh
 
 3.  Deploy the tokens. Once the development container is started, run the command:
 ```
-bash scripts/deploy_tokens_n_pairs standalone 8
+bash scripts/deploy_tokens_n_pairs.sh standalone 8
 ```
  >[!TIP]
  >8 is a suggestion, you can put any even number to not to break the pair creation
