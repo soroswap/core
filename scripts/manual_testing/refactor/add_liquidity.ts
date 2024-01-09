@@ -1,5 +1,5 @@
 import { TransactionBuilder } from "./utils/TransactionBuilder";
-import { colors, getRouterContractAddress, loadAccounts, loadContracts } from "./utils/utils";
+import { colors, loadAccounts, loadContracts } from "./utils/utils";
 import { testAccount, tokenContract } from './utils/types'
 
 /*     const network1 = "standalone"
@@ -12,7 +12,26 @@ import { testAccount, tokenContract } from './utils/types'
         routerContractAddress,
         network1
     ); */
-export const add_liquidity = async (txMaker:TransactionBuilder) => {
+
+/**
+ * Adds liquidity to a Soroban pool.
+ * 
+ * @param txMaker The transaction builder object.
+ * @returns A Promise that resolves when the liquidity is added successfully.
+ */
+/**
+ * Adds liquidity to a Soroban pool.
+ * 
+ * @param txMaker The transaction builder object.
+ * @returns A Promise that resolves when the liquidity is added successfully.
+ */
+/**
+ * Adds liquidity to a Soroban pool.
+ * 
+ * @param txMaker The transaction builder object.
+ * @returns A Promise that resolves when the liquidity is added successfully.
+ */
+export const addLiquidity = async (txMaker:TransactionBuilder) => {
     console.log('')
     console.log(colors.purple, '====================')
     console.log(colors.purple, '= ADD_LIQUIDITY.ts =')

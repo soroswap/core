@@ -2,7 +2,7 @@ import * as sdk from '@stellar/stellar-sdk'
 import * as path from 'path';
 import axios from "axios";
 import fs from "fs";
-import { testAccount, ApiErrorResponse, tokenContract } from './types'
+import { testAccount, ApiErrorResponse, tokenContract, token } from './types'
 import tokensFile from '../../../../.soroban/tokens.json'
 
 export const colors = {
@@ -13,9 +13,16 @@ export const colors = {
   purple: '\x1b[35;1m%s\x1b[0m',
 }
   
+/**
+ * Array of tokens.
+ * @type {Array<token>}
+ */
 export const tokens = tokensFile[0]?.tokens || [];
 
-
+/**
+ * Generates a user with a random keypair.
+ * @returns {testAccount} The generated user with a private and public key.
+ */
 export const generateUser = (): testAccount => {
   const keypair = sdk.Keypair.random()
   const publicKey = keypair.publicKey()
@@ -43,6 +50,10 @@ export function saveAccounts(accounts: testAccount[]): void {
   fs.writeFileSync(filepath, data);
 }
 
+/**
+ * Saves the token contracts to a JSON file.
+ * @param tokens - The token contracts to be saved.
+ */
 export function saveContracts(tokens: tokenContract[]): void {
   const dirPath = path.join('/workspace/', './.soroban/test');
   const filepath = path.join(dirPath, 'tokenContracts.json');
