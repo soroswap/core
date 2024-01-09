@@ -7,6 +7,7 @@ import {
     swap,
     removeLiquidity
 } from "./index"
+import { networkConfig } from "./utils/types";
 
 // Get the arguments passed to the script
 const args = process.argv.slice(2);
@@ -27,41 +28,40 @@ let txMaker: TransactionBuilder;
 
 
 const testAll = async (network: string, mode: string) => {
-    let apiUri: string;
-    let rpcUri: string;
-    let routerContractAddress: string;
-    switch (network) {
-        case "standalone":
-            console.log(colors.green, 'Using standalone network')
-            apiUri = "http://soroswapCoreApi:8010"
-            rpcUri = "http://stellar"
-            routerContractAddress = await getRouterContractAddress(apiUri, network)
+    async function getNetworkValues(network: string): Promise<networkConfig | void> {
+        let apiUri: string;
+        let rpcUri: string;
+        let routerContractAddress: string;
+        let friendbotUri: string;
 
-            txMaker = new TransactionBuilder(
-                `${rpcUri}:8000`,
-                `${rpcUri}:8000/soroban/rpc`,
-                `${rpcUri}:8000/friendbot?addr=`,
-                routerContractAddress,
-                network
-            );
-        break;
-        case "testnet":
-            console.log(colors.green, 'Using testnet network')
-            apiUri = "https://horizon-testnet.stellar.org"
-            rpcUri = "http://stellar"
-            routerContractAddress = await getRouterContractAddress(apiUri, network)
-            txMaker = new TransactionBuilder(
-                `${rpcUri}`,
-                `${rpcUri}/soroban/rpc`,
-                "https://friendbot.stellar.org/?addr=",
-                routerContractAddress,
-                network
-            );
-            break;
-        default:
-            console.log(colors.yellow, "Please pass your selected network as an argument")
-            console.log(colors.yellow, "Usage: ts-node all.ts standalone|testnet")
+        switch (network) {
+            case "standalone":
+                apiUri = "http://soroswapCoreApi:8010";
+                rpcUri = "http://stellar:8000";
+                routerContractAddress = await getRouterContractAddress(apiUri, network);
+                friendbotUri = `${rpcUri}/friendbot?addr=`;
+                return { apiUri, rpcUri, routerContractAddress, friendbotUri };
+            case "testnet":
+                apiUri = "https://horizon-testnet.stellar.org";
+                rpcUri = "https://soroban-testnet.stellar.org";
+                routerContractAddress = await getRouterContractAddress(apiUri, network);
+                friendbotUri = "https://friendbot.stellar.org/?addr=";
+                return { apiUri, rpcUri, routerContractAddress, friendbotUri };
+            default:
+                console.log(colors.yellow, "Usage: ts-node all.ts standalone|testnet");
+                throw new Error("Please pass your selected network as an argument");
+        }
+  
     }
+    const networkValues = await getNetworkValues(network) as networkConfig;
+    txMaker = new TransactionBuilder(
+        networkValues.apiUri,
+        `${networkValues.rpcUri}/soroban/rpc`,
+        networkValues.friendbotUri,
+        networkValues.routerContractAddress,
+        network
+    );
+    
     switch (mode) {
         case "local":
             console.log("Using deployed contracts from .soroban folder")
@@ -75,7 +75,7 @@ const testAll = async (network: string, mode: string) => {
             console.log("public: use contracts from the /public folder (addresses in production)")
             break;
     }
-    
+    console.log(colors.purple, networkValues)
     await txMaker.getRouterContractAddress()
     await generateUsers();
     await mint(txMaker, network);

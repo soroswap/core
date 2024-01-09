@@ -105,3 +105,15 @@ export interface token {
   decimals: number;
   logoURI: string;
 }
+
+export interface tokensFile {
+  network: string;
+  tokens: token[];
+}
+
+export interface networkConfig {
+  apiUri: string;
+  rpcUri: string;
+  routerContractAddress: string;
+  friendbotUri: string;
+}
