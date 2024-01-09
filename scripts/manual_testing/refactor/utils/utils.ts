@@ -2,7 +2,7 @@ import * as sdk from '@stellar/stellar-sdk'
 import * as path from 'path';
 import axios from "axios";
 import fs from "fs";
-import { testAccount, ApiErrorResponse, tokenContract, token } from './types'
+import { testAccount, ApiErrorResponse, tokenContract, tokensFile } from './types'
 
 export const colors = {
   red: '\x1b[31m%s\x1b[0m',
@@ -97,14 +97,14 @@ export function loadAccounts(): testAccount[] | undefined {
  * @param network - The network to load tokens from ('standalone' or 'testnet').
  * @returns An array of tokens if the file exists, otherwise undefined.
  */
-export function loadTokens(network: string): token[] | undefined {
+export function loadTokens(network: string): tokensFile | undefined {
   let filepath: string;
   switch (network) {
     case 'standalone':
       filepath = path.join('/workspace/', './.soroban', 'tokens.json');
       if (fs.existsSync(filepath)) {
         const data = fs.readFileSync(filepath, 'utf8');
-        return JSON.parse(data) as token[];
+        return JSON.parse(data) as tokensFile;
       } else {
         console.error(colors.red, 'No tokens file found.');
         return undefined;
@@ -114,7 +114,7 @@ export function loadTokens(network: string): token[] | undefined {
       filepath = path.join('/workspace/', './public', 'tokens.json');
       if (fs.existsSync(filepath)) {
         const data = fs.readFileSync(filepath, 'utf8');
-        return JSON.parse(data) as token[];
+        return JSON.parse(data) as tokensFile;
       } else {
         console.error(colors.red, 'No tokens file found.');
         return undefined;

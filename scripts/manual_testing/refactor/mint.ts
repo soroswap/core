@@ -33,15 +33,17 @@ export const mint = async (txMaker: TransactionBuilder, network: string) => {
     const user = accounts[0] as testAccount
     const issuer = accounts[1] as testAccount
 
-    const tokens = loadTokens(network) as token[]
-    const token0 = tokens[6] as token
-    const token1 = tokens[7] as token
     console.log(colors.green, "User account:", user)
     console.log(colors.green, "Issuer account:", issuer)
-
+    
     console.log(colors.cyan, "Funding accounts...")
     await txMaker.fundAccount(issuer)
     await txMaker.fundAccount(user)
+
+    console.log(colors.cyan, "Loading tokens...")
+    const tokensFile =  loadTokens(network) as any
+    const token0 = tokensFile[0].tokens[6] as token
+    const token1 = tokensFile[0].tokens[7] as token
 
     console.log(colors.cyan, "Uploading token contract wasm...")
     const uploadTokenContractWasmResponse = await txMaker.uploadTokenContractWasm(issuer)
