@@ -3,9 +3,9 @@ import { TransactionBuilder } from "./utils/TransactionBuilder";
 import {
     generateUsers,
     mint,
-    add_liquidity,
+    addLiquidity,
     swap,
-    remove_liquidity
+    removeLiquidity
 } from "./index"
 
 // Get the arguments passed to the script
@@ -79,9 +79,9 @@ const testAll = async (network: string, mode: string) => {
     await txMaker.getRouterContractAddress()
     await generateUsers();
     await mint(txMaker, network);
-    await add_liquidity(txMaker);
+    await addLiquidity(txMaker);
     await swap(txMaker);
-    await remove_liquidity(txMaker);
+    await removeLiquidity(txMaker);
 }
 
 testAll(network, mode)
