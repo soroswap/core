@@ -21,23 +21,24 @@ jq, docker, docker-compose, node, yarn
 git clone http://github.com/soroswap/core.git
 ```
 
-1.2 yarn install
-
-```
-yarn
-```
-
-1.3 In one terminal: (choose standalone, futurenet or testnet)
+1.2 In one terminal: (choose standalone, futurenet or testnet)
 
 ```
 bash scripts/quickstart.sh standalone # or futurenet or testnet
 ```
 
-1.4. In another terminal
+1.3. In another terminal
 
 ```
 bash scripts/run.sh
 ```
+
+1.4 yarn install
+
+```
+yarn
+```
+
 
 ### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
 
