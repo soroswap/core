@@ -257,6 +257,6 @@ yarn test
 
 ```
 
-This command will run all of the tests for the contracts.
+This command will run all of the tests for the contracts..
 ```
 
