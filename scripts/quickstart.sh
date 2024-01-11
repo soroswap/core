@@ -30,10 +30,14 @@ echo "1. Creating docker soroban network"
 (docker network inspect soroban-network -f '{{.Id}}' 2>/dev/null) \
   || docker network create soroban-network
 
+echo "  "
+echo "  "
 
 echo "2. Running a soroban-precview docker container"
+echo "  "
+echo "  "
 
-echo "Searching for a previous soroban-preview docker container"
+echo "3. Searching for a previous soroban-preview docker container"
 containerID=$(docker ps --filter=`name=soroban-preview-${previewVersion}` --all --quiet)
 if [[ ${containerID} ]]; then
     echo "Start removing soroban-preview-${previewVersion}  container."
@@ -42,6 +46,20 @@ if [[ ${containerID} ]]; then
 else
     echo "No previous soroban-preview-${previewVersion} container was found"
 fi
+echo "  "
+echo "  "
+
+echo "4. Searching for a previous stellar container"
+containerID=$(docker ps --filter=`name=stellar` --all --quiet)
+if [[ ${containerID} ]]; then
+    echo "Start removing stellar container."
+    docker rm --force stellar
+    echo "Finished removing stellar container."
+else
+    echo "No previous stellar container was found"
+fi
+echo "  "
+echo "  "
 
 currentDir=$(pwd)
 docker run -dti \
