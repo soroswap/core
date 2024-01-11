@@ -249,19 +249,9 @@ bash scripts/deploy_tokens_n_pairs.sh standalone 8
 
 This will start a standalone development environment with the contracts running.
 
-**Step 2: Start the test environment**
+**Step 2: Run the tests**
 
-Once the development environment is started, the next step is to start the test environment. This can be done by executing the following command:
-```
-bash scripts/runTest.sh
-
-```
-
-This command will start the test environment and load the contracts.
-
-**Step 3: Run the tests**
-
-Once the test environment is started, the final step is to run the tests. This can be done by executing the following command on test environment terminal:
+This can be done by executing the following command on test environment terminal:
 ```
 yarn test
 
