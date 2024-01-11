@@ -19,18 +19,6 @@ import { testAccount, tokenContract } from './utils/types'
  * @param txMaker The transaction builder object.
  * @returns A Promise that resolves when the liquidity is added successfully.
  */
-/**
- * Adds liquidity to a Soroban pool.
- * 
- * @param txMaker The transaction builder object.
- * @returns A Promise that resolves when the liquidity is added successfully.
- */
-/**
- * Adds liquidity to a Soroban pool.
- * 
- * @param txMaker The transaction builder object.
- * @returns A Promise that resolves when the liquidity is added successfully.
- */
 export const addLiquidity = async (txMaker:TransactionBuilder) => {
     console.log('')
     console.log(colors.purple, '====================')
@@ -60,7 +48,7 @@ export const addLiquidity = async (txMaker:TransactionBuilder) => {
     console.log(colors.green, `${token0.symbol}_Balance:`, token0FirstBalance)
     console.log(colors.green, `${token1.symbol}_Balance:`, token1FirstBalance)
 
-    console.log(colors.cyan, "Adding liquidity...")    
+    console.log(colors.cyan, "Adding liquidity...")
     const addLiquidityResponse = await txMaker.addLiquiditySoroswap({
         tokenA: token0.contractId,
         tokenB: token1.contractId,
@@ -72,7 +60,8 @@ export const addLiquidity = async (txMaker:TransactionBuilder) => {
         to: user,
     })
     .catch((error) => { 
-        console.error(colors.red, "ERROR: couldn't add liquidity", error) 
+        console.error(colors.red, "ERROR: couldn't add liquidity", error)
+        throw new Error("Couldn't add liquidity")    
     })
     if(addLiquidityResponse.status == "SUCCESS") {
         console.log(colors.green, `Liquidity added successfully`)

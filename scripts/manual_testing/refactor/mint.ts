@@ -77,7 +77,7 @@ export const mint = async (txMaker: TransactionBuilder, network: string) => {
         }
     }
     else {
-        console.log(colors.yellow,"tokenSorobanContractId1 is not a string")
+        console.error(colors.red,"tokenSorobanContractId1 is not a string")
         console.log(colors.yellow,"tokenSorobanContractId1:", tokenSorobanContractId1.status)
         return
     }
@@ -107,7 +107,7 @@ export const mint = async (txMaker: TransactionBuilder, network: string) => {
         }
     }
     else {
-        console.log(colors.yellow, "tokenSorobanContractId2 is not a string")
+        console.log(colors.red, "tokenSorobanContractId2 is not a string")
         console.log(colors.yellow, "tokenSorobanContractId2:", tokenSorobanContractId2.status)
         return
     }
