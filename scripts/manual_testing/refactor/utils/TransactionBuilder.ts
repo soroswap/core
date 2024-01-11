@@ -156,12 +156,13 @@ export class TransactionBuilder {
                 ) {
                     console.log("Account already exists");
                 } else {
-                    console.error("ERROR! :(\n", responseJSON);
+                    console.error(colors.red, "ERROR! :(\n", responseJSON);
                 }
             }
         } catch (error) {
-            console.error("ERROR!", error);
+            console.error(colors.red, "ERROR!", error);
             showErrorResultCodes(error);
+            throw new Error("Error funding account");
         }
     } 
 
@@ -312,7 +313,10 @@ export class TransactionBuilder {
     async addLiquiditySoroswap(args: addLiquiditySoroswapArgs): Promise<any> {
         const account = await this.sorobanServer.getAccount(args.source.publicKey);
         const sourceKeypair = sdk.Keypair.fromSecret(args.source.privateKey);
-
+        if(this.routerContractAddress == undefined) {
+            console.log(colors.red, "Error: Router contract address is undefined.")
+            throw new Error("Router contract address is undefined.")
+        }
         const routerContract = new sdk.Contract(this.routerContractAddress);
 
         const scValParams = [
