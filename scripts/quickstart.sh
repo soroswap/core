@@ -33,11 +33,7 @@ echo "1. Creating docker soroban network"
 echo "  "
 echo "  "
 
-echo "2. Running a soroban-precview docker container"
-echo "  "
-echo "  "
-
-echo "3. Searching for a previous soroban-preview docker container"
+echo "2. Searching for a previous soroban-preview docker container"
 containerID=$(docker ps --filter=`name=soroban-preview-${previewVersion}` --all --quiet)
 if [[ ${containerID} ]]; then
     echo "Start removing soroban-preview-${previewVersion}  container."
@@ -49,7 +45,7 @@ fi
 echo "  "
 echo "  "
 
-echo "4. Searching for a previous stellar container"
+echo "3. Searching for a previous stellar container"
 containerID=$(docker ps --filter=`name=stellar` --all --quiet)
 if [[ ${containerID} ]]; then
     echo "Start removing stellar container."
@@ -61,6 +57,8 @@ fi
 echo "  "
 echo "  "
 
+echo "4. Run a soroban-preview-${previewVersion} container"
+
 currentDir=$(pwd)
 docker run -dti \
   --volume ${currentDir}:/workspace \
@@ -70,6 +68,10 @@ docker run -dti \
   --network soroban-network \
   esteblock/soroban-preview:${previewVersion}
 
+echo "  "
+echo "  "
+
+echo "5. Run a stellar quickstart container"
 # Run the stellar quickstart image
 docker run --rm -ti \
   --name stellar \

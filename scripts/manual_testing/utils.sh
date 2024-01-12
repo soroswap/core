@@ -19,6 +19,7 @@ USER_PUBLIC=$(cat /workspace/.soroban/user_public)
 TOKENS_FILE="/workspace/.soroban/tokens.json"
 USER_SECRET=$(cat /workspace/.soroban/user_secret)
 
+
 # Function to get the balance of a token for a given token address
 # Parameters:
 #   - tokenAddress: The address of the token
@@ -39,13 +40,10 @@ getTokenBalance() {
 TOKEN_0_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].address' "$TOKENS_FILE")
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[2].symbol' "$TOKENS_FILE")
 
-
-
 # Function to print a table of tokens and their balances
 # Arguments:
 #   - List of token names
 #   - List of token balances
-
 #to make it work, we need to pass the token symbol and the token address in that specific order
 #printTokensTable $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS ...
 printTokensTable() {
@@ -116,4 +114,3 @@ printTokensBalanceDiff(){
             fi
         done
 }
-

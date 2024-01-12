@@ -85,6 +85,7 @@ TOKEN_0_FIRST_BALANCE=$(getTokenBalance $TOKEN_0_ADDRESS)
 TOKEN_1_FIRST_BALANCE=$(getTokenBalance $TOKEN_1_ADDRESS)
 TOKEN_LP_FIRST_BALANCE=$(getTokenBalance $PAIR_ADDRESS)
 
+
 echo "..."
 echo "..."
 echo "..."
@@ -142,3 +143,4 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 #         error: parsing argument path: unknown variant `CBGIMY6IVEG73E4QFHSIFXOD4OTMHRAJEDOZS4VMUWGGQ7IKO46GHMEX`, expected `account` or `contract`
 
 printTokensBalanceDiff "SWAP" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE "LP Balance" $PAIR_ADDRESS $TOKEN_LP_FIRST_BALANCE
+
