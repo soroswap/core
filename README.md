@@ -21,23 +21,24 @@ jq, docker, docker-compose, node, yarn
 git clone http://github.com/soroswap/core.git
 ```
 
-1.2 yarn install
-
-```
-yarn
-```
-
-1.3 In one terminal: (choose standalone, futurenet or testnet)
+1.2 In one terminal: (choose standalone, futurenet or testnet)
 
 ```
 bash scripts/quickstart.sh standalone # or futurenet or testnet
 ```
 
-1.4. In another terminal
+1.3. In another terminal
 
 ```
 bash scripts/run.sh
 ```
+
+1.4 yarn install
+
+```
+yarn
+```
+
 
 ### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
 
@@ -220,5 +221,42 @@ To run all the transsactions we could do on soroswap protocol just run (inside s
 # local_or_public: Type of contract deployment (local or public)
 
 bash scripts/manual_testing/all.sh testnet local
+
+```
+
+## Running the typescript tests
+
+
+
+**Step 1: Start the development environment**
+
+ 1. Start the development environment. This can be done by executing the
+    following command:
+```
+bash scripts/quickstart.sh standalone
+```
+2.  Start the development container. To start the development container, in a new terminal, run the command:
+ ```
+bash scripts/run.sh
+```
+
+3.  Deploy the tokens. Once the development container is started, run the command:
+```
+bash scripts/deploy_tokens_n_pairs.sh standalone 8
+```
+ >[!TIP]
+ >8 is a suggestion, you can put any even number to not to break the pair creation
+
+This will start a standalone development environment with the contracts running.
+
+**Step 2: Run the tests**
+
+This can be done by executing the following command on test environment terminal:
+```
+yarn test
+
+```
+
+This command will run all of the tests for the contracts.
 ```
 

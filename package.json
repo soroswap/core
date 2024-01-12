@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node scripts/api/server.js"
+    "start": "node scripts/api/server.js",
+    "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^11.1.0",
@@ -9,5 +10,9 @@
     "soroban-client": "^0.8.1",
     "stellar-sdk": "^11.1.0",
     "vercel": "^31.0.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
