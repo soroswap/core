@@ -206,17 +206,4 @@ TOKEN_1_BALANCE_OF_USER="$(soroban contract invoke \
   balance \
   --id "$USER_PUBLIC"   )"
 
-echo ""
-# Print table header
-display_colored_text BLUE " --------------------------------------- "
-display_colored_text BLUE " | Token Name | Balance                | "
-display_colored_text BLUE " --------------------------------------- "
-# Print token balance
-display_colored_text BLUE " | $TOKEN_0_SYMBOL       | $TOKEN_0_BALANCE_OF_USER      | "
-display_colored_text BLUE " --------------------------------------- "
-display_colored_text BLUE " | $TOKEN_1_SYMBOL       | $TOKEN_1_BALANCE_OF_USER      | "
-
-# Print table footer
-display_colored_text BLUE " --------------------------------------- "
-
-echo ""
+printTokensTable $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS

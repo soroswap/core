@@ -71,6 +71,9 @@ TOKEN_1_ADDRESS=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETW
 TOKEN_0_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[6].symbol' "$TOKENS_FILE")
 TOKEN_1_SYMBOL=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[7].symbol' "$TOKENS_FILE")
 
+TOKEN_0_FIRST_BALANCE=$(getTokenBalance $TOKEN_0_ADDRESS)
+TOKEN_1_FIRST_BALANCE=$(getTokenBalance $TOKEN_1_ADDRESS)
+
 echo "..."
 echo "..."
 echo "..."
@@ -78,29 +81,14 @@ echo "..."
 echo We will use the following test tokens in the $NETWORK network
 echo "..."
 
-PREV_TOKEN_0_BALANCE="$(soroban contract invoke \
-  --network $NETWORK \
-  --source asset_deployer \
-  --id $TOKEN_0_ADDRESS \
-  -- \
-  balance \
-  --id "$USER_PUBLIC"   )"
-
-PREV_TOKEN_1_BALANCE="$(soroban contract invoke \
-  --network $NETWORK \
-  --source asset_deployer \
-  --id $TOKEN_1_ADDRESS \
-  -- \
-  balance \
-  --id "$USER_PUBLIC"   )"
   
 echo TOKEN_0_SYMBOL: $TOKEN_0_SYMBOL
 echo TOKEN_0_ADDRESS: $TOKEN_0_ADDRESS
-echo TOKEN_0_BALANCE: $PREV_TOKEN_0_BALANCE
+echo TOKEN_0_BALANCE: $TOKEN_0_FIRST_BALANCE
 echo "..."
 echo TOKEN_1_SYMBOL: $TOKEN_1_SYMBOL
 echo TOKEN_1_ADDRESS: $TOKEN_1_ADDRESS
-echo TOKEN_1_BALANCE: $PREV_TOKEN_0_BALANCE
+echo TOKEN_1_BALANCE: $TOKEN_1_FIRST_BALANCE
 
 echo "..."
 echo "..."
@@ -368,36 +356,4 @@ soroban contract invoke \
     --to $USER_PUBLIC \
     --deadline 9737055687 # year 2278
 
-POST_TOKEN_0_BALANCE="$(soroban contract invoke \
-  --network $NETWORK \
-  --source asset_deployer \
-  --id $TOKEN_0_ADDRESS \
-  -- \
-  balance \
-  --id "$USER_PUBLIC"   )"
-
-POST_TOKEN_1_BALANCE="$(soroban contract invoke \
-  --network $NETWORK \
-  --source asset_deployer \
-  --id $TOKEN_1_ADDRESS \
-  -- \
-  balance \
-  --id "$USER_PUBLIC"   )"
-
-PREV_TOKEN_0_BALANCE_INT=${PREV_TOKEN_0_BALANCE//[!0-9]/}
-POST_TOKEN_0_BALANCE_INT=${POST_TOKEN_0_BALANCE//[!0-9]/}
-TOKEN_0_LIQUIDITY_DIFF=$((PREV_TOKEN_0_BALANCE_INT - POST_TOKEN_0_BALANCE_INT))
-
-PREV_TOKEN_1_BALANCE_INT=${PREV_TOKEN_1_BALANCE//[!0-9]/}
-POST_TOKEN_1_BALANCE_INT=${POST_TOKEN_1_BALANCE//[!0-9]/}
-TOKEN_1_LIQUIDITY_DIFF=$((PREV_TOKEN_1_BALANCE_INT - POST_TOKEN_1_BALANCE_INT))
-
-echo ""
-display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
-display_colored_text BLUE " | Token Name | Balance before add_liquidity |   Balance after add_liquidity   | Liquidity added | "
-display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
-display_colored_text BLUE " | $TOKEN_0_SYMBOL       | $PREV_TOKEN_0_BALANCE            |   $POST_TOKEN_0_BALANCE             | $TOKEN_0_LIQUIDITY_DIFF     | "
-display_colored_text BLUE " | $TOKEN_1_SYMBOL       | $PREV_TOKEN_1_BALANCE            |   $POST_TOKEN_1_BALANCE             | $TOKEN_1_LIQUIDITY_DIFF     | "
-display_colored_text BLUE " ------------------------------------------------------------------------------------------------- "
-echo ""
-
+printTokensBalanceDiff "Add Liquidity" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE
