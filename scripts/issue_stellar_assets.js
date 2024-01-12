@@ -64,7 +64,7 @@ function createXTokens(adminKeys) {
 
     const toSave = {
       symbol: symbol,
-      name: name,
+      name: `${token.code}:${token.issuer}`,
       logoURI: "",
       asset: `${token.code}:${token.issuer}`
     }
