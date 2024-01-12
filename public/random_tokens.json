@@ -3,30 +3,30 @@
     "network": "standalone",
     "tokens": [
       {
-        "address": "CBD4XYFDQX2ZT5VJ3CCLAACAC3LQMEKC47MI3OVFEFZBBNT2ITKGF7D5",
-        "name": "serxis",
-        "symbol": "SERX",
+        "address": "CA566BM2JZ4OKIIBJ5ELO3TANQHPJKWIS2GMJKMANZO37774AWGCGATZ",
+        "name": "evakai",
+        "symbol": "EVAK",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CDGTHFMJQQ2JH7QODM5Z7OBUT5ZFMPORPXHX6EABCUI25QLS5MTRXEFO",
-        "name": "narthe",
-        "symbol": "NART",
+        "address": "CBXPCKDBKMHZC4C6NCZTNOP7OWZK3TJUAV7ELQU6NPB7UFCJAF5623OL",
+        "name": "anaian",
+        "symbol": "ANAI",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CDTRC45AKMD7AXQB3OTSBUGBVE6H6MRUFPWLW74BPA6CD4J4VQ5BXHYZ",
-        "name": "leoael",
-        "symbol": "LEOA",
+        "address": "CC32AKKQCL3B3EH65LZ6OEXVDAP2UFKPJOZZNBTG2VUUQOZ7T2NKI2C4",
+        "name": "kaizoe",
+        "symbol": "KAIZ",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CDB7CFCLVICWGPICHEKHRJ6NEL3SANFA6QM5FJT34J3MQLTVA6CGBGKK",
-        "name": "araron",
-        "symbol": "ARAR",
+        "address": "CD4WMROSROXATQRUIRP3SOKBYHP2BF7765ILYZGQRRTRL6BHN2RL7AT3",
+        "name": "narara",
+        "symbol": "NARA",
         "logoURI": "",
         "decimals": 7
       }
@@ -36,30 +36,30 @@
     "network": "testnet",
     "tokens": [
       {
-        "address": "CA67EGV6TQHXZ6ZLFPED4AGQB2EVOV2JXDQ77AQ3UDI72KJWND6FQ6N4",
-        "name": "liozel",
-        "symbol": "LIOZ",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CBGLGGK76EY2JIR5EP3XHD3H4VY3JANHIYGTUZFMSINESUTHY2JUMLA3",
-        "name": "lorkai",
-        "symbol": "LORK",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CA6PZ4XKGSQXLEDS7G6ETN5G7KCXXULK45P5S2JOHMKQPKZMADBXLQUA",
-        "name": "oratia",
-        "symbol": "ORAT",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CBL4XRCGJ3OHUURBMLMHGFQXZP7CCPHFCWWIOHUHI3C6GHXKNNO3ZOXL",
-        "name": "reynia",
+        "address": "CDQHDLET6XPVKCMHBQK4N76EHXI7QEMYGQZGQU6V56Q7K6DDU3R27ZF4",
+        "name": "reynix",
         "symbol": "REYN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDFTBUTOTHHQV5EJVM3666UIV6ILCMMPII3OTD34GOFW43BT4SEICDQU",
+        "name": "aelzoe",
+        "symbol": "AELZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBSMVSEGNWJNHC2NT5DIDODXQZ5YFSCECDZCU2GBKXFEO7S5AGCFAWLI",
+        "name": "reynix",
+        "symbol": "REYN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCLQZXRJRIGV3VYFKFTIZHBXLJDW7XL4IKAMPT6ARQCZV6F62QC3XQBE",
+        "name": "belzoe",
+        "symbol": "BELZ",
         "logoURI": "",
         "decimals": 7
       }
