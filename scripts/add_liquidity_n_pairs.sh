@@ -110,30 +110,20 @@ done
 
 display_colored_text YELLOW "---------------------------------------------------------------------------------------------------------------------"
 
-
-TOKEN_A_BALANCE="$(soroban contract invoke \
-    --network $NETWORK --source token-admin \
-    --id $TOKEN_A \
-    -- \
-    balance \
-    --id token-admin  )"
-
-display_colored_text GREEN $TOKEN_A_BALANCE
 #Define the constants for the add_liquidity function
-AMOUNT_A_DESIRED=50000
-AMOUNT_B_DESIRED=50000
 AMOUNT_A_MIN=0
 AMOUNT_B_MIN=0
 TO=$TOKEN_ADMIN_ADDRESS
 DEADLINE=$(date -d "+1 hour" +%s)
 
+#--------------------------------------------------------------------------------------------------------------------------------------
 #Add liquidity to the pairs in path 1
 echo ""
 display_colored_text BLUE "Adding liquidity to path 1"
 echo ""
 for ((i=0; i<${#PATH_1[@]}-1; i++))
 do
-    display_colored_text GREEN "Adding liquidity to ${TOKENS[i]} and ${TOKENS[i+1]}"
+    display_colored_text GREEN "Adding 20000 to ${TOKENS[i]} and 19500 ${TOKENS[i+1]}"
     soroban contract invoke \
         --network $NETWORK \
         --source token-admin \
@@ -142,13 +132,18 @@ do
         add_liquidity \
         --token_a "${PATH_1[i]}" \
         --token_b "${PATH_1[i+1]}" \
-        --amount_a_desired "$AMOUNT_A_DESIRED" \
-        --amount_b_desired "$AMOUNT_B_DESIRED" \
+        --amount_a_desired 20000 \
+        --amount_b_desired 19500 \
         --amount_a_min "$AMOUNT_A_MIN" \
         --amount_b_min "$AMOUNT_B_MIN" \
         --to "$TO" \
         --deadline "$DEADLINE" 
 done
+
+#--------------------------------------------------------------------------------------------------------------------------------------
+#Define the desired values for the add_liquidity function on path 2
+AMOUNT_A_DESIRED_VALUES=(75000 70000)
+AMOUNT_B_DESIRED_VALUES=(74000 70000)
 
 #Add liquidity to the pairs in path 2
 echo ""
@@ -156,7 +151,7 @@ display_colored_text BLUE "Adding liquidity to path 2"
 echo ""
 for ((i=0; i<${#PATH_2[@]}-1; i++))
 do
-    display_colored_text GREEN "Adding liquidity to ${TOKENS[i]} and ${TOKENS[i+1]}"
+    display_colored_text GREEN "Adding ${AMOUNT_A_DESIRED_VALUES[i]} to ${TOKENS[i]} and ${AMOUNT_B_DESIRED_VALUES[i]} ${TOKENS[i+1]}"
     soroban contract invoke \
         --network $NETWORK \
         --source token-admin \
@@ -165,21 +160,25 @@ do
         add_liquidity \
         --token_a "${PATH_2[i]}" \
         --token_b "${PATH_2[i+1]}" \
-        --amount_a_desired "$AMOUNT_A_DESIRED" \
-        --amount_b_desired "$AMOUNT_B_DESIRED" \
+        --amount_a_desired "${AMOUNT_A_DESIRED_VALUES[i]}" \
+        --amount_b_desired "${AMOUNT_B_DESIRED_VALUES[i]}" \
         --amount_a_min "$AMOUNT_A_MIN" \
         --amount_b_min "$AMOUNT_B_MIN" \
         --to "$TO" \
         --deadline "$DEADLINE" 
 done
 
+#--------------------------------------------------------------------------------------------------------------------------------------
+#Define the desired values for the add_liquidity function on path 3
+AMOUNT_A_DESIRED_VALUES=(60000 55000 80000)
+AMOUNT_B_DESIRED_VALUES=(61000 53500 80500)
 #Add liquidity to the pairs in path 3
 echo ""
 display_colored_text BLUE "Adding liquidity to path 3"
 echo ""
 for ((i=0; i<${#PATH_3[@]}-1; i++))
 do
-    display_colored_text GREEN "Adding liquidity to ${TOKENS[i]} and ${TOKENS[i+1]}"
+    display_colored_text GREEN "Adding ${AMOUNT_A_DESIRED_VALUES[i]} to ${TOKENS[i]} and ${AMOUNT_B_DESIRED_VALUES[i]} ${TOKENS[i+1]}"
     soroban contract invoke \
         --network $NETWORK \
         --source token-admin \
@@ -188,8 +187,8 @@ do
         add_liquidity \
         --token_a "${PATH_3[i]}" \
         --token_b "${PATH_3[i+1]}" \
-        --amount_a_desired "$AMOUNT_A_DESIRED" \
-        --amount_b_desired "$AMOUNT_B_DESIRED" \
+        --amount_a_desired "${AMOUNT_A_DESIRED_VALUES[i]}" \
+        --amount_b_desired "${AMOUNT_B_DESIRED_VALUES[i]}" \
         --amount_a_min "$AMOUNT_A_MIN" \
         --amount_b_min "$AMOUNT_B_MIN" \
         --to "$TO" \
