@@ -249,14 +249,29 @@ bash scripts/deploy_tokens_n_pairs.sh standalone 8
 
 This will start a standalone development environment with the contracts running.
 
+4. Deploy the API:
+
+To deploy the API, open a new terminal and run the following command:
+
+Bash
+
+```
+scripts/serve_with_docker.sh
+
+```
+
+This will make the following files available for running tests:
+-   List of tokens at http://localhost:8010/api/tokens
+-   Router addresses at http://localhost:8010/api/router
+
+
 **Step 2: Run the tests**
 
 This can be done by executing the following command on test environment terminal:
 ```
 yarn test
-
 ```
+>[!TIP]
+>The development container is the one that was opened in step 1.2
 
 This command will run all of the tests for the contracts.
-```
-
