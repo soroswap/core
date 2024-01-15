@@ -1,7 +1,10 @@
 {
   "scripts": {
     "start": "node scripts/api/server.js",
-    "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local"
+    "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local",
+    "dev": "bash scripts/add_liquidity_n_pairs.sh standalone",
+    "swap": "ts-node scripts/experimental/swap.ts standalone"
+
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^11.1.0",
