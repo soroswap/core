@@ -70,5 +70,9 @@ bash /workspace/scripts/setup_stellar_classic_assets.sh $NETWORK
 echo -e "${GREEN}Deploying random tokens...${NC}"
 bash /workspace/scripts/deploy_random_tokens.sh $NETWORK
 
+#Step 8: Add Liquidity to multiple pairs
+echo -e "${GREEN}Adding liquidity to multiple pairs...${NC}"
+bash /workspace/scripts/multi_add_liquidity.sh $NETWORK
+
 # Display the completion message
 echo -e "${GREEN}Deployment process completed successfully.${NC}"
