@@ -1,4 +1,3 @@
-var SorobanClient = require('soroban-client');
 var StellarSdk = require('@stellar/stellar-sdk');
 var fs = require('fs');
 
@@ -59,7 +58,6 @@ async function createTxBuilder(source) {
 }
 
 async function invokeClassicOp(operation, source) {
-  console.log('invoking classic op...');
   const txBuilder = await createTxBuilder(source);
   txBuilder.addOperation(operation);
   const tx = txBuilder.build();
@@ -111,6 +109,13 @@ async function main() {
   const adminKeys = getAdminKeys()
   const adminKeyPair = StellarSdk.Keypair.fromSecret(adminKeys.admin_secret)
   const userKeyPair = StellarSdk.Keypair.fromSecret(freighterWallet.secret)
+
+  console.log("-------------------------")
+  console.log()
+  console.log("We are setting trutlines and minting so this assets have records")
+  console.log("you can test this with this account secret:", userKeyPair.secret())
+  console.log()
+  await fetch(`${friendbot}${userKeyPair.publicKey()}`)
 
   const assetParts = getClassicStellarAsset(assetString);
   const asset = new StellarSdk.Asset(assetParts.assetCode, assetParts.issuer)
