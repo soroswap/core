@@ -9,9 +9,6 @@ JSON_FILE="/workspace/.soroban/random_tokens.json"
 # Using /var/tmp which is specific to the Docker container
 FLAG_FILE="/var/tmp/soroban_first_run_completed"
 
-# Stellar Assets config
-GENERATED_STELLAR_ASSETS="/workspace/.soroban/generated_stellar_assets.json"
-
 # Validate the input arguments
 if [ -z "$NETWORK" ]; then
     echo "Error: Network name must be provided."
@@ -80,19 +77,6 @@ do
     TOKEN_JSON="{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}"
     TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$TOKEN_JSON]")
     echo $TOKEN_JSON
-done
-
-node /workspace/scripts/issue_stellar_assets.js $NETWORK $N_TOKENS
-GENERATED_ASSETS_JSON=$(jq '.tokens' "$GENERATED_STELLAR_ASSETS")
-for ((i=1; i<=N_TOKENS; i++)) do
-    ASSET_SYMBOL=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].symbol")
-    ASSET_NAME=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].asset")
-
-    node /workspace/scripts/stellar_mint_asset_test.js $NETWORK $ASSET_NAME
-
-    ASSET_JSON="{\"asset\": \"$ASSET_NAME\", \"symbol\": \"$ASSET_SYMBOL\"}"
-    TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$ASSET_JSON]")
-    echo $ASSET_JSON
 done
 
 # Check if the network object already exists in the JSON data
