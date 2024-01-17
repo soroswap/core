@@ -40,24 +40,38 @@ yarn
 ```
 
 
-### 2. Create N tokens, deploy SoroswapFactory, SoroswapRouter and create N^2 pairs.
+### 2. Deploy populated network
 
-This will create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`
+In the same terminal mentioned before, run:
 
-Remember here to choose standalone, testnet or futurenet
+>[!Note]
+>Accepted values are: `standalone | testnet | futurenet`
+
 ```
-bash scripts/deploy_tokens_n_pairs.sh standalone 8 # put a even number to not to breack the pair creation
+
+    bash scripts/populate_network.sh standalone
+
 ```
 
-This will:
 
+This will:  
 - Create 8 test tokens.
+
 - Build and install the SoroswapPair contract in Soroban.
+
 - Build and Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
+
 - Build and Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
-- Create N^2 Pairs (all combinations between pairs) using the Router contract
+
+- Create 64 Pairs (all combinations between pairs) using the Router contract.
+
+- Create 6 custom liquidity pools.
+
+- Create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`  
+  
 
 This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
+
 
 ### 3. (For local development): Serve those .json files
 
