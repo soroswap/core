@@ -11,6 +11,9 @@ soroban_sdk::contractimport!(
 pub struct Pair(Address, Address);
 impl Pair {
     pub fn new(a: Address, b: Address) -> Self {
+        if a == b {
+            panic!("Same addresses");
+        }
         if a < b {
             Pair(a, b)
         } else {
@@ -52,7 +55,7 @@ pub fn create_contract(
         the hash value of the newly created contract instance as a
         BytesN<32> value.
     */
-    e: &Env,                     // Pass in the current environment as an argument
+    e: &Env,                    // Pass in the current environment as an argument
     pair_wasm_hash: BytesN<32>, // Pass in the hash of the token contract's WASM file
     token_pair: &Pair,
 ) -> Address {
