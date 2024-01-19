@@ -25,7 +25,7 @@ fn test_initialize_twice() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
 
-    let factory_another = Address::random(&test.env);
+    let factory_another = Address::generate(&test.env);
     let result_second_init = test.contract.try_initialize(&factory_another);
     assert_eq!(
         result_second_init,

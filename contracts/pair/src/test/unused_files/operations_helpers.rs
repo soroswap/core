@@ -36,7 +36,7 @@ mod tests {
     #[test]
     fn initialization() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let contract_address = factory_client.address().clone();
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn pair_token_addresses_ne() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let contract_address = factory_client.address().clone();
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn create_2_pair() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let contract_address = factory_client.address().clone();
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn create_2_pair_two_times() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let contract_address = factory_client.address().clone();
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
@@ -146,7 +146,7 @@ mod tests {
         // The variables in this scope outlives any consecutive invocation or contract state trasnformation
         // for this specific test unless explicitly dropped. Variables referenced in MockAuths needs to outlive their call,
         // which is why they are created in the begginings of the isolated test.
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
         let fn_name = "initialize";
@@ -175,7 +175,7 @@ mod tests {
     // #[test]
     fn create_1_000_001_pairs() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let contract_address = factory_client.address().clone();
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
@@ -208,7 +208,7 @@ mod tests {
     #[test]
     fn mocked_mint() {
         let env: Env = Default::default();
-        let alice: Address = Address::random(&env);
+        let alice: Address = Address::generate(&env);
         let factory_client = SoroswapClient::<FactoryClient>::from(&env);
         let pair_hash = env.deployer().upload_contract_wasm(PAIR_WASM);
         let fn_name = "initialize";
@@ -239,7 +239,7 @@ mod tests {
         let token_0_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_0);
         let token_1_client = SoroswapClient::<TokenClient>::from_token_address(&env, &token_1);
 
-        let bob = Address::random(&env);
+        let bob = Address::generate(&env);
         // invoke declaration for token_0
         let amount: i128 = 10_000_000_000;
         let token_0_sub_invokes = &[];

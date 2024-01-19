@@ -31,10 +31,10 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.factory.fee_to_setter(), test.admin);
     assert_eq!(test.factory.fees_enabled(), false);
     
-    assert_eq!(test.token_0.symbol(), String::from_slice(&test.env, "TOKEN0"));
-    assert_eq!(test.token_1.symbol(), String::from_slice(&test.env, "TOKEN1"));
-    assert_eq!(test.token_0.name(), String::from_slice(&test.env, "Token 0"));
-    assert_eq!(test.token_1.name(), String::from_slice(&test.env, "Token 1"));
+    assert_eq!(test.token_0.symbol(), String::from_str(&test.env, "TOKEN0"));
+    assert_eq!(test.token_1.symbol(), String::from_str(&test.env, "TOKEN1"));
+    assert_eq!(test.token_0.name(), String::from_str(&test.env, "Token 0"));
+    assert_eq!(test.token_1.name(), String::from_str(&test.env, "Token 1"));
 
     // Test liqpool initial values:
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
@@ -58,7 +58,7 @@ fn initialize_pair_initial_values() {
     */
     
     let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
-    assert_eq!(pair_token_client.symbol(), String::from_slice(&test.env, "SOROSWAP-LP"));
-    assert_eq!(pair_token_client.name(), String::from_slice(&test.env, "Soroswap LP Token"));
+    assert_eq!(pair_token_client.symbol(), String::from_str(&test.env, "SOROSWAP-LP"));
+    assert_eq!(pair_token_client.name(), String::from_str(&test.env, "Soroswap LP Token"));
     assert_eq!(pair_token_client.decimals(), 7);
 }

@@ -73,18 +73,18 @@ impl<'a> SoroswapPairTest<'a> {
 
         let env = Env::default();
         env.mock_all_auths();
-        let user = Address::random(&env);
-        let admin = Address::random(&env);
+        let user = Address::generate(&env);
+        let admin = Address::generate(&env);
         let mut token_0 = create_token_contract(&env);
         let mut token_1 = create_token_contract(&env);
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         
-        let name_0 = String::from_slice(&env, "Token 0");
-        let symbol_0 = String::from_slice(&env, "TOKEN0");
-        let name_1 = String::from_slice(&env, "Token 1");
-        let symbol_1 = String::from_slice(&env, "TOKEN1");
+        let name_0 = String::from_str(&env, "Token 0");
+        let symbol_0 = String::from_str(&env, "TOKEN0");
+        let name_1 = String::from_str(&env, "Token 1");
+        let symbol_1 = String::from_str(&env, "TOKEN1");
         let decimals = 7;
 
         token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
@@ -146,11 +146,11 @@ mod soroswap_pair_token;
 //     let e: Env = Default::default();
 //     e.mock_all_auths();
     
-//     let user = Address::random(&e);
-//     let admin = Address::random(&e);
+//     let user = Address::generate(&e);
+//     let admin = Address::generate(&e);
 //     let mut token_0 = create_token_contract(&e, &admin);
 //     let mut token_1 = create_token_contract(&e, &admin);
-//     if &token_1.address.contract_id() < &token_0.address.contract_id() {
+//     if &token_1.address < &token_0.address {
 //         std::mem::swap(&mut token_0, &mut token_1);
 //     }
   
@@ -436,7 +436,7 @@ mod soroswap_pair_token;
 //     // assert_eq!(pair_token_0_balance, reserve_0);
 //     // assert_eq!(pair_token_1_balance, reserve_1);
 
-//     // let user_2 = Address::random(&e);
+//     // let user_2 = Address::generate(&e);
 //     // assert_eq!(token_0.balance(&user_2), 0);
 //     // assert_eq!(token_1.balance(&user_2), 0);
 //     // token_0.mint(&liqpool.address, &(30 * factor));
