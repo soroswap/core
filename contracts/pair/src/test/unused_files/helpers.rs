@@ -321,7 +321,7 @@ impl<'a> SoroswapTest<'a, FactoryClient<'a>, SoroswapClient<'a, FactoryClient<'a
 #[test]
 fn pair_initialization() {
     let env: Env = Default::default();
-    let alice: Address = Address::random(&env);
+    let alice: Address = Address::generate(&env);
     let test_client = SoroswapClient::<FactoryClient>::from(&env);
     let contract_address = test_client.address().clone();
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
