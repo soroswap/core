@@ -77,14 +77,14 @@ impl<'a> SoroswapPairTest<'a> {
         let admin = Address::generate(&env);
         let mut token_0 = create_token_contract(&env);
         let mut token_1 = create_token_contract(&env);
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         
-        let name_0 = String::from_slice(&env, "Token 0");
-        let symbol_0 = String::from_slice(&env, "TOKEN0");
-        let name_1 = String::from_slice(&env, "Token 1");
-        let symbol_1 = String::from_slice(&env, "TOKEN1");
+        let name_0 = String::from_str(&env, "Token 0");
+        let symbol_0 = String::from_str(&env, "TOKEN0");
+        let name_1 = String::from_str(&env, "Token 1");
+        let symbol_1 = String::from_str(&env, "TOKEN1");
         let decimals = 7;
 
         token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
