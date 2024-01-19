@@ -16,11 +16,10 @@ use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
 pub enum DataKey {
     FeeTo = 0,        
     FeeToSetter = 1,  
-    AllPairs = 2,       // TODO: Not use Vectors 
-    PairsMapping = 3, // TODO: Not use Mapping
-    PairWasmHash = 4,
-    FeesEnabled = 5, 
-    TotalPairs = 6,
+    PairsMapping = 2, // TODO: Not use Mapping
+    PairWasmHash = 3,
+    FeesEnabled = 4, 
+    TotalPairs = 5,
 }
 
 #[derive(Clone)]
@@ -41,6 +40,10 @@ fn get_fee_to(e: &Env) -> Address {
     e.storage().instance().get(&DataKey::FeeTo).unwrap()
 }
 
+fn get_total_pairs(e: &Env) -> u32 {
+    e.storage().instance().get(&DataKey::TotalPairs).unwrap_or(0);
+}
+
 fn get_fees_enabled(e: &Env) -> bool {
     let key = DataKey::FeesEnabled;
     if let Some(state) = e.storage().instance().get(&key) {
@@ -54,12 +57,6 @@ fn get_fee_to_setter(e: &Env) -> Address {
     e.storage().instance().get(&DataKey::FeeToSetter).unwrap()
 }
 
-fn get_all_pairs(e: &Env) -> Vec<Address> {
-    e.storage()
-        .instance()
-        .get(&DataKey::AllPairs)
-        .unwrap_or(Vec::new(&e))
-}
 fn get_pairs_mapping(e: &Env) -> Map<Pair, Address> {
     // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
     e.storage()
@@ -84,16 +81,16 @@ fn put_fee_to(e: &Env, to: Address) {
     e.storage().instance().set(&DataKey::FeeTo, &to);
 }
 
+fn put_total_pairs(e: &Env, n: u32) {
+    e.storage().instance().set(&DataKey::TotalPairs, &n);
+}
+
 fn put_fee_to_setter(e: &Env, setter: &Address) {
     e.storage().instance().set(&DataKey::FeeToSetter, setter);
 }
 
 fn put_fees_enabled(e: &Env, is_enabled: &bool) {
     e.storage().instance().set(&DataKey::FeesEnabled, is_enabled);
-}
-
-fn _put_all_pairs(e: &Env, all_pairs: Vec<Address>) {
-    e.storage().instance().set(&DataKey::AllPairs, &all_pairs);
 }
 
 fn put_pairs_mapping(e: &Env, pairs_mapping: Map<Pair, Address>) {
@@ -123,12 +120,11 @@ fn add_pair_to_mapping(e: &Env, token_pair: &Pair, pair: &Address) {
 }
 
 fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
-    // Get the current `allPairs` vector from storage
-    let mut all_pairs = get_all_pairs(e);
-    // Push the new `pair_address` onto the vector
-    all_pairs.push_back(pair_address.clone());
-    // Save the updated `allPairs` vector to storage
-    e.storage().instance().set(&DataKey::AllPairs, &all_pairs);
+    // By default total_pairs is 0
+    let mut total_pairs = get_total_pairs(e);
+    e.storage().persistent().set(&VariableDataKey::PairAddresses(total_pairs), &pair_address);
+    total_pairs = total_pairs.checked_add(1).unwrap()
+    put_total_pairs(&e, total_pairs);
 }
 
 #[contract]
@@ -200,7 +196,7 @@ fn all_pairs_length(e: Env) -> Result<u32, FactoryError> {
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    Ok(get_all_pairs(&e).len() as u32)
+    Ok(get_total_pairs(&e))
 }
 
 /// Returns the address of the pair for `token_a` and `token_b`, if it has been created.
@@ -238,9 +234,7 @@ fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    
-    let all_pairs = get_all_pairs(&e);
-    all_pairs.get(n).ok_or(FactoryError::IndexDoesNotExist)
+    e.storage().persistent().get(&VariableDataKey::PairAddresses(n)).ok_or(FactoryError::IndexDoesNotExist)
 }
 
 /// Checks if a pair exists for the given `token_a` and `token_b`.
@@ -394,7 +388,7 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
     add_pair_to_mapping(&e, &token_pair, &pair);
     add_pair_to_all_pairs(&e, &pair);
 
-    event::new_pair(&e, token_pair.token_0().clone(), token_pair.token_1().clone(), pair.clone(), get_all_pairs(&e).len());
+    event::new_pair(&e, token_pair.token_0().clone(), token_pair.token_1().clone(), pair.clone(), get_total_pairs(&e));
 
     Ok(pair)
 }
