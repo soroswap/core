@@ -93,8 +93,8 @@ use soroban_sdk::{
 fn test_remove_liquidity_not_authorized() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let alice = Address::random(&test.env);
-    let bob = Address::random(&test.env);
+    let alice = Address::generate(&test.env);
+    let bob = Address::generate(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
 

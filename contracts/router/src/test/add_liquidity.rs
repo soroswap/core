@@ -134,8 +134,8 @@ fn test_add_liquidity_amount_b_min_negative() {
 fn test_add_liquidity_not_authorized() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let alice = Address::random(&test.env);
-    let bob = Address::random(&test.env);
+    let alice = Address::generate(&test.env);
+    let bob = Address::generate(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
 
@@ -271,8 +271,8 @@ fn test_add_liquidity_deadline_expired() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
 
-    let alice = Address::random(&test.env);
-    let bob = Address::random(&test.env);
+    let alice = Address::generate(&test.env);
+    let bob = Address::generate(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
 

@@ -69,12 +69,12 @@ impl<'a> SoroswapLibraryTest<'a> {
         env.mock_all_auths();
         let contract = create_soroswap_library_contract(&env);
 
-        let admin = Address::random(&env);
-        let user = Address::random(&env);
+        let admin = Address::generate(&env);
+        let user = Address::generate(&env);
 
         let mut token_0 = create_token_contract(&env, &admin);
         let mut token_1 = create_token_contract(&env, &admin);
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
         token_0.mint(&user, &10000);

@@ -150,7 +150,7 @@ mod soroswap_pair_token;
 //     let admin = Address::generate(&e);
 //     let mut token_0 = create_token_contract(&e, &admin);
 //     let mut token_1 = create_token_contract(&e, &admin);
-//     if &token_1.address.contract_id() < &token_0.address.contract_id() {
+//     if &token_1.address < &token_0.address {
 //         std::mem::swap(&mut token_0, &mut token_1);
 //     }
   

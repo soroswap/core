@@ -63,24 +63,24 @@ impl<'a> SoroswapFactoryTest<'a> {
 
         let env = Env::default();
         env.mock_all_auths();
-        let admin = Address::random(&env);
-        let user = Address::random(&env);
+        let admin = Address::generate(&env);
+        let user = Address::generate(&env);
         let mut token_0 = create_token_contract(&env);
         let mut token_1 = create_token_contract(&env);
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
 
         let mut token_2 = create_token_contract(&env);
         let mut token_3 = create_token_contract(&env);
-        if &token_3.address.contract_id() < &token_2.address.contract_id() {
+        if &token_3.address < &token_2.address {
             std::mem::swap(&mut token_2, &mut token_3);
         }
 
-        token_0.initialize(&admin, &7, &String::from_slice(&env, "Token 0"), &String::from_slice(&env, "TOKEN0"));
-        token_1.initialize(&admin, &7, &String::from_slice(&env, "Token 1"), &String::from_slice(&env, "TOKEN1"));
-        token_2.initialize(&admin, &7, &String::from_slice(&env, "Token 2"), &String::from_slice(&env, "TOKEN2"));
-        token_3.initialize(&admin, &7, &String::from_slice(&env, "Token 3"), &String::from_slice(&env, "TOKEN3"));
+        token_0.initialize(&admin, &7, &String::from_str(&env, "Token 0"), &String::from_str(&env, "TOKEN0"));
+        token_1.initialize(&admin, &7, &String::from_str(&env, "Token 1"), &String::from_str(&env, "TOKEN1"));
+        token_2.initialize(&admin, &7, &String::from_str(&env, "Token 2"), &String::from_str(&env, "TOKEN2"));
+        token_3.initialize(&admin, &7, &String::from_str(&env, "Token 3"), &String::from_str(&env, "TOKEN3"));
 
         
         let pair_wasm = pair_token_wasm(&env);  
