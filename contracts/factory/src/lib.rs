@@ -18,7 +18,7 @@ use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
 pub enum DataKey {
     FeeTo,      // Address. Instance storage
     FeeToSetter, // Address. Instance storage
-    PairWasmHash, // BytesN<32>. Instance storage
+    PairWasmHash, // BytesN<32>. Persistent storage
     FeesEnabled, // Bool. Instance storage
     TotalPairs, // Total pairs created by the Factory. u32, Instance storage
     PairAddressesNIndexed(u32), // Addresses of pairs created by the Factory. Persistent Storage
@@ -76,7 +76,7 @@ fn get_fee_to_setter(e: &Env) -> Address {
 
 
 fn get_pair_wasm_hash(e: &Env) -> BytesN<32> {
-    e.storage().instance().get(&DataKey::PairWasmHash).unwrap()
+    e.storage().persistent().get(&DataKey::PairWasmHash).unwrap()
 }
 
 fn put_fee_to(e: &Env, to: Address) {
@@ -92,13 +92,13 @@ fn put_fees_enabled(e: &Env, is_enabled: &bool) {
 }
 
 fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
-    e.storage().instance().set(&DataKey::PairWasmHash, &pair_wasm_hash)
+    e.storage().persistent().set(&DataKey::PairWasmHash, &pair_wasm_hash)
 }
 
 
 // Helper function in order to know if the contract has been initialized or not
 pub fn has_pair_wasm_hash(e: &Env) -> bool {
-    e.storage().instance().has(&DataKey::PairWasmHash)
+    e.storage().persistent().has(&DataKey::PairWasmHash)
 }
 
 fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
