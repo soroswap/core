@@ -214,7 +214,9 @@ fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Facto
     }
     
     let pairs_mapping = get_pairs_mapping(&e);
-    let pair_key = Pair::new(token_a, token_b);
+    let pair_key = Pair::new(token_a, token_b)
+        .map_err(|_| FactoryError::CreatePairIdenticalTokens)?;
+
     pairs_mapping.get(pair_key).ok_or(FactoryError::PairDoesNotExist)
 }
 
@@ -252,7 +254,12 @@ fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, Facto
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    Ok(get_pair_exists(&e, &Pair::new(token_a, token_b)))
+
+    let token_pair = Pair::new(token_a, token_b)
+        .map_err(|_| FactoryError::CreatePairIdenticalTokens)?;
+    
+    // Proceed with the existence check
+    Ok(get_pair_exists(&e, &token_pair))
 }
 
 
@@ -366,11 +373,8 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
         return Err(FactoryError::NotInitialized);
     }
 
-    if token_a == token_b {
-        return Err(FactoryError::CreatePairIdenticalTokens);
-    }
-
-    let token_pair = Pair::new(token_a, token_b);
+    let token_pair = Pair::new(token_a, token_b)
+        .map_err(|_| FactoryError::CreatePairIdenticalTokens)?;
 
     if get_pair_exists(&e, &token_pair) {
         return Err(FactoryError::CreatePairAlreadyExists);

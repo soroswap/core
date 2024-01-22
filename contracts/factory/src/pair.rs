@@ -10,14 +10,14 @@ soroban_sdk::contractimport!(
 #[derive(Clone)]
 pub struct Pair(Address, Address);
 impl Pair {
-    pub fn new(a: Address, b: Address) -> Self {
+    pub fn new(a: Address, b: Address) -> Result<Self, FactoryError> {
         if a == b {
-            panic!("Same addresses");
+            return Err(FactoryError::CreatePairIdenticalTokens);
         }
         if a < b {
-            Pair(a, b)
+            Ok(Pair(a, b))
         } else {
-            Pair(b, a)
+            Ok(Pair(b, a))
         }
     }
 
