@@ -8,7 +8,7 @@ use pair::{create_contract, Pair};
 use soroban_sdk::{
     contract,
     contractimpl,
-    contracttype, Address, BytesN, Map, Env,
+    contracttype, Address, BytesN, Env,
 };
 use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
 
@@ -18,26 +18,39 @@ use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
 pub enum DataKey {
     FeeTo,      // Address. Instance storage
     FeeToSetter, // Address. Instance storage
-    PairsMapping, // TODO: Not use Mapping
     PairWasmHash, // BytesN<32>. Instance storage
     FeesEnabled, // Bool. Instance storage
     TotalPairs, // Total pairs created by the Factory. u32, Instance storage
-    PairAddresses(u32) // Addresses of pairs created by the Factory. Persistent Storage
+    PairAddressesNIndexed(u32), // Addresses of pairs created by the Factory. Persistent Storage
+    PairAddressesByTokens(Pair)
 }
 
+//// --- Storage helper functions ---
 
-// #[derive(Clone)]
-// pub enum DataKey {
-//     PairAddresses(u32)
-// }
-
-
-// Storage helper functions
+// TotalPairs
+fn put_total_pairs(e: &Env, n: u32) {
+    e.storage().instance().set(&DataKey::TotalPairs, &n);
+}
 fn get_total_pairs(e: &Env) -> u32 {
     e.storage().instance().get(&DataKey::TotalPairs).unwrap_or(0)
 }
-fn put_total_pairs(e: &Env, n: u32) {
-    e.storage().instance().set(&DataKey::TotalPairs, &n);
+
+// PairAddressesByTokens(Address, Address)
+fn put_pair_address_by_token_pair(e: &Env, token_pair: Pair, pair_address: &Address) {
+    e.storage()
+        .persistent()
+        .set(&DataKey::PairAddressesByTokens(token_pair), &pair_address)
+}
+fn get_pair_address_by_token_pair(e: &Env, token_pair: Pair) -> Result<Address, FactoryError> {
+    // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
+    e.storage()
+        .persistent()
+        .get(&DataKey::PairAddressesByTokens(token_pair))
+        .ok_or(FactoryError::PairDoesNotExist)
+}
+fn get_pair_exists(e: &Env, token_pair: Pair) -> bool {
+    e.storage()
+        .persistent().has(&DataKey::PairAddressesByTokens(token_pair))
 }
 
 
@@ -59,21 +72,8 @@ fn get_fee_to_setter(e: &Env) -> Address {
     e.storage().instance().get(&DataKey::FeeToSetter).unwrap()
 }
 
-fn get_pairs_mapping(e: &Env) -> Map<Pair, Address> {
-    // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
-    e.storage()
-        .instance()
-        .get(&DataKey::PairsMapping)
-        .unwrap_or_else(|| Map::new(&e))
-}
 
-fn get_pair_exists(e: &Env, pair_key: &Pair) -> bool {
-    // Get the pairs mapping
-    let pairs_mapping = get_pairs_mapping(&e);
 
-    // Check if the pair exists with the first key:
-    pairs_mapping.contains_key(pair_key.clone())
-}
 
 fn get_pair_wasm_hash(e: &Env) -> BytesN<32> {
     e.storage().instance().get(&DataKey::PairWasmHash).unwrap()
@@ -91,10 +91,6 @@ fn put_fees_enabled(e: &Env, is_enabled: &bool) {
     e.storage().instance().set(&DataKey::FeesEnabled, is_enabled);
 }
 
-fn put_pairs_mapping(e: &Env, pairs_mapping: Map<Pair, Address>) {
-    e.storage().instance().set(&DataKey::PairsMapping, &pairs_mapping)
-}
-
 fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
     e.storage().instance().set(&DataKey::PairWasmHash, &pair_wasm_hash)
 }
@@ -105,23 +101,13 @@ pub fn has_pair_wasm_hash(e: &Env) -> bool {
     e.storage().instance().has(&DataKey::PairWasmHash)
 }
 
-
-fn add_pair_to_mapping(e: &Env, token_pair: &Pair, pair: &Address) {
-    // Get the pairs mapping
-    let mut pairs_mapping = get_pairs_mapping(e);
-    
-    // Insert the pair address for both keys into the pairs mapping
-    pairs_mapping.set(token_pair.clone(), pair.clone());
-    // pairs_mapping.set(pair_key_b, pair);
-    // Update the pairs mapping in storage
-    put_pairs_mapping(e, pairs_mapping);
-}
-
 fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
     // total_pairs is the total amount of pairs created by the Factory
     let mut total_pairs = get_total_pairs(e);
-    // Because PairAddresses is 0-indexed, we start with 0, default value of total_pairs
-    e.storage().persistent().set(&DataKey::PairAddresses(total_pairs), &pair_address);
+    // Because PairAddressesNIndexed is 0-indexed, we start with 0, default value of total_pairs
+
+    e.storage().persistent().set(&DataKey::PairAddressesNIndexed(total_pairs), &pair_address);
+
     total_pairs = total_pairs.checked_add(1).unwrap();
     put_total_pairs(&e, total_pairs);
 }
@@ -213,10 +199,8 @@ fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Facto
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    
-    let pairs_mapping = get_pairs_mapping(&e);
-    let pair_key = Pair::new(token_a, token_b);
-    pairs_mapping.get(pair_key).ok_or(FactoryError::PairDoesNotExist)
+    let token_pair = Pair::new(token_a, token_b);
+    get_pair_address_by_token_pair(&e, token_pair)
 }
 
 /// Returns the address of the nth pair (0-indexed) created through the factory, or address(0) if not enough pairs have been created yet.
@@ -233,7 +217,8 @@ fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    e.storage().persistent().get(&DataKey::PairAddresses(n)).ok_or(FactoryError::IndexDoesNotExist)
+    e.storage().persistent().get(&DataKey::PairAddressesNIndexed(n)).ok_or(FactoryError::IndexDoesNotExist)
+
 }
 
 /// Checks if a pair exists for the given `token_a` and `token_b`.
@@ -251,7 +236,7 @@ fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, Facto
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    Ok(get_pair_exists(&e, &Pair::new(token_a, token_b)))
+    Ok(get_pair_exists(&e, Pair::new(token_a, token_b)))
 }
 
 
@@ -371,25 +356,25 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
 
     let token_pair = Pair::new(token_a, token_b);
 
-    if get_pair_exists(&e, &token_pair) {
+    if get_pair_exists(&e, token_pair.clone()) {
         return Err(FactoryError::CreatePairAlreadyExists);
     }
 
     let pair_wasm_hash = get_pair_wasm_hash(&e);
-    let pair = create_contract(&e, pair_wasm_hash, &token_pair);
+    let pair_address = create_contract(&e, pair_wasm_hash, &token_pair);
 
-    pair::Client::new(&e, &pair).initialize_pair(
+    pair::Client::new(&e, &pair_address).initialize_pair(
         &e.current_contract_address(),
         &token_pair.token_0(), 
         &token_pair.token_1()
     );
 
-    add_pair_to_mapping(&e, &token_pair, &pair);
-    add_pair_to_all_pairs(&e, &pair);
+    put_pair_address_by_token_pair(&e, token_pair.clone(), &pair_address);
+    add_pair_to_all_pairs(&e, &pair_address);
 
-    event::new_pair(&e, token_pair.token_0().clone(), token_pair.token_1().clone(), pair.clone(), get_total_pairs(&e));
+    event::new_pair(&e, token_pair.token_0().clone(), token_pair.token_1().clone(), pair_address.clone(), get_total_pairs(&e));
 
-    Ok(pair)
+    Ok(pair_address)
 }
 
 
