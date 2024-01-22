@@ -1,4 +1,5 @@
 import * as StellarSdk from "stellar-sdk";
+import * as fs from 'fs';
 
 export const getCurrentTimePlusOneHour = (): number => {
     // Get the current time in milliseconds
@@ -11,18 +12,45 @@ export const getCurrentTimePlusOneHour = (): number => {
     return oneHourLaterSeconds;
 };
 
+// Function to read the content of a file
+function readFromFile(filePath: string): string {
+    try {
+      return fs.readFileSync(filePath, 'utf-8').trim();
+    } catch (error) {
+      console.error(`Error reading file ${filePath}: ${error}`);
+      process.exit(1);
+    }
+}
+
+// Read public key from file
+const publicKeyFilePath = '/workspace/.soroban/token_admin_address';
+const publicKeyString = readFromFile(publicKeyFilePath);
+
+// Read private key from file
+const secretKeyFilePath = '/workspace/.soroban/token_admin_secret';
+const secretKeyString = readFromFile(secretKeyFilePath);
+
+// Read router contract address from file
+const contractIdFilePath = '/workspace/.soroban/router_id';
+const contractIdString = readFromFile(contractIdFilePath);
+
+
+console.log("Public Key:", publicKeyString);
+console.log("Secret Key:", secretKeyString);
+console.log("Contract ID:", contractIdString);
+
 async function main() {
-    const contractId = 'CBU3B6DZLJPX3FQNUHVGADIGS4DZZEWMGJC4OJS6NCVP42DWBJ6SW6VW';
+    const contractId = contractIdString;
     const routerContract = new StellarSdk.Contract(contractId);
     
     // Right now, this is just the default fee for this example.
     const fee = StellarSdk.BASE_FEE;
     const args = {
-        path: ["CAXDLYHEKAXUMV5PIH4P4YVXTRNIRYPKHW4ER3DA3QH3ZIW2EAHJIUWI", "CCH7QSH4TVNIRG3K4G5S4G6LYBKWGKW2XKZVSQ45LUY53IF55K7ZOEFG"],
+        path: ["CCYUZYBB6WRHVZ4WVXK6S46CHHKRNIT4TEU2VEHGNJUHLV2G7CXGUC47", "CAE5562QRYL4XIC5IVMRITBY764DGT4IWCS3MTPM537OQVOAM6AUG2UZ"],
         amountIn: "2000",
         amountOutMin: "0",
         to: {
-            publicKey: "GBKM5QKX4AQRSGFJUDB5QZXIZJIZ4XXQ6CHGU336JD4OXDRA4TSYXIPU"
+            publicKey: publicKeyString
         }
     }
     const path = args.path.map((token) => new StellarSdk.Address(token));
@@ -55,46 +83,19 @@ async function main() {
     // NOTE: signing is transaction is network specific. Test network transactions
     // won't work in the public network. To switch networks, use the Network object
     // as explained above (look for StellarSdk.Network).
-    const sourceSecretKey = "SAUHH63AQVK6KP4QMF6IILS7SWC7NXULN4X5CJEV763DQ7GY227ZG7JD";
+    const sourceSecretKey = secretKeyString;
     const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
     const simulatedTransaction = await server.simulateTransaction(preparedTransaction);
 
-    console.log("simulatedTransaction:");
-    console.log(simulatedTransaction);
     
-    console.log("simulatedTransaction.transactionData:");
+    console.log("simulatedTransaction.minResourceFee:");
     type simulatedTransactionKey = keyof typeof simulatedTransaction;
-    const transactionDataVar = 'transactionData' as simulatedTransactionKey;
-    const transactionData = simulatedTransaction[transactionDataVar];
-    console.log(transactionData);
-
-    console.log("\nsimulatedTransaction.transactionData._data:")
-    type sorobanDataBuilderKey = keyof typeof transactionData;
-    const dataVar = '_data' as sorobanDataBuilderKey;
-    const _data = transactionData[dataVar]
-    console.log(_data);
-
-    console.log("\nsimulatedTransaction.transactionData._data._attributes:")
-    type childStructKey = keyof typeof _data;
-    const attributesVar = '_attributes' as childStructKey;
-    const _attributes = _data[attributesVar];
-    console.log(_attributes);
-
-    console.log("\nsimulatedTransaction.transactionData._data._attributes.resourceFee:")
-    type attributesKey = keyof typeof _attributes;
-    const resourceFeeVar = 'resourceFee' as attributesKey;
-    const resourceFee = _attributes[resourceFeeVar];
-    console.log(resourceFee);
-
-    console.log("\nsimulatedTransaction.transactionData._data._attributes.resourceFee._value:")
-    type resourceFeeKey = keyof typeof resourceFee;
-    const valueVar = '_value' as resourceFeeKey;
-    const _value = resourceFee[valueVar];
-    console.log(_value);
-
+    const minResourceFeeVar = 'minResourceFee' as simulatedTransactionKey;
+    const minResourceFee = simulatedTransaction[minResourceFeeVar];
+    console.log("minResourceFee:", minResourceFee);
     
 
-    preparedTransaction.sign(sourceKeypair);
+    // preparedTransaction.sign(sourceKeypair);
     
     // server.sendTransaction(transaction).then(result => {
     //   console.log("hash:", result.hash);
