@@ -7,42 +7,44 @@ mod test;
 use pair::{create_contract, Pair};
 use soroban_sdk::{
     contract,
-    contractimpl, Address, BytesN, ConversionError, Map, Env, Val, TryFromVal, Vec,
+    contractimpl,
+    contracttype, Address, BytesN, Map, Env,
 };
 use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
 
-#[derive(Clone, Copy)]
-#[repr(u32)]
-pub enum DataKey {
-    FeeTo = 0,        
-    FeeToSetter = 1,  
-    PairsMapping = 2, // TODO: Not use Mapping
-    PairWasmHash = 3,
-    FeesEnabled = 4, 
-    TotalPairs = 5,
-}
 
 #[derive(Clone)]
-pub enum VariableDataKey {
-    PairAddresses(u32)
+#[contracttype]
+pub enum DataKey {
+    FeeTo,      // Address. Instance storage
+    FeeToSetter, // Address. Instance storage
+    PairsMapping, // TODO: Not use Mapping
+    PairWasmHash, // BytesN<32>. Instance storage
+    FeesEnabled, // Bool. Instance storage
+    TotalPairs, // Total pairs created by the Factory. u32, Instance storage
+    PairAddresses(u32) // Addresses of pairs created by the Factory. Persistent Storage
 }
 
 
-impl TryFromVal<Env, DataKey> for Val {
-    type Error = ConversionError;
+// #[derive(Clone)]
+// pub enum DataKey {
+//     PairAddresses(u32)
+// }
 
-    fn try_from_val(_env: &Env, v: &DataKey) -> Result<Self, Self::Error> {
-        Ok((*v as u32).into())
-    }
+
+// Storage helper functions
+fn get_total_pairs(e: &Env) -> u32 {
+    e.storage().instance().get(&DataKey::TotalPairs).unwrap_or(0)
 }
+fn put_total_pairs(e: &Env, n: u32) {
+    e.storage().instance().set(&DataKey::TotalPairs, &n);
+}
+
 
 fn get_fee_to(e: &Env) -> Address {
     e.storage().instance().get(&DataKey::FeeTo).unwrap()
 }
 
-fn get_total_pairs(e: &Env) -> u32 {
-    e.storage().instance().get(&DataKey::TotalPairs).unwrap_or(0);
-}
 
 fn get_fees_enabled(e: &Env) -> bool {
     let key = DataKey::FeesEnabled;
@@ -81,10 +83,6 @@ fn put_fee_to(e: &Env, to: Address) {
     e.storage().instance().set(&DataKey::FeeTo, &to);
 }
 
-fn put_total_pairs(e: &Env, n: u32) {
-    e.storage().instance().set(&DataKey::TotalPairs, &n);
-}
-
 fn put_fee_to_setter(e: &Env, setter: &Address) {
     e.storage().instance().set(&DataKey::FeeToSetter, setter);
 }
@@ -120,10 +118,11 @@ fn add_pair_to_mapping(e: &Env, token_pair: &Pair, pair: &Address) {
 }
 
 fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
-    // By default total_pairs is 0
+    // total_pairs is the total amount of pairs created by the Factory
     let mut total_pairs = get_total_pairs(e);
-    e.storage().persistent().set(&VariableDataKey::PairAddresses(total_pairs), &pair_address);
-    total_pairs = total_pairs.checked_add(1).unwrap()
+    // Because PairAddresses is 0-indexed, we start with 0, default value of total_pairs
+    e.storage().persistent().set(&DataKey::PairAddresses(total_pairs), &pair_address);
+    total_pairs = total_pairs.checked_add(1).unwrap();
     put_total_pairs(&e, total_pairs);
 }
 
@@ -234,7 +233,7 @@ fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    e.storage().persistent().get(&VariableDataKey::PairAddresses(n)).ok_or(FactoryError::IndexDoesNotExist)
+    e.storage().persistent().get(&DataKey::PairAddresses(n)).ok_or(FactoryError::IndexDoesNotExist)
 }
 
 /// Checks if a pair exists for the given `token_a` and `token_b`.
