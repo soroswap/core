@@ -4,7 +4,7 @@ use crate::soroswap_pair_token::admin::{has_administrator, read_administrator, w
 use crate::soroswap_pair_token::allowance::{read_allowance, spend_allowance, write_allowance};
 use crate::soroswap_pair_token::balance::{read_balance, receive_balance, spend_balance};
 use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
-use crate::soroswap_pair_token::total_supply::{read_total_supply, write_total_supply};
+use crate::soroswap_pair_token::total_supply::{read_total_supply, increase_total_supply, decrease_total_supply};
 
 #[cfg(test)]
 use crate::soroswap_pair_token::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
@@ -28,11 +28,7 @@ pub fn internal_burn(e: Env, from: Address, amount: i128) {
     .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
     
     spend_balance(&e, from.clone(), amount);
-
-    let mut total_supply = read_total_supply(&e);
-    total_supply = total_supply.checked_sub(amount).unwrap();
-    check_nonnegative_amount(total_supply);
-    write_total_supply(&e, &total_supply);
+    decrease_total_supply(&e, amount);
 
     TokenUtils::new(&e).events().burn(from, amount);
 } 
@@ -45,10 +41,7 @@ pub fn internal_mint(e: Env, to: Address, amount: i128) {
         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
         
     receive_balance(&e, to.clone(), amount);
-    
-    let mut total_supply = read_total_supply(&e);
-    total_supply = total_supply.checked_add(amount).unwrap();
-    write_total_supply(&e, &total_supply);
+    increase_total_supply(&e, amount);
 
     TokenUtils::new(&e).events().mint(e.current_contract_address(), to, amount);
 }
@@ -184,11 +177,7 @@ impl token::Interface for SoroswapPairToken {
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
-
-        let mut total_supply = read_total_supply(&e);
-        total_supply = total_supply.checked_sub(amount).unwrap();
-        check_nonnegative_amount(total_supply);
-        write_total_supply(&e, &total_supply);
+        decrease_total_supply(&e, amount);
 
         TokenUtils::new(&e).events().burn(from, amount)
     }
