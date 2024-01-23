@@ -52,7 +52,7 @@ fn withdraw() {
     test.contract.transfer(&test.user, &test.contract.address, &expected_liquidity.checked_sub(minimum_liquidity).unwrap());
 
     test.contract.withdraw(&test.user);
-    assert_eq!(test.contract.my_balance(&test.user), 0);
+    assert_eq!(test.contract.balance(&test.user), 0);
     assert_eq!(test.contract.total_supply(), minimum_liquidity);
     assert_eq!(test.token_0.balance(&test.contract.address), 1000);
     assert_eq!(test.token_1.balance(&test.contract.address), 1000);

@@ -1,6 +1,5 @@
 #![no_std]
 use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, IntoVal}; 
-use soroban_sdk::token::Interface;
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
 
@@ -61,8 +60,6 @@ pub trait SoroswapPairTrait{
 
     fn get_reserves(e: Env) -> (i128, i128);
 
-    // TODO: Just use the token "balance" function
-    fn my_balance(e: Env, id: Address) -> i128;
 }
 
 #[contract]
@@ -360,17 +357,6 @@ impl SoroswapPairTrait for SoroswapPair {
         (get_reserve_0(&e), get_reserve_1(&e))
     }
 
-    /// Returns the balance of LP shares for a specific address.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    /// * `id` - The address for which the LP share balance is queried.
-    ///
-    /// # Returns
-    /// The balance of LP shares for the specified address.
-    fn my_balance(e: Env, id: Address) -> i128 {
-        SoroswapPairToken::balance(e.clone(), id)
-    }
 
     /// Returns the value of the last product of reserves (`K`) stored in the contract.
     ///

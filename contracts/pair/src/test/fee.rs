@@ -33,7 +33,7 @@ fn fee_off() {
     assert_eq!(test.contract.k_last(), 0);
     assert_eq!(test.contract.balance(&test.user), 0);
         assert_eq!(test.contract.total_supply(), minimum_liquidity);
-        assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
+        assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
         assert_eq!(test.token_0.balance(&test.contract.address), 849);
         assert_eq!(test.token_1.balance(&test.contract.address), 1180);
         assert_eq!(test.contract.get_reserves(), (849,1180,));
@@ -101,8 +101,8 @@ fn fee_on_add_swap_remove() {
     
     // whe should have minted n shares to the admin:
     assert_eq!(test.contract.total_supply(), minimum_liquidity.checked_add(n).unwrap());
-    assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
-    assert_eq!(test.contract.my_balance(&test.admin), n);
+    assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
+    assert_eq!(test.contract.balance(&test.admin), n);
 
 
 
@@ -136,7 +136,7 @@ fn fee_on_add_swap_remove() {
     assert_eq!(after_withdraw_expected_reserve_1, amount_1-expected_output_amount_1-expected_user_out_token_1);
     assert_eq!(test.contract.get_reserves(), (after_withdraw_expected_reserve_0,after_withdraw_expected_reserve_1,));
     assert_eq!(test.contract.k_last(), after_withdraw_expected_reserve_0.checked_mul(after_withdraw_expected_reserve_1).unwrap());
-    // assert_eq!(test.contract.my_balance(&test.user), 0);
+    // assert_eq!(test.contract.balance(&test.user), 0);
     
 
 
@@ -265,9 +265,9 @@ fn fee_on_add_swap_add() {
     
     // whe should have minted n shares to the admin:
     assert_eq!(test.contract.total_supply(), expected_liquidity+n+expected_minted_liquidity);
-    assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
-    assert_eq!(test.contract.my_balance(&test.admin), n);
-    assert_eq!(test.contract.my_balance(&test.user), expected_minted_liquidity+ (expected_liquidity-minimum_liquidity));
+    assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
+    assert_eq!(test.contract.balance(&test.admin), n);
+    assert_eq!(test.contract.balance(&test.user), expected_minted_liquidity+ (expected_liquidity-minimum_liquidity));
 
 
 }
