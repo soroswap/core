@@ -18,7 +18,7 @@ fn check_nonnegative_amount(amount: i128) {
 */
 pub fn internal_burn(e: Env, from: Address, amount: i128) {
     check_nonnegative_amount(amount);
-
+ 
     e.storage()
     .instance()
     .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
