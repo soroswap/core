@@ -63,8 +63,6 @@ pub trait SoroswapPairTrait{
 
     // TODO: Just use the token "balance" function
     fn my_balance(e: Env, id: Address) -> i128;
-    // TODO: Analize using "total_supply"
-    fn total_shares(e: Env) -> i128;
 }
 
 #[contract]
@@ -101,7 +99,6 @@ impl SoroswapPairTrait for SoroswapPair {
 
         put_token_0(&e, token_0);
         put_token_1(&e, token_1);
-        put_total_shares(&e, 0);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
 
@@ -157,11 +154,11 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-        let total_shares = get_total_shares(&e);
+        let total_shares = SoroswapPairToken::total_supply(e.clone());
 
         let liquidity = if total_shares == 0 {
             // When the liquidity pool is being initialized, we block the minimum liquidity forever in this contract
-            mint_shares(&e, &e.current_contract_address(), MINIMUM_LIQUIDITY);
+            internal_mint(e.clone(), e.current_contract_address(), MINIMUM_LIQUIDITY);
             let previous_liquidity = (amount_0.checked_mul(amount_1).unwrap()).sqrt();
             if previous_liquidity <= MINIMUM_LIQUIDITY {
                 return Err(SoroswapPairError::DepositInsufficientFirstLiquidity);
@@ -177,7 +174,7 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(SoroswapPairError::DepositInsufficientLiquidityMinted);
         }
 
-        mint_shares(&e, &to, liquidity.clone());
+        internal_mint(e.clone(), to.clone(), liquidity.clone());
         let _ = update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
@@ -301,7 +298,7 @@ impl SoroswapPairTrait for SoroswapPair {
     
 
         let fee_on: bool = mint_fee(&e, reserve_0, reserve_1);
-        let total_shares = get_total_shares(&e);
+        let total_shares = SoroswapPairToken::total_supply(e.clone());
 
         let amount_0 = (balance_0.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
         let amount_1 = (balance_1.checked_mul(user_sent_shares).unwrap()).checked_div(total_shares).unwrap();
@@ -310,7 +307,7 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(SoroswapPairError::WithdrawInsufficientLiquidityBurned);
         }
 
-        burn_shares(&e, user_sent_shares);
+        internal_burn(e.clone(), e.current_contract_address(), user_sent_shares);
 
         transfer_token_0_from_pair(&e, &to, amount_0);
         transfer_token_1_from_pair(&e, &to, amount_1);
@@ -363,17 +360,6 @@ impl SoroswapPairTrait for SoroswapPair {
         (get_reserve_0(&e), get_reserve_1(&e))
     }
 
-    /// Returns the total number of LP shares in circulation.
-    ///
-    /// # Arguments
-    /// * `e` - The runtime environment.
-    ///
-    /// # Returns
-    /// The total number of LP shares.
-    fn total_shares(e: Env) -> i128 {
-        get_total_shares(&e)
-    }
-
     /// Returns the balance of LP shares for a specific address.
     ///
     /// # Arguments
@@ -399,23 +385,6 @@ impl SoroswapPairTrait for SoroswapPair {
 
     
 }
-
-
-
-
-fn burn_shares(e: &Env, amount: i128) {
-    let total = get_total_shares(e);
-    internal_burn(e.clone(), e.current_contract_address(), amount);
-    put_total_shares(&e, total.checked_sub(amount).unwrap());
-}
-
-fn mint_shares(e: &Env, to: &Address, amount: i128) {
-    let total = get_total_shares(e);
-    internal_mint(e.clone(), to.clone(), amount);
-    //put_total_shares(e, total + amount);
-    put_total_shares(&e, total.checked_add(amount).unwrap());
-}
-
 
 fn transfer(e: &Env, contract_id: Address, to: &Address, amount: i128) {
     any_token::TokenClient::new(e, &contract_id).transfer(&e.current_contract_address(), &to, &amount);
@@ -450,13 +419,13 @@ fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
             let root_k = (reserve_0.checked_mul(reserve_1).unwrap()).sqrt();
             let root_klast = (klast).sqrt();
             if root_k > root_klast{
-                let total_shares = get_total_shares(&e);
+                let total_shares = SoroswapPairToken::total_supply(e.clone());
                 let numerator = total_shares.checked_mul(root_k.checked_sub(root_klast).unwrap()).unwrap();
                 let denominator = root_k.checked_mul(5_i128).unwrap().checked_add(root_klast).unwrap();
                 let liquidity_pool_shares_fees = numerator.checked_div(denominator).unwrap();
 
                 if liquidity_pool_shares_fees > 0 {
-                    mint_shares(&e, &fee_to, liquidity_pool_shares_fees);
+                    internal_mint(e.clone(), fee_to, liquidity_pool_shares_fees);
                 }
             }
         }
