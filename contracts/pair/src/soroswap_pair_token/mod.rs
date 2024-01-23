@@ -6,7 +6,6 @@ mod balance;
 mod contract;
 mod metadata;
 mod storage_types;
-mod internal_fn;
 mod total_supply;
 
 pub use contract::SoroswapPairTokenClient; 

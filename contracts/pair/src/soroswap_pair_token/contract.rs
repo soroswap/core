@@ -26,12 +26,14 @@ pub fn internal_burn(e: Env, from: Address, amount: i128) {
     e.storage()
     .instance()
     .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+    
+    spend_balance(&e, from.clone(), amount);
 
     let mut total_supply = read_total_supply(&e);
     total_supply = total_supply.checked_sub(amount).unwrap();
+    check_nonnegative_amount(total_supply);
     write_total_supply(&e, &total_supply);
 
-    spend_balance(&e, from.clone(), amount);
     TokenUtils::new(&e).events().burn(from, amount);
 } 
 
@@ -41,8 +43,13 @@ pub fn internal_mint(e: Env, to: Address, amount: i128) {
     e.storage()
         .instance()
         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
+        
     receive_balance(&e, to.clone(), amount);
+    
+    let mut total_supply = read_total_supply(&e);
+    total_supply = total_supply.checked_add(amount).unwrap();
+    write_total_supply(&e, &total_supply);
+
     TokenUtils::new(&e).events().mint(e.current_contract_address(), to, amount);
 }
 
@@ -87,6 +94,10 @@ impl SoroswapPairToken {
 
         write_administrator(&e, &new_admin);
         TokenUtils::new(&e).events().set_admin(admin, new_admin);
+    }
+
+    pub fn total_supply(e: Env) -> i128 {
+        read_total_supply(&e)
     }
 
     #[cfg(test)]
@@ -173,6 +184,12 @@ impl token::Interface for SoroswapPairToken {
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
+
+        let mut total_supply = read_total_supply(&e);
+        total_supply = total_supply.checked_sub(amount).unwrap();
+        check_nonnegative_amount(total_supply);
+        write_total_supply(&e, &total_supply);
+
         TokenUtils::new(&e).events().burn(from, amount)
     }
 
