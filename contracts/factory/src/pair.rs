@@ -1,20 +1,32 @@
 // Import necessary types from the Soroban SDK
 #![allow(unused)]
-use soroban_sdk::{contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
+use soroban_sdk::{contracttype, contracterror, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
 soroban_sdk::contractimport!(
     file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
 );
 
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum PairError {
+    /// SoroswapFactory: token_a and token_b have identical addresses
+    CreatePairIdenticalTokens = 901,
+}
+
+
 #[contracttype]
 #[derive(Clone)]
 pub struct Pair(Address, Address);
 impl Pair {
-    pub fn new(a: Address, b: Address) -> Self {
+    pub fn new(a: Address, b: Address) -> Result<Self, PairError> {
+        if a == b {
+            return Err(PairError::CreatePairIdenticalTokens);
+        }
         if a < b {
-            Pair(a, b)
+            Ok(Pair(a, b))
         } else {
-            Pair(b, a)
+            Ok(Pair(b, a))
         }
     }
 
@@ -52,7 +64,7 @@ pub fn create_contract(
         the hash value of the newly created contract instance as a
         BytesN<32> value.
     */
-    e: &Env,                     // Pass in the current environment as an argument
+    e: &Env,                    // Pass in the current environment as an argument
     pair_wasm_hash: BytesN<32>, // Pass in the hash of the token contract's WASM file
     token_pair: &Pair,
 ) -> Address {

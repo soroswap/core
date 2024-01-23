@@ -4,13 +4,22 @@ mod event;
 mod pair;
 mod test;
 
-use pair::{create_contract, Pair};
 use soroban_sdk::{
     contract,
     contractimpl,
     contracttype, Address, BytesN, Env,
 };
 use soroswap_factory_interface::{SoroswapFactoryTrait, FactoryError};
+use pair::{create_contract, Pair, PairError};
+
+impl From<PairError> for FactoryError {
+    fn from(pair_error: PairError) -> Self {
+        match pair_error {
+            PairError::CreatePairIdenticalTokens => FactoryError::CreatePairIdenticalTokens,
+            // Handle other conversion cases as needed
+        }
+    }
+}
 
 
 #[derive(Clone)]
@@ -199,7 +208,7 @@ fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Facto
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    let token_pair = Pair::new(token_a, token_b);
+    let token_pair = Pair::new(token_a, token_b)?;
     get_pair_address_by_token_pair(&e, token_pair)
 }
 
@@ -236,7 +245,11 @@ fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, Facto
     if !has_pair_wasm_hash(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    Ok(get_pair_exists(&e, Pair::new(token_a, token_b)))
+
+    let token_pair = Pair::new(token_a, token_b)?;
+    
+    // Proceed with the existence check
+    Ok(get_pair_exists(&e, token_pair))
 }
 
 
@@ -350,11 +363,7 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
         return Err(FactoryError::NotInitialized);
     }
 
-    if token_a == token_b {
-        return Err(FactoryError::CreatePairIdenticalTokens);
-    }
-
-    let token_pair = Pair::new(token_a, token_b);
+    let token_pair = Pair::new(token_a, token_b)?;
 
     if get_pair_exists(&e, token_pair.clone()) {
         return Err(FactoryError::CreatePairAlreadyExists);
