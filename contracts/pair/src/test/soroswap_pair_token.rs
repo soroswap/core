@@ -42,6 +42,7 @@ fn test() {
         )]
     );
     assert_eq!(token.balance(&user1), 1000);
+    assert_eq!(token.total_supply(), 1000);
 
     token.approve(&user2, &user3, &500, &200);
     assert_eq!(
@@ -148,6 +149,7 @@ fn test_burn() {
     let token = create_token(&e, &admin);
 
     token.mint(&user1, &1000);
+    assert_eq!(token.total_supply(), 1000);
     assert_eq!(token.balance(&user1), 1000);
 
     token.approve(&user1, &user2, &500, &200);
@@ -169,6 +171,7 @@ fn test_burn() {
         )]
     );
 
+    assert_eq!(token.total_supply(), 500);
     assert_eq!(token.allowance(&user1, &user2), 0);
     assert_eq!(token.balance(&user1), 500);
     assert_eq!(token.balance(&user2), 0);
@@ -189,6 +192,7 @@ fn test_burn() {
         )]
     );
 
+    assert_eq!(token.total_supply(), 0);
     assert_eq!(token.balance(&user1), 0);
     assert_eq!(token.balance(&user2), 0);
 }
@@ -205,6 +209,7 @@ fn transfer_insufficient_balance() {
     let token = create_token(&e, &admin);
 
     token.mint(&user1, &1000);
+    assert_eq!(token.total_supply(), 1000);
     assert_eq!(token.balance(&user1), 1000);
 
     token.transfer(&user1, &user2, &1001);
@@ -223,6 +228,7 @@ fn transfer_from_insufficient_allowance() {
     let token = create_token(&e, &admin);
 
     token.mint(&user1, &1000);
+    assert_eq!(token.total_supply(), 1000);
     assert_eq!(token.balance(&user1), 1000);
 
     token.approve(&user1, &user3, &100, &200);
