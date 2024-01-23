@@ -53,14 +53,14 @@ impl<'a> SoroswapRouterTest<'a> {
         // In the meanwhile we will be kickstarting with mock_all_auths and remove it gradually.
         // pair::test::operations has other related tests with Pair and Token initialization.
         // env.mock_all_auths();
-        let alice = Address::random(&env);
-        let bob = Address::random(&env);
+        let alice = Address::generate(&env);
+        let bob = Address::generate(&env);
         let mut token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
         let mut token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             mem::swap(&mut token_0, &mut token_1);
         } else 
-        if &token_1.address.contract_id() == &token_0.address.contract_id() {
+        if &token_1.address == &token_0.address {
             panic!("token contract ids are equal");
         }
         // The other form for registering the contract with the environment
@@ -539,10 +539,10 @@ pub fn mock_auth_add_liquidity_new_token() {
 
     let mut token_2 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
     let mut token_3 = TokenClient::new(&router_test.env, &router_test.env.register_stellar_asset_contract(router_test.alice.clone()));
-    if &token_2.address.contract_id() < &token_3.address.contract_id() {
+    if &token_2.address < &token_3.address {
         mem::swap(&mut token_2, &mut token_3);
     } else 
-    if &token_2.address.contract_id() == &token_3.address.contract_id() {
+    if &token_2.address == &token_3.address {
         panic!("token contract ids are equal");
     }
     // router_test.factory.create_pair(&token_2.address, &token_3.address);

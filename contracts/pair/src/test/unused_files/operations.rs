@@ -82,7 +82,7 @@ impl Pair {
 #[test]
 fn pair_initialization() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -113,8 +113,8 @@ fn pair_initialization() {
 #[should_panic]
 fn token_mint_not_auth() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let amount: i128 = 10_000;
@@ -127,8 +127,8 @@ fn token_mint_not_auth() {
 #[test]
 fn token_mint_mock_auths() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let amount: i128 = 10_000;
@@ -155,7 +155,7 @@ fn token_mint_mock_auths() {
 #[test]
 fn pair_init_zero_balance_alice() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -185,8 +185,8 @@ fn pair_init_zero_balance_alice() {
 #[test]
 fn token_init_zero_balance_bob() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let asserted: (i128, i128) = (token_0.balance(&bob.clone()), token_1.balance(&bob.clone()));
@@ -196,7 +196,7 @@ fn token_init_zero_balance_bob() {
 #[test]
 fn token_init_some_balance_alice() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     token_0
@@ -234,8 +234,8 @@ fn token_init_some_balance_alice() {
 #[test]
 fn token_init_some_balance_bob() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     token_0
@@ -273,7 +273,7 @@ fn token_init_some_balance_bob() {
 #[test]
 fn pair_mock_auth_initialization() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -371,7 +371,7 @@ fn pair_mock_auth_initialization() {
 fn pair_mock_auth_withdraw() {
     let env: Env = Default::default();
     env.budget().reset_unlimited();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -504,7 +504,7 @@ fn pair_mock_auth_withdraw() {
 #[test]
 fn mint_double_factory_initialization() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -565,7 +565,7 @@ fn mint_double_factory_initialization() {
 #[test]
 fn factory_is_unique_and_pair_not_created() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let pair_hash = env.deployer().upload_contract_wasm(pair::WASM);
@@ -631,7 +631,7 @@ fn factory_is_unique_and_pair_not_created() {
 #[test]
 fn two_pairs_initialization_alice() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
+    let alice = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
@@ -725,8 +725,8 @@ fn two_pairs_initialization_alice() {
 #[test]
 fn two_pairs_alice_bob_deposit() {
     let env: Env = Default::default();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
@@ -891,8 +891,8 @@ fn two_pairs_swap_bob_mock_all() {
         li.timestamp = 100;
     });
     env.budget().reset_unlimited();
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
@@ -952,8 +952,8 @@ fn bigger_quantity() {
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
@@ -1096,8 +1096,8 @@ fn bigger_pair_quantity_bob() {
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
@@ -1392,8 +1392,8 @@ fn max_pair_quantity_bob() {
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     assert_ne!(token_0.address, token_1.address);
@@ -1698,8 +1698,8 @@ fn two_pairs_swap_bob() {
     env.ledger().with_mut(|li| {
         li.timestamp = 100;
     });
-    let alice = Address::random(&env);
-    let bob = Address::random(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
     let token_0 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_1 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
     let token_2 = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));

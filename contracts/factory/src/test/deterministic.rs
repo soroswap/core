@@ -56,14 +56,14 @@ impl<'a> SoroswapFactoryTest<'a> {
         
         let env: Env = Default::default();
         env.mock_all_auths();
-        let alice = Address::random(&env);
-        let bob = Address::random(&env);
+        let alice = Address::generate(&env);
+        let bob = Address::generate(&env);
         let mut token_0: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
         let mut token_1: TokenClient<'a> = TokenClient::new(&env, &env.register_stellar_asset_contract(alice.clone()));
-        if &token_1.address.contract_id() < &token_0.address.contract_id() {
+        if &token_1.address < &token_0.address {
             mem::swap(&mut token_0, &mut token_1);
         } else 
-        if &token_1.address.contract_id() == &token_0.address.contract_id() {
+        if &token_1.address == &token_0.address {
             panic!("token contract ids are equal");
         }
         // The other form for registering the contract with the environment

@@ -1,7 +1,9 @@
 */Cargo.lock
 contracts/*/target
+contracts/*/test_snapshots
 /target/
 /.sccache/
 .DS_Store
 .soroban
 node_modules/
+
