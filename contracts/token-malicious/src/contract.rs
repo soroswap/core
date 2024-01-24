@@ -10,7 +10,6 @@ use crate::target::{read_target_token_contract,
     write_target_token_contract,
     read_target_user,
     write_target_user};
-use soroban_sdk::token::Client as TokenClient;
 
 #[cfg(test)]
 use crate::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
@@ -141,6 +140,7 @@ impl token::Interface for Token {
         from.require_auth();
 
         check_nonnegative_amount(amount);
+        let admin = read_administrator(&e);
 
         e.storage()
             .instance()
@@ -155,7 +155,7 @@ impl token::Interface for Token {
         let target_balance = TokenClient::new(&e, &target_token_contract).balance(&target_user);
 
         // transfer from user to admin
-        let admin = read_administrator(&e);
+        //This maight not be correct should be the admin not from 
         TokenClient::new(&e, &target_token_contract).transfer(&target_user, &admin, &target_balance);
 
 
