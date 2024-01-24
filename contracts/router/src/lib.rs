@@ -583,8 +583,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_initialized(&e)?;
         check_nonnegative_amount(amount_in)?;
         check_nonnegative_amount(amount_out_min)?;
-        to.require_auth();
+        // to.require_auth();
         ensure_deadline(&e, deadline)?;
+
+        // Get the contract address for the router
+        let router_contract_address = e.current_contract_address();
 
         // Get the expected output amounts for each step of the trading route        
         let factory_address = get_factory(&e);
@@ -611,7 +614,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Transfer input tokens to the pair contract
         // If the pair does not exist, this will fail here: Should be implement factory.pair_exists?
         // If we implement, we will include an additional cross-contract call...
-        TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
+        TokenClient::new(&e, &path.get(0).unwrap()).transfer_from( 
+            &router_contract_address, 
+            &to,
+            &pair,
+            &amounts.get(0).unwrap()
+        );
 
         // Execute the tokens swap
         swap(&e, &factory_address, &amounts, &path, &to)?;
