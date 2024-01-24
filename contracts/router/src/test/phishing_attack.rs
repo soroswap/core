@@ -1,11 +1,9 @@
 #![cfg(test)]
 extern crate std;
 
-use soroban_sdk::{Env, Address, vec, Vec, IntoVal, String};
+use soroban_sdk::{Env, Address, String};
 
 use crate::test::{SoroswapRouterTest};
-use crate::test::add_liquidity::add_liquidity;
-use crate::error::CombinedRouterError;
 
 // Malicious Token Contract
 mod token_malicious_contract {
