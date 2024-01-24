@@ -388,7 +388,7 @@ fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
 fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
 
     /*
-            accumulated fees are collected only when liquidity is deposited
+            accumulated fees are collected only when liquidity is deposited 
             or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
             to the fee beneficiary, immediately before any tokens are minted or burned 
     */
