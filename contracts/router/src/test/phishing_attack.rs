@@ -7,7 +7,7 @@ use crate::test::{SoroswapRouterTest};
 
 // Malicious Token Contract
 mod token_malicious_contract {
-    soroban_sdk::contractimport!(file = "../token-malicious/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token-malicious/target/wasm32-unknown-unknown/release/soroban_token_contract_malicious.wasm");
     pub type MaliciousTokenClient<'a> = Client<'a>;
 }
 
