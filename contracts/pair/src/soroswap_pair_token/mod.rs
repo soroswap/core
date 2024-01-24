@@ -6,8 +6,8 @@ mod balance;
 mod contract;
 mod metadata;
 mod storage_types;
-mod internal_fn;
+mod total_supply;
 
 pub use contract::SoroswapPairTokenClient; 
 pub use contract::SoroswapPairToken;
-pub use internal_fn::{internal_mint, internal_burn};
+pub use contract::{internal_mint, internal_burn};

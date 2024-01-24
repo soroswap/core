@@ -1,6 +1,6 @@
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{testutils::{Ledger}};
-use crate::error::SoroswapPairError;
+use crate::test::pair::SoroswapPairError;
 
 
     
@@ -102,7 +102,7 @@ fn deposit_basic() {
     assert_eq!(test.token_1.balance(&test.contract.address), amount_1);
 
     // User does not hold any LP token first 
-    assert_eq!(test.contract.my_balance(&test.user), 0);
+    assert_eq!(test.contract.balance(&test.user), 0);
 
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.contract.deposit(&test.user);
@@ -112,7 +112,7 @@ fn deposit_basic() {
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
 
     // New LP balance:
-    assert_eq!(test.contract.my_balance(&test.user), expected_liquidity- minimum_liquidity);
+    assert_eq!(test.contract.balance(&test.user), expected_liquidity- minimum_liquidity);
     // Reserves
     assert_eq!(test.contract.get_reserves(), (amount_0, amount_1));
 }

@@ -10,10 +10,9 @@ pub enum DataKey {
     Reserve0 = 2, //uint112 private reserve0;
     Reserve1 = 3, // uint112 private reserve1;
     Factory = 4, 
-    TotalShares = 5, // TODO: Delete when implementing the token interface,
-    BlockTimestampLast = 6, // accessible via getReserves,
-    Price0CumulativeLast = 7, // uint public price0CumulativeLast;
-    Price1CumulativeLast = 8, // uint public price1CumulativeLast;
+    BlockTimestampLast = 5, // accessible via getReserves,
+    Price0CumulativeLast = 6, // uint public price0CumulativeLast;
+    Price1CumulativeLast = 7, // uint public price1CumulativeLast;
     KLast = 9
 
 }
@@ -46,11 +45,6 @@ get(&DataKey::Token0).unwrap()
 pub fn get_token_1(e: &Env) -> Address {
     e.storage().instance().
 get(&DataKey::Token1).unwrap()
-}
-
-pub fn get_total_shares(e: &Env) -> i128 {
-    e.storage().instance().
-get(&DataKey::TotalShares).unwrap()
 }
 
 pub fn get_reserve_0(e: &Env) -> i128 {
@@ -87,11 +81,6 @@ set(&DataKey::Token0, &contract_id);
 pub fn put_token_1(e: &Env, contract_id: Address) {
     e.storage().instance().
 set(&DataKey::Token1, &contract_id);
-}
-
-pub fn put_total_shares(e: &Env, amount: i128) {
-    e.storage().instance().
-set(&DataKey::TotalShares, &amount)
 }
 
 pub fn put_reserve_0(e: &Env, amount: i128) {

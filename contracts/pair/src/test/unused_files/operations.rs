@@ -362,7 +362,7 @@ fn pair_mock_auth_initialization() {
     let l = pair.deposit(&alice.clone());
     assert_eq!(1001_i128.checked_mul(1001_i128).unwrap().sqrt().checked_sub(1000_i128).unwrap(), l);
 
-    let b = pair.my_balance(&alice.clone());
+    let b = pair.balance(&alice.clone());
     assert!(b == 1);
 
 }
@@ -461,7 +461,7 @@ fn pair_mock_auth_withdraw() {
     let liquidity = pair.deposit(&alice.clone());
     assert_eq!(liquidity, 1001_i128.checked_mul(1001_i128).unwrap().sqrt().checked_sub(1000).unwrap());
 
-    let b = pair.my_balance(&alice.clone());
+    let b = pair.balance(&alice.clone());
     assert!(b == 1);
 
     let pair_as_token = TokenClient::new(&env, &pair.address);
@@ -496,7 +496,7 @@ fn pair_mock_auth_withdraw() {
     ])
     .withdraw(&alice.clone());
 
-    assert_eq!(pair.my_balance(&alice), 0);
+    assert_eq!(pair.balance(&alice), 0);
     assert_eq!(token_0.balance(&alice), 1002);
     assert_eq!(token_1.balance(&alice), 2);
 }
@@ -1248,7 +1248,7 @@ fn bigger_pair_quantity_bob() {
     ])
     .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity);
 
-    let bob_balance = pair_0_1_as_pair.my_balance(&bob.clone());
+    let bob_balance = pair_0_1_as_pair.balance(&bob.clone());
 
     assert_eq!(bob_balance, 0);
 
@@ -1285,7 +1285,7 @@ fn bigger_pair_quantity_bob() {
     .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &10000/*000*/); // Use all balance
 
     let bob_liquidity_0_1 = pair_0_1_as_pair.deposit(&bob);
-    let bob_balance_0_1 = pair_0_1_as_pair.my_balance(&bob.clone());
+    let bob_balance_0_1 = pair_0_1_as_pair.balance(&bob.clone());
 
     // At the second deposit, the liquidty formula is different.
     assert_eq!(bob_balance_0_1, 10_000);
@@ -1309,7 +1309,7 @@ fn bigger_pair_quantity_bob() {
     .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity_0_1);
 
     // Bob's pair balance is 0 again.
-    assert_eq!(pair_0_1_as_pair.my_balance(&bob.clone()), 0);
+    assert_eq!(pair_0_1_as_pair.balance(&bob.clone()), 0);
 
     pair_0_1_as_pair.withdraw(&bob);
 
@@ -1553,7 +1553,7 @@ fn max_pair_quantity_bob() {
     ])
     .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity);
 
-    let bob_balance = pair_0_1_as_pair.my_balance(&bob.clone());
+    let bob_balance = pair_0_1_as_pair.balance(&bob.clone());
 
     assert_eq!(bob_balance, 0);
 
@@ -1590,7 +1590,7 @@ fn max_pair_quantity_bob() {
     .transfer(&bob.clone(), &pair_0_1_as_token.address.clone(), &10000/*000*/); // Use all balance
 
     let bob_liquidity_0_1 = pair_0_1_as_pair.deposit(&bob);
-    let bob_balance_0_1 = pair_0_1_as_pair.my_balance(&bob.clone());
+    let bob_balance_0_1 = pair_0_1_as_pair.balance(&bob.clone());
 
     // At the second deposit, the liquidty formula is different.
     assert_eq!(bob_balance_0_1, 10_000);
@@ -1614,7 +1614,7 @@ fn max_pair_quantity_bob() {
     .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity_0_1);
 
     // Bob's pair balance is 0 again.
-    assert_eq!(pair_0_1_as_pair.my_balance(&bob.clone()), 0);
+    assert_eq!(pair_0_1_as_pair.balance(&bob.clone()), 0);
 
     pair_0_1_as_pair.withdraw(&bob);
 
@@ -1889,7 +1889,7 @@ fn two_pairs_swap_bob() {
     ])
     .transfer(&bob.clone(), &pair_0_1_as_pair.address.clone(), &bob_liquidity);
 
-    let bob_balance = pair_0_1_as_pair.my_balance(&bob.clone());
+    let bob_balance = pair_0_1_as_pair.balance(&bob.clone());
 
     assert_eq!(bob_balance, 0);
 
@@ -1935,7 +1935,7 @@ fn two_pairs_swap_bob() {
     assert_eq!(bob_liquidity, 1001_i128.checked_mul(1001_i128).unwrap().sqrt() - 1000_i128);
 
     let bob_liquidity_2_3 = pair_2_3_as_pair.deposit(&bob);
-    let bob_balance_2_3 = pair_2_3_as_pair.my_balance(&bob.clone());
+    let bob_balance_2_3 = pair_2_3_as_pair.balance(&bob.clone());
     assert_eq!(bob_liquidity_2_3, 10_000_i128.checked_mul(10_000_i128).unwrap().sqrt().checked_sub(1000_i128).unwrap());
 
     assert_eq!(pair_2_3_as_pair.get_reserves(), (10_000, 10_000, 100));

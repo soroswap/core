@@ -1,6 +1,5 @@
 use crate::test::{SoroswapPairTest};
 use crate::test::deposit::add_liquidity;
-use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use num_integer::Roots; 
 
 
@@ -28,22 +27,16 @@ fn fee_off() {
     assert_eq!(test.contract.get_reserves(), (amount_0+swap_amount_0,amount_1-expected_output_amount_1,));
     assert_eq!(test.contract.k_last(), 0);
 
-    // Now we need to treat the contract as a SoroswapPairTokenClient
-    let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
-    pair_token_client.transfer(&test.user, &test.contract.address, &expected_liquidity.checked_sub(minimum_liquidity).unwrap());
-
-    // And now we need to treat it again as a SoroswapPairClient
-    test.env.register_contract(&test.contract.address, crate::SoroswapPair {});
-    // Now the env has that address again as a SoroswapPairClient
+    test.contract.transfer(&test.user, &test.contract.address, &expected_liquidity.checked_sub(minimum_liquidity).unwrap());
 
     test.contract.withdraw(&test.user);
     assert_eq!(test.contract.k_last(), 0);
-    assert_eq!(test.contract.my_balance(&test.user), 0);
-    assert_eq!(test.contract.total_shares(), minimum_liquidity);
-    assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
-    assert_eq!(test.token_0.balance(&test.contract.address), 849);
-    assert_eq!(test.token_1.balance(&test.contract.address), 1180);
-    assert_eq!(test.contract.get_reserves(), (849,1180,));
+    assert_eq!(test.contract.balance(&test.user), 0);
+        assert_eq!(test.contract.total_supply(), minimum_liquidity);
+        assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
+        assert_eq!(test.token_0.balance(&test.contract.address), 849);
+        assert_eq!(test.token_1.balance(&test.contract.address), 1180);
+        assert_eq!(test.contract.get_reserves(), (849,1180,));
 
 }
 
@@ -68,7 +61,7 @@ fn fee_on_add_swap_remove() {
     // If we deposit with fee on, we should see a change in the klast paramenter
     //klast should be the new reserves (amount0 and amount1)
     assert_eq!(test.contract.k_last(), amount_0.checked_mul(amount_1).unwrap());
-    assert_eq!(test.contract.total_shares(), expected_liquidity);
+    assert_eq!(test.contract.total_supply(), expected_liquidity);
 
 
     let swap_amount_0 = 10_000_000;
@@ -92,15 +85,9 @@ fn fee_on_add_swap_remove() {
     // After the swap, k2 should be greater than k1
     assert_eq!(k2_root > k1_root, true);
 
-    // Now we need to treat the contract as a SoroswapPairTokenClient
-    let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
-    pair_token_client.transfer(&test.user, &test.contract.address, &expected_liquidity.checked_sub(minimum_liquidity).unwrap());
+    test.contract.transfer(&test.user, &test.contract.address, &expected_liquidity.checked_sub(minimum_liquidity).unwrap());
 
-    // And now we need to treat it again as a SoroswapPairClient
-    test.env.register_contract(&test.contract.address, crate::SoroswapPair {});
-    // Now the env has that address again as a SoroswapPairClient
-
-    assert_eq!(test.contract.total_shares(), expected_liquidity);
+    assert_eq!(test.contract.total_supply(), expected_liquidity);
     test.contract.withdraw(&test.user);
     // n = expected_liquidity*(k2_root-k1_root)/(5k2_root + k1_root)
     // = 2946,719213655 --> 2946
@@ -113,9 +100,9 @@ fn fee_on_add_swap_remove() {
     assert_eq!(numerator.checked_div(denominator).unwrap(), n);
     
     // whe should have minted n shares to the admin:
-    assert_eq!(test.contract.total_shares(), minimum_liquidity.checked_add(n).unwrap());
-    assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
-    assert_eq!(test.contract.my_balance(&test.admin), n);
+    assert_eq!(test.contract.total_supply(), minimum_liquidity.checked_add(n).unwrap());
+    assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
+    assert_eq!(test.contract.balance(&test.admin), n);
 
 
 
@@ -149,7 +136,7 @@ fn fee_on_add_swap_remove() {
     assert_eq!(after_withdraw_expected_reserve_1, amount_1-expected_output_amount_1-expected_user_out_token_1);
     assert_eq!(test.contract.get_reserves(), (after_withdraw_expected_reserve_0,after_withdraw_expected_reserve_1,));
     assert_eq!(test.contract.k_last(), after_withdraw_expected_reserve_0.checked_mul(after_withdraw_expected_reserve_1).unwrap());
-    // assert_eq!(test.contract.my_balance(&test.user), 0);
+    // assert_eq!(test.contract.balance(&test.user), 0);
     
 
 
@@ -158,15 +145,9 @@ fn fee_on_add_swap_remove() {
     let expected_admin_out_token_0 = 2500; // (3349*2946)/(1000+2946) = 2500
     let expected_admin_out_token_1 = 3473; // (4653*2946)/(1000+2946) = 3473
 
-    // Now we need to treat the contract as a SoroswapPairTokenClient
-    let pair_token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, crate::SoroswapPairToken {}));
-    pair_token_client.transfer(&test.admin, &test.contract.address, &n);
+    test.contract.transfer(&test.admin, &test.contract.address, &n);
 
-    // And now we need to treat it again as a SoroswapPairClient
-    test.env.register_contract(&test.contract.address, crate::SoroswapPair {});
-    // Now the env has that address again as a SoroswapPairClient
-
-    assert_eq!(test.contract.total_shares(), 1000+2946);
+    assert_eq!(test.contract.total_supply(), 1000+2946);
     test.contract.withdraw(&test.admin);
     assert_eq!(test.token_0.balance(&test.admin), expected_admin_out_token_0);
     assert_eq!(test.token_1.balance(&test.admin), expected_admin_out_token_1);
@@ -199,7 +180,7 @@ fn fee_on_add_swap_add() {
     // If we deposit with fee on, we should see a change in the klast paramenter
     //klast should be the new reserves (amount0 and amount1)
     assert_eq!(test.contract.k_last(), amount_0.checked_mul(amount_1).unwrap());
-    assert_eq!(test.contract.total_shares(), expected_liquidity);
+    assert_eq!(test.contract.total_supply(), expected_liquidity);
     assert_eq!(test.token_0.balance(&test.user), original_0.checked_sub(amount_0).unwrap());
     assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap());
 
@@ -236,7 +217,7 @@ fn fee_on_add_swap_add() {
 
 
     // ***************** DEPOSIT AGAIN! *****************
-    assert_eq!(test.contract.total_shares(), expected_liquidity);
+    assert_eq!(test.contract.total_supply(), expected_liquidity);
     assert_eq!(test.contract.get_reserves(), (new_expected_reserve_0,new_expected_reserve_1));
     let new_amount_0: i128 = 1_000_000;
     let new_amount_1: i128 = 1389583; //(new_amount_0*new_expected_reserve_1)/new_expected_reserve_0);
@@ -262,8 +243,8 @@ fn fee_on_add_swap_add() {
     /*
         lets check new LP balance:
 
-        let shares_a = (amount_0.checked_mul(total_shares).unwrap()).checked_div(reserve_0).unwrap();
-        let shares_b = (amount_1.checked_mul(total_shares).unwrap()).checked_div(reserve_1).unwrap();
+        let shares_a = (amount_0.checked_mul(total_supply).unwrap()).checked_div(reserve_0).unwrap();
+        let shares_b = (amount_1.checked_mul(total_supply).unwrap()).checked_div(reserve_1).unwrap();
         shares_a.min(shares_b)
     */
 
@@ -283,10 +264,10 @@ fn fee_on_add_swap_add() {
 
     
     // whe should have minted n shares to the admin:
-    assert_eq!(test.contract.total_shares(), expected_liquidity+n+expected_minted_liquidity);
-    assert_eq!(test.contract.my_balance(&test.contract.address), minimum_liquidity);
-    assert_eq!(test.contract.my_balance(&test.admin), n);
-    assert_eq!(test.contract.my_balance(&test.user), expected_minted_liquidity+ (expected_liquidity-minimum_liquidity));
+    assert_eq!(test.contract.total_supply(), expected_liquidity+n+expected_minted_liquidity);
+    assert_eq!(test.contract.balance(&test.contract.address), minimum_liquidity);
+    assert_eq!(test.contract.balance(&test.admin), n);
+    assert_eq!(test.contract.balance(&test.user), expected_minted_liquidity+ (expected_liquidity-minimum_liquidity));
 
 
 }

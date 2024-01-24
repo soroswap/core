@@ -4,6 +4,8 @@ use crate::soroswap_pair_token::admin::{has_administrator, read_administrator, w
 use crate::soroswap_pair_token::allowance::{read_allowance, spend_allowance, write_allowance};
 use crate::soroswap_pair_token::balance::{read_balance, receive_balance, spend_balance};
 use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::soroswap_pair_token::total_supply::{read_total_supply, increase_total_supply, decrease_total_supply};
+
 #[cfg(test)]
 use crate::soroswap_pair_token::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
 use crate::soroswap_pair_token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
@@ -17,6 +19,33 @@ fn check_nonnegative_amount(amount: i128) {
         panic!("negative amount is not allowed: {}", amount)
     }
 }
+
+pub fn internal_burn(e: Env, from: Address, amount: i128) {
+    check_nonnegative_amount(amount);
+ 
+    e.storage()
+    .instance()
+    .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+    
+    spend_balance(&e, from.clone(), amount);
+    decrease_total_supply(&e, amount);
+
+    TokenUtils::new(&e).events().burn(from, amount);
+} 
+
+pub fn internal_mint(e: Env, to: Address, amount: i128) {
+    check_nonnegative_amount(amount);
+
+    e.storage()
+        .instance()
+        .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        
+    receive_balance(&e, to.clone(), amount);
+    increase_total_supply(&e, amount);
+
+    TokenUtils::new(&e).events().mint(e.current_contract_address(), to, amount);
+}
+
 
 #[contract]
 pub struct SoroswapPairToken;
@@ -43,16 +72,9 @@ impl SoroswapPairToken {
     }
 
     pub fn mint(e: Env, to: Address, amount: i128) {
-        check_nonnegative_amount(amount);
         let admin = read_administrator(&e);
         admin.require_auth();
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        receive_balance(&e, to.clone(), amount);
-        TokenUtils::new(&e).events().mint(admin, to, amount);
+        internal_mint(e, to, amount);
     }
 
     pub fn set_admin(e: Env, new_admin: Address) {
@@ -65,6 +87,10 @@ impl SoroswapPairToken {
 
         write_administrator(&e, &new_admin);
         TokenUtils::new(&e).events().set_admin(admin, new_admin);
+    }
+
+    pub fn total_supply(e: Env) -> i128 {
+        read_total_supply(&e)
     }
 
     #[cfg(test)]
@@ -137,15 +163,7 @@ impl token::Interface for SoroswapPairToken {
 
     fn burn(e: Env, from: Address, amount: i128) {
         from.require_auth();
-
-        check_nonnegative_amount(amount);
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        spend_balance(&e, from.clone(), amount);
-        TokenUtils::new(&e).events().burn(from, amount);
+        internal_burn(e, from, amount);
     }
 
     fn burn_from(e: Env, spender: Address, from: Address, amount: i128) {
@@ -159,6 +177,8 @@ impl token::Interface for SoroswapPairToken {
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);
+        decrease_total_supply(&e, amount);
+
         TokenUtils::new(&e).events().burn(from, amount)
     }
 

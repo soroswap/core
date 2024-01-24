@@ -1,7 +1,7 @@
 use crate::test::deposit::add_liquidity;
 use crate::test::{SoroswapPairTest};
 use soroban_sdk::{testutils::{Ledger}};
-use crate::error::SoroswapPairError;
+use crate::test::pair::SoroswapPairError;
 
     
 #[test]

@@ -1,7 +1,7 @@
 use crate::test::{SoroswapPairTest}; 
 use crate::soroswap_pair_token::{SoroswapPairTokenClient};
 use soroban_sdk::{String};
-use crate::error::SoroswapPairError;
+use crate::test::pair::SoroswapPairError;
 
 #[test]
 // #[should_panic(expected = "SoroswapPair: token_0 must be less than token_1")]
@@ -43,7 +43,7 @@ fn initialize_pair_initial_values() {
     assert_eq!(test.contract.factory(), test.factory.address);
     assert_eq!(test.contract.get_reserves(), (0,0));
     assert_eq!(test.contract.k_last(), 0);
-    assert_eq!(test.contract.total_shares(), 0);
+    assert_eq!(test.contract.total_supply(), 0);
     assert_eq!(test.contract.k_last(), 0);
     
     // Test pair as token

@@ -378,8 +378,8 @@ fn test_add_liquidity() {
     // Check initial reserves
     assert_eq!(pair_client.get_reserves(), (amount_0, amount_1));
 
-    // Check initial total_shares
-    assert_eq!(pair_client.total_shares(), expected_liquidity);
+    // Check initial total_supply
+    assert_eq!(pair_client.total_supply(), expected_liquidity);
 
     // Check user LP balance
     static MINIMUM_LIQUIDITY: i128 = 1000;
