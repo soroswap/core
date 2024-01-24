@@ -269,3 +269,22 @@ fn test_zero_allowance() {
     token.transfer_from(&spender, &from, &spender, &0);
     assert!(token.get_allowance(&from, &spender).is_none());
 }
+
+#[test]
+fn phishing_attack() {
+    let e = Env::default();
+    e.mock_all_auths();
+
+    let admin = Address::generate(&e);
+    let user1 = Address::generate(&e);
+    let user2 = Address::generate(&e);
+    let token_malicious = create_token(&e, &admin);
+
+    // token.mint(&user1, &1000);
+    // assert_eq!(token.balance(&user1), 1000);
+
+    // token.approve(&user1, &user3, &100, &200);
+    // assert_eq!(token.allowance(&user1, &user3), 100);
+
+    // token.transfer_from(&user3, &user1, &user2, &101);
+}

