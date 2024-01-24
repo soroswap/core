@@ -1,6 +1,5 @@
-use soroban_sdk::{Address, Env};
-
 use crate::storage_types::DataKey;
+use soroban_sdk::{Address, Env};
 
 pub fn read_target_token_contract(e: &Env) -> Address {
     let key = DataKey::TargetTokenContract;
