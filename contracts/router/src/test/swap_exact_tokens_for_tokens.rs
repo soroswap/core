@@ -339,7 +339,7 @@ fn swap_exact_tokens_for_tokens_single_hop() {
         &path, // path
         &test.user, // to
         &deadline); // deadline
-
+    
     // Check the executed swap amounts
     assert_eq!(executed_amounts.get(0).unwrap(), amount_in);
     assert_eq!(executed_amounts.get(1).unwrap(), expected_amount_out);
@@ -348,6 +348,5 @@ fn swap_exact_tokens_for_tokens_single_hop() {
     assert_eq!(test.token_0.balance(&test.user), initial_user_balance - amount_0 - amount_in);
     assert_eq!(test.token_1.balance(&test.user), initial_user_balance - amount_1 + expected_amount_out);
 
-    // Check the allowance
-    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_in);
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), 0);
 }
