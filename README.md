@@ -45,11 +45,13 @@ yarn
 In the same terminal mentioned before, run:
 
 >[!Note]
->Accepted values are: `standalone | testnet | futurenet`
+>- Accepted values for network are: `standalone | testnet | futurenet`
+>- Accepted values for mode are: `local | public`
+  
 
 ```
 
-    bash scripts/populate_network.sh standalone
+    bash scripts/populate_network.sh <network> <mode>
 
 ```
 

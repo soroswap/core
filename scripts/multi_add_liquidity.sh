@@ -1,27 +1,61 @@
 #!/bin/bash
 NETWORK="$1"
 
-#Define consts and necesary files
-source /workspace/scripts/manual_testing/utils.sh
-TOKENS_FILE="/workspace/.soroban/tokens.json"
-ROUTER_FILE="/workspace/.soroban/router.json"
-SOROBAN_RPC_HOST="http://stellar:8000"
-FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
-
 # Define constants for color-coded output
 RED='\033[1;31m'
-GREEN='\033[1;32m'
+GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
+#Define consts and necesary files
+SOROBAN_RPC_HOST="http://stellar:8000"
+
 #Verify that the network is valid
-if [ "$NETWORK" != "standalone" ]; then
-    echo -e "${RED}Invalid network. This script only supports standalone network.${NC}"
-    echo -e "${YELLOW}Please run:    bash scripts/multi_add_liquidity.sh standalone${NC}"
-    exit 1
-fi
-echo "Using deployed contracts from .soroban folder"
+case "$1" in
+standalone)
+  echo "Using standalone network"
+  FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
+  ;;
+futurenet)
+  echo "Using Futurenet network"
+  FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
+  ;;
+testnet)
+  echo "Using Testnet network"
+  FRIENDBOT_URL="https://friendbot.stellar.org/"
+  ## TODO: Remove when solving the rpc problem:_
+  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
+  ;;
+testnet-public)
+  echo "Using Testnet network with public RPC https://soroban-testnet.stellar.org/"
+  FRIENDBOT_URL="https://friendbot.stellar.org/"
+  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
+  ;;
+*)
+  echo "Usage: $0 standalone|futurenet|testnet|testnet-public"
+  exit 1
+  ;;
+esac
+
+case "$2" in
+local)
+  echo "Using deployed contracts from .soroban folder"
+  TOKENS_FILE="/workspace/.soroban/tokens.json"
+  ROUTER_FILE="/workspace/.soroban/router.json"
+  ;;
+public)
+  echo "Using deployed contracts from /public folder"
+  TOKENS_FILE="/workspace/public/tokens.json"
+  ROUTER_FILE="/workspace/public/router.json"
+  ;;
+*)
+  echo "Usage: $0 local|public"
+  echo "local: use contracts from the .soroban folder (local deployements)"
+  echo "public: use contracts from the /public folder (addresses in production?)"
+  exit 1
+  ;;
+esac
 
 #Get the router contract address
 ROUTER_CONTRACT=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
@@ -48,24 +82,24 @@ TOKENS_SYMBOL=($(jq -r '.[].tokens[].symbol' "$TOKENS_FILE"))
 #Verify that the tokens array has the expected length
 EXPECTED_LENGTH=12
 
-if [ ${#TOKENS[@]} -lt $EXPECTED_LENGTH ]; then
+if [ ${#TOKENS[@]} -le $EXPECTED_LENGTH ]; then
     echo -e "${RED}The tokens.json file must have at least ${EXPECTED_LENGTH} tokens to run this script.${NC}"
-    echo -e "${YELLOW}Please deploy at least 6 tokens.${NC}"
     exit 1
 fi
 
-echo -e "${YELLOW}${TOKENS_SYMBOL[@]}${NC}"
+echo -e "${BLUE}TOKENS in TOKENS_FILE: ${NC}"
+echo -e "${YELLOW}[${TOKENS_SYMBOL[@]}]${NC}"
 
 #Get the tokens to use on this operation
 TOKEN_A=${TOKENS[6]}
-TOKEN_B=${TOKENS[10]}
+TOKEN_B=${TOKENS[11]}
 TOKEN_C=${TOKENS[8]}
 TOKEN_D=${TOKENS[9]}
 TOKEN_E=${TOKENS[7]}
 
 #Get the token symbols
 TOKEN_A_SYMBOL=${TOKENS_SYMBOL[6]}
-TOKEN_B_SYMBOL=${TOKENS_SYMBOL[10]}
+TOKEN_B_SYMBOL=${TOKENS_SYMBOL[11]}
 TOKEN_C_SYMBOL=${TOKENS_SYMBOL[8]}
 TOKEN_D_SYMBOL=${TOKENS_SYMBOL[9]}
 TOKEN_E_SYMBOL=${TOKENS_SYMBOL[7]}
