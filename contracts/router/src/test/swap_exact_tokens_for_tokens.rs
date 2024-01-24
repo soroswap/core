@@ -297,3 +297,57 @@ fn swap_exact_tokens_for_tokens_2_hops() {
     assert_eq!(token_2.balance(&test.user), initial_user_balance -amount_2 + expected_amount_out);
 }
 
+#[test]
+fn swap_exact_tokens_for_tokens_single_hop() {
+    let test = SoroswapRouterTest::setup();
+    test.env.budget().reset_unlimited();
+    test.contract.initialize(&test.factory.address);
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
+    let initial_user_balance: i128 = 10_000_000_000_000_000_000;
+
+    let amount_0: i128 = 1_000_000_000;
+    let amount_1: i128 = 4_000_000_000;
+
+    // Add liquidity to the token_0 and token_1 pool
+    test.contract.add_liquidity(
+        &test.token_0.address, //     token_a: Address,
+        &test.token_1.address, //     token_b: Address,
+        &amount_0, //     amount_a_desired: i128,
+        &amount_1, //     amount_b_desired: i128,
+        &0, //     amount_a_min: i128,
+        &0 , //     amount_b_min: i128,
+        &test.user, //     to: Address,
+        &deadline//     deadline: u64,
+    );
+    
+    // Define the swap path (single hop from token_0 to token_1)
+    let mut path: Vec<Address> = Vec::new(&test.env);
+    path.push_back(test.token_0.address.clone());
+    path.push_back(test.token_1.address.clone());
+
+
+    let amount_in = 123_456_789;
+    let expected_amount_out = 438386277;
+
+    // Here i should set an allowance for the router to spend the user's tokens
+    test.token_0.approve(&test.user, &test.contract.address, &amount_in, &1000);
+
+    // Performing a swap
+    let executed_amounts = test.contract.swap_exact_tokens_for_tokens(
+        &amount_in, //amount_in
+        &0,  // amount_out_min
+        &path, // path
+        &test.user, // to
+        &deadline); // deadline
+
+    // Check the allowance
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_in);
+
+    // Check the executed swap amounts
+    assert_eq!(executed_amounts.get(0).unwrap(), amount_in);
+    assert_eq!(executed_amounts.get(1).unwrap(), expected_amount_out);
+
+    // Verify the final token balances (simplified check)
+    assert_eq!(test.token_0.balance(&test.user), initial_user_balance - amount_0 - amount_in);
+    assert_eq!(test.token_1.balance(&test.user), initial_user_balance - amount_1 + expected_amount_out);
+}
