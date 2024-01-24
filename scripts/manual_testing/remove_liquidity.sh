@@ -140,7 +140,7 @@ LP_BALANCE=$(soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
   --id $PAIR_ADDRESS \
   -- \
-  my_balance \
+  balance \
   --id "$USER_PUBLIC")
 echo "..."
 echo "..."
@@ -211,7 +211,7 @@ soroban contract invoke \
   --network $NETWORK --source $USER_SECRET \
   --id $PAIR_ADDRESS \
   -- \
-  my_balance \
+  balance \
   --id "$USER_PUBLIC"
 
 printTokensBalanceDiff "Remove_liquidity" $TOKEN_0_SYMBOL $TOKEN_0_ADDRESS $TOKEN_0_FIRST_BALANCE $TOKEN_1_SYMBOL $TOKEN_1_ADDRESS $TOKEN_1_FIRST_BALANCE "LP Balance" $PAIR_ADDRESS $LP_BALANCE
