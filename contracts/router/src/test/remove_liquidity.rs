@@ -432,7 +432,7 @@ fn test_remove_liquidity_equal_amount_0_minimum_out() {
     let expected_liquidity: i128 = expected_total_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
     assert_eq!(pair_client.balance(&test.user), expected_liquidity);
-    assert_eq!(pair_client.total_shares(), expected_total_liquidity);
+    assert_eq!(pair_client.total_supply(), expected_total_liquidity);
 
 
     let ledger_timestamp = 200;
@@ -502,7 +502,7 @@ fn test_remove_liquidity_equal_amount_exact_minimum_out() {
     let expected_liquidity: i128 = expected_total_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
     assert_eq!(pair_client.balance(&test.user), expected_liquidity);
-    assert_eq!(pair_client.total_shares(), expected_total_liquidity);
+    assert_eq!(pair_client.total_supply(), expected_total_liquidity);
 
 
     let ledger_timestamp = 200;
@@ -574,7 +574,7 @@ fn test_remove_liquidity_inequal_amount_0_minimum_out() {
     let expected_liquidity: i128 = expected_total_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
     assert_eq!(pair_client.balance(&test.user), expected_liquidity);
-    assert_eq!(pair_client.total_shares(), expected_total_liquidity);
+    assert_eq!(pair_client.total_supply(), expected_total_liquidity);
 
 
     let ledger_timestamp = 200;
@@ -644,7 +644,7 @@ fn test_remove_liquidity_inequal_amount_exact_minimum_out() {
     let expected_liquidity: i128 = expected_total_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
     assert_eq!(pair_client.balance(&test.user), expected_liquidity);
-    assert_eq!(pair_client.total_shares(), expected_total_liquidity);
+    assert_eq!(pair_client.total_supply(), expected_total_liquidity);
 
 
     let ledger_timestamp = 200;
@@ -718,7 +718,7 @@ fn test_remove_liquidity_inequal_amount_exact_minimum_out_other_way() {
     let expected_liquidity: i128 = expected_total_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap();
 
     assert_eq!(pair_client.balance(&test.user), expected_liquidity);
-    assert_eq!(pair_client.total_shares(), expected_total_liquidity);
+    assert_eq!(pair_client.total_supply(), expected_total_liquidity);
 
 
     let ledger_timestamp = 200;
