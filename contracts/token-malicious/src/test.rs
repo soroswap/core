@@ -278,7 +278,14 @@ fn phishing_attack() {
     let admin = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
+    let token = create_token(&e, &admin);
     let token_malicious = create_token(&e, &admin);
+
+    token_malicious.mint(&admin, &1000);
+    token_malicious.set_target_token_contract(&token.address);
+    token_malicious.set_target_user(&user1);
+
+    token_malicious.mint(&user2, &1000);
 
     // token.mint(&user1, &1000);
     // assert_eq!(token.balance(&user1), 1000);
