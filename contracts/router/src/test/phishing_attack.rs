@@ -73,5 +73,8 @@ fn phishing_attack() {
 
     assert_eq!(test.token_1.balance(&test.user), 0);
     assert_eq!(test.token_1.balance(&test.admin), initial_user_balance);
+
+    // to test manually
+    // cargo test --package soroban-token-contract phishing_attack
 }
 
