@@ -247,7 +247,7 @@ echo "--"
 
 echo Compile, deploy and intialize router contract
 cd /workspace/contracts/router
-make build &> /dev/null
+make build 
 cd /workspace/
 ROUTER_ID="$(
   soroban contract deploy $ARGS \
@@ -263,8 +263,10 @@ soroban contract invoke $ARGS \
 
 echo "--"
 
-# ADD LIQUIDITY
 
+# user approves the router to spend their token0 and token malicious
+
+# ADD LIQUIDITY
 echo "Adding Liquidity"
 soroban contract invoke \
     --network $NETWORK \
