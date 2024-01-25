@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 echo "TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 
 

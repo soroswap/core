@@ -116,7 +116,7 @@ soroban contract invoke \
   # Here we will deploy Stellar assets and Tokens from another account
 
   # Fund the asset_deployer account
-  ASSET_DEPLOYER_PUBLIC="$(soroban config identity address asset_deployer)"
+  ASSET_DEPLOYER_PUBLIC="$(soroban keys address asset_deployer)"
   echo "Funding the asset_deployer account: $ASSET_DEPLOYER_PUBLIC"
   curl  -X POST "$FRIENDBOT_URL?addr=$ASSET_DEPLOYER_PUBLIC"
   echo "Funding the user account:  $USER_PUBLIC"

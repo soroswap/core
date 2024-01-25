@@ -139,7 +139,7 @@ ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/s
 
 # # Setup
 # TOKEN_ADMIN_SECRET="SCLPVGNVME5OJKOMPRPKDQSMKWC52RLK63T5IGMMCA52KL64WDK3MZZD"
-# LOCAL_USER_ADDRESS="$(soroban config identity address token-admin)"
+# LOCAL_USER_ADDRESS="$(soroban keys address token-admin)"
 # echo "LOCAL_USER_ADDRESS: $LOCAL_USER_ADDRESS"
 
 # NETWORK="testnet"
@@ -263,7 +263,7 @@ echo We will add liquidity for stellar asset
 echo "..."
 
 echo "we will first wrap the token"  
-ASSET_DEPLOYER_PUBLIC="$(soroban config identity address asset_deployer)"
+ASSET_DEPLOYER_PUBLIC="$(soroban keys address asset_deployer)"
 
 soroban lab token wrap \
   --network standalone \
