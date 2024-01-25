@@ -24,7 +24,7 @@ NEW_KEYS_OBJECT="{ \"user_public\": \"$USER_PUBLIC\", \"user_secret\": \"$USER_S
 # CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
 # echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
 
-soroban config identity generate asset_deployer
+soroban keys generate --no-fund --network $NETWORK asset_deployer
 ASSET_DEPLOYER_SECRET=$(soroban keys show asset_deployer)
 ASSET_DEPLOYER_PUBLIC=$(soroban keys address asset_deployer)
 
