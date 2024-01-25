@@ -46,6 +46,10 @@ fn phishing_attack() {
     let amount_0: i128 = 4_000_000_000;
     let amount_1: i128 = 1_000_000_000;
 
+    // Approve token allowance
+    test.token_0.approve(&test.user, &test.contract.address, &amount_0, &10000);
+    token_malicious.approve(&test.user, &test.contract.address, &amount_1, &10000);
+
     // Initial balance
     assert_eq!(test.token_0.balance(&test.user), initial_user_balance);
     assert_eq!(test.token_1.balance(&test.user), initial_user_balance);
