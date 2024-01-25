@@ -1,3 +1,4 @@
+# THIS ATTACK SHOULD FAIL BECAUSE THE ROUTER USES TRANSFER_FROM
 NETWORK="standalone"
 
 mkdir -p .soroban
@@ -207,7 +208,6 @@ soroban contract invoke \
 #########
 
 FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm"
-ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
 
 ####################################################
 echo Compile , install pair and get WASM
@@ -245,8 +245,11 @@ soroban contract invoke $ARGS \
   --pair_wasm_hash $PAIR_WASM_HASH &> /dev/null
 echo "--"
 
-echo Compile, deploy and intialize router contract
-cd /workspace/contracts/router
+################
+ROUTER_WASM="/workspace/contracts/router_transfer_from/target/wasm32-unknown-unknown/release/soroswap_router_transfer_from.optimized.wasm"
+
+echo Compile, deploy and intialize router_transfer_from contract
+cd /workspace/contracts/router_transfer_from
 make build 
 cd /workspace/
 ROUTER_ID="$(
@@ -265,6 +268,29 @@ echo "--"
 
 
 # user approves the router to spend their token0 and token malicious
+echo "Approving token 0"
+soroban contract invoke \
+    --network $NETWORK \
+    --source user \
+    --id $TOKEN_0_ADDRESS \
+    -- \
+    approve \
+    --from "$USER_ADDRESS" \
+    --spender "$ROUTER_ID" \
+    --amount "4000000000" \
+    --expiration_ledger "10000"&> /dev/null
+
+echo "Approving token malicious"
+soroban contract invoke \
+    --network $NETWORK \
+    --source user \
+    --id $TOKEN_MALICIOUS_ADDRESS \
+    -- \
+    approve \
+    --from "$USER_ADDRESS" \
+    --spender "$ROUTER_ID" \
+    --amount "1000000000" \
+    --expiration_ledger "10000"&> /dev/null
 
 # ADD LIQUIDITY
 echo "Adding Liquidity"
