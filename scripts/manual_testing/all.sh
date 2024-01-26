@@ -40,7 +40,7 @@ echo ===
 echo "   "
 
 
-bash /workspace/scripts/manual_testing/generate_user.sh
+bash /workspace/scripts/manual_testing/generate_user.sh $NETWORK
 bash /workspace/scripts/manual_testing/mint.sh $NETWORK $LOCAL_OR_PUBLIC
 bash /workspace/scripts/manual_testing/add_liquidity.sh $NETWORK $LOCAL_OR_PUBLIC
 bash /workspace/scripts/manual_testing/swap.sh $NETWORK $LOCAL_OR_PUBLIC

@@ -1,10 +1,12 @@
+NETWORK="$1"
+
 source /workspace/scripts/manual_testing/utils.sh
 
 display_colored_text PURPLE " === GENERATE_USER.SH === "
 
-soroban config identity generate user
-USER_SECRET=$(soroban config identity show user)
-USER_PUBLIC="$(soroban config identity address user)"
+soroban keys generate --no-fund --network $NETWORK user
+USER_SECRET=$(soroban keys show user)
+USER_PUBLIC="$(soroban keys address user)"
 
 display_colored_text GREEN " Generated user keys "
 echo USER_SECRET: $USER_SECRET
@@ -22,9 +24,9 @@ NEW_KEYS_OBJECT="{ \"user_public\": \"$USER_PUBLIC\", \"user_secret\": \"$USER_S
 # CURRENT_KEYS_JSON=$(cat $KEYS_FILE)
 # echo "Created a new user_keys.json file: $CURRENT_KEYS_JSON"
 
-soroban config identity generate asset_deployer
-ASSET_DEPLOYER_SECRET=$(soroban config identity show asset_deployer)
-ASSET_DEPLOYER_PUBLIC=$(soroban config identity address asset_deployer)
+soroban keys generate --no-fund --network $NETWORK asset_deployer
+ASSET_DEPLOYER_SECRET=$(soroban keys show asset_deployer)
+ASSET_DEPLOYER_PUBLIC=$(soroban keys address asset_deployer)
 
 echo "$ASSET_DEPLOYER_SECRET" > .soroban/asset_deployer_secret
 echo "$ASSET_DEPLOYER_PUBLIC" > .soroban/asset_deployer_public

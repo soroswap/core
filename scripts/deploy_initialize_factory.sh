@@ -95,7 +95,7 @@ echo "--"
 echo "--"
 
 # Get the token admin address
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 echo "Initialize the SoroswapFactory contract"
 soroban contract invoke \

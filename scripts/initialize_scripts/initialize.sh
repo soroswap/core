@@ -46,10 +46,10 @@ esac
 
 if !(soroban config identity ls | grep token-admin 2>&1 >/dev/null); then
   echo Create the token-admin identity
-  soroban config identity generate token-admin
+  soroban keys generate --no-fund --network $NETWORK token-admin
 fi
-TOKEN_ADMIN_SECRET="$(soroban config identity show token-admin)"
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_SECRET="$(soroban keys show token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 echo "--"

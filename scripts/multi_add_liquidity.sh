@@ -64,7 +64,7 @@ echo -e "${BLUE}ROUTER_CONTRACT: $ROUTER_CONTRACT${NC}"
 echo ""
 
 # Get the token admin address
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 #Found tokenAdmin account
 echo Fund tokenAdmin account from friendbot

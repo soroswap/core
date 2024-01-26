@@ -45,10 +45,10 @@ esac
 
 if !(soroban config identity ls | grep token-admin 2>&1 >/dev/null); then
   echo Create the token-admin identity
-  soroban config identity generate token-admin
+  soroban keys generate --no-fund --network $NETWORK token-admin
 fi
-TOKEN_ADMIN_SECRET="$(soroban config identity show token-admin)"
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_SECRET="$(soroban keys show token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 echo "We are using the following TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 echo "--"
@@ -349,9 +349,9 @@ echo "---"
 
 echo In the following we are going to use a new USER account:
   echo Creating the user identity
-  soroban config identity generate user
-  USER_SECRET="$(soroban config identity show user)"
-  USER_ADDRESS="$(soroban config identity address user)"
+  soroban keys generate --no-fund --network $NETWORK user
+  USER_SECRET="$(soroban keys show user)"
+  USER_ADDRESS="$(soroban keys address user)"
   echo "We are using the following USER_ADDRESS: $USER_ADDRESS"
   echo "$USER_SECRET" > .soroban/user_secret
   echo "$USER_ADDRESS" > .soroban/user_address

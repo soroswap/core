@@ -1,6 +1,6 @@
 [package]
 name = "soroswap-factory"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["esteblock <esteblock@paltalabs.io>"]
 edition = "2021"
 publish = false
@@ -9,12 +9,12 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-soroban-sdk = { version = "20.0.0" }
+soroban-sdk = { version = "20.2.0" }
 num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
 soroswap-factory-interface={ path="../factory-interface", version="0.0.1", package="soroswap-factory-interface" }
 
 [dev_dependencies]
-soroban-sdk = { version = "20.0.0", features = ["testutils"] }
+soroban-sdk = { version = "20.2.0", features = ["testutils"] }
 soroswap-factory-interface={path="../factory-interface"}
 
 [profile.release]
