@@ -1,8 +1,11 @@
 #!/bin/bash
 
-previewVersion=$(jq -r '.previewVersion' preview_version.json)
+previewHash=$(jq -r '.previewHash' preview_version.json)
 quickstartHash=$(jq -r '.quickstartHash' preview_version.json)
- 
+
+previewVersion=$(echo "$previewHash" | cut -d'@' -f1)
+echo $previewVersion
+
 set -e
 
 case "$1" in
@@ -66,7 +69,7 @@ docker run -dti \
   -p 8001:8000 \
   --ipc=host \
   --network soroban-network \
-  esteblock/soroban-preview:${previewVersion}
+  esteblock/soroban-preview:${previewHash}
 
 echo "  "
 echo "  "
