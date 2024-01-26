@@ -16,7 +16,7 @@ TOKEN_B_ID="CA7X4NFKFRED2SY27L63IPOCZDWCUHWMHQGMQA2BWQTN5KKL2NUFQGR6"
 # TOKEN_A_ID="GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV"
 
 # Get the token admin address
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.optimized.wasm"
 

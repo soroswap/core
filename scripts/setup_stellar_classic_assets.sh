@@ -39,7 +39,7 @@ for i in $(seq 1 $N_TOKENS); do
     LOGO=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].logoURI")
     ASSET=$(echo "$FINAL_TOKENS_JSON" | jq -r ".tokens[$i-1].asset")
 
-    TOKEN_ADDRESS=$(soroban lab token id --network "$NETWORK" --asset "$ASSET")
+    TOKEN_ADDRESS=$(soroban contract id asset --network "$NETWORK" --asset "$ASSET" --source-account token-admin)
 
     # Create TEMP_WRAPPED as a valid JSON object
     TEMP_WRAPPED=$(jq -n \

@@ -34,7 +34,7 @@ fi
 bash /workspace/scripts/setup.sh $NETWORK
 
 # Get the token admin address
-TOKEN_ADMIN_ADDRESS="$(soroban config identity address token-admin)"
+TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 # Read the token_name_ideas.json file into a variable
 TOKEN_NAME_JSON=$(cat /workspace/scripts/token_name_ideas.json)
