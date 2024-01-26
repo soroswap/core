@@ -1,5 +1,33 @@
 {
     "previewHash": "20.2.0@sha256:7315e09645c1a4f5460790e90a72c99752d879e286581e1f46191229c735d6e7",
-    "quickstartHash": "soroban-dev@sha256:64b2d14b8a531c534560e287768846f538b2f063fc776aa9ca016c788e86c782"
-
+    "quickstartHash": "soroban-dev@sha256:64b2d14b8a531c534560e287768846f538b2f063fc776aa9ca016c788e86c782",
+    "networkConfig": [
+        {
+            "network": "standalone",
+            "soroban_rpc_url": "http://stellar:8000",
+            "friendbot_url": "http://stellar:8000/friendbot"
+        },    {
+            "network": "futurenet",
+            "soroban_rpc_url": "https://rpc-futurenet.stellar.org/",
+            "friendbot_url": "https://friendbot-futurenet.stellar.org/"
+        },    {
+            "network": "testnet",
+            "soroban_rpc_url": "https://soroban-testnet.stellar.org/",
+            "friendbot_url": "https://friendbot.stellar.org/"
+        },    {
+            "network": "testnet-public",
+            "friendbot_url": "https://friendbot.stellar.org/",
+            "soroban_rpc_url": "https://soroban-testnet.stellar.org/"
+        },
+        {
+            "mode": "local",
+            "tokens_file": "/workspace/.soroban/tokens.json",
+            "router_file": "/workspace/.soroban/router.json"
+        },
+        {
+            "mode": "public",
+            "tokens_file": "/workspace/public/tokens.json",
+            "router_file": "/workspace/public/router.json"
+        }
+    ]
 }
