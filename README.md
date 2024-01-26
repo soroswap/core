@@ -74,6 +74,7 @@ This will:
 
 This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
 
+When selecting mode you can choose between `local` and `public`. This will modify the script that adds liquidity to the pairs. If you choose `local` the script will use the local addresses from `.soroban` folder. If you choose `public` the script will use the public addresses from `./public` folder.
 
 ### 3. (For local development): Serve those .json files
 

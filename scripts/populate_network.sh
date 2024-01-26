@@ -21,10 +21,10 @@ futurenet)
   echo -e "Populating Futurenet network "
   ;;
 testnet)
-  echo -e "Populating Futurenet network "
+  echo -e "Populating Testnet network "
   ;;
 testnet-public)
-  echo -e "Populating Futurenet network with public RPC https://soroban-testnet.stellar.org/ "
+  echo -e "Populating Testnet network with public RPC https://soroban-testnet.stellar.org/ "
   ;;
 *)
   echo -e "${YELLOW}Usage: $0 standalone|futurenet|testnet|testnet-public ${NC}"
