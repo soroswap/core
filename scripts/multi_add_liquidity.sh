@@ -1,61 +1,14 @@
 #!/bin/bash
-NETWORK="$1"
 
-# Define constants for color-coded output
+#Define network related constants
+source /workspace/scripts/network_configs.sh
+
+#Define constants for color-coded output
 RED='\033[1;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
-
-#Define consts and necesary files
-SOROBAN_RPC_HOST="http://stellar:8000"
-
-#Verify that the network is valid
-case "$1" in
-standalone)
-  echo "Using standalone network"
-  FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
-  ;;
-futurenet)
-  echo "Using Futurenet network"
-  FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
-  ;;
-testnet)
-  echo "Using Testnet network"
-  FRIENDBOT_URL="https://friendbot.stellar.org/"
-  ## TODO: Remove when solving the rpc problem:_
-  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
-  ;;
-testnet-public)
-  echo "Using Testnet network with public RPC https://soroban-testnet.stellar.org/"
-  FRIENDBOT_URL="https://friendbot.stellar.org/"
-  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
-  ;;
-*)
-  echo "Usage: $0 standalone|futurenet|testnet|testnet-public"
-  exit 1
-  ;;
-esac
-
-case "$2" in
-local)
-  echo "Using deployed contracts from .soroban folder"
-  TOKENS_FILE="/workspace/.soroban/tokens.json"
-  ROUTER_FILE="/workspace/.soroban/router.json"
-  ;;
-public)
-  echo "Using deployed contracts from /public folder"
-  TOKENS_FILE="/workspace/public/tokens.json"
-  ROUTER_FILE="/workspace/public/router.json"
-  ;;
-*)
-  echo "Usage: $0 local|public"
-  echo "local: use contracts from the .soroban folder (local deployements)"
-  echo "public: use contracts from the /public folder (addresses in production?)"
-  exit 1
-  ;;
-esac
 
 #Get the router contract address
 ROUTER_CONTRACT=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
