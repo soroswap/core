@@ -57,3 +57,6 @@ SOROBAN_NETWORK_PASSPHRASE=$(jq -r --arg NETWORK "$NETWORK" '.networkConfig[] | 
 
 TOKENS_FILE=$(jq -r --arg MODE "$MODE" '.networkConfig[] | select(.mode == $MODE) | .tokens_file' "$CONFIGS_FILE")
 ROUTER_FILE=$(jq -r --arg MODE "$MODE" '.networkConfig[] | select(.mode == $MODE) | .router_file' "$CONFIGS_FILE")
+SOROBAN_TOKENS_FOLDER=$(jq -r --arg MODE "$MODE" '.networkConfig[] | select(.mode == $MODE) | .soroban_tokens_folder' "$CONFIGS_FILE")
+PAIRS_FILE=$(jq -r --arg MODE "$MODE" '.networkConfig[] | select(.mode == $MODE) | .pairs_file' "$CONFIGS_FILE")
+ADMIN_KEYS_FILE=$(jq -r --arg MODE "$MODE" '.networkConfig[] | select(.mode == $MODE) | .admin_keys_file' "$CONFIGS_FILE")

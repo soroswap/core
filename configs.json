@@ -26,12 +26,18 @@
         {
             "mode": "local",
             "tokens_file": "/workspace/.soroban/tokens.json",
-            "router_file": "/workspace/.soroban/router.json"
+            "router_file": "/workspace/.soroban/router.json",
+            "soroban_tokens_folder" :"/workspace/.soroban/soroban_tokens/",
+            "pairs_file": "/workspace/.soroban/pairs.json",
+            "admin_keys_file": "/workspace/.soroban/token_admin_keys.json"
         },
         {
             "mode": "public",
             "tokens_file": "/workspace/public/tokens.json",
-            "router_file": "/workspace/public/router.json"
+            "router_file": "/workspace/public/router.json",
+            "soroban_tokens_folder": "/workspace/public/soroban_tokens/",
+            "pairs_file": "/workspace/public/pairs.json",
+            "admin_keys_file": "/workspace/public/token_admin_keys.json"
         }
     ]
 }
