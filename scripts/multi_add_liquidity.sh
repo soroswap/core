@@ -1,32 +1,23 @@
 #!/bin/bash
-NETWORK="$1"
 
-#Define consts and necesary files
-source /workspace/scripts/manual_testing/utils.sh
-TOKENS_FILE="/workspace/.soroban/tokens.json"
-ROUTER_FILE="/workspace/.soroban/router.json"
-SOROBAN_RPC_HOST="http://stellar:8000"
-FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
+#Define network related constants
+source /workspace/scripts/network_configs.sh
 
-# Define constants for color-coded output
+#Define constants for color-coded output
 RED='\033[1;31m'
-GREEN='\033[1;32m'
+GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-#Verify that the network is valid
-if [ "$NETWORK" != "standalone" ]; then
-    echo -e "${RED}Invalid network. This script only supports standalone network.${NC}"
-    echo -e "${YELLOW}Please run:    bash scripts/multi_add_liquidity.sh standalone${NC}"
-    exit 1
-fi
-echo "Using deployed contracts from .soroban folder"
+#Define error handling
+set -e
+set -u
 
 #Get the router contract address
 ROUTER_CONTRACT=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo ""
-echo -e "${BLUE}ROUTER_CONTRACT: $ROUTER_CONTRACT${NC}"
+echo -e "${BLUE}Router address: $ROUTER_CONTRACT${NC}"
 echo ""
 
 # Get the token admin address
@@ -38,34 +29,34 @@ echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
 echo ""
 echo ""
-echo -e "${BLUE}funded $TOKEN_ADMIN_ADDRESS${NC}"
+echo -e "${GREEN}funded $TOKEN_ADMIN_ADDRESS${NC}"
 echo ""
 
 #Read the tokens array from the tokens.json file
-TOKENS=($(jq -r '.[].tokens[].address' "$TOKENS_FILE"))
-TOKENS_SYMBOL=($(jq -r '.[].tokens[].symbol' "$TOKENS_FILE"))
+TOKENS_ADRESSES_RAW+=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[].address' "$TOKENS_FILE")
+TOKENS_SYMBOL_RAW+=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[].symbol' "$TOKENS_FILE")
+
+TOKENS+=($TOKENS_ADRESSES_RAW)
+TOKENS_SYMBOL+=($TOKENS_SYMBOL_RAW)
 
 #Verify that the tokens array has the expected length
 EXPECTED_LENGTH=12
 
-if [ ${#TOKENS[@]} -lt $EXPECTED_LENGTH ]; then
-    echo -e "${RED}The tokens.json file must have at least ${EXPECTED_LENGTH} tokens to run this script.${NC}"
-    echo -e "${YELLOW}Please deploy at least 6 tokens.${NC}"
+if [ ${#TOKENS[@]} -le $EXPECTED_LENGTH ]; then
+    echo -e "${RED}The tokens.json file must have at least ${EXPECTED_LENGTH} token addresses to run this script.${NC}"
     exit 1
 fi
 
-echo -e "${YELLOW}${TOKENS_SYMBOL[@]}${NC}"
-
 #Get the tokens to use on this operation
 TOKEN_A=${TOKENS[6]}
-TOKEN_B=${TOKENS[10]}
+TOKEN_B=${TOKENS[11]}
 TOKEN_C=${TOKENS[8]}
 TOKEN_D=${TOKENS[9]}
 TOKEN_E=${TOKENS[7]}
 
 #Get the token symbols
 TOKEN_A_SYMBOL=${TOKENS_SYMBOL[6]}
-TOKEN_B_SYMBOL=${TOKENS_SYMBOL[10]}
+TOKEN_B_SYMBOL=${TOKENS_SYMBOL[11]}
 TOKEN_C_SYMBOL=${TOKENS_SYMBOL[8]}
 TOKEN_D_SYMBOL=${TOKENS_SYMBOL[9]}
 TOKEN_E_SYMBOL=${TOKENS_SYMBOL[7]}
@@ -89,6 +80,7 @@ echo ""
 echo -e "${BLUE}Minting tokens to the token admin account${NC}"
 
 # Loop through each token and mint it
+i=0
 for TOKEN in "${ALL_TOKENS[@]}"
 do  
     echo -e "${BLUE}Minting ${ALL_TOKENS_SYMBOL[$i]}${NC}"
