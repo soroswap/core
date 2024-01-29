@@ -33,6 +33,7 @@ pub fn write_allowance(
     };
 
     if amount > 0 && expiration_ledger < e.ledger().sequence() {
+        // TokenWriteAllowanceExpirationLedgerExpired = 119,
         panic!("expiration_ledger is less than ledger seq when amount > 0")
     }
 
@@ -51,6 +52,7 @@ pub fn write_allowance(
 pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) {
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance.amount < amount {
+        //    TokenSpendAllowanceInsufficientAllowance = 120,
         panic!("insufficient allowance");
     }
     if amount > 0 {

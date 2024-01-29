@@ -16,6 +16,7 @@ use soroban_token_sdk::TokenUtils;
 
 fn check_nonnegative_amount(amount: i128) {
     if amount < 0 {
+        //     TokenNegativeAmountNotAllowed = 123,
         panic!("negative amount is not allowed: {}", amount)
     }
 }
@@ -54,10 +55,12 @@ pub struct SoroswapPairToken;
 impl SoroswapPairToken {
     pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) {
         if has_administrator(&e) {
+            //     TokenInitializeAlreadyInitialized = 124,
             panic!("already initialized")
         }
         write_administrator(&e, &admin);
         if decimal > u8::MAX.into() {
+            //     TokenDecimalNotAllowed = 125,
             panic!("Decimal must fit in a u8");
         }
 

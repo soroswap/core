@@ -9,7 +9,7 @@ pub enum SoroswapPairError {
     /// SoroswapPair: not yet initialized
     NotInitialized = 102,
 
-    /// SoroswapPair: token_0 must be less than token_1 while initializing
+    /// SoroswapPair: token_0 must be less than token_1 while initializing 
     InitializeTokenOrderInvalid = 103,
 
     /// SoroswapPair: insufficient amount of token 0 sent while doing deposit
@@ -45,6 +45,35 @@ pub enum SoroswapPairError {
 
     /// SoroswapPair: OVERFLOW while updating
     UpdateOverflow = 118,
-}
 
+    /// SoroswapPairToken: expiration_ledger is less than ledger seq when amount > 0
+    TokenWriteAllowanceExpirationLedgerExpired = 119,
+
+    /// SoroswapPairToken: insufficient allowance when spending allowance
+    TokenSpendAllowanceInsufficientAllowance = 120,
+    
+    /// SoroswapPairToken: integer overflow occurred while adding balance
+    TokenAddBalanceOverflow = 121,
+    
+    /// SoroswapPairToken: insufficient balance
+    TokenSpendBalanceInsufficient = 122,
+
+    /// SoroswapPairToken: negative amount is not allowed
+    TokenNegativeAmountNotAllowed = 123,
+
+    /// SoroswapPairToken: already initialized
+    TokenInitializeAlreadyInitialized = 124,
+
+    /// SoroswapPairToken: Decimal must fit in a u8
+    TokenDecimalNotAllowed = 125,
+
+    /// Total Supply: integer overflow occurred while increasing total supply
+    TokenTotalSupplyInsufficient = 126,
+
+    /// Total Supply: insufficient total supply while decreasing total supply
+    TokenTotalSupplyInsufficient = 127,
+
+    /// Total Supply: Integer underflow occurred while decreasing total supply
+    TokenTotalSupplyDecreaseUnderflow = 128,
+}
 

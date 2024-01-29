@@ -15,6 +15,7 @@ pub fn write_total_supply(e: &Env, id: &i128) {
 pub fn increase_total_supply(e: &Env, amount: i128) {
     let total_supply = read_total_supply(&e);
     let new_total_supply = total_supply.checked_add(amount)
+    //    TokenTotalSupplyIncreasingOverflow = 126,
         .expect("Integer overflow occurred while increasing total supply.");
     write_total_supply(&e, &new_total_supply);
 }
@@ -22,9 +23,11 @@ pub fn increase_total_supply(e: &Env, amount: i128) {
 pub fn decrease_total_supply(e: &Env, amount: i128) {
     let total_supply = read_total_supply(&e);
     if total_supply < amount {
+        //    TokenTotalSupplyInsufficient = 127,
         panic!("insufficient total supply");
     }
     let new_total_supply = total_supply.checked_sub(amount)
+    //    TokenTotalSupplyDecreaseUnderflow = 128,
         .expect("Integer underflow occurred while decreasing total supply.");
     write_total_supply(&e, &new_total_supply);
 }
