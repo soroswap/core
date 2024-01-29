@@ -27,9 +27,12 @@ pub fn add_liquidity(
     test.env.ledger().with_mut(|li| {
         li.timestamp = ledger_timestamp;
     });
-
-
         test.env.budget().reset_unlimited();
+
+        // Approving router to spend tokens
+        test.token_0.approve(&test.user, &test.contract.address, &amount_0, &1000);
+        test.token_1.approve(&test.user, &test.contract.address, &amount_1, &1000);
+
         test.contract.add_liquidity(
             &test.token_0.address, //     token_a: Address,
             &test.token_1.address, //     token_b: Address,
@@ -138,6 +141,12 @@ fn test_add_liquidity_not_authorized() {
     let bob = Address::generate(&test.env);
     // alice is not equal to bob
     assert_ne!(alice, bob);
+
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &0, &1000);
+    test.token_1.approve(&test.user, &test.contract.address, &0, &1000);
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), 0);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), 0);
 
     /*
         Here we test the add_liquidity function "to.require_auth();" requirement
@@ -329,6 +338,13 @@ fn test_add_liquidity() {
 
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
     let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
+
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &amount_0, &1000); 
+    test.token_1.approve(&test.user, &test.contract.address, &amount_1, &1000); 
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_0);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), amount_1);
+
     let (added_token_0, added_token_1, added_liquidity) = test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
@@ -385,6 +401,12 @@ fn test_add_liquidity() {
     static MINIMUM_LIQUIDITY: i128 = 1000;
     assert_eq!(pair_client.balance(&test.user), expected_liquidity.checked_sub(MINIMUM_LIQUIDITY).unwrap());
 
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &amount_0, &1000); 
+    test.token_1.approve(&test.user, &test.contract.address, &amount_1, &1000); 
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_0);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), amount_1);
+
     // We can provide liquidity again and should not panic
     let (new_added_token_0, new_added_token_1, new_added_liquidity) = test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
@@ -429,6 +451,12 @@ fn test_add_liquidity_deducted_amount_reserve() {
 
     assert_eq!(test.factory.pair_exists(&test.token_0.address, &test.token_1.address), false);
     
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &amount_0, &1000);
+    test.token_1.approve(&test.user, &test.contract.address, &amount_1, &1000);
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_0);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), amount_1);
+
     // Parameters are set as sent on frontend
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
@@ -561,6 +589,12 @@ fn amount_a_desired_higher() {
     let amount_1: i128 = 4_000_000_000_000_000_000;
     
     add_liquidity(&test, &amount_0, &amount_1);
+
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &(amount_0+1), &1000); 
+    test.token_1.approve(&test.user, &test.contract.address, &amount_1, &1000); 
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_0+1);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), amount_1);
     
     // We can provide liquidity again and should not panic
     let (new_added_token_0, new_added_token_1, _new_added_liquidity) = test.contract.add_liquidity(
@@ -598,6 +632,12 @@ fn amount_b_desired_higher() {
     
     add_liquidity(&test, &amount_0, &amount_1);
     
+    // Approving router to spend tokens
+    test.token_0.approve(&test.user, &test.contract.address, &amount_0, &1000); 
+    test.token_1.approve(&test.user, &test.contract.address, &(amount_1+1), &1000); 
+    assert_eq!(test.token_0.allowance(&test.user, &test.contract.address), amount_0);
+    assert_eq!(test.token_1.allowance(&test.user, &test.contract.address), amount_1+1);
+
     // We can provide liquidity again and should not panic
     let (new_added_token_0, new_added_token_1, _new_added_liquidity) = test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,

@@ -430,7 +430,9 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(amount_a_min)?;
         check_nonnegative_amount(amount_b_min)?;
 
-        to.require_auth();
+        // Get the contract address for the router
+        let router_contract_address = e.current_contract_address();
+
         ensure_deadline(&e, deadline)?;
 
         let factory = get_factory(&e);
@@ -453,8 +455,16 @@ impl SoroswapRouterTrait for SoroswapRouter {
             token_b.clone(),
         ).map_err(SoroswapLibraryError::from)?;
 
-        TokenClient::new(&e, &token_a).transfer(&to, &pair, &amount_a);
-        TokenClient::new(&e, &token_b).transfer(&to, &pair, &amount_b);
+        TokenClient::new(&e, &token_a).transfer_from( 
+            &router_contract_address, 
+            &to,
+            &pair,
+            &&amount_a);
+        TokenClient::new(&e, &token_b).transfer_from(
+            &router_contract_address,
+            &to, 
+            &pair, 
+            &amount_b);
 
         let liquidity = SoroswapPairClient::new(&e, &pair).deposit(&to);
 
@@ -502,7 +512,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(liquidity)?;
         check_nonnegative_amount(amount_a_min)?;
         check_nonnegative_amount(amount_b_min)?;
-        to.require_auth();
+
+        // Get the contract address for the router
+        let router_contract_address = e.current_contract_address();
+
         ensure_deadline(&e, deadline)?;
 
         // Ensure that the pair exists in the Soroswap factory
@@ -522,7 +535,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         )?;
 
         // Transfer LP tokens from the caller to the pair contract
-        TokenClient::new(&e, &pair).transfer(&to, &pair, &liquidity);
+        TokenClient::new(&e, &pair).transfer_from(
+            &router_contract_address,
+            &to, 
+            &pair, 
+            &liquidity);
         
         // Withdraw paired tokens from the pool
         let (amount_0, amount_1) = SoroswapPairClient::new(&e, &pair).withdraw(&to);
@@ -583,7 +600,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_initialized(&e)?;
         check_nonnegative_amount(amount_in)?;
         check_nonnegative_amount(amount_out_min)?;
-        // to.require_auth();
+
         ensure_deadline(&e, deadline)?;
 
         // Get the contract address for the router
@@ -659,7 +676,10 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_initialized(&e)?;
         check_nonnegative_amount(amount_out)?;
         check_nonnegative_amount(amount_in_max)?;
-        to.require_auth(); 
+
+        // Get the contract address for the router
+        let router_contract_address = e.current_contract_address();
+
         ensure_deadline(&e, deadline)?;
 
         // Get the expected input amounts for each step of the trading route
@@ -686,7 +706,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         // Transfer input tokens to the pair contract
         // If the pair does not exist, this will fail here: Should be implement factory.pair_exists?
         // If we implement, we will include an additional cross-contract call...
-        TokenClient::new(&e, &path.get(0).unwrap()).transfer(&to, &pair, &amounts.get(0).unwrap());
+        TokenClient::new(&e, &path.get(0).unwrap()).transfer_from(
+            &router_contract_address,
+            &to, 
+            &pair, 
+            &amounts.get(0).unwrap());
 
         // Execute the token swap
         swap(&e, &factory_address, &amounts, &path, &to)?;
