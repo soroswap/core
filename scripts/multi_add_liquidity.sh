@@ -10,10 +10,14 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
+#Define error handling
+set -e
+set -u
+
 #Get the router contract address
 ROUTER_CONTRACT=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .router_address' "$ROUTER_FILE")
 echo ""
-echo -e "${BLUE}ROUTER_CONTRACT: $ROUTER_CONTRACT${NC}"
+echo -e "${BLUE}Router address: $ROUTER_CONTRACT${NC}"
 echo ""
 
 # Get the token admin address
@@ -25,23 +29,23 @@ echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
 echo ""
 echo ""
-echo -e "${BLUE}funded $TOKEN_ADMIN_ADDRESS${NC}"
+echo -e "${GREEN}funded $TOKEN_ADMIN_ADDRESS${NC}"
 echo ""
 
 #Read the tokens array from the tokens.json file
-TOKENS=($(jq -r '.[].tokens[].address' "$TOKENS_FILE"))
-TOKENS_SYMBOL=($(jq -r '.[].tokens[].symbol' "$TOKENS_FILE"))
+TOKENS_ADRESSES_RAW+=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[].address' "$TOKENS_FILE")
+TOKENS_SYMBOL_RAW+=$(jq -r --arg NETWORK "$NETWORK" '.[] | select(.network == $NETWORK) | .tokens[].symbol' "$TOKENS_FILE")
+
+TOKENS+=($TOKENS_ADRESSES_RAW)
+TOKENS_SYMBOL+=($TOKENS_SYMBOL_RAW)
 
 #Verify that the tokens array has the expected length
 EXPECTED_LENGTH=12
 
 if [ ${#TOKENS[@]} -le $EXPECTED_LENGTH ]; then
-    echo -e "${RED}The tokens.json file must have at least ${EXPECTED_LENGTH} tokens to run this script.${NC}"
+    echo -e "${RED}The tokens.json file must have at least ${EXPECTED_LENGTH} token addresses to run this script.${NC}"
     exit 1
 fi
-
-echo -e "${BLUE}TOKENS in TOKENS_FILE: ${NC}"
-echo -e "${YELLOW}[${TOKENS_SYMBOL[@]}]${NC}"
 
 #Get the tokens to use on this operation
 TOKEN_A=${TOKENS[6]}
@@ -76,6 +80,7 @@ echo ""
 echo -e "${BLUE}Minting tokens to the token admin account${NC}"
 
 # Loop through each token and mint it
+i=0
 for TOKEN in "${ALL_TOKENS[@]}"
 do  
     echo -e "${BLUE}Minting ${ALL_TOKENS_SYMBOL[$i]}${NC}"
