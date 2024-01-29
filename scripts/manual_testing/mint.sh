@@ -4,58 +4,8 @@ source /workspace/scripts/manual_testing/utils.sh
 
 display_colored_text PURPLE " === MINT.SH === "
 
-case "$1" in
-standalone)
-  echo "Using standalone network"
-  SOROBAN_NETWORK_PASSPHRASE="Standalone Network ; February 2017"
-  SOROBAN_RPC_HOST="http://stellar:8000"
-  FRIENDBOT_URL="$SOROBAN_RPC_HOST/friendbot"
-  ;;
-futurenet)
-  echo "Using Futurenet network"
-  SOROBAN_NETWORK_PASSPHRASE="Test SDF Future Network ; October 2022"
-  FRIENDBOT_URL="https://friendbot-futurenet.stellar.org/"
-  ;;
-testnet)
-  echo "Using Testnet network"
-  FRIENDBOT_URL="https://friendbot.stellar.org/"
-  ## TODO: Remove when solving the rpc problem:_
-  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
-  ;;
-testnet-public)
-  echo "Using Futurenet network with public RPC https://soroban-testnet.stellar.org/"
-  SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
-  FRIENDBOT_URL="https://friendbot.stellar.org/"
-  SOROBAN_RPC_URL="https://soroban-testnet.stellar.org/"
-  ;;
-*)
-  echo "Usage: $0 standalone|futurenet|testnet|testnet-public"
-  exit 1
-  ;;
-esac
-
-
-case "$2" in
-local)
-  echo "Using deployed contracts from .soroban folder"
-  ADMIN_KEYS_FILE="/workspace/.soroban/token_admin_keys.json"
-  TOKENS_FILE="/workspace/.soroban/tokens.json"
-  SOROBAN_TOKENS_FOLDER="/workspace/.soroban/soroban_tokens/"
-  ;;
-public)
-  echo "Using deployed contracts from /public folder"
-  ADMIN_KEYS_FILE="/workspace/public/token_admin_keys.json"
-  TOKENS_FILE="/workspace/public/tokens.json"
-  SOROBAN_TOKENS_FOLDER="/workspace/public/soroban_tokens/"
-  ;;
-*)
-  echo "Usage: $0 local|public"
-  echo "local: use contracts from the .soroban folder (local deployements)"
-  echo "public: use contracts from the /public folder (addresses in production?)"
-  exit 1
-  ;;
-esac
-
+#Define network related constants
+source /workspace/scripts/network_configs.sh
 
 echo We are going to mint 2 test tokens
 echo We are going to use the admin private key and the user public key
