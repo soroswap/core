@@ -27,9 +27,9 @@ pub fn receive_balance(e: &Env, addr: Address, amount: i128) -> Result<(), Soros
     let balance = read_balance(e, addr.clone());
 
     let new_balance = balance.checked_add(amount)
-    //     TokenAddBalanceOverflow = 121,
-        .expect("Integer overflow occurred while adding balance.");
-
+        //  TokenAddBalanceOverflow = 121,
+        //  .expect("Integer overflow occurred while adding balance.");
+        .ok_or(SoroswapPairError::TokenSpendAllowanceInsufficientAllowance)?;
     write_balance(e, addr, new_balance);
 
     Ok(())
@@ -38,8 +38,9 @@ pub fn receive_balance(e: &Env, addr: Address, amount: i128) -> Result<(), Soros
 pub fn spend_balance(e: &Env, addr: Address, amount: i128) -> Result<(), SoroswapPairError> {
     let balance = read_balance(e, addr.clone());
     if balance < amount {
-        //     TokenSpendBalanceInsufficient = 122,
-        panic!("insufficient balance");
+        //  panic!("insufficient balance");
+        //  TokenSpendBalanceInsufficient = 122,
+        return Err(SoroswapPairError::TokenSpendBalanceInsufficient);
     }
     write_balance(e, addr, balance - amount);
 

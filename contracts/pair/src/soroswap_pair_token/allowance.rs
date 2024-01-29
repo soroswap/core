@@ -35,8 +35,9 @@ pub fn write_allowance(
     };
 
     if amount > 0 && expiration_ledger < e.ledger().sequence() {
-        // TokenWriteAllowanceExpirationLedgerExpired = 119,
-        panic!("expiration_ledger is less than ledger seq when amount > 0")
+        //  panic!("expiration_ledger is less than ledger seq when amount > 0")
+        //  TokenWriteAllowanceExpirationLedgerExpired = 119,
+        return Err(SoroswapPairError::TokenWriteAllowanceExpirationLedgerExpired);
     }
 
     let key = DataKey::Allowance(AllowanceDataKey { from, spender });
@@ -56,8 +57,10 @@ pub fn write_allowance(
 pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) -> Result<(), SoroswapPairError> {
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance.amount < amount {
-        //    TokenSpendAllowanceInsufficientAllowance = 120,
-        panic!("insufficient allowance");
+        //  panic!("insufficient allowance");
+        //  TokenSpendAllowanceInsufficientAllowance = 120,
+        return Err(SoroswapPairError::TokenSpendAllowanceInsufficientAllowance);
+        
     }
     if amount > 0 {
         write_allowance(

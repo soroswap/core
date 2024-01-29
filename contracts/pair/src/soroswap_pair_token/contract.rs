@@ -15,11 +15,13 @@ use soroban_sdk::{contract, contractimpl, Address, Env, String};
 use soroban_token_sdk::metadata::TokenMetadata;
 use soroban_token_sdk::TokenUtils;
 
-fn check_nonnegative_amount(amount: i128) {
+fn check_nonnegative_amount(amount: i128) -> Result<(), SoroswapPairError> {
     if amount < 0 {
-        //     TokenNegativeAmountNotAllowed = 123,
-        panic!("negative amount is not allowed: {}", amount)
+        //  panic!("negative amount is not allowed: {}", amount)
+        //  TokenNegativeAmountNotAllowed = 123,
+        return Err(SoroswapPairError::TokenNegativeAmountNotAllowed);
     }
+    Ok(())
 }
 
 pub fn internal_burn(e: Env, from: Address, amount: i128) {
@@ -56,13 +58,15 @@ pub struct SoroswapPairToken;
 impl SoroswapPairToken {
     pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) -> Result<(), SoroswapPairError> {
         if has_administrator(&e) {
-            //     TokenInitializeAlreadyInitialized = 124,
-            panic!("already initialized")
+            //  panic!("already initialized")
+            //  TokenInitializeAlreadyInitialized = 124,
+            return Err(SoroswapPairError::TokenInitializeAlreadyInitialized);
         }
         write_administrator(&e, &admin);
         if decimal > u8::MAX.into() {
-            //     TokenDecimalNotAllowed = 125,
-            panic!("Decimal must fit in a u8");
+            //  panic!("Decimal must fit in a u8");
+            //  TokenDecimalNotAllowed = 125,
+            return Err(SoroswapPairError::TokenDecimalNotAllowed);
         }
 
         write_metadata(

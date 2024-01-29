@@ -16,8 +16,10 @@ pub fn write_total_supply(e: &Env, id: &i128) {
 pub fn increase_total_supply(e: &Env, amount: i128) -> Result<(), SoroswapPairError> {
     let total_supply = read_total_supply(&e);
     let new_total_supply = total_supply.checked_add(amount)
-    //    TokenTotalSupplyIncreasingOverflow = 126,
-        .expect("Integer overflow occurred while increasing total supply.");
+    //  .expect("Integer overflow occurred while increasing total supply.");
+    //  TokenTotalSupplyIncreaseOverflow = 126,
+        .ok_or(SoroswapPairError::TokenTotalSupplyIncreaseOverflow)?;
+
     write_total_supply(&e, &new_total_supply);
     Ok(())
 }
@@ -25,12 +27,15 @@ pub fn increase_total_supply(e: &Env, amount: i128) -> Result<(), SoroswapPairEr
 pub fn decrease_total_supply(e: &Env, amount: i128) -> Result<(), SoroswapPairError> {
     let total_supply = read_total_supply(&e);
     if total_supply < amount {
-        //    TokenTotalSupplyInsufficient = 127,
-        panic!("insufficient total supply");
+        //  panic!("insufficient total supply");
+        //  TokenTotalSupplyInsufficient = 127,
+        return Err(SoroswapPairError::TokenTotalSupplyInsufficient);
     }
     let new_total_supply = total_supply.checked_sub(amount)
-    //    TokenTotalSupplyDecreaseUnderflow = 128,
-        .expect("Integer underflow occurred while decreasing total supply.");
+        //  .expect("Integer underflow occurred while decreasing total supply.");
+        //  TokenTotalSupplyDecreaseUnderflow = 128,
+        .ok_or(SoroswapPairError::TokenTotalSupplyDecreaseUnderflow)?;
+
     write_total_supply(&e, &new_total_supply);
     Ok(())
 }
