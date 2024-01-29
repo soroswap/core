@@ -68,7 +68,7 @@ pub enum SoroswapPairError {
     TokenDecimalNotAllowed = 125,
 
     /// Total Supply: integer overflow occurred while increasing total supply
-    TokenTotalSupplyInsufficient = 126,
+    TokenTotalSupplyIntegerOverflow = 126,
 
     /// Total Supply: insufficient total supply while decreasing total supply
     TokenTotalSupplyInsufficient = 127,

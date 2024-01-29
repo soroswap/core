@@ -5,6 +5,7 @@ use crate::soroswap_pair_token::allowance::{read_allowance, spend_allowance, wri
 use crate::soroswap_pair_token::balance::{read_balance, receive_balance, spend_balance};
 use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
 use crate::soroswap_pair_token::total_supply::{read_total_supply, increase_total_supply, decrease_total_supply};
+use crate::error::SoroswapPairError;
 
 #[cfg(test)]
 use crate::soroswap_pair_token::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
@@ -53,7 +54,7 @@ pub struct SoroswapPairToken;
 
 #[contractimpl]
 impl SoroswapPairToken {
-    pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) {
+    pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) -> Result<(), SoroswapPairError> {
         if has_administrator(&e) {
             //     TokenInitializeAlreadyInitialized = 124,
             panic!("already initialized")
@@ -71,7 +72,9 @@ impl SoroswapPairToken {
                 name,
                 symbol,
             },
-        )
+        );
+
+        Ok(())
     }
 
     pub fn mint(e: Env, to: Address, amount: i128) {

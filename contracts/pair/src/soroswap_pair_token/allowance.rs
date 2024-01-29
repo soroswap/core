@@ -1,4 +1,6 @@
 use crate::soroswap_pair_token::storage_types::{AllowanceDataKey, AllowanceValue, DataKey};
+use crate::error::SoroswapPairError;
+
 use soroban_sdk::{Address, Env};
 
 pub fn read_allowance(e: &Env, from: Address, spender: Address) -> AllowanceValue {
@@ -26,7 +28,7 @@ pub fn write_allowance(
     spender: Address,
     amount: i128,
     expiration_ledger: u32,
-) {
+) -> Result<(), SoroswapPairError> {
     let allowance = AllowanceValue {
         amount,
         expiration_ledger,
@@ -47,9 +49,11 @@ pub fn write_allowance(
 
         e.storage().temporary().extend_ttl(&key, live_for, live_for)
     }
+
+    Ok(())
 }
 
-pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) {
+pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) -> Result<(), SoroswapPairError> {
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance.amount < amount {
         //    TokenSpendAllowanceInsufficientAllowance = 120,
@@ -64,5 +68,6 @@ pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) {
             allowance.expiration_ledger,
         );
     }
+    Ok(())
 
 }

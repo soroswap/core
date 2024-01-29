@@ -1,4 +1,6 @@
 use crate::soroswap_pair_token::storage_types::{DataKey, BALANCE_BUMP_AMOUNT, BALANCE_LIFETIME_THRESHOLD};
+use crate::error::SoroswapPairError;
+
 use soroban_sdk::{Address, Env};
 
 pub fn read_balance(e: &Env, addr: Address) -> i128 {
@@ -21,7 +23,7 @@ fn write_balance(e: &Env, addr: Address, amount: i128) {
         .extend_ttl(&key, BALANCE_LIFETIME_THRESHOLD, BALANCE_BUMP_AMOUNT);
 }
 
-pub fn receive_balance(e: &Env, addr: Address, amount: i128) {
+pub fn receive_balance(e: &Env, addr: Address, amount: i128) -> Result<(), SoroswapPairError> {
     let balance = read_balance(e, addr.clone());
 
     let new_balance = balance.checked_add(amount)
@@ -29,13 +31,17 @@ pub fn receive_balance(e: &Env, addr: Address, amount: i128) {
         .expect("Integer overflow occurred while adding balance.");
 
     write_balance(e, addr, new_balance);
+
+    Ok(())
 }
 
-pub fn spend_balance(e: &Env, addr: Address, amount: i128) {
+pub fn spend_balance(e: &Env, addr: Address, amount: i128) -> Result<(), SoroswapPairError> {
     let balance = read_balance(e, addr.clone());
     if balance < amount {
         //     TokenSpendBalanceInsufficient = 122,
         panic!("insufficient balance");
     }
     write_balance(e, addr, balance - amount);
+
+    Ok(())
 }
