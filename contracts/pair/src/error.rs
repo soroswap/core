@@ -50,7 +50,7 @@ pub enum SoroswapPairError {
     TokenWriteAllowanceExpirationLedgerExpired = 119,
 
     /// SoroswapPairToken: insufficient allowance when spending allowance
-    TokenSpendAllowanceInsufficientAllowance = 120,
+    TokenAllowanceInsufficient = 120,
     
     /// SoroswapPairToken: integer overflow occurred while adding balance
     TokenAddBalanceOverflow = 121,

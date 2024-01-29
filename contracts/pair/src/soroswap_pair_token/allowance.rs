@@ -58,8 +58,8 @@ pub fn spend_allowance(e: &Env, from: Address, spender: Address, amount: i128) -
     let allowance = read_allowance(e, from.clone(), spender.clone());
     if allowance.amount < amount {
         //  panic!("insufficient allowance");
-        //  TokenSpendAllowanceInsufficientAllowance = 120,
-        return Err(SoroswapPairError::TokenSpendAllowanceInsufficientAllowance);
+        //  TokenAllowanceInsufficient = 120,
+        return Err(SoroswapPairError::TokenAllowanceInsufficient);
         
     }
     if amount > 0 {

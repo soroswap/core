@@ -2,6 +2,8 @@
 extern crate std;
 
 use crate::soroswap_pair_token::{SoroswapPairToken, SoroswapPairTokenClient};
+use crate::error::SoroswapPairError;
+
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
@@ -216,7 +218,7 @@ fn transfer_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected = "insufficient allowance")]
+// #[should_panic(expected = "insufficient allowance")]
 fn transfer_from_insufficient_allowance() {
     let e = Env::default();
     e.mock_all_auths();
@@ -234,31 +236,37 @@ fn transfer_from_insufficient_allowance() {
     token.approve(&user1, &user3, &100, &200);
     assert_eq!(token.allowance(&user1, &user3), 100);
 
+    // let res = token.try_transfer_from(&user3, &user1, &user2, &101);
+    // assert_eq!(res, Err(Ok(SoroswapPairError::TokenAllowanceInsufficient)));
+
     token.transfer_from(&user3, &user1, &user2, &101);
+
 }
 
 #[test]
-#[should_panic(expected = "already initialized")]
+//& #[should_panic(expected = "already initialized")]
 fn initialize_already_initialized() {
     let e = Env::default();
     let admin = Address::generate(&e);
     let token = create_token(&e, &admin);
 
-    token.initialize(&admin, &10, &"name".into_val(&e), &"symbol".into_val(&e));
+    let res = token.try_initialize(&admin, &10, &"name".into_val(&e), &"symbol".into_val(&e));
+    assert_eq!(res, Err(Ok(SoroswapPairError::TokenInitializeAlreadyInitialized)));
 }
 
 #[test]
-#[should_panic(expected = "Decimal must fit in a u8")]
+//#[should_panic(expected = "Decimal must fit in a u8")]
 fn decimal_is_over_max() {
-    let e = Env::default();
+    let e = Env::default(); 
     let admin = Address::generate(&e);
     let token = SoroswapPairTokenClient::new(&e, &e.register_contract(None, SoroswapPairToken {}));
-    token.initialize(
+    let res = token.try_initialize(
         &admin,
         &(u32::from(u8::MAX) + 1),
         &"name".into_val(&e),
         &"symbol".into_val(&e),
     );
+    assert_eq!(res, Err(Ok(SoroswapPairError::TokenDecimalNotAllowed)));
 }
 
 #[test]
