@@ -1,5 +1,5 @@
 use soroban_sdk::{
-    contracttype, Address, BytesN, Env,
+    contracttype, Address, BytesN, Env, Val, TryFromVal
 };
 use soroswap_factory_interface::{FactoryError};
 use crate::pair::{Pair};
@@ -23,10 +23,35 @@ const DAY_IN_LEDGERS: u32 = 17280;
 const INSTANCE_BUMP_AMOUNT: u32 = 7 * DAY_IN_LEDGERS;
 const INSTANCE_LIFETIME_THRESHOLD: u32 = INSTANCE_BUMP_AMOUNT - DAY_IN_LEDGERS;
 
+const PERSISTENT_BUMP_AMOUNT: u32 = 30 * DAY_IN_LEDGERS;
+const PERSISTENT_LIFETIME_THRESHOLD: u32 = PERSISTENT_BUMP_AMOUNT - DAY_IN_LEDGERS;
+
 pub fn extend_instance_ttl(e: &Env) {
     e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+        .instance()
+        .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
+}
+
+pub fn extend_persistent_ttl(e: &Env, key: &DataKey) {
+    e.storage()
+        .persistent()
+        .extend_ttl(key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
+}
+
+/// Fetch an entry in persistent storage that has a default value if it doesn't exist
+fn get_persistent_extend_or_error<V: TryFromVal<Env, Val>>(
+    e: &Env,
+    key: &DataKey,
+    error: FactoryError
+) -> Result<V, FactoryError> {
+    if let Some(result) = e.storage().persistent().get(key) {
+        e.storage()
+            .persistent()
+            .extend_ttl(key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
+        result
+    } else {
+        return Err(error);
+    }
 }
 
 //// --- Storage helper functions ---
@@ -51,15 +76,21 @@ pub fn put_pair_address_by_token_pair(e: &Env, token_pair: Pair, pair_address: &
         .set(&DataKey::PairAddressesByTokens(token_pair), &pair_address)
 }
 pub fn get_pair_address_by_token_pair(e: &Env, token_pair: Pair) -> Result<Address, FactoryError> {
-    // Note: Using unwrap_or_else() can be more efficient because it only evaluates the closure when it is necessary, whereas unwrap_or() always evaluates the default value expression.
-    e.storage()
-        .persistent()
-        .get(&DataKey::PairAddressesByTokens(token_pair))
-        .ok_or(FactoryError::PairDoesNotExist)
+    let key = DataKey::PairAddressesByTokens(token_pair);
+    get_persistent_extend_or_error(&e, &key, FactoryError::PairDoesNotExist)
 }
+
 pub fn get_pair_exists(e: &Env, token_pair: Pair) -> bool {
-    e.storage()
-        .persistent().has(&DataKey::PairAddressesByTokens(token_pair))
+    let key:DataKey = DataKey::PairAddressesByTokens(token_pair);
+    if e.storage().persistent().has(&key) {
+        e.storage()
+            .persistent()
+            .extend_ttl(&key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
+        true
+    } else {
+        false
+    }
+    
 }
 
 
@@ -82,10 +113,9 @@ pub fn get_fee_to_setter(e: &Env) -> Address {
 }
 
 
-
-
-pub fn get_pair_wasm_hash(e: &Env) -> BytesN<32> {
-    e.storage().persistent().get(&DataKey::PairWasmHash).unwrap()
+pub fn get_pair_wasm_hash(e: &Env) -> Result<BytesN<32>, FactoryError>{
+    let key = DataKey::PairWasmHash;
+    get_persistent_extend_or_error(&e, &key, FactoryError::NotInitialized)
 }
 
 pub fn put_fee_to(e: &Env, to: Address) {
@@ -116,5 +146,6 @@ pub fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
 }
 
 pub fn get_all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
-    e.storage().persistent().get(&DataKey::PairAddressesNIndexed(n)).ok_or(FactoryError::IndexDoesNotExist)
+    let key = DataKey::PairAddressesNIndexed(n);
+    get_persistent_extend_or_error(&e, &key, FactoryError::IndexDoesNotExist)
 }
