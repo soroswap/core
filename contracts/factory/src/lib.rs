@@ -45,6 +45,7 @@ fn fee_to(e: Env) -> Result<Address, FactoryError> {
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     Ok(get_fee_to(&e))
 }
 
@@ -61,6 +62,7 @@ fn fee_to_setter(e: Env) -> Result<Address, FactoryError> {
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     Ok(get_fee_to_setter(&e))
 }
 
@@ -77,6 +79,7 @@ fn fees_enabled(e: Env) -> Result<bool, FactoryError> {
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     Ok(get_fees_enabled(&e))
 }
 
@@ -93,6 +96,7 @@ fn all_pairs_length(e: Env) -> Result<u32, FactoryError> {
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     Ok(get_total_pairs(&e))
 }
 
@@ -111,6 +115,7 @@ fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Facto
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     let token_pair = Pair::new(token_a, token_b)?;
     get_pair_address_by_token_pair(&e, token_pair)
 }
@@ -129,6 +134,7 @@ fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
     get_all_pairs(e,n)
 }
 
@@ -147,6 +153,7 @@ fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, Facto
     if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
+    extend_instance_ttl(&e);
 
     let token_pair = Pair::new(token_a, token_b)?;
     
@@ -195,6 +202,7 @@ fn set_fee_to(e: Env, to: Address) -> Result<(), FactoryError> {
         return Err(FactoryError::NotInitialized);
     }
     
+    extend_instance_ttl(&e);
     let setter = get_fee_to_setter(&e);
     setter.require_auth();
 
@@ -219,6 +227,7 @@ fn set_fee_to_setter(e: Env, new_setter: Address) -> Result<(), FactoryError> {
         return Err(FactoryError::NotInitialized);
     }
 
+    extend_instance_ttl(&e);
     let setter = get_fee_to_setter(&e);
     setter.require_auth();
 
@@ -242,6 +251,7 @@ fn set_fees_enabled(e: Env, is_enabled: bool) -> Result<(), FactoryError> {
         return Err(FactoryError::NotInitialized);
     }
 
+    extend_instance_ttl(&e);
     let setter = get_fee_to_setter(&e);
     setter.require_auth();
 
@@ -266,6 +276,7 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
         return Err(FactoryError::NotInitialized);
     }
 
+    extend_instance_ttl(&e);
     let token_pair = Pair::new(token_a, token_b)?;
 
     if get_pair_exists(&e, token_pair.clone()) {
