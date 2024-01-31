@@ -27,6 +27,11 @@ pub fn put_total_pairs(e: &Env, n: u32) {
 pub fn get_total_pairs(e: &Env) -> u32 {
     e.storage().instance().get(&DataKey::TotalPairs).unwrap_or(0)
 }
+// Helper function in order to know if the contract has been initialized or not
+pub fn has_total_pairs(e: &Env) -> bool {
+    e.storage().instance().has(&DataKey::TotalPairs)
+}
+
 
 // PairAddressesByTokens(Address, Address)
 pub fn put_pair_address_by_token_pair(e: &Env, token_pair: Pair, pair_address: &Address) {
@@ -88,12 +93,6 @@ pub fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
     e.storage().persistent().set(&DataKey::PairWasmHash, &pair_wasm_hash)
 }
 
-
-// Helper function in order to know if the contract has been initialized or not
-pub fn has_pair_wasm_hash(e: &Env) -> bool {
-    e.storage().persistent().has(&DataKey::PairWasmHash)
-}
-
 pub fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
     // total_pairs is the total amount of pairs created by the Factory
     let mut total_pairs = get_total_pairs(e);
@@ -103,4 +102,8 @@ pub fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
 
     total_pairs = total_pairs.checked_add(1).unwrap();
     put_total_pairs(&e, total_pairs);
+}
+
+pub fn get_all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
+    e.storage().persistent().get(&DataKey::PairAddressesNIndexed(n)).ok_or(FactoryError::IndexDoesNotExist)
 }

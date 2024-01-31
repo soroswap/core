@@ -42,7 +42,7 @@ impl SoroswapFactoryTrait for SoroswapFactory {
 /// 
 /// Returns an error if the Factory is not yet initialized.
 fn fee_to(e: Env) -> Result<Address, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     Ok(get_fee_to(&e))
@@ -58,7 +58,7 @@ fn fee_to(e: Env) -> Result<Address, FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized.
 fn fee_to_setter(e: Env) -> Result<Address, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     Ok(get_fee_to_setter(&e))
@@ -74,7 +74,7 @@ fn fee_to_setter(e: Env) -> Result<Address, FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized.
 fn fees_enabled(e: Env) -> Result<bool, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     Ok(get_fees_enabled(&e))
@@ -90,7 +90,7 @@ fn fees_enabled(e: Env) -> Result<bool, FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized.
 fn all_pairs_length(e: Env) -> Result<u32, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     Ok(get_total_pairs(&e))
@@ -108,7 +108,7 @@ fn all_pairs_length(e: Env) -> Result<u32, FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized or if the pair does not exist
 fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     let token_pair = Pair::new(token_a, token_b)?;
@@ -126,11 +126,10 @@ fn get_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Facto
 /// 
 /// Returns an error if the Factory is not yet initialized or if index `n` does not exist.
 fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
-    e.storage().persistent().get(&DataKey::PairAddressesNIndexed(n)).ok_or(FactoryError::IndexDoesNotExist)
-
+    get_all_pairs(e,n)
 }
 
 /// Checks if a pair exists for the given `token_a` and `token_b`.
@@ -145,7 +144,7 @@ fn all_pairs(e: Env, n: u32) -> Result<Address, FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized.
 fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
 
@@ -170,12 +169,13 @@ fn pair_exists(e: Env, token_a: Address, token_b: Address) -> Result<bool, Facto
 /// 
 /// Returns an error if the Factory is already initialized.
 fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) -> Result<(), FactoryError> {
-    if has_pair_wasm_hash(&e) {
+    if has_total_pairs(&e) {
         return Err(FactoryError::InitializeAlreadyInitialized);
     }
     put_fee_to_setter(&e, &setter);
     put_fee_to(&e, setter.clone());
     put_pair_wasm_hash(&e, pair_wasm_hash);
+    put_total_pairs(&e, 0);
     event::initialized(&e, setter);
     Ok(())
 }
@@ -191,7 +191,7 @@ fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) -> Result<(),
 /// 
 /// Returns an error if the Factory is not yet initialized or if the caller is not the current `fee_to_setter`.
 fn set_fee_to(e: Env, to: Address) -> Result<(), FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
     
@@ -215,7 +215,7 @@ fn set_fee_to(e: Env, to: Address) -> Result<(), FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized or if the caller is not the existing `fee_to_setter`.
 fn set_fee_to_setter(e: Env, new_setter: Address) -> Result<(), FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
 
@@ -238,7 +238,7 @@ fn set_fee_to_setter(e: Env, new_setter: Address) -> Result<(), FactoryError> {
 /// 
 /// Returns an error if the Factory is not yet initialized or if the caller is not the current `fee_to_setter`.
 fn set_fees_enabled(e: Env, is_enabled: bool) -> Result<(), FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
 
@@ -262,7 +262,7 @@ fn set_fees_enabled(e: Env, is_enabled: bool) -> Result<(), FactoryError> {
 /// 
 /// Returns an error if the pair is not yet initialized, if `token_a` and `token_b` have identical addresses, or if the pair already exists between `token_a` and `token_b`.
 fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, FactoryError> {
-    if !has_pair_wasm_hash(&e) {
+    if !has_total_pairs(&e) {
         return Err(FactoryError::NotInitialized);
     }
 
