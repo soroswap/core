@@ -105,16 +105,19 @@ impl SoroswapPairTrait for SoroswapPair {
 
     /// Returns the address of the first token in the Soroswap pair.
     fn token_0(e: Env) -> Address {
+        extend_instance_ttl(&e);
         get_token_0(&e)
     }
 
     /// Returns the address of the second token in the Soroswap pair.
     fn token_1(e: Env) -> Address {
+        extend_instance_ttl(&e);
         get_token_1(&e)
     }
 
     /// Returns the address of the Soroswap factory contract.
     fn factory(e: Env) -> Address {
+        extend_instance_ttl(&e);
         get_factory(&e)
     }
 
@@ -134,6 +137,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// - `SoroswapPairError::DepositInsufficientLiquidityMinted`: Insufficient liquidity minted.
     /// - `SoroswapPairError::UpdateOverflow`: Overflow occurred during update.
     fn deposit(e: Env, to: Address) -> Result<i128, SoroswapPairError> {
+        extend_instance_ttl(&e);
+        
         if !has_token_0(&e){
             return Err(SoroswapPairError::NotInitialized)
         }
@@ -182,7 +187,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         event::deposit(&e, to, amount_0, amount_1, liquidity, reserve_0, reserve_1);
 
-        Ok(liquidity)
+        Ok(liquidity) 
     }
 
     /// Executes a token swap within the Soroswap pair.
@@ -203,6 +208,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// - `SoroswapPairError::SwapNegativesInNotSupported`
     /// - `SoroswapPairError::SwapKConstantNotMet`: If the K constant condition is not met after the swap.
     fn swap(e: Env, amount_0_out: i128, amount_1_out: i128, to: Address) -> Result<(), SoroswapPairError> {
+        extend_instance_ttl(&e);
+
         if !has_token_0(&e) {
             return Err(SoroswapPairError::NotInitialized);
         }
@@ -277,6 +284,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// # Returns
     /// A tuple containing the amounts of token 0 and token 1 withdrawn from the pair.
     fn withdraw(e: Env, to: Address) -> Result<(i128, i128), SoroswapPairError> {
+        extend_instance_ttl(&e);
+
         if !has_token_0(&e) {
             return Err(SoroswapPairError::NotInitialized);
         }
@@ -329,6 +338,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `e` - The runtime environment.
     /// * `to` - The address where the excess tokens will be sent.
     fn skim(e: Env, to: Address) {
+        extend_instance_ttl(&e);
+
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         let (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         let skimmed_0 = balance_0.checked_sub(reserve_0).unwrap();
@@ -343,6 +354,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// # Arguments
     /// * `e` - The runtime environment.
     fn sync(e: Env) {
+        extend_instance_ttl(&e);
+
         let (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
         update(&e, balance_0, balance_1);
     }
@@ -355,6 +368,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// # Returns
     /// A tuple containing the reserves of token 0 and token 1.
     fn get_reserves(e: Env) -> (i128, i128) {
+        extend_instance_ttl(&e);
+
         (get_reserve_0(&e), get_reserve_1(&e))
     }
 
@@ -367,6 +382,8 @@ impl SoroswapPairTrait for SoroswapPair {
     /// # Returns
     /// The value of the last product of reserves (`K`).
     fn k_last(e: Env) -> i128 {
+        extend_instance_ttl(&e);
+        
         get_klast(&e)
     }
 
