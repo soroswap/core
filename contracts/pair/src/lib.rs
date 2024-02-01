@@ -9,7 +9,6 @@ mod balances;
 mod event;
 mod error; 
 mod test;
-mod math;
 
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
@@ -22,14 +21,14 @@ use storage::*;
 use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
 use error::SoroswapPairError;
-use math::CheckedCeilingDiv;
+
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
 
 // Metadata that is added on to the WASM custom section
 contractmeta!(
     key = "Description",
-    val = "Soroswap.Finance Protocol - Constant product AMM with a .3% swap fee"
+    val = "Constant product AMM with a .3% swap fee"
 );
 
 pub trait SoroswapPairTrait{
@@ -249,8 +248,8 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(SoroswapPairError::SwapNegativesInNotSupported);
         }
 
-        let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_ceiling_div(1000).unwrap();
-        let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_ceiling_div(1000).unwrap();
+        let fee_0 = (amount_0_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
+        let fee_1 = (amount_1_in.checked_mul(3).unwrap()).checked_div(1000).unwrap();
 
         let balance_0_minus_fee = balance_0.checked_sub(fee_0).unwrap();
         let balance_1_minus_fee = balance_1.checked_sub(fee_1).unwrap();
@@ -389,7 +388,7 @@ fn transfer_token_1_from_pair(e: &Env, to: &Address, amount: i128) {
 fn mint_fee(e: &Env, reserve_0: i128, reserve_1: i128) -> bool{
 
     /*
-            accumulated fees are collected only when liquidity is deposited 
+            accumulated fees are collected only when liquidity is deposited
             or withdrawn. The contract computes the accumulated fees, and mints new liquidity tokens
             to the fee beneficiary, immediately before any tokens are minted or burned 
     */
