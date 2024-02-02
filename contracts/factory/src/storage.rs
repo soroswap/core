@@ -65,9 +65,13 @@ pub fn has_total_pairs(e: &Env) -> bool {
 
 // PairAddressesByTokens(Address, Address)
 pub fn put_pair_address_by_token_pair(e: &Env, token_pair: Pair, pair_address: &Address) {
+    let key = DataKey::PairAddressesByTokens(token_pair); 
     e.storage()
         .persistent()
-        .set(&DataKey::PairAddressesByTokens(token_pair), &pair_address)
+        .set(&key, &pair_address);
+    e.storage()
+        .persistent()
+        .extend_ttl(&key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT)
 }
 pub fn get_pair_address_by_token_pair(e: &Env, token_pair: Pair) -> Result<Address, FactoryError> {
     let key = DataKey::PairAddressesByTokens(token_pair);
@@ -125,7 +129,11 @@ pub fn put_fees_enabled(e: &Env, is_enabled: &bool) {
 }
 
 pub fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
-    e.storage().persistent().set(&DataKey::PairWasmHash, &pair_wasm_hash)
+    let key = DataKey::PairWasmHash
+    e.storage().persistent().set(&key, &pair_wasm_hash);
+    e.storage()
+            .persistent()
+            .extend_ttl(&key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT)
 }
 
 pub fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
@@ -133,7 +141,12 @@ pub fn add_pair_to_all_pairs(e: &Env, pair_address: &Address) {
     let mut total_pairs = get_total_pairs(e);
     // Because PairAddressesNIndexed is 0-indexed, we start with 0, default value of total_pairs
 
-    e.storage().persistent().set(&DataKey::PairAddressesNIndexed(total_pairs), &pair_address);
+    let key = DataKey::PairAddressesNIndexed(total_pairs);
+    e.storage().persistent().set(&key, &pair_address);
+    
+    e.storage()
+            .persistent()
+            .extend_ttl(&key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
 
     total_pairs = total_pairs.checked_add(1).unwrap();
     put_total_pairs(&e, total_pairs);
