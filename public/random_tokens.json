@@ -1,239 +1,320 @@
 [
   {
+    "network": "standalone",
+    "tokens": [
+      {
+        "address": "CBFWJZBSMNKJW4FWWF4DQ4XQDZG2M25C3SUUIG62RQ5RCMFHD24TDKVI",
+        "name": "serxis",
+        "symbol": "SERX",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CB36XEBR44WY56WRQUTLO5HDAZXQRSFIG5YTTWAZ4ZPIOBMZE3NRGVN5",
+        "name": "dormia",
+        "symbol": "DORM",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDSSQVQKU2P2IWJUWIVFQ3Z7HELOWLXK3GEX5FXSULM7XWH7TMZCH7DI",
+        "name": "zelkye",
+        "symbol": "ZELK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCOOCNRIXDHEIMVKGHV4BVHV7DEVGDN6Z2REWTN3YEFLUPPOWD3GA2HX",
+        "name": "fendor",
+        "symbol": "FEND",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "OTZZ:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "OTZZ"
+      },
+      {
+        "asset": "JAMS:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JAMS"
+      },
+      {
+        "asset": "PEQR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PEQR"
+      },
+      {
+        "asset": "UVIM:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "UVIM"
+      }
+    ]
+  },
+  {
     "network": "testnet",
     "tokens": [
       {
-        "address": "CCWM6D6UNDALYCEVSNIBX6W62E4PXRWBZA7ADHH4ZP3KY5MNYKNNAX2I",
-        "name": "miktar",
-        "symbol": "MIKT",
+        "address": "CCSNNJRVK7CF33XYUAKAMDGCOOYWI4S4WFJ6LPBIYNIFS5MXTWVQSE45",
+        "name": "lordor",
+        "symbol": "LORD",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CCWLJVOHCDR3SUTJHGHIMNRNWHDW5OPCGLPXXA7M5R72WLGXPBWRRZLZ",
-        "name": "ronbel",
-        "symbol": "RONB",
+        "address": "CBJTGJCCZXZRW5IO7ACVHC4T2FWKTJE7Z2PUGSX7J72UEKJQMJNXFYGJ",
+        "name": "leoaxl",
+        "symbol": "LEOA",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CBN2WT6FBMHRGRTLY463CLSJU3L7R7RFXDTLHU3B2AQPBTIIZ6E7ET3L",
-        "name": "miavin",
-        "symbol": "MIAV",
+        "address": "CDNSZRSBUYD4T234PDC2YAG6PCO6FM6CQ7W5V7YJWT4P6W335POCKOTJ",
+        "name": "aelron",
+        "symbol": "AELR",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CBBQJBOIGXORQSLQR2JZN4VJKSVXLUH4J52S5QUFF574JGS2NEDOPJAP",
-        "name": "leosia",
-        "symbol": "LEOS",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CBKZ5GKCSV5SDAMHSHKWFQK7T2EIT2IWDAFF3FSOIJF4UCM7E2BRILDM",
-        "name": "reysia",
-        "symbol": "REYS",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CCOESU54VHEUE3IVNX3MLHHTJ2QTWSXOII4AG3QR74O5DYIWQ3A744XG",
-        "name": "leozel",
-        "symbol": "LEOZ",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CCUUV2ZURTFK6MDTSCU7SHRCINPYY6CYI3TOHQEDUHAYEG3EJMEWG6S4",
-        "name": "gavkai",
-        "symbol": "GAVK",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CB4NJWDOQ3SNGWZJTMF7BPOE4VATRBVJIDGDQF4KDERJ4JPPZUNHFANT",
-        "name": "nixian",
-        "symbol": "NIXI",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "",
-        "name": "nixtia",
-        "symbol": "NIXT",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CAX5GMU7F6S6SMWSOMU7LIVTRMLWE5E6FMEDFUSWGAIEYH76EASJGDHE",
-        "name": "theara",
-        "symbol": "THEA",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CBHCXYJRAEQ3LMJGHSZ5TUCE5EIJ7EAL2IZU7KBMRD43PG6FTCDQZJCX",
-        "name": "nialeo",
-        "symbol": "NIAL",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CAIR5VS42GQBKB32BNIB2A53OR2NMEUQJ6NMOSPESNU2VW46RI27RCWG",
-        "name": "sereva",
-        "symbol": "SERE",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDXEGXQJAMEBPUYP6ILTKTPMNIY3ERAHRTCP4MSQIRTWVPJ6TTATCKGV",
-        "name": "lynora",
-        "symbol": "LYNO",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CCGL6OVE5UUDBBEBKT62KS4T5MPYEJ4GQTQXJTJSMHPQE3D2BQOYSTQT",
-        "name": "zelzoe",
-        "symbol": "ZELZ",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDQWGWFWSL3Q3HKLAMHEJ2CCXY5DNGV7BMST5TZTNBZ6PCVQ4KSHS2UL",
-        "name": "mikjas",
-        "symbol": "MIKJ",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CCRSWQZXCK53E66VGMNGSDNLAT5NS325EHZEVNKXPZ6PAESTPJKZPPPY",
-        "name": "kyejas",
-        "symbol": "KYEJ",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDUXOMB6YHHIEWK6D3QDQ2WZ3BZLO5O26MI3J4AD54HCBYT7D3JIVOAR",
-        "name": "rinmik",
-        "symbol": "RINM",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDHZ7N452FI5U7XGZSJAIJZSNOHOIHBR6J3XHINQFDZCLEPNJRXJNM3V",
-        "name": "gavkye",
-        "symbol": "GAVK",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDR4PM4S6QYGPZPPE23BN2RURXHZDL36TPMO3QPFROPKRCWZEPEVAAK7",
-        "name": "belora",
-        "symbol": "BELO",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDTAGQIAXPIOJD3DJYNUN6TVX5WQLYNO7RFPRSVL7DSYBQX6F6DPAYAL",
-        "name": "zeleva",
-        "symbol": "ZELE",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "asset": "PYRW:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "PYRW"
-      },
-      {
-        "asset": "SIVW:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "SIVW"
-      },
-      {
-        "asset": "PIAZ:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "PIAZ"
-      },
-      {
-        "asset": "NOVL:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "NOVL"
-      },
-      {
-        "address": "CBOLG7KMGSZ7VSUTWYWOMDZKFIO73F5RZ5ZW5HBIF6COE6RXFFKUPPM7",
+        "address": "CADGCWSL4Q2ECP2RVQCOI5PQHT2ICHT2KR4TLXOY32RHYWHKZBQ7PRFU",
         "name": "anabel",
         "symbol": "ANAB",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CBLJPWQIIXTJBT7EPFOII42XQSPXJV5V2PG6C35MGYJRD2DLRQDLXCI6",
-        "name": "tianeo",
-        "symbol": "TIAN",
+        "address": "CD7QLTRGHWQSPSRW4VHT43ZWDXW2WDMMISNOMURBR43HBA3XVXRK6AXT",
+        "name": "dordan",
+        "symbol": "DORD",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CCOM5C7DMHIXXUQLU4OXBW27K244MXWOTAET5FRDX3J6MZ6E6DTH3735",
-        "name": "anakel",
-        "symbol": "ANAK",
+        "address": "CAJMK7HD4WGMPRRFOM3PPXWV4BWGGIXMTHNGXEQBM2JNLPSGSBBVWCKJ",
+        "name": "axlael",
+        "symbol": "AXLA",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "address": "CBQCRNBQPR6E2VZWVYXWBB4FB6R372D74CLBJ5NB63A5DLZKWEN2OK24",
-        "name": "neorin",
+        "address": "CCZZTQRAUTCDXGEBNJAVKVGHPSUZVKZRWEWNEVOXLSDBSITSWZA4AUWP",
+        "name": "keltar",
+        "symbol": "KELT",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCULUIZ234NAPHFJUTBVWW7NPAZVHCJRV5EEEIBA2Y7QHHBPNVLXM45D",
+        "name": "gavlor",
+        "symbol": "GAVL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CACMEUQCEJ2FDZYXO2KEQSJB4LFPXFKKHPM56A2RC4IHFHBLU4OIJPE6",
+        "name": "niaxis",
+        "symbol": "NIAX",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCIOXUSGYNDXU54FZSYXY73NB67UJL6VUBOXOE7HVKAW7TN6YAYYNTGU",
+        "name": "leocal",
+        "symbol": "LEOC",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAO5S2G6LZ5JEWAFSASDWB2773ESFBRKW2NBUYGTWFLMY57WB7WZVYDG",
+        "name": "rinkai",
+        "symbol": "RINK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCUQ6UT2OBHI7HL76FA3X4FZDAUC3MFDV7BBDYTJDFZ3HWDL6YVYIUVP",
+        "name": "lorleo",
+        "symbol": "LORL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CADX3CXZOCM4SSOYOOLZS2MRGYTU35Z4KRZUD5XNL54RE7NZZHFODI2U",
+        "name": "keltia",
+        "symbol": "KELT",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCFS4G7NGCGTV4I6HEVWDWQKDOOWBJXEHW6KP2X47YXN46XDY7WN7FE4",
+        "name": "zelfen",
+        "symbol": "ZELF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CB67O25BTF33IKWXNUFW6467XY7UXWIVYCTQOFUKLAUJVBFC7VT47J7W",
+        "name": "kelneo",
+        "symbol": "KELN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDOJYVSBSMM3HWQ6NF3EAYXKWAMERC5PBCSY3LFRCMHGY2PAPKVC7RN3",
+        "name": "ronfen",
+        "symbol": "RONF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "MILP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "MILP"
+      },
+      {
+        "asset": "MILP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "MILP"
+      },
+      {
+        "asset": "PYRV:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PYRV"
+      },
+      {
+        "asset": "OTZN:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "OTZN"
+      },
+      {
+        "address": "CDS255H73AUFDUXTRSZBHYYVG4BSYWXNJ4I72H4NI5LIGO5K5PBGDJVY",
+        "name": "zelron",
+        "symbol": "ZELR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAWXYPPH47XXRGNNOC3DMCPKECPLLWCE26AWC62DCT2YTFS7JSPRN3J4",
+        "name": "aelfen",
+        "symbol": "AELF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDWAT7YUIQCQWSTKTHY6UNA2SV3ZWG5372BP5DGMBCKG2C27KCPN3ODC",
+        "name": "ronsia",
+        "symbol": "RONS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAA74ZB4KSDZF5NBW4GGUONEMYW75PWJAT3N3A3ETLEAH5MCKVWYWO5H",
+        "name": "tarthe",
+        "symbol": "TART",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "JIXV:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JIXV"
+      },
+      {
+        "asset": "NYLP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "NYLP"
+      },
+      {
+        "asset": "TEZR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "TEZR"
+      },
+      {
+        "asset": "FIZR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "FIZR"
+      },
+      {
+        "address": "CALJRPFXZEHDMHPPQK4L4ZSR7HODZF2H46ICA4SQQQ4AEXIDK2QD3QLV",
+        "name": "gavrey",
+        "symbol": "GAVR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDXICULFCCDS2UEFKKIJ4KWP4R2DCLBPOHESFTJFW255ZTLLEZNVWVXA",
+        "name": "tiaser",
+        "symbol": "TIAS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDXMSZFEBZTVGMKVQPLINWMFWLLZ7JFD6F6CYQ3ASANOKBZBNDK6LXVY",
+        "name": "kyekel",
+        "symbol": "KYEK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCWOE5S2ZSSTHZLLYQRXRMH5YKMTP57URTCYOLXND6RVKKRIHVATSGVW",
+        "name": "kyefen",
+        "symbol": "KYEF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "PEQF:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PEQF"
+      },
+      {
+        "asset": "UVIJ:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "UVIJ"
+      },
+      {
+        "asset": "DEXF:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "DEXF"
+      },
+      {
+        "asset": "CYOW:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "CYOW"
+      }
+    ]
+  },
+  {
+    "network": "testnet-public",
+    "tokens": [
+      {
+        "address": "CA3EYHZY6IKKIT4GCYZHY34AWMVYZVALV7P62NE26Y3FQQ2RXCPHT6XQ",
+        "name": "evasia",
+        "symbol": "EVAS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBSX2S5OMX6RLO3CCE5SVVYVXOZSSJOGV345UKPVE3OZ7M2DY42UZJ5J",
+        "name": "callor",
+        "symbol": "CALL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDSDESUMDSYQ4DZ324ALACTFNIC2MGE6ALSRVJU43JWEN4FDGFICPXLZ",
+        "name": "belzel",
+        "symbol": "BELZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBHGCOK5VDKDKAQKRVVBBCMOROVOD3DBLBF3OHRNF7MV5E6XNW7Y5X4T",
+        "name": "neorey",
         "symbol": "NEOR",
         "logoURI": "",
         "decimals": 7
       },
       {
-        "asset": "UVIQ:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "UVIQ"
+        "asset": "JIXZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "JIXZ"
       },
       {
-        "asset": "PEQU:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "PEQU"
+        "asset": "MILV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "MILV"
       },
       {
-        "asset": "FYXT:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "FYXT"
+        "asset": "UVIZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "UVIZ"
       },
       {
-        "asset": "MILT:GB6D5QHTBZEY3GWPADRFTRZB2Z6XCNH34LJW5L36W6Q7523QNBT2YVCV",
-        "symbol": "MILT"
-      }
-    ]
-  },
-  {
-    "network": "standalone",
-    "tokens": [
-      {
-        "address": "CCQYAYFBBBB5QM2VSO7JGEJ54IRPTRXSDS2J3ZYXIJ5VX5IHOSUWHWPX",
-        "name": "narria",
-        "symbol": "NARR",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CBGRRF2SYBSZLKMIYJJZQA4I2CYCBSOP5VFFT4L42AIPAERT57LCYKPG",
-        "name": "narmik",
-        "symbol": "NARM",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CDRX3WLOXF3S2SNOJYQHNEN2FS2JMLX4KIQY3UJX4ZCBSR22MJU2UBK3",
-        "name": "aelora",
-        "symbol": "AELO",
-        "logoURI": "",
-        "decimals": 7
-      },
-      {
-        "address": "CCHYUHPUX7JCUMK2WVB4JVLZEEO6HLMCZWGOGQNGV6ATVURMIHDIZBD2",
-        "name": "siakai",
-        "symbol": "SIAK",
-        "logoURI": "",
-        "decimals": 7
+        "asset": "KULV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "KULV"
       }
     ]
   }
