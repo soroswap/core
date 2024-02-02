@@ -129,7 +129,7 @@ pub fn put_fees_enabled(e: &Env, is_enabled: &bool) {
 }
 
 pub fn put_pair_wasm_hash(e: &Env, pair_wasm_hash: BytesN<32>) {
-    let key = DataKey::PairWasmHash
+    let key = DataKey::PairWasmHash;
     e.storage().persistent().set(&key, &pair_wasm_hash);
     e.storage()
             .persistent()
