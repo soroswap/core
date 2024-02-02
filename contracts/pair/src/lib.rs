@@ -99,6 +99,7 @@ impl SoroswapPairTrait for SoroswapPair {
         put_token_1(&e, token_1);
         put_reserve_0(&e, 0);
         put_reserve_1(&e, 0);
+        extend_instance_ttl(&e);
 
         Ok(())
     }
