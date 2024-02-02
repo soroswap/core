@@ -32,12 +32,6 @@ pub fn extend_instance_ttl(e: &Env) {
         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 }
 
-pub fn extend_persistent_ttl(e: &Env, key: &DataKey) {
-    e.storage()
-        .persistent()
-        .extend_ttl(key, PERSISTENT_LIFETIME_THRESHOLD, PERSISTENT_BUMP_AMOUNT);
-}
-
 /// Fetch an entry in persistent storage that has a default value if it doesn't exist
 fn get_persistent_extend_or_error<V: TryFromVal<Env, Val>>(
     e: &Env,
