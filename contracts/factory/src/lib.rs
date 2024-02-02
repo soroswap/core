@@ -184,6 +184,7 @@ fn initialize(e: Env, setter: Address, pair_wasm_hash: BytesN<32>) -> Result<(),
     put_pair_wasm_hash(&e, pair_wasm_hash);
     put_total_pairs(&e, 0);
     event::initialized(&e, setter);
+    extend_instance_ttl(&e);
     Ok(())
 }
 
