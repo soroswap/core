@@ -12,7 +12,7 @@ mod error;
 
 use factory::SoroswapFactoryClient;
 use pair::SoroswapPairClient;
-use storage::{put_factory, has_factory, get_factory};
+use storage::{put_factory, has_factory, get_factory, extend_instance_ttl};
 pub use error::{SoroswapRouterError, CombinedRouterError};
 
 pub fn check_nonnegative_amount(amount: i128) -> Result<(), CombinedRouterError> {
@@ -391,10 +391,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         if !has_factory(&e) {
             put_factory(&e, &factory);
             event::initialized(&e, factory);
+            extend_instance_ttl(&e);
             Ok(())
         } else {
             Err(SoroswapRouterError::InitializeAlreadyInitialized.into())
-        }
+        } 
         
     }  
 
@@ -429,7 +430,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(amount_b_desired)?;
         check_nonnegative_amount(amount_a_min)?;
         check_nonnegative_amount(amount_b_min)?;
-
+        extend_instance_ttl(&e);
         to.require_auth();
         ensure_deadline(&e, deadline)?;
 
@@ -502,6 +503,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_nonnegative_amount(liquidity)?;
         check_nonnegative_amount(amount_a_min)?;
         check_nonnegative_amount(amount_b_min)?;
+        extend_instance_ttl(&e);
         to.require_auth();
         ensure_deadline(&e, deadline)?;
 
@@ -583,6 +585,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_initialized(&e)?;
         check_nonnegative_amount(amount_in)?;
         check_nonnegative_amount(amount_out_min)?;
+        extend_instance_ttl(&e);
         to.require_auth();
         ensure_deadline(&e, deadline)?;
 
@@ -651,6 +654,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
         check_initialized(&e)?;
         check_nonnegative_amount(amount_out)?;
         check_nonnegative_amount(amount_in_max)?;
+        extend_instance_ttl(&e);
         to.require_auth(); 
         ensure_deadline(&e, deadline)?;
 
@@ -699,11 +703,12 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// This function retrieves the factory contract's address associated with the provided environment.
     /// It also checks if the factory has been initialized and raises an assertion error if not.
     /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
-    ///
+    ///https://github.com/benjaminsalon/malicious_sorochat
     /// # Arguments
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
     fn get_factory(e: Env) -> Result<Address, CombinedRouterError> {
         check_initialized(&e)?; 
+        extend_instance_ttl(&e);
         let factory_address = get_factory(&e);
         Ok(factory_address)
     }
@@ -722,6 +727,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     ///
     /// Returns `Result<Address, SoroswapLibraryError>` where `Ok` contains the deterministic address for the pair, and `Err` indicates an error such as identical tokens or an issue with sorting.
     fn router_pair_for(e: Env, token_a: Address, token_b: Address) -> Result<Address, CombinedRouterError> {
+        extend_instance_ttl(&e);
         Ok(soroswap_library::pair_for(
             e.clone(),
             get_factory(&e),
@@ -790,6 +796,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
     fn router_get_amounts_out(e: Env, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
         check_initialized(&e)?;
+        extend_instance_ttl(&e);
         let factory = get_factory(&e);
         Ok(soroswap_library::get_amounts_out(e, factory, amount_in, path)?)
     }
@@ -807,6 +814,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
     fn router_get_amounts_in(e: Env, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, CombinedRouterError> {
         check_initialized(&e)?;
+        extend_instance_ttl(&e);
         let factory = get_factory(&e);
         Ok(soroswap_library::get_amounts_in(e, factory, amount_out, path)?)
     }
