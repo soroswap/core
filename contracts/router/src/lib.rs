@@ -391,10 +391,11 @@ impl SoroswapRouterTrait for SoroswapRouter {
         if !has_factory(&e) {
             put_factory(&e, &factory);
             event::initialized(&e, factory);
+            extend_instance_ttl(&e);
             Ok(())
         } else {
             Err(SoroswapRouterError::InitializeAlreadyInitialized.into())
-        }
+        } 
         
     }  
 
@@ -702,7 +703,7 @@ impl SoroswapRouterTrait for SoroswapRouter {
     /// This function retrieves the factory contract's address associated with the provided environment.
     /// It also checks if the factory has been initialized and raises an assertion error if not.
     /// If the factory is not initialized, this code will raise an assertion error with the message "SoroswapRouter: not yet initialized".
-    ///
+    ///https://github.com/benjaminsalon/malicious_sorochat
     /// # Arguments
     /// * `e` - The contract environment (`Env`) in which the contract is executing.
     fn get_factory(e: Env) -> Result<Address, CombinedRouterError> {
