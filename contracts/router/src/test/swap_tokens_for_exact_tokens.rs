@@ -251,7 +251,7 @@ fn swap_tokens_for_exact_tokens_amount_in_should() {
     assert_eq!(amounts.get(1).unwrap(), expected_amount_out);
 
     let original_balance: i128 = 10_000_000_000_000_000_000;
-    let expected_amount_0_in = 1255331;
+    let expected_amount_0_in = 1255332;
     assert_eq!(expected_amount_0_in, amount_in_should);
     assert_eq!(test.token_0.balance(&test.user), original_balance - amount_0 - expected_amount_0_in);
     assert_eq!(test.token_1.balance(&test.user), original_balance - amount_1 + expected_amount_out);
@@ -281,8 +281,8 @@ fn swap_tokens_for_exact_tokens() {
     let expected_amount_out = 5_000_000;
     // (r_in*amount_out)*1000 / (r_out - amount_out)*997
     // (1000000000000000000*5000000)*1000 / ((4000000000000000000 - 5000000)*997) + 1 = 1253762,2
-    // 1253762
-    let amount_in_should =1253762;
+    // because cealing div = 1253763
+    let amount_in_should =1253763;
 
     let ledger_timestamp = 100;
     let desired_deadline = 1000;
@@ -367,16 +367,16 @@ fn swap_tokens_for_exact_tokens_2_hops() {
     // pair token_1, token_2
     // token_1 is r_in, token_2 is r_out
     // (r_in*amount_out)*1000 / (r_out - amount_out)*997
-    // (4000000000*123456789)*1000 / ((8000000000 - 123456789)*997) + 1 = 62884578,9
+    // (4000000000*123456789)*1000 / ((8000000000 - 123456789)*997) + 1 = 62884578,9 // ceiling div = 62884579
     // 31942963
-    let middle_amount_in =62884578;
+    let middle_amount_in =62884579;
 
     // pair token_0, token_1
     // token_0 is r_in, token_1 is r_out
     // first amount in = 
-    // (1000000000*62884578)*1000 / ((4000000000 - 62884578)*997) + 1 = 16020308,4
+    // (1000000000*62884579)*1000 / ((4000000000 - 62884579)*997) + 1 = 16020308,676218266 = // celing div = 16020309
 
-    let amount_in_should =16020308;
+    let amount_in_should =16020309;
 
     let amounts = test.contract.swap_tokens_for_exact_tokens(
         &expected_amount_out, //amount_out

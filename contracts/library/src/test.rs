@@ -77,8 +77,8 @@ impl<'a> SoroswapLibraryTest<'a> {
         if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
-        token_0.mint(&user, &10000);
-        token_1.mint(&user, &10000);
+        token_0.mint(&user, &10000000000);
+        token_1.mint(&user, &10000000000);
 
         let factory = create_soroswap_factory(&env, &admin);
         factory.create_pair(&token_0.address, &token_1.address);
@@ -116,3 +116,4 @@ impl<'a> SoroswapLibraryTest<'a> {
 
 mod quote;
 mod get;
+mod tokens;
