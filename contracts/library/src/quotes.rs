@@ -1,7 +1,8 @@
 use soroban_sdk::{Address, Env, Vec};
-
 use crate::reserves::{get_reserves};
 use crate::error::SoroswapLibraryError;
+use crate::math::CheckedCeilingDiv;
+
 
 /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
 ///
@@ -43,10 +44,12 @@ pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> R
         return Err(SoroswapLibraryError::InsufficientLiquidity);
     }
 
-    let amount_in_with_fee = amount_in.checked_mul(997).unwrap();
-    let numerator = amount_in_with_fee.checked_mul(reserve_out).unwrap();
+    let fee = (amount_in.checked_mul(3).unwrap()).checked_ceiling_div(1000).unwrap();
 
-    let denominator = reserve_in.checked_mul(1000).unwrap().checked_add(amount_in_with_fee).unwrap();
+    let amount_in_less_fee = amount_in.checked_sub(fee).unwrap();
+    let numerator = amount_in_less_fee.checked_mul(reserve_out).unwrap();
+
+    let denominator = reserve_in.checked_add(amount_in_less_fee).unwrap();
 
     Ok(numerator.checked_div(denominator).unwrap())
 }
