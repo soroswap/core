@@ -29,6 +29,7 @@ https://doc.rust-lang.org/cargo/reference/publishing.html
 ```
 cargo login
 cargo publish --dry-run
+cargo publish
 ```
 
 ## Examples
