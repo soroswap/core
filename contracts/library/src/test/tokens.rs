@@ -20,3 +20,11 @@ fn sort_tokens_correct_order() {
     assert_eq!((address_0.clone(), address_1.clone()),test.contract.sort_tokens(&address_0, &address_1));
     assert_eq!((address_0.clone(), address_1.clone()),test.contract.sort_tokens(&address_1, &address_0));
 }
+
+
+#[test]
+fn pair_for() {
+    let test = SoroswapLibraryTest::setup();
+    assert_eq!(test.pair.address,test.contract.pair_for(&test.factory.address, &test.token_0.address, &test.token_1.address));
+    assert_eq!(test.pair.address,test.contract.pair_for(&test.factory.address, &test.token_1.address, &test.token_0.address));
+}
