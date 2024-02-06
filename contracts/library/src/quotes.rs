@@ -74,7 +74,7 @@ pub fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> R
     }
     let numerator = reserve_in.checked_mul(amount_out).unwrap().checked_mul(1000).unwrap();
     let denominator = reserve_out.checked_sub(amount_out).unwrap().checked_mul(997).unwrap();
-    Ok(numerator.checked_div(denominator).unwrap().checked_add(1).unwrap())
+    Ok(numerator.checked_ceiling_div(denominator).unwrap().checked_add(1).unwrap())
 }
 
 /// Performs chained getAmountOut calculations on any number of pairs.

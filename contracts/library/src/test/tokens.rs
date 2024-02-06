@@ -1,4 +1,4 @@
-use soroban_sdk::{Address, vec, Vec, String};
+use soroban_sdk::{Address, String};
 use crate::test::{SoroswapLibraryTest};
 use crate::error::SoroswapLibraryError;
 
