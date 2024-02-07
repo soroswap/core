@@ -90,9 +90,9 @@ impl<'a> SoroswapPairTest<'a> {
         }
         
         let name_0 = String::from_str(&env, "Token 0");
-        let symbol_0 = String::from_str(&env, "TOKEN0");
+        let symbol_0 = String::from_str(&env, "TOK0");
         let name_1 = String::from_str(&env, "Token 1");
-        let symbol_1 = String::from_str(&env, "TOKEN1");
+        let symbol_1 = String::from_str(&env, "ABCDEFGHIJ");
         let decimals = 7;
 
         token_0.initialize(&admin, &decimals, &name_0, &symbol_0);
