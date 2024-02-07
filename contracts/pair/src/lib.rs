@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, IntoVal}; 
+use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, String}; 
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
 
@@ -10,6 +10,7 @@ mod event;
 mod error; 
 mod test;
 mod math;
+mod strings;
 
 // ANY TOKEN CONTRACT
 // TODO: Simplify this and use a any_token_interface
@@ -23,8 +24,25 @@ use balances::*;
 use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
 use error::SoroswapPairError;
 use math::CheckedCeilingDiv;
+use strings::TakeFirstNCharsAndConcat;
 
 static MINIMUM_LIQUIDITY: i128 = 1000;
+
+fn create_symbol(e: &Env, symbol_0: &String, symbol_1: &String) -> String {
+    let symbol_0_short = symbol_0.take_first_n_chars(&e, 6);
+    let symbol_1_short = symbol_1.take_first_n_chars(&e, 6);
+    let hyphen = String::from_str(&e, "-");
+    let end = String::from_str(&e, "-SOROSWAP-LP");
+    symbol_0_short.concat(&e, hyphen).concat(&e, symbol_1_short).concat(&e, end)
+}
+
+fn create_name(e: &Env, symbol_0: &String, symbol_1: &String) -> String {
+    let symbol_0_short = symbol_0.take_first_n_chars(&e, 6);
+    let symbol_1_short = symbol_1.take_first_n_chars(&e, 6);
+    let hyphen = String::from_str(&e, "-");
+    let end = String::from_str(&e, " Soroswap LP Token");
+    symbol_0_short.concat(&e, hyphen).concat(&e, symbol_1_short).concat(&e, end)
+}
 
 // Metadata that is added on to the WASM custom section
 contractmeta!(
@@ -87,12 +105,15 @@ impl SoroswapPairTrait for SoroswapPair {
 
         put_factory(&e, factory);
 
+        let symbol_0: String = any_token::TokenClient::new(&e, &token_0).symbol();
+        let symbol_1: String = any_token::TokenClient::new(&e, &token_1).symbol();
+    
         SoroswapPairToken::initialize(
             e.clone(),
             e.current_contract_address(),
             7,
-            "Soroswap LP Token".into_val(&e),
-            "SOROSWAP-LP".into_val(&e),
+            create_name(&e, &symbol_0, &symbol_1),
+            create_symbol(&e, &symbol_0, &symbol_1),
         );
 
         put_token_0(&e, token_0);
