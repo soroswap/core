@@ -50,9 +50,9 @@ bash /workspace/scripts/setup_and_create_tokens.sh $NETWORK $N_TOKENS
 echo -e "${GREEN}Deploying and initializing the factory...${NC}"
 bash /workspace/scripts/deploy_initialize_factory.sh $NETWORK $N_TOKENS false
 
-# Step 3: Deploy and initialize pairs
-echo -e "${GREEN}Deploying and initializing pairs...${NC}"
-bash /workspace/scripts/deploy_pairs.sh $NETWORK $N_TOKENS false
+# # Step 3: Deploy and initialize pairs
+# echo -e "${GREEN}Deploying and initializing pairs...${NC}"
+# bash /workspace/scripts/deploy_pairs.sh $NETWORK $N_TOKENS false
 
 # Step 4: Deploy router
 echo -e "${GREEN}Deploying router...${NC}"
