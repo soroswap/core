@@ -1,0 +1,40 @@
+[package]
+name = "soroswap-aggregator"
+version = "0.0.1"
+edition = "2021"
+description = "Soroswap-Aggregator is a DeFi smart contract designed for the Soroban platform, enabling optimized cross-DEX trading by aggregating liquidity sources. It offers users the best trade execution paths across multiple decentralized exchanges with minimal slippage and optimized gas costs"
+homepage = "https://github.com/soroswap/core/tree/main/contracts/aggregator"
+repository = "https://github.com/soroswap/core/tree/main/contracts/aggregator"
+authors = ["coderipper <joaquin@paltalabs.io>"]
+readme = "README.md"
+keywords = ["no_std", "wasm", "soroswap", "amm", "soroban"]
+publish = true
+
+
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { version = "20.2.0" }
+num-integer = { version = "0.1.45", default-features = false, features = [
+  "i128",
+] }
+soroswap-library = "0.3.0"
+
+
+[dev_dependencies]
+soroban-sdk = { version = "20.2.0", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+debug = 0
+strip = "symbols"
+debug-assertions = false
+panic = "abort"
+codegen-units = 1
+lto = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug-assertions = true
