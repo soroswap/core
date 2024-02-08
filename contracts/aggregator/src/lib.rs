@@ -125,7 +125,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
             }
         }
         
-        Ok((200i128))
+        Ok(200i128)
     }
 
     /*  *** Read only functions: *** */
