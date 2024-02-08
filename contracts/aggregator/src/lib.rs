@@ -60,8 +60,8 @@ pub trait SoroswapAggregatorTrait {
 
     fn swap(
         e: Env,
-        fromToken: Address,
-        destToken: Address,
+        from_token: Address,
+        dest_token: Address,
         amount: i128,
         amount_out_min: i128,
         distribution: Vec<DexDistribution>,
@@ -93,15 +93,15 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
 
     fn swap(
         e: Env,
-        fromToken: Address,
-        destToken: Address,
+        from_token: Address,
+        dest_token: Address,
         amount: i128,
         amount_out_min: i128,
         distribution: Vec<DexDistribution>,
         to: Address,
         deadline: u64,
     ) -> Result<i128, CombinedAggregatorError> {
-        check_initialized(&e)?;
+        // check_initialized(&e)?;
         check_nonnegative_amount(amount)?;
         check_nonnegative_amount(amount_out_min)?;
         extend_instance_ttl(&e);
