@@ -14,6 +14,8 @@ pub fn swap_with_phoenix(
     Ok(amount.clone())
 }
 
+// Phoenix does not have swap_exact_tokens_for_tokens nor swap_tokens_for_exact_tokens, only a swap function
+// https://github.com/Phoenix-Protocol-Group/phoenix-contracts/blob/main/contracts/multihop/src/contract.rs
 // let swap1 = Swap {
 //     offer_asset: token1.address.clone(),
 //     ask_asset: token2.address.clone(),
