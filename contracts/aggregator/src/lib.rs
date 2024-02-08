@@ -13,12 +13,7 @@ mod test;
 use storage::{put_factory, has_factory, get_factory, extend_instance_ttl};
 use models::DexDistribution;
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
-use crate::dex_interfaces::{soroswap_interface, phoenix_interface};
-
-mod dex_constants {
-    pub const SOROSWAP: i32 = 0;
-    pub const PHOENIX: i32 = 1;
-}
+use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};
 
 pub fn check_nonnegative_amount(amount: i128) -> Result<(), CombinedAggregatorError> {
     if amount < 0 {
@@ -59,6 +54,27 @@ pub trait SoroswapAggregatorTrait {
     /// Initializes the contract and sets the factory address
     // fn initialize(e: Env, factory: Address) -> Result<(), CombinedAggregatorError>;
 
+    /// Executes a swap operation distributed across multiple decentralized exchanges (DEXes) as specified
+    /// by the `distribution`. Each entry in the distribution details which DEX to use, the path of tokens
+    /// for swap (if applicable), and the portion of the total `amount` to swap through that DEX. This 
+    /// function aims to optimize the swap by leveraging different DEX protocols based on the distribution
+    /// strategy to minimize slippage and maximize output.
+    ///
+    /// # Arguments
+    /// * `e` - The runtime environment.
+    /// * `from_token` - The address of the input token to swap.
+    /// * `dest_token` - The address of the destination token to receive.
+    /// * `amount` - The total amount of `from_token` to be swapped.
+    /// * `amount_out_min` - The minimum amount of `dest_token` expected to receive, ensuring the swap 
+    ///   does not proceed under unfavorable conditions.
+    /// * `distribution` - A vector of `DexDistribution` specifying how the total swap amount is distributed 
+    ///   across different DEX protocols, including the swap path for each (if required by the DEX).
+    /// * `to` - The recipient address for the `dest_token`.
+    /// * `deadline` - A Unix timestamp marking the deadline by which the swap must be completed.
+    ///
+    /// # Returns
+    /// The total amount of `dest_token` received from the swap if successful, encapsulated in a `Result`.
+    /// On failure, returns a `CombinedAggregatorError` detailing the cause of the error.
     fn swap(
         e: Env,
         from_token: Address,
