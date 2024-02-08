@@ -13,3 +13,20 @@ pub fn swap_with_phoenix(
     // Implementation specific to Soroswap
     Ok(amount.clone())
 }
+
+// let swap1 = Swap {
+//     offer_asset: token1.address.clone(),
+//     ask_asset: token2.address.clone(),
+// };
+// let swap2 = Swap {
+//     offer_asset: token2.address.clone(),
+//     ask_asset: token3.address.clone(),
+// };
+// let swap3 = Swap {
+//     offer_asset: token3.address.clone(),
+//     ask_asset: token4.address.clone(),
+// };
+
+// let operations = vec![&env, swap1, swap2, swap3];
+
+// multihop.swap(&recipient, &operations, &None, &None, &50i128);
