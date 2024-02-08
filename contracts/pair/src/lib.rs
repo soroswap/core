@@ -200,7 +200,7 @@ impl SoroswapPairTrait for SoroswapPair {
         }
 
         internal_mint(e.clone(), to.clone(), liquidity.clone());
-        let _ = update(&e, balance_0, balance_1);
+        update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
@@ -289,7 +289,7 @@ impl SoroswapPairTrait for SoroswapPair {
             return Err(SoroswapPairError::SwapKConstantNotMet);
         }
 
-        let _ = update(&e, balance_0, balance_1);
+        update(&e, balance_0, balance_1);
         
         event::swap(&e, to, amount_0_in, amount_1_in, amount_0_out, amount_1_out);
 
@@ -343,7 +343,7 @@ impl SoroswapPairTrait for SoroswapPair {
 
         (balance_0, balance_1) = (get_balance_0(&e), get_balance_1(&e));
 
-        let _ = update(&e, balance_0, balance_1);
+        update(&e, balance_0, balance_1);
 
         (reserve_0, reserve_1) = (get_reserve_0(&e), get_reserve_1(&e));
         if fee_on {
