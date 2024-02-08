@@ -86,7 +86,7 @@ impl<'a> SoroswapAggregatorTest<'a> {
 }
 
 #[test]
-fn test_swap_success() {
+fn test_swap() {
     let test = SoroswapAggregatorTest::setup();
 
     let from_token = &test.token_0.address;
@@ -97,18 +97,8 @@ fn test_swap_success() {
     let to = &test.user;
     let deadline = test.env.ledger().timestamp() + 100; // Deadline in the future
 
-
-    // e: Env,
-    // fromToken: Address,
-    // destToken: Address,
-    // amount: i128,
-    // amount_out_min: i128,
-    // distribution: Vec<DexDistribution>,
-    // to: Address,
-    // deadline: u64,
-
     let result = test.contract.swap(&from_token, &dest_token, &amount, &amount_out_min, &distribution, &to, &deadline);
-    assert_eq!(result, 0i128, "Expected the swap result to be 0");
+    assert_eq!(result, amount, "Expected the swap result to be 0");
 }
 
 // #[test]
@@ -118,10 +108,10 @@ fn test_swap_success() {
 
 //     let aggregator = SoroswapAggregator {};
 
-//     // Setup similar to `test_swap_success` but with a past deadline
+//     // Setup similar to `test_swap` but with a past deadline
 //     let deadline = e.ledger().timestamp() - 1; // Deadline in the past
 
-//     // Similar call to `aggregator.swap` as in `test_swap_success` but with updated deadline
+//     // Similar call to `aggregator.swap` as in `test_swap` but with updated deadline
 //     // Assert that result is an error and matches `DeadlineExpired` error
 // }
 

@@ -6,32 +6,32 @@ use soroswap_library::{SoroswapLibraryError};
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum SoroswapAggregatorError {
-    /// SoroswapRouter: not yet initialized
+    /// SoroswapAggregator: not yet initialized
     NotInitialized = 401,
 
-    /// SoroswapRouter: negative amount is not allowed
+    /// SoroswapAggregator: negative amount is not allowed
     NegativeNotAllowed = 402,
 
-    /// SoroswapRouter: deadline expired
+    /// SoroswapAggregator: deadline expired
     DeadlineExpired = 403,
     
-    /// SoroswapRouter: already initialized
+    /// SoroswapAggregator: already initialized
     InitializeAlreadyInitialized = 404,
 
-    /// SoroswapRouter: insufficient a amount
+    /// SoroswapAggregator: insufficient a amount
     InsufficientAAmount = 405,
 
-    /// SoroswapRouter: insufficient b amount
+    /// SoroswapAggregator: insufficient b amount
     InsufficientBAmount = 406,
 
-    /// SoroswapRouter: insufficient output amount
+    /// SoroswapAggregator: insufficient output amount
     InsufficientOutputAmount = 407,
 
-    /// SoroswapRouter: excessive input amount
+    /// SoroswapAggregator: excessive input amount
     ExcessiveInputAmount = 408,
 
-    /// SoroswapRouter: pair does not exist
-    PairDoesNotExist = 409,
+    /// SoroswapAggregator: Unsupported protocol
+    UnsupportedProtocol = 409,
 
 }
 
@@ -41,15 +41,15 @@ pub enum SoroswapAggregatorError {
 #[repr(u32)]
 // Define a new set of integer literals for the CombinedError enum
 pub enum CombinedAggregatorError {
-    RouterNotInitialized = 501,
-    RouterNegativeNotAllowed = 502,
-    RouterDeadlineExpired = 503,
-    RouterInitializeAlreadyInitialized = 504,
-    RouterInsufficientAAmount = 505,
-    RouterInsufficientBAmount = 506,
-    RouterInsufficientOutputAmount = 507,
-    RouterExcessiveInputAmount = 508,
-    RouterPairDoesNotExist = 509,
+    AggregatorNotInitialized = 501,
+    AggregatorNegativeNotAllowed = 502,
+    AggregatorDeadlineExpired = 503,
+    AggregatorInitializeAlreadyInitialized = 504,
+    AggregatorInsufficientAAmount = 505,
+    AggregatorInsufficientBAmount = 506,
+    AggregatorInsufficientOutputAmount = 507,
+    AggregatorExcessiveInputAmount = 508,
+    AggregatorUnsupportedProtocol = 509,
 
     LibraryInsufficientAmount = 510,
     LibraryInsufficientLiquidity = 511,
@@ -75,15 +75,16 @@ impl From<SoroswapLibraryError> for CombinedAggregatorError {
 impl From<SoroswapAggregatorError> for CombinedAggregatorError {
     fn from(err: SoroswapAggregatorError) -> Self {
         match err {
-            SoroswapAggregatorError::NotInitialized => CombinedAggregatorError::RouterNotInitialized,
-            SoroswapAggregatorError::NegativeNotAllowed => CombinedAggregatorError::RouterNegativeNotAllowed,
-            SoroswapAggregatorError::DeadlineExpired => CombinedAggregatorError::RouterDeadlineExpired,
-            SoroswapAggregatorError::InitializeAlreadyInitialized => CombinedAggregatorError::RouterInitializeAlreadyInitialized,
-            SoroswapAggregatorError::InsufficientAAmount => CombinedAggregatorError::RouterInsufficientAAmount,
-            SoroswapAggregatorError::InsufficientBAmount => CombinedAggregatorError::RouterInsufficientBAmount,
-            SoroswapAggregatorError::InsufficientOutputAmount => CombinedAggregatorError::RouterInsufficientOutputAmount,
-            SoroswapAggregatorError::ExcessiveInputAmount => CombinedAggregatorError::RouterExcessiveInputAmount,
-            SoroswapAggregatorError::PairDoesNotExist => CombinedAggregatorError::RouterPairDoesNotExist,
+            SoroswapAggregatorError::NotInitialized => CombinedAggregatorError::AggregatorNotInitialized,
+            SoroswapAggregatorError::NotInitialized => CombinedAggregatorError::AggregatorNotInitialized,
+            SoroswapAggregatorError::NegativeNotAllowed => CombinedAggregatorError::AggregatorNegativeNotAllowed,
+            SoroswapAggregatorError::DeadlineExpired => CombinedAggregatorError::AggregatorDeadlineExpired,
+            SoroswapAggregatorError::InitializeAlreadyInitialized => CombinedAggregatorError::AggregatorInitializeAlreadyInitialized,
+            SoroswapAggregatorError::InsufficientAAmount => CombinedAggregatorError::AggregatorInsufficientAAmount,
+            SoroswapAggregatorError::InsufficientBAmount => CombinedAggregatorError::AggregatorInsufficientBAmount,
+            SoroswapAggregatorError::InsufficientOutputAmount => CombinedAggregatorError::AggregatorInsufficientOutputAmount,
+            SoroswapAggregatorError::ExcessiveInputAmount => CombinedAggregatorError::AggregatorExcessiveInputAmount,
+            SoroswapAggregatorError::UnsupportedProtocol => CombinedAggregatorError::AggregatorUnsupportedProtocol,
         }
     }
 }

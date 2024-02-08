@@ -5,5 +5,5 @@ use soroban_sdk::{contracttype, Vec, Address};
 pub struct DexDistribution {
     pub index: i32,
     pub path: Vec<Address>,
-    pub parts: i32,
+    pub parts: i128,
 }

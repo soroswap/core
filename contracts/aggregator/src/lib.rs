@@ -13,6 +13,7 @@ mod test;
 use storage::{put_factory, has_factory, get_factory, extend_instance_ttl};
 use models::DexDistribution;
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
+use crate::dex_interfaces::{soroswap_interface, phoenix_interface};
 
 mod dex_constants {
     pub const SOROSWAP: i32 = 0;
@@ -21,7 +22,7 @@ mod dex_constants {
 
 pub fn check_nonnegative_amount(amount: i128) -> Result<(), CombinedAggregatorError> {
     if amount < 0 {
-        Err(CombinedAggregatorError::RouterNegativeNotAllowed)
+        Err(CombinedAggregatorError::AggregatorNegativeNotAllowed)
     } else {
         Ok(())
     }
@@ -45,7 +46,7 @@ fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
     if has_factory(e) {
         Ok(())
     } else {
-        Err(CombinedAggregatorError::RouterNotInitialized)
+        Err(CombinedAggregatorError::AggregatorNotInitialized)
     }
 }
 
@@ -107,25 +108,30 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         extend_instance_ttl(&e);
         to.require_auth();
         ensure_deadline(&e, deadline)?;
+
+        let total_parts: i128 = distribution.iter().map(|dist| dist.parts).sum();
+
+        let mut total_swapped: i128 = 0;
        
-        for dist in distribution {
+        for dist in distribution.iter() {
+            let swap_amount = (amount * dist.parts) / total_parts;
+            
             match dist.index {
                 dex_constants::SOROSWAP => {
                     // Call function to handle swap via Soroswap
-                    return Ok(0i128);
+                    let swap_result = soroswap_interface::swap_with_soroswap(&e, &swap_amount, dist.path.clone())?;
+                    total_swapped += swap_result;
                 },
                 dex_constants::PHOENIX => {
                     // Call function to handle swap via Phoenix
-                    return Ok(1i128);
+                    let swap_result = phoenix_interface::swap_with_phoenix(&e, &swap_amount, dist.path.clone())?;
+                    total_swapped += swap_result;
                 },
-                _ => {
-                    // Handle unknown index //Should return error
-                    return Ok(100i128);
-                }
+                _ => return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol),
             }
         }
         
-        Ok(200i128)
+        Ok(total_swapped)
     }
 
     /*  *** Read only functions: *** */
