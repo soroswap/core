@@ -5,21 +5,14 @@ use crate::soroswap_pair_token::{SoroswapPairToken, SoroswapPairTokenClient};
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
-    Address, Env, IntoVal, Symbol,
+    Address, IntoVal, Symbol,
 };
-
-fn create_token<'a>(e: &Env, admin: &Address) -> SoroswapPairTokenClient<'a> {
-    let token = SoroswapPairTokenClient::new(e, &e.register_contract(None, SoroswapPairToken {}));
-    token.initialize(admin, &7, &"name".into_val(e), &"symbol".into_val(e));
-    token
-}
 
 #[test]
 fn test() {
     let test = SoroswapPairTest::setup();
     test.env.mock_all_auths();
 
-    let admin1 = Address::generate(&test.env);
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
@@ -115,10 +108,8 @@ fn test_burn() {
     let test = SoroswapPairTest::setup();
     test.env.mock_all_auths();
 
-    let admin1 = Address::generate(&test.env);
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
-    let user3 = Address::generate(&test.env);
 
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
@@ -182,11 +173,9 @@ fn transfer_insufficient_balance() {
 
     test.env.mock_all_auths();
 
-    let admin1 = Address::generate(&test.env);
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
-    let user3 = Address::generate(&test.env);
-    
+
     test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
     let amount_1 = 2000;
@@ -207,7 +196,6 @@ fn transfer_from_insufficient_allowance() {
 
     test.env.mock_all_auths();
 
-    let admin1 = Address::generate(&test.env);
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
@@ -260,7 +248,6 @@ fn test_zero_allowance() {
     let test = SoroswapPairTest::setup();
     test.env.mock_all_auths();
 
-    let admin = Address::generate(&test.env);
     let spender = Address::generate(&test.env);
     let from = Address::generate(&test.env);
 
