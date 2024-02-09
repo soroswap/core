@@ -17,7 +17,7 @@ fn try_withdraw_not_yet_initialized() {
 fn try_withdraw_not_yet_deposited() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_withdraw(&test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::WithdrawLiquidityNotInitialized)));
 }
@@ -27,7 +27,7 @@ fn try_withdraw_not_yet_deposited() {
 fn try_withdraw_not_shares_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -42,7 +42,7 @@ fn try_withdraw_not_shares_sent() {
 fn withdraw() {
     let test = SoroswapPairTest::setup();    
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 3_000_000;
     let amount_1: i128 = 3_000_000;
     let expected_liquidity: i128 =  3_000_000;

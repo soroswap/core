@@ -12,7 +12,7 @@ fn deposit_event() {
     let amount_0: i128 = 1_001; //
     let amount_1: i128 = 1_001; //
     let expected_liquidity: i128 = 1;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
     let executed_liquidity = test.contract.deposit(&test.user);
@@ -73,7 +73,7 @@ fn swap_event() {
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     add_liquidity(&test, &amount_0, &amount_1);
 
     let init_time = 12345;
@@ -136,7 +136,7 @@ fn swap_event() {
 fn withdraw_event() {
     let test = SoroswapPairTest::setup();    
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 3_000_000;
     let amount_1: i128 = 3_000_000;
     let expected_liquidity: i128 =  3_000_000;
@@ -205,7 +205,7 @@ fn withdraw_event() {
 fn sync_event() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
 
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);
@@ -276,7 +276,7 @@ fn skim_event() {
     // zero tokens are being sent
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
 
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);

@@ -28,7 +28,7 @@ fn deposit_not_yet_initialized() {
 fn deposit_zero_tokens_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let res = test.contract.try_deposit(&test.user);
     assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken0)));
 }
@@ -39,7 +39,7 @@ fn deposit_only_token_0_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
     let amount_0: i128 = 1_000_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     let res = test.contract.try_deposit(&test.user);
     assert_eq!(res, Err(Ok(SoroswapPairError::DepositInsufficientAmountToken1)));
@@ -53,7 +53,7 @@ fn deposit_insufficient_first_liquidity() {
     // If we just send 1,000 of each, the liq to be minted will be sqrt(1000*1000) - 1000 = 0, not enough
     let amount_0: i128 = 1_000;
     let amount_1: i128 = 1_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
     let res = test.contract.try_deposit(&test.user);
@@ -69,7 +69,7 @@ fn deposit_sufficient_first_liquidity() {
     // If we just send 1,000 of each, the liq to be minted will be sqrt(1000*1000) - 1000 = 0, not enough
     let amount_0: i128 = 1_001; //
     let amount_1: i128 = 1_001; //
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.token_0.transfer(&test.user, &test.contract.address, &amount_0);
     test.token_1.transfer(&test.user, &test.contract.address, &amount_1);
     test.contract.deposit(&test.user);
@@ -104,7 +104,7 @@ fn deposit_basic() {
     // User does not hold any LP token first 
     assert_eq!(test.contract.balance(&test.user), 0);
 
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     test.contract.deposit(&test.user);
 
     // New balances:
@@ -124,7 +124,7 @@ fn deposit_basic_2() {
     let test = SoroswapPairTest::setup();
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 1_000_000_000_000_000_000;
     let amount_1 = 4_000_000_000_000_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
