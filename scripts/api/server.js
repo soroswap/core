@@ -1,76 +1,83 @@
-const express = require('express');
-const fs = require('fs');
+const express = require("express");
+const fs = require("fs");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
 const port = 8010;
-const path = require('path');
+const path = require("path");
 
-const isVercel = process.env.VERCEL === '1';
-const directory = isVercel ? path.join(__dirname, '..', '..', 'public') : '/workspace/.soroban';
+const isVercel = process.env.VERCEL === "1";
+const directory = isVercel
+  ? path.join(__dirname, "..", "..", "public")
+  : "/workspace/.soroban";
 
 app.use(cors());
 
-
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send(`healthy`);
 });
 
-app.get('/api/tokens', (req, res) => {
-  const tokensFile = path.join(directory, 'tokens.json');
+app.get("/api/tokens", (req, res) => {
+  const tokensFile = path.join(directory, "tokens.json");
   if (fs.existsSync(tokensFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
-app.get('/api/random_tokens', (req, res) => {
-  const tokensFile = path.join(directory, 'random_tokens.json');
+app.get("/api/random_tokens", (req, res) => {
+  const tokensFile = path.join(directory, "random_tokens.json");
   if (fs.existsSync(tokensFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
-app.get('/api/factory', (req, res) => {
+app.get("/api/factory", (req, res) => {
   const factoryFile = `${directory}/factory.json`;
 
   if (fs.existsSync(factoryFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(factoryFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
-app.get('/api/keys', (req, res) => {
+app.get("/api/keys", (req, res) => {
   const keysFile = `${directory}/token_admin_keys.json`;
 
   if (fs.existsSync(keysFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(keysFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
-app.get('/api/pairs', (req, res) => {
+app.get("/api/pairs", (req, res) => {
   const tokensFile = `${directory}/pairs.json`;
 
   if (fs.existsSync(tokensFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
-app.get('/api/router', (req, res) => {
+app.get("/api/router", (req, res) => {
   const routerFile = `${directory}/router.json`;
 
   if (fs.existsSync(routerFile)) {
+    res.set("Cache-Control", "no-store");
     return res.sendFile(routerFile);
   }
 
-  res.status(404).send({ error: 'file not found' });
+  res.status(404).send({ error: "file not found" });
 });
 
 app.listen(port, () => {
