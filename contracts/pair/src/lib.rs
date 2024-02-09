@@ -2,6 +2,8 @@
 use soroban_sdk::{contract, contractimpl, contractmeta, Address, Env, String}; 
 use num_integer::Roots; 
 use soroswap_factory_interface::SoroswapFactoryClient;
+use soroban_token_sdk::metadata::TokenMetadata;
+
 
 mod soroswap_pair_token;
 mod storage;
@@ -21,7 +23,7 @@ pub mod any_token {
 
 use storage::*;
 use balances::*;
-use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn};
+use soroswap_pair_token::{SoroswapPairToken, internal_mint, internal_burn, write_metadata};
 use error::SoroswapPairError;
 use math::CheckedCeilingDiv;
 use strings::TakeFirstNCharsAndConcat;
@@ -107,13 +109,18 @@ impl SoroswapPairTrait for SoroswapPair {
 
         let symbol_0: String = any_token::TokenClient::new(&e, &token_0).symbol();
         let symbol_1: String = any_token::TokenClient::new(&e, &token_1).symbol();
+        
+        let decimal: u32 = 7;
+        let name: String = create_name(&e, &symbol_0, &symbol_1);
+        let symbol: String = create_symbol(&e, &symbol_0, &symbol_1);
     
-        SoroswapPairToken::initialize(
-            e.clone(),
-            e.current_contract_address(),
-            7,
-            create_name(&e, &symbol_0, &symbol_1),
-            create_symbol(&e, &symbol_0, &symbol_1),
+        write_metadata(
+            &e,
+            TokenMetadata {
+                decimal ,
+                name,
+                symbol,
+            },
         );
 
         put_token_0(&e, token_0);

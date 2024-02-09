@@ -216,33 +216,6 @@ fn transfer_from_insufficient_allowance() {
 }
 
 #[test]
-// #[should_panic(expected = "already initialized")]
-#[should_panic]
-fn initialize_already_initialized() {
-    let test = SoroswapPairTest::setup();
-
-    test.env.mock_all_auths();
-
-    let admin = Address::generate(&test.env);
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    test.contract.initialize(&admin, &10, &"name".into_val(&test.env), &"symbol".into_val(&test.env));
-}
-
-#[test]
-// #[should_panic(expected = "Decimal must fit in a u8")]
-#[should_panic]
-fn decimal_is_over_max() {
-    let test = SoroswapPairTest::setup();
-    let admin = Address::generate(&test.env);
-    test.contract.initialize(
-        &admin,
-        &(u32::from(u8::MAX) + 1),
-        &"name".into_val(&test.env),
-        &"symbol".into_val(&test.env),
-    );
-}
-
-#[test]
 fn test_zero_allowance() {
     // Here we test that transfer_from with a 0 amount does not create an empty allowance
     let test = SoroswapPairTest::setup();

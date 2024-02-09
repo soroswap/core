@@ -1,9 +1,8 @@
 //! This contract demonstrates a sample implementation of the Soroban token
 //! interface.
-use crate::soroswap_pair_token::admin::{has_administrator, write_administrator};
 use crate::soroswap_pair_token::allowance::{read_allowance, spend_allowance, write_allowance};
 use crate::soroswap_pair_token::balance::{read_balance, receive_balance, spend_balance};
-use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol, write_metadata};
+use crate::soroswap_pair_token::metadata::{read_decimal, read_name, read_symbol};
 use crate::soroswap_pair_token::total_supply::{read_total_supply, increase_total_supply, decrease_total_supply};
 
 #[cfg(test)]
@@ -11,7 +10,6 @@ use crate::soroswap_pair_token::storage_types::{AllowanceDataKey, AllowanceValue
 use crate::soroswap_pair_token::storage_types::{INSTANCE_BUMP_AMOUNT, INSTANCE_LIFETIME_THRESHOLD};
 use soroban_sdk::token::{self, Interface as _};
 use soroban_sdk::{contract, contractimpl, Address, Env, String};
-use soroban_token_sdk::metadata::TokenMetadata;
 use soroban_token_sdk::TokenUtils;
 
 fn check_nonnegative_amount(amount: i128) {
@@ -52,24 +50,6 @@ pub struct SoroswapPairToken;
 
 #[contractimpl]
 impl SoroswapPairToken {
-    pub fn initialize(e: Env, admin: Address, decimal: u32, name: String, symbol: String) {
-        if has_administrator(&e) {
-            panic!("already initialized")
-        }
-        write_administrator(&e, &admin);
-        if decimal > u8::MAX.into() {
-            panic!("Decimal must fit in a u8");
-        }
-
-        write_metadata(
-            &e,
-            TokenMetadata {
-                decimal,
-                name,
-                symbol,
-            },
-        )
-    }
 
     pub fn total_supply(e: Env) -> i128 {
         read_total_supply(&e)
