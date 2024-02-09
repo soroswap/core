@@ -20,7 +20,6 @@ fn test() {
     e.mock_all_auths();
 
     let admin1 = Address::generate(&e);
-    let admin2 = Address::generate(&e);
     let user1 = Address::generate(&e);
     let user2 = Address::generate(&e);
     let user3 = Address::generate(&e);
@@ -100,22 +99,6 @@ fn test() {
     token.transfer(&user1, &user3, &300);
     assert_eq!(token.balance(&user1), 500);
     assert_eq!(token.balance(&user3), 300);
-
-    token.set_admin(&admin2);
-    assert_eq!(
-        e.auths(),
-        std::vec![(
-            admin1.clone(),
-            AuthorizedInvocation {
-                function: AuthorizedFunction::Contract((
-                    token.address.clone(),
-                    symbol_short!("set_admin"),
-                    (&admin2,).into_val(&e),
-                )),
-                sub_invocations: std::vec![]
-            }
-        )]
-    );
 
     // Increase to 500
     token.approve(&user2, &user3, &500, &200);

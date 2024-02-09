@@ -77,17 +77,6 @@ impl SoroswapPairToken {
         internal_mint(e, to, amount);
     }
 
-    pub fn set_admin(e: Env, new_admin: Address) {
-        let admin = read_administrator(&e);
-        admin.require_auth();
-
-        e.storage()
-            .instance()
-            .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
-
-        write_administrator(&e, &new_admin);
-        TokenUtils::new(&e).events().set_admin(admin, new_admin);
-    }
 
     pub fn total_supply(e: Env) -> i128 {
         read_total_supply(&e)
