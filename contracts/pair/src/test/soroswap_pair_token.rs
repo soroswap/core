@@ -17,7 +17,7 @@ fn test() {
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
     
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -111,7 +111,7 @@ fn test_burn() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
 
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -176,7 +176,7 @@ fn transfer_insufficient_balance() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
 
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -200,7 +200,7 @@ fn transfer_from_insufficient_allowance() {
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
     
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);

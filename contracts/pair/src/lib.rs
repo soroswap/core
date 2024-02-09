@@ -54,7 +54,7 @@ contractmeta!(
 
 pub trait SoroswapPairTrait{
     // Sets the token contract addresses for this pool
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address)-> Result<(), SoroswapPairError>;
+    fn initialize(e: Env, factory: Address, token_0: Address, token_1: Address)-> Result<(), SoroswapPairError>;
 
     fn deposit(e:Env, to: Address)  -> Result<i128, SoroswapPairError>;
 
@@ -96,7 +96,7 @@ impl SoroswapPairTrait for SoroswapPair {
     /// * `factory` - The address of the Soroswap factory contract.
     /// * `token_0` - The address of the first token in the pair.
     /// * `token_1` - The address of the second token in the pair.
-    fn initialize_pair(e: Env, factory: Address, token_0: Address, token_1: Address) -> Result<(), SoroswapPairError> {
+    fn initialize(e: Env, factory: Address, token_0: Address, token_1: Address) -> Result<(), SoroswapPairError> {
         if has_token_0(&e) {
             return Err(SoroswapPairError::InitializeAlreadyInitialized);
         }

@@ -18,7 +18,7 @@ fn try_swap_not_yet_initialized() {
 fn try_swap_amounts_zero() {
     let test = SoroswapPairTest::setup();    
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&0, &0, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientOutputAmount)));
 }
@@ -28,7 +28,7 @@ fn try_swap_amounts_zero() {
 fn try_swap_amount_0_negative() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&-1, &1, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
 }
@@ -38,7 +38,7 @@ fn try_swap_amount_0_negative() {
 fn try_swap_amount_1_negative() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&1, &-1, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
 }
@@ -48,7 +48,7 @@ fn try_swap_amount_1_negative() {
 fn try_swap_no_liquidity() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let result = test.contract.try_swap(&1, &1, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientLiquidity)));
 }
@@ -58,7 +58,7 @@ fn try_swap_no_liquidity() {
 fn try_swap_to_token_0() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -71,7 +71,7 @@ fn try_swap_to_token_0() {
 fn try_swap_to_token_1() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -85,7 +85,7 @@ fn try_swap_to_token_1() {
 fn try_swap_token_0_insufficient_input() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -98,7 +98,7 @@ fn try_swap_token_0_insufficient_input() {
 fn try_swap_token_1_insufficient_input() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -111,7 +111,7 @@ fn try_swap_token_1_insufficient_input() {
 fn try_swap_token_0_low_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -125,7 +125,7 @@ fn try_swap_token_0_low_sent() {
 fn try_swap_token_1_low_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -147,7 +147,7 @@ fn swap_token_0() {
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     add_liquidity(&test, &amount_0, &amount_1);
 
     let init_time = 12345;
@@ -185,7 +185,7 @@ fn swap_token_1() {
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     add_liquidity(&test, &amount_0, &amount_1);
     let init_time = 12345;
     test.env.ledger().with_mut(|li| {
@@ -219,7 +219,7 @@ fn try_swap_token_1_optimal_plus_1() {
     
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     add_liquidity(&test, &amount_0, &amount_1);
     let init_time = 12345;
     test.env.ledger().with_mut(|li| {

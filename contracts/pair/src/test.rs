@@ -126,7 +126,7 @@ impl<'a> SoroswapPairTest<'a> {
            
 
 // Tests written by esteblock
-mod initialize_pair;
+mod initialize;
 mod deposit;
 mod swap;
 mod withdraw;

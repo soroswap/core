@@ -4,9 +4,9 @@ use crate::test::pair::SoroswapPairError;
 
 #[test]
 // #[should_panic(expected = "SoroswapPair: token_0 must be less than token_1")]
-fn initialize_pair_token_1_less_than_token_0() {
+fn initialize_token_1_less_than_token_0() {
     let test = SoroswapPairTest::setup();
-    let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_1.address, &test.token_0.address);    
+    let res = test.contract.try_initialize(&test.factory.address, &test.token_1.address, &test.token_0.address);    
     assert_eq!(res, Err(Ok(SoroswapPairError::InitializeTokenOrderInvalid))); 
 
 }
@@ -14,17 +14,17 @@ fn initialize_pair_token_1_less_than_token_0() {
 
 #[test]
 // #[should_panic(expected = "SoroswapPair: already initialized")]
-fn double_initialize_pair() {
+fn double_initialize() {
     let test = SoroswapPairTest::setup();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
-    let res = test.contract.try_initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    let res = test.contract.try_initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     assert_eq!(res, Err(Ok(SoroswapPairError::InitializeAlreadyInitialized))); 
 
 }
 
 
 #[test]
-fn initialize_pair_initial_values_0() {
+fn initialize_initial_values_0() {
     let test = SoroswapPairTest::setup();
     assert_eq!(test.factory.fee_to(), test.admin);
     assert_eq!(test.factory.fee_to_setter(), test.admin);
@@ -36,7 +36,7 @@ fn initialize_pair_initial_values_0() {
     assert_eq!(test.token_1.name(), String::from_str(&test.env, "Token 1"));
 
     // Test liqpool initial values:
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     assert_eq!(test.contract.token_0(), test.token_0.address);
     assert_eq!(test.contract.token_1(), test.token_1.address);
     assert_eq!(test.contract.factory(), test.factory.address);

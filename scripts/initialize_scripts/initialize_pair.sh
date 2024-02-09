@@ -220,7 +220,7 @@ echo "--"
 
 echo "Initialize the Pair contract using the Admin address as Factory"
 echo "Calling: 
-fn initialize_pair(e: Env,
+fn initialize(e: Env,
                   factory: Address, 
                   token_a: Address, 
                   token_b: Address)
@@ -231,7 +231,7 @@ soroban contract invoke \
   --wasm $PAIR_WASM \
   --id $PAIR_ID \
   -- \
-  initialize_pair \
+  initialize \
   --factory "$FACTORY_ADDRESS" \
   --token_a "$TOKEN_A_ADDRESS" \
   --token_b "$TOKEN_B_ADDRESS" 
