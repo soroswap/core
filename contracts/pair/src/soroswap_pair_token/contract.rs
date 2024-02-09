@@ -71,13 +71,6 @@ impl SoroswapPairToken {
         )
     }
 
-    pub fn mint(e: Env, to: Address, amount: i128) {
-        let admin = read_administrator(&e);
-        admin.require_auth();
-        internal_mint(e, to, amount);
-    }
-
-
     pub fn total_supply(e: Env) -> i128 {
         read_total_supply(&e)
     }
