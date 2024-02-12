@@ -8,7 +8,7 @@ use num_integer::Roots;
 fn fee_off() {
     let test = SoroswapPairTest::setup();    
     test.env.budget().reset_unlimited();
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     let expected_liquidity: i128 =  70_710_678;
@@ -48,7 +48,7 @@ fn fee_on_add_swap_remove() {
     test.factory.set_fees_enabled(&true);
     assert_eq!(test.factory.fees_enabled(), true);
     assert_eq!(test.factory.fee_to(), test.admin);
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
@@ -164,7 +164,7 @@ fn fee_on_add_swap_add() {
     test.factory.set_fees_enabled(&true);
     assert_eq!(test.factory.fees_enabled(), true);
     assert_eq!(test.factory.fee_to(), test.admin);
-    test.contract.initialize_pair(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;

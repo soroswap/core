@@ -921,7 +921,7 @@ fn two_pairs_swap_bob_mock_all() {
     // There is another form for initializing pair given the factory:
     // ```
     // let pair_0_1 = SoroswapPairClient::new(&env, &env.register_contract(None, crate::SoroswapPair {}));
-    // pair_0_1.initialize_pair(&factory.address.clone(), &token_0.address.clone(), &token_1.address.clone());
+    // pair_0_1.initialize(&factory.address.clone(), &token_0.address.clone(), &token_1.address.clone());
     // ```
     let pair_0_1 = SoroswapPairClient::new(&env, &factory_pair_address_0_1);
 

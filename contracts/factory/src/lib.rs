@@ -287,7 +287,7 @@ fn create_pair(e: Env, token_a: Address, token_b: Address) -> Result<Address, Fa
     let pair_wasm_hash = get_pair_wasm_hash(&e)?;
     let pair_address = create_contract(&e, pair_wasm_hash, &token_pair);
 
-    pair::Client::new(&e, &pair_address).initialize_pair(
+    pair::Client::new(&e, &pair_address).initialize(
         &e.current_contract_address(),
         &token_pair.token_0(), 
         &token_pair.token_1()
