@@ -91,7 +91,7 @@ fn create_test_distribution(test: &SoroswapAggregatorTest) -> Vec<DexDistributio
 }
 
 // Helper function to initialize / update soroswap aggregator protocols
-fn create_protocols_addresses(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
+pub fn create_protocols_addresses(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
     vec![&test.env,
         ProtocolAddressPair {
             protocol_id: dex_constants::SOROSWAP,
@@ -220,18 +220,6 @@ impl<'a> SoroswapAggregatorTest<'a> {
 }
 
 #[test]
-fn test_initialize_and_get_admin() {
-    let test = SoroswapAggregatorTest::setup();
-
-    //Initialize aggregator
-    let initialize_aggregator_addresses = create_protocols_addresses(&test);
-    test.aggregator_contract.initialize(&test.admin, &initialize_aggregator_addresses);
-
-    let admin = test.aggregator_contract.get_admin();
-    assert_eq!(admin, test.admin);
-}
-
-#[test]
 fn test_swap() {
     let test = SoroswapAggregatorTest::setup();
 
@@ -253,3 +241,5 @@ fn test_swap() {
     assert_eq!(test.token_1.balance(&test.user), 2_000_000_000_000_000_000);
     assert_eq!(test.token_2.balance(&test.user), 5_851_690_580_469_525_867);
 }
+
+pub mod initialize;

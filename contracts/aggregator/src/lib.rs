@@ -117,7 +117,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         protocol_addresses: Vec<ProtocolAddressPair>,
     ) -> Result<(), CombinedAggregatorError> {
         if is_initialized(&e) {
-            return Err(SoroswapAggregatorError::InitializeAlreadyInitialized.into());
+            return Err(CombinedAggregatorError::AggregatorInitializeAlreadyInitialized.into());
         }
     
         for pair in protocol_addresses.iter() {
