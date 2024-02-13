@@ -243,3 +243,4 @@ fn test_swap() {
 }
 
 pub mod initialize;
+pub mod update_protocols;

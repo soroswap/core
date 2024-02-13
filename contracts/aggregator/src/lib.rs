@@ -135,6 +135,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         e: Env,
         protocol_addresses: Vec<ProtocolAddressPair>,
     ) -> Result<(), CombinedAggregatorError> {
+        check_initialized(&e)?;
         let admin: Address = get_admin(&e);
         admin.require_auth();
         // Check if the sender is the admin
