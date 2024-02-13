@@ -4,7 +4,7 @@ use soroban_sdk::{contracttype, Env, Address};
 #[contracttype]
 
 enum DataKey {
-    Factory, // Address of the Factory Contract. Instance Data Type
+    Soroswap, // Address of the Soroswap Contract. Instance Data Type
 }
 
 const DAY_IN_LEDGERS: u32 = 17280;
@@ -17,14 +17,14 @@ pub fn extend_instance_ttl(e: &Env) {
         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 }
 
-pub fn put_factory(e: &Env, factory: &Address) {
-    e.storage().instance().set(&DataKey::Factory, &factory);
+pub fn put_soroswap_router(e: &Env, soroswap_router: &Address) {
+    e.storage().instance().set(&DataKey::Soroswap, &soroswap_router);
 }
 
-pub fn has_factory(e: &Env) -> bool {
-    e.storage().instance().has(&DataKey::Factory)
+pub fn has_soroswap_router(e: &Env) -> bool {
+    e.storage().instance().has(&DataKey::Soroswap)
 }
 
-pub fn get_factory(e: &Env) -> Address {
-    e.storage().instance().get(&DataKey::Factory).unwrap()
+pub fn get_soroswap_router(e: &Env) -> Address {
+    e.storage().instance().get(&DataKey::Soroswap).unwrap()
 }

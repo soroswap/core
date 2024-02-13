@@ -10,7 +10,7 @@ mod event;
 mod storage;
 mod test;
 
-use storage::{put_factory, has_factory, get_factory, extend_instance_ttl};
+use storage::{put_soroswap_router, has_soroswap_router, get_soroswap_router, extend_instance_ttl};
 use models::DexDistribution;
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
 use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};
@@ -38,7 +38,7 @@ fn ensure_deadline(e: &Env, timestamp: u64) -> Result<(), CombinedAggregatorErro
 }
 
 fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
-    if has_factory(e) {
+    if has_soroswap_router(e) {
         Ok(())
     } else {
         Err(CombinedAggregatorError::AggregatorNotInitialized)
@@ -51,8 +51,8 @@ fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
 
 pub trait SoroswapAggregatorTrait {
 
-    /// Initializes the contract and sets the factory address
-    // fn initialize(e: Env, factory: Address) -> Result<(), CombinedAggregatorError>;
+    /// Initializes the contract and sets the soroswap_router address
+    fn initialize(e: Env, soroswap_router: Address) -> Result<(), CombinedAggregatorError>;
 
     /// Executes a swap operation distributed across multiple decentralized exchanges (DEXes) as specified
     /// by the `distribution`. Each entry in the distribution details which DEX to use, the path of tokens
@@ -95,18 +95,18 @@ struct SoroswapAggregator;
 
 #[contractimpl]
 impl SoroswapAggregatorTrait for SoroswapAggregator {
-    /// Initializes the contract and sets the factory address
-    // fn initialize(e: Env, factory: Address) -> Result<(), CombinedAggregatorError> {
-    //     if !has_factory(&e) {
-    //         put_factory(&e, &factory);
-    //         event::initialized(&e, factory);
-    //         extend_instance_ttl(&e);
-    //         Ok(())
-    //     } else {
-    //         Err(SoroswapAggregatorError::InitializeAlreadyInitialized.into())
-    //     } 
+    /// Initializes the contract and sets the soroswap_router address
+    fn initialize(e: Env, soroswap_router: Address) -> Result<(), CombinedAggregatorError> {
+        if !has_soroswap_router(&e) {
+            put_soroswap_router(&e, &soroswap_router);
+            event::initialized(&e, soroswap_router);
+            extend_instance_ttl(&e);
+            Ok(())
+        } else {
+            Err(SoroswapAggregatorError::InitializeAlreadyInitialized.into())
+        } 
         
-    // }  
+    }  
 
     fn swap(
         e: Env,
@@ -118,7 +118,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         to: Address,
         deadline: u64,
     ) -> Result<i128, CombinedAggregatorError> {
-        // check_initialized(&e)?;
+        check_initialized(&e)?;
         check_nonnegative_amount(amount)?;
         check_nonnegative_amount(amount_out_min)?;
         extend_instance_ttl(&e);
@@ -135,7 +135,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
             match dist.index {
                 dex_constants::SOROSWAP => {
                     // Call function to handle swap via Soroswap
-                    let swap_result = soroswap_interface::swap_with_soroswap(&e, &swap_amount, dist.path.clone())?;
+                    let swap_result = soroswap_interface::swap_with_soroswap(&e, &swap_amount, dist.path.clone(), to.clone(), deadline.clone())?;
                     total_swapped += swap_result;
                 },
                 dex_constants::PHOENIX => {
