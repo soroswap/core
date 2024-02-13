@@ -2,8 +2,7 @@
 /// Phoenix protocol. Similar to the `soroswap_interface`, it abstracts the details
 /// of swap execution and other Phoenix-specific functionalities, facilitating their
 /// integration and usage in the aggregator's broader swap strategy.
-use soroban_sdk::{contractimpl, Env, Address, Vec};
-use crate::models::DexDistribution;
+use soroban_sdk::{Env, Address, Vec};
 
 pub fn swap_with_phoenix(
     env: &Env,

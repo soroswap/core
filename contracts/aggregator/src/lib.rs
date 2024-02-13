@@ -1,7 +1,5 @@
 #![no_std]
-use soroban_sdk::token::Client as TokenClient;
 use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
-use soroswap_library::{SoroswapLibraryError};
 
 mod models;
 mod dex_interfaces;
@@ -10,7 +8,7 @@ mod event;
 mod storage;
 mod test;
 
-use storage::{put_protocol_address, has_protocol_address, get_protocol_address, extend_instance_ttl, is_initialized, set_initialized, set_admin, get_admin};
+use storage::{put_protocol_address, extend_instance_ttl, is_initialized, set_initialized, set_admin, get_admin};
 use models::{DexDistribution, ProtocolAddressPair};
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
 use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};

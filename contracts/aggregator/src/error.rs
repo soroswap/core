@@ -76,7 +76,6 @@ impl From<SoroswapAggregatorError> for CombinedAggregatorError {
     fn from(err: SoroswapAggregatorError) -> Self {
         match err {
             SoroswapAggregatorError::NotInitialized => CombinedAggregatorError::AggregatorNotInitialized,
-            SoroswapAggregatorError::NotInitialized => CombinedAggregatorError::AggregatorNotInitialized,
             SoroswapAggregatorError::NegativeNotAllowed => CombinedAggregatorError::AggregatorNegativeNotAllowed,
             SoroswapAggregatorError::DeadlineExpired => CombinedAggregatorError::AggregatorDeadlineExpired,
             SoroswapAggregatorError::InitializeAlreadyInitialized => CombinedAggregatorError::AggregatorInitializeAlreadyInitialized,
