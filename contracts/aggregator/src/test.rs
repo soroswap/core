@@ -220,15 +220,15 @@ impl<'a> SoroswapAggregatorTest<'a> {
 }
 
 #[test]
-fn test_initialize_and_get_protocols() {
+fn test_initialize_and_get_admin() {
     let test = SoroswapAggregatorTest::setup();
 
     //Initialize aggregator
     let initialize_aggregator_addresses = create_protocols_addresses(&test);
-    test.aggregator_contract.initialize(&initialize_aggregator_addresses);
+    test.aggregator_contract.initialize(&test.admin, &initialize_aggregator_addresses);
 
-    let initialized = test.aggregator_contract.check_initialized();
-    assert_eq!(initialized, ());
+    let admin = test.aggregator_contract.get_admin();
+    assert_eq!(admin, test.admin);
 }
 
 #[test]
@@ -237,7 +237,7 @@ fn test_swap() {
 
     //Initialize aggregator
     let initialize_aggregator_addresses = create_protocols_addresses(&test);
-    test.aggregator_contract.initialize(&initialize_aggregator_addresses);
+    test.aggregator_contract.initialize(&test.admin, &initialize_aggregator_addresses);
 
     let from_token = &test.token_0.address;
     let dest_token = &test.token_1.address;
@@ -253,19 +253,3 @@ fn test_swap() {
     assert_eq!(test.token_1.balance(&test.user), 2_000_000_000_000_000_000);
     assert_eq!(test.token_2.balance(&test.user), 5_851_690_580_469_525_867);
 }
-
-// #[test]
-// fn test_swap_failure_due_to_deadline() {
-//     let mut e = MockEnv::default();
-//     mock_initialization(&mut e);
-
-//     let aggregator = SoroswapAggregator {};
-
-//     // Setup similar to `test_swap` but with a past deadline
-//     let deadline = e.ledger().timestamp() - 1; // Deadline in the past
-
-//     // Similar call to `aggregator.swap` as in `test_swap` but with updated deadline
-//     // Assert that result is an error and matches `DeadlineExpired` error
-// }
-
-// Additional tests here for handling incorrect inputs, and other edge cases
