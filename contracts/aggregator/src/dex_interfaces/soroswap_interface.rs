@@ -5,7 +5,8 @@
 use soroban_sdk::{contractimpl, Env, Address, Vec};
 use soroban_sdk::token::Client as TokenClient;
 use crate::models::DexDistribution;
-use crate::storage::{get_soroswap_router};
+use crate::storage::{get_protocol_address};
+use crate::dex_interfaces::{dex_constants};
 
 soroban_sdk::contractimport!(
     file = "../router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
@@ -20,7 +21,7 @@ pub fn swap_with_soroswap(
     deadline: u64,
 ) -> Result<i128, crate::error::CombinedAggregatorError> {
     // Implementation specific to Soroswap
-    let soroswap_router_address = get_soroswap_router(env);
+    let soroswap_router_address = get_protocol_address(env, dex_constants::SOROSWAP);
     let soroswap_router_client = SoroswapRouterClient::new(env, &soroswap_router_address);
 
     soroswap_router_client.swap_exact_tokens_for_tokens(&amount, &0, &path, &to, &deadline);

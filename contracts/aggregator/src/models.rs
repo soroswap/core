@@ -34,3 +34,10 @@ pub struct DexDistribution {
     pub path: Vec<Address>,
     pub parts: i128,
 }
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ProtocolAddressPair {
+    pub protocol_id: i32,
+    pub address: Address,
+}

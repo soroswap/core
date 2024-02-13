@@ -5,13 +5,13 @@ use soroban_sdk::{contracttype, symbol_short, Env, Address, Vec};
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InitializedEvent {
-    pub factory: Address
+    pub state: bool
 }
 
-pub(crate) fn initialized(e: &Env, factory: Address) {
+pub(crate) fn initialized(e: &Env, state: bool) {
     
     let event: InitializedEvent = InitializedEvent {
-        factory: factory
+        state: state
     };
     e.events().publish(("SoroswapAggregator", symbol_short!("init")), event);
 }

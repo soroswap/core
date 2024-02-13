@@ -10,8 +10,8 @@ mod event;
 mod storage;
 mod test;
 
-use storage::{put_soroswap_router, has_soroswap_router, get_soroswap_router, extend_instance_ttl};
-use models::DexDistribution;
+use storage::{put_protocol_address, has_protocol_address, get_protocol_address, extend_instance_ttl, has_initialized, put_initialized};
+use models::{DexDistribution, ProtocolAddressPair};
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
 use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};
 
@@ -38,10 +38,18 @@ fn ensure_deadline(e: &Env, timestamp: u64) -> Result<(), CombinedAggregatorErro
 }
 
 fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
-    if has_soroswap_router(e) {
+    if has_initialized(e) {
         Ok(())
     } else {
         Err(CombinedAggregatorError::AggregatorNotInitialized)
+    }
+}
+
+fn is_valid_protocol(protocol_id: i32) -> bool {
+    match protocol_id {
+        dex_constants::SOROSWAP | dex_constants::PHOENIX => true,
+        // Add additional protocols here as needed
+        _ => false,
     }
 }
 
@@ -52,8 +60,13 @@ fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
 pub trait SoroswapAggregatorTrait {
 
     /// Initializes the contract and sets the soroswap_router address
-    fn initialize(e: Env, soroswap_router: Address) -> Result<(), CombinedAggregatorError>;
+    fn initialize(e: Env, protocol_addresses: Vec<ProtocolAddressPair>) -> Result<(), CombinedAggregatorError>;
 
+    /// Updates the protocol addresses for the aggregator
+    fn update_protocols(
+        e: Env,
+        protocol_addresses: Vec<ProtocolAddressPair>,
+    ) -> Result<(), CombinedAggregatorError>;
     /// Executes a swap operation distributed across multiple decentralized exchanges (DEXes) as specified
     /// by the `distribution`. Each entry in the distribution details which DEX to use, the path of tokens
     /// for swap (if applicable), and the portion of the total `amount` to swap through that DEX. This 
@@ -88,6 +101,8 @@ pub trait SoroswapAggregatorTrait {
 
     /*  *** Read only functions: *** */
 
+    fn check_initialized(e: Env) -> Result<(), CombinedAggregatorError>;
+
 }
 
 #[contract]
@@ -96,17 +111,45 @@ struct SoroswapAggregator;
 #[contractimpl]
 impl SoroswapAggregatorTrait for SoroswapAggregator {
     /// Initializes the contract and sets the soroswap_router address
-    fn initialize(e: Env, soroswap_router: Address) -> Result<(), CombinedAggregatorError> {
-        if !has_soroswap_router(&e) {
-            put_soroswap_router(&e, &soroswap_router);
-            event::initialized(&e, soroswap_router);
-            extend_instance_ttl(&e);
-            Ok(())
-        } else {
-            Err(SoroswapAggregatorError::InitializeAlreadyInitialized.into())
-        } 
+    fn initialize(
+        e: Env,
+        protocol_addresses: Vec<ProtocolAddressPair>,
+    ) -> Result<(), CombinedAggregatorError> {
+        if has_initialized(&e) {
+            return Err(SoroswapAggregatorError::InitializeAlreadyInitialized.into());
+        }
+    
+        for pair in protocol_addresses.iter() {
+            put_protocol_address(&e, pair.protocol_id, &pair.address);
+        }
+    
+        // Mark the contract as initialized
+        put_initialized(&e);
+        event::initialized(&e, true);
+        extend_instance_ttl(&e);
+        Ok(())
+    }
+    
+    fn update_protocols(
+        e: Env,
+        protocol_addresses: Vec<ProtocolAddressPair>,
+    ) -> Result<(), CombinedAggregatorError> {
+        // Check if the sender is the admin
         
-    }  
+        for pair in protocol_addresses.iter() {
+            if !is_valid_protocol(pair.protocol_id) {
+                // If the protocol_id is not recognized, return an error
+                return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol);
+            }
+            // Proceed to update the protocol address since the id is valid
+            put_protocol_address(&e, pair.protocol_id, &pair.address);
+        }
+    
+        // event::protocols_updated(&e);
+        Ok(())
+    }
+    
+    
 
     fn swap(
         e: Env,
@@ -151,5 +194,9 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
     }
 
     /*  *** Read only functions: *** */
+
+    fn check_initialized(e: Env) -> Result<(), CombinedAggregatorError> {
+        check_initialized(&e)
+    }
 
 }

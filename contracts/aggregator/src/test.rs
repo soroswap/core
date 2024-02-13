@@ -12,7 +12,7 @@ use soroban_sdk::{
     },
 };
 use crate::{SoroswapAggregator, SoroswapAggregatorClient, dex_constants};
-use crate::models::DexDistribution;
+use crate::models::{DexDistribution, ProtocolAddressPair};
 
 // Token Contract
 mod token {
@@ -90,6 +90,16 @@ fn create_test_distribution(test: &SoroswapAggregatorTest) -> Vec<DexDistributio
     ]
 }
 
+// Helper function to initialize / update soroswap aggregator protocols
+fn create_protocols_addresses(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
+    vec![&test.env,
+        ProtocolAddressPair {
+            protocol_id: dex_constants::SOROSWAP,
+            address: test.router_contract.address.clone(),
+        },
+    ]
+}
+
 pub struct SoroswapAggregatorTest<'a> {
     env: Env,
     aggregator_contract: SoroswapAggregatorClient<'a>,
@@ -147,7 +157,6 @@ impl<'a> SoroswapAggregatorTest<'a> {
         assert_eq!(token_2.balance(&user), initial_user_balance);
     
         router_contract.initialize(&factory_contract.address);
-        aggregator_contract.initialize(&router_contract.address);
 
         assert_eq!(factory_contract.pair_exists(&token_0.address, &token_1.address), false);
         let (added_token_0, added_token_1, added_liquidity) = router_contract.add_liquidity(
@@ -211,8 +220,24 @@ impl<'a> SoroswapAggregatorTest<'a> {
 }
 
 #[test]
+fn test_initialize_and_get_protocols() {
+    let test = SoroswapAggregatorTest::setup();
+
+    //Initialize aggregator
+    let initialize_aggregator_addresses = create_protocols_addresses(&test);
+    test.aggregator_contract.initialize(&initialize_aggregator_addresses);
+
+    let initialized = test.aggregator_contract.check_initialized();
+    assert_eq!(initialized, ());
+}
+
+#[test]
 fn test_swap() {
     let test = SoroswapAggregatorTest::setup();
+
+    //Initialize aggregator
+    let initialize_aggregator_addresses = create_protocols_addresses(&test);
+    test.aggregator_contract.initialize(&initialize_aggregator_addresses);
 
     let from_token = &test.token_0.address;
     let dest_token = &test.token_1.address;

@@ -4,7 +4,8 @@ use soroban_sdk::{contracttype, Env, Address};
 #[contracttype]
 
 enum DataKey {
-    Soroswap, // Address of the Soroswap Contract. Instance Data Type
+    ProtocolAddress(i32),
+    Initialized,
 }
 
 const DAY_IN_LEDGERS: u32 = 17280;
@@ -17,14 +18,22 @@ pub fn extend_instance_ttl(e: &Env) {
         .extend_ttl(INSTANCE_LIFETIME_THRESHOLD, INSTANCE_BUMP_AMOUNT);
 }
 
-pub fn put_soroswap_router(e: &Env, soroswap_router: &Address) {
-    e.storage().instance().set(&DataKey::Soroswap, &soroswap_router);
+pub fn put_initialized(e: &Env) {
+    e.storage().instance().set(&DataKey::Initialized, &true);
 }
 
-pub fn has_soroswap_router(e: &Env) -> bool {
-    e.storage().instance().has(&DataKey::Soroswap)
+pub fn has_initialized(e: &Env) -> bool {
+    e.storage().instance().has(&DataKey::Initialized)
 }
 
-pub fn get_soroswap_router(e: &Env) -> Address {
-    e.storage().instance().get(&DataKey::Soroswap).unwrap()
+pub fn put_protocol_address(e: &Env, protocol_id: i32, address: &Address) {
+    e.storage().instance().set(&DataKey::ProtocolAddress(protocol_id), address);
+}
+
+pub fn has_protocol_address(e: &Env, protocol_id: i32) -> bool {
+    e.storage().instance().has(&DataKey::ProtocolAddress(protocol_id))
+}
+
+pub fn get_protocol_address(e: &Env, protocol_id: i32) -> Address {
+    e.storage().instance().get(&DataKey::ProtocolAddress(protocol_id)).unwrap()
 }
