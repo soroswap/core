@@ -97,6 +97,15 @@ pub trait SoroswapAggregatorTrait {
         deadline: u64,
     ) -> Result<i128, CombinedAggregatorError>;
 
+    /// Returns the expected return amount for a given input amount and distribution
+    // fn getExpectedReturn(
+    //     e: Env,
+    //     from_token: Address,
+    //     dest_token: Address,
+    //     amount: i128,
+    //     parts: i128,
+    // ) -> Result<i128, CombinedAggregatorError>;
+
     /*  *** Read only functions: *** */
 
     fn get_admin(e: &Env) -> Result<Address, CombinedAggregatorError>;
@@ -152,8 +161,6 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         // event::protocols_updated(&e);
         Ok(())
     }
-    
-    
 
     fn swap(
         e: Env,
@@ -187,7 +194,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
                 },
                 dex_constants::PHOENIX => {
                     // Call function to handle swap via Phoenix
-                    let swap_result = phoenix_interface::swap_with_phoenix(&e, &swap_amount, dist.path.clone())?;
+                    let swap_result = phoenix_interface::swap_with_phoenix(&e, &swap_amount, dist.path.clone(), to.clone())?;
                     total_swapped += swap_result;
                 },
                 _ => return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol),
