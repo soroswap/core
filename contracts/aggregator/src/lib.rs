@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
+use soroban_sdk::{contract, contractimpl, Address, Env, Vec, vec};
 
 mod models;
 mod dex_interfaces;
@@ -8,7 +8,7 @@ mod event;
 mod storage;
 mod test;
 
-use storage::{put_protocol_address, extend_instance_ttl, is_initialized, set_initialized, set_admin, get_admin};
+use storage::{put_protocol_address, has_protocol_address, get_protocol_address, extend_instance_ttl, is_initialized, set_initialized, set_admin, get_admin};
 use models::{DexDistribution, ProtocolAddressPair};
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
 use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};
@@ -109,6 +109,7 @@ pub trait SoroswapAggregatorTrait {
     /*  *** Read only functions: *** */
 
     fn get_admin(e: &Env) -> Result<Address, CombinedAggregatorError>;
+    fn get_protocols(e: &Env) -> Vec<ProtocolAddressPair>;
 
 }
 
@@ -210,5 +211,24 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         check_initialized(&e)?;
         Ok(get_admin(&e))
     }
+
+    fn get_protocols(e: &Env) -> Vec<ProtocolAddressPair> {
+        let protocols = vec![
+            e,
+            dex_constants::SOROSWAP,
+            dex_constants::PHOENIX,
+        ];
+    
+        let mut addresses = Vec::new(e);
+    
+        for protocol_id in protocols.iter() {
+            if has_protocol_address(e, protocol_id) {
+                let address = get_protocol_address(e, protocol_id);
+                addresses.push_back(ProtocolAddressPair { protocol_id, address });
+            }
+        }
+    
+        addresses
+    }    
 
 }

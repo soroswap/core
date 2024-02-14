@@ -11,8 +11,8 @@ soroban_sdk::contractimport!(
 );
 pub type PhoenixMultihopClient<'a> = Client<'a>;
 
-fn convert_to_swaps(env: &Env, addresses: Vec<Address>) -> Vec<Swap> {
-    let mut swaps = Vec::new(env);
+fn convert_to_swaps(e: &Env, addresses: Vec<Address>) -> Vec<Swap> {
+    let mut swaps = Vec::new(e);
 
     // Iterate through the addresses, creating a Swap for each pair
     // Skip the last address since it cannot be an offer_asset without a corresponding ask_asset
@@ -32,16 +32,16 @@ fn convert_to_swaps(env: &Env, addresses: Vec<Address>) -> Vec<Swap> {
 
 
 pub fn swap_with_phoenix(
-    env: &Env,
+    e: &Env,
     amount: &i128,
     path: Vec<Address>,
     to: Address,
 ) -> Result<i128, crate::error::CombinedAggregatorError> {
     // Implementation specific to Soroswap
-    let phoenix_multihop_address = get_protocol_address(env, dex_constants::PHOENIX);
-    let phoenix_multihop_client = PhoenixMultihopClient::new(env, &phoenix_multihop_address);
+    let phoenix_multihop_address = get_protocol_address(e, dex_constants::PHOENIX);
+    let phoenix_multihop_client = PhoenixMultihopClient::new(e, &phoenix_multihop_address);
 
-    let operations = convert_to_swaps(env, path);
+    let operations = convert_to_swaps(e, path);
 
     phoenix_multihop_client.swap(&to, &operations, &None, &amount);
 
