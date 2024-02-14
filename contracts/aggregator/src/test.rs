@@ -12,7 +12,7 @@ use soroban_sdk::{
     },
 };
 use crate::{SoroswapAggregator, SoroswapAggregatorClient, dex_constants};
-use crate::models::{DexDistribution, ProtocolAddressPair};
+use crate::models::{ProtocolAddressPair};
 
 // Token Contract
 mod token {
@@ -74,27 +74,29 @@ fn create_soroswap_aggregator<'a>(e: &Env) -> SoroswapAggregatorClient<'a> {
     SoroswapAggregatorClient::new(e, &e.register_contract(None, SoroswapAggregator {}))
 }
 
-// Helper function to create a simple distribution vector for testing
-fn create_test_distribution(test: &SoroswapAggregatorTest) -> Vec<DexDistribution> {
-    vec![&test.env,
-        DexDistribution {
-            index: dex_constants::SOROSWAP,
-            path: vec![&test.env, test.token_0.address.clone(), test.token_1.address.clone(), test.token_2.address.clone()],
-            parts: 3,
-        },
-        DexDistribution {
-            index: dex_constants::SOROSWAP,
-            path: vec![&test.env, test.token_0.address.clone(), test.token_2.address.clone()],
-            parts: 2,
-        },
-    ]
-}
-
 // Helper function to initialize / update soroswap aggregator protocols
 pub fn create_protocols_addresses(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
     vec![&test.env,
         ProtocolAddressPair {
             protocol_id: dex_constants::SOROSWAP,
+            address: test.router_contract.address.clone(),
+        },
+    ]
+}
+
+pub fn create_only_soroswap_protocol_address(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
+    vec![&test.env,
+        ProtocolAddressPair {
+            protocol_id: dex_constants::SOROSWAP,
+            address: test.router_contract.address.clone(),
+        },
+    ]
+}
+
+pub fn create_only_phoenix_protocol_address(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
+    vec![&test.env,
+        ProtocolAddressPair {
+            protocol_id: dex_constants::PHOENIX,
             address: test.router_contract.address.clone(),
         },
     ]

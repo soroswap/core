@@ -109,7 +109,7 @@ pub trait SoroswapAggregatorTrait {
     /*  *** Read only functions: *** */
 
     fn get_admin(e: &Env) -> Result<Address, CombinedAggregatorError>;
-    fn get_protocols(e: &Env) -> Vec<ProtocolAddressPair>;
+    fn get_protocols(e: &Env) -> Result<Vec<ProtocolAddressPair>, CombinedAggregatorError>;
 
 }
 
@@ -212,7 +212,8 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         Ok(get_admin(&e))
     }
 
-    fn get_protocols(e: &Env) -> Vec<ProtocolAddressPair> {
+    fn get_protocols(e: &Env) -> Result<Vec<ProtocolAddressPair>, CombinedAggregatorError> {
+        check_initialized(&e)?;
         let protocols = vec![
             e,
             dex_constants::SOROSWAP,
@@ -228,7 +229,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
             }
         }
     
-        addresses
+        Ok(addresses)
     }    
 
 }

@@ -33,6 +33,9 @@ pub enum SoroswapAggregatorError {
     /// SoroswapAggregator: Unsupported protocol
     UnsupportedProtocol = 409,
 
+    /// SoroswapAggregator: Protocol address not found
+    ProtocolAddressNotFound = 416,
+
 }
 
 
@@ -50,6 +53,7 @@ pub enum CombinedAggregatorError {
     AggregatorInsufficientOutputAmount = 507,
     AggregatorExcessiveInputAmount = 508,
     AggregatorUnsupportedProtocol = 509,
+    AggregatorProtocolAddressNotFound = 516,
 
     LibraryInsufficientAmount = 510,
     LibraryInsufficientLiquidity = 511,
@@ -84,6 +88,7 @@ impl From<SoroswapAggregatorError> for CombinedAggregatorError {
             SoroswapAggregatorError::InsufficientOutputAmount => CombinedAggregatorError::AggregatorInsufficientOutputAmount,
             SoroswapAggregatorError::ExcessiveInputAmount => CombinedAggregatorError::AggregatorExcessiveInputAmount,
             SoroswapAggregatorError::UnsupportedProtocol => CombinedAggregatorError::AggregatorUnsupportedProtocol,
+            SoroswapAggregatorError::ProtocolAddressNotFound => CombinedAggregatorError::AggregatorProtocolAddressNotFound,
         }
     }
 }

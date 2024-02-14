@@ -3,8 +3,9 @@
 /// of swap execution and other Phoenix-specific functionalities, facilitating their
 /// integration and usage in the aggregator's broader swap strategy.
 use soroban_sdk::{Env, Address, Vec};
-use crate::storage::{get_protocol_address};
+use crate::storage::{get_protocol_address, has_protocol_address};
 use crate::dex_interfaces::{dex_constants};
+use crate::error::CombinedAggregatorError;
 
 soroban_sdk::contractimport!(
     file = "./protocols/phoenix-contracts/target/wasm32-unknown-unknown/release/phoenix_multihop.optimized.wasm"
@@ -36,8 +37,11 @@ pub fn swap_with_phoenix(
     amount: &i128,
     path: Vec<Address>,
     to: Address,
-) -> Result<i128, crate::error::CombinedAggregatorError> {
-    // Implementation specific to Soroswap
+) -> Result<i128, CombinedAggregatorError> {
+    if !has_protocol_address(e, dex_constants::PHOENIX) {
+        return Err(CombinedAggregatorError::AggregatorProtocolAddressNotFound);
+    }
+
     let phoenix_multihop_address = get_protocol_address(e, dex_constants::PHOENIX);
     let phoenix_multihop_client = PhoenixMultihopClient::new(e, &phoenix_multihop_address);
 
