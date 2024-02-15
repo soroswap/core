@@ -1,13 +1,13 @@
 # Ensure the script exits on any errors
 set -e
 
-# Check if the argument is provided
-if [ -z "$1" ]; then
-    echo "Usage: $0 <identity_string>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <identity_string> <network>"
     exit 1
 fi
 
 IDENTITY_STRING=$1
+NETWORK=$2
 
 echo "Build and optimize the contracts...";
 cd /workspace/contracts/aggregator/protocols/phoenix
@@ -34,22 +34,22 @@ echo "Deploy the soroban_token_contract and capture its contract ID hash..."
 TOKEN_ADDR1=$(soroban contract deploy \
     --wasm soroban_token_contract.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 TOKEN_ADDR2=$(soroban contract deploy \
     --wasm soroban_token_contract.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 FACTORY_ADDR=$(soroban contract deploy \
     --wasm phoenix_factory.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 MULTIHOP_ADDR=$(soroban contract deploy \
     --wasm phoenix_multihop.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 echo "Tokens, factory and multihop deployed."
 
@@ -58,23 +58,23 @@ echo "Install the soroban_token, phoenix_pair and phoenix_stake contracts..."
 TOKEN_WASM_HASH=$(soroban contract install \
     --wasm soroban_token_contract.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 # Continue with the rest of the deployments
 PAIR_WASM_HASH=$(soroban contract install \
     --wasm phoenix_pool.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 STAKE_WASM_HASH=$(soroban contract install \
     --wasm phoenix_stake.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 MULTIHOP_WASM_HASH=$(soroban contract install \
     --wasm phoenix_multihop.optimized.wasm \
     --source $IDENTITY_STRING \
-    --network standalone)
+    --network $NETWORK)
 
 echo "Token, pair and stake contracts deployed."
 
@@ -92,7 +92,7 @@ echo "Initialize multihop..."
 soroban contract invoke \
     --id $MULTIHOP_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     initialize \
     --admin $ADMIN_ADDRESS \
@@ -110,7 +110,7 @@ echo "Initialize factory..."
 soroban contract invoke \
     --id $FACTORY_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     initialize \
     --admin $ADMIN_ADDRESS \
@@ -127,7 +127,7 @@ echo "Initialize the token contracts..."
 soroban contract invoke \
     --id $TOKEN_ID1 \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     initialize \
     --admin $ADMIN_ADDRESS \
@@ -138,7 +138,7 @@ soroban contract invoke \
 soroban contract invoke \
     --id $TOKEN_ID2 \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     initialize \
     --admin $ADMIN_ADDRESS \
@@ -153,7 +153,7 @@ echo "Initialize pair using the previously fetched hashes through factory..."
 soroban contract invoke \
     --id $FACTORY_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     create_liquidity_pool \
     --lp_init_info "{ \"admin\": \"${ADMIN_ADDRESS}\", \"lp_wasm_hash\": \"${PAIR_WASM_HASH}\", \"share_token_decimals\": 7, \"swap_fee_bps\": 1000, \"fee_recipient\": \"${ADMIN_ADDRESS}\", \"max_allowed_slippage_bps\": 10000, \"max_allowed_spread_bps\": 10000, \"max_referral_bps\": 10000, \"token_init_info\": { \"token_wasm_hash\": \"${TOKEN_WASM_HASH}\", \"token_a\": \"${TOKEN_ID1}\", \"token_b\": \"${TOKEN_ID2}\" }, \"stake_init_info\": { \"stake_wasm_hash\": \"${STAKE_WASM_HASH}\", \"min_bond\": \"100\", \"min_reward\": \"100\", \"max_distributions\": 3 } }" \
@@ -162,7 +162,7 @@ soroban contract invoke \
 PAIR_ADDR=$(soroban contract invoke \
     --id $FACTORY_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone --fee 100 \
+    --network $NETWORK --fee 100 \
     -- \
     query_pools | jq -r '.[0]')
 
@@ -172,14 +172,14 @@ echo "Mint both tokens to the admin and provide liquidity..."
 soroban contract invoke \
     --id $TOKEN_ID1 \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     mint --to $ADMIN_ADDRESS --amount 100000000000
 
 soroban contract invoke \
     --id $TOKEN_ID2 \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     mint --to $ADMIN_ADDRESS --amount 100000000000
 
@@ -187,7 +187,7 @@ soroban contract invoke \
 soroban contract invoke \
     --id $PAIR_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone --fee 10000000 \
+    --network $NETWORK --fee 10000000 \
     -- \
     provide_liquidity --sender $ADMIN_ADDRESS --desired_a 100000000000 --desired_b 50000000000
 
@@ -199,7 +199,7 @@ echo "Bond tokens to stake contract..."
 STAKE_ADDR=$(soroban contract invoke \
     --id $PAIR_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone --fee 10000000 \
+    --network $NETWORK --fee 10000000 \
     -- \
     query_stake_contract_address | jq -r '.')
 
@@ -207,7 +207,7 @@ STAKE_ADDR=$(soroban contract invoke \
 soroban contract invoke \
     --id $STAKE_ADDR \
     --source $IDENTITY_STRING \
-    --network standalone \
+    --network $NETWORK \
     -- \
     bond --sender $ADMIN_ADDRESS --tokens 70000000000
 
@@ -219,3 +219,44 @@ echo "Token Contract 2 address: $TOKEN_ID2"
 echo "Pair Contract address: $PAIR_ADDR"
 echo "Stake Contract address: $STAKE_ADDR"
 echo "Factory Contract address: $FACTORY_ADDR"
+
+NEW_PHOENIX_OBJECT="{ \"network\": \"$NETWORK\", \"multihop_address\": \"$MULTIHOP_ADDR\" }"
+echo "New aggregator object: $NEW_PHOENIX_OBJECT"
+
+PHOENIX_FILE="/workspace/.soroban/phoenix_protocol.json"
+# Initialize factory.json if it does not exist
+if [[ ! -f "$PHOENIX_FILE" ]]; then
+    echo file not found
+    echo "[]" > "$PHOENIX_FILE"
+fi
+
+
+CURRENT_PHOENIX_JSON=$(cat $PHOENIX_FILE)
+echo "CURRENT_PHOENIX_JSON: $CURRENT_PHOENIX_JSON"
+
+
+# check if the network already exists in that json
+exists=$(echo "$CURRENT_PHOENIX_JSON" | jq '.[] | select(.network == "'$NETWORK'")')
+echo "This network already exist in the phoenix_protocol.json? : $exists"
+
+NEW_PHOENIX_JSON="{}"
+if [[ -n "$exists" ]]; then
+    # if the network exists, update the factory for that network
+    echo network exists, replace
+    NEW_PHOENIX_JSON=$(echo "$CURRENT_PHOENIX_JSON" | jq '
+        map(if .network == "'$NETWORK'" then '"$NEW_PHOENIX_OBJECT"' else . end)'
+    )
+else
+    # if the network doesn't exist, append the new object to the list
+    echo network does not exist, append
+    NEW_PHOENIX_JSON=$(echo "$CURRENT_PHOENIX_JSON" | jq '. += ['"$NEW_PHOENIX_OBJECT"']')
+fi
+
+# echo "NEW_PHOENIX_JSON: $NEW_PHOENIX_JSON"
+echo "$NEW_PHOENIX_JSON" > "$PHOENIX_FILE"
+
+echo "end creating the phoenix_protocol.json" 
+
+# Output the file path and contents
+echo "Aggregator information available in /workspace/.soroban/phoenix_protocol.json"
+cat /workspace/.soroban/phoenix_protocol.json
