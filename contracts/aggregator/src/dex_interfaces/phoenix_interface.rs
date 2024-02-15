@@ -8,7 +8,7 @@ use crate::dex_interfaces::{dex_constants};
 use crate::error::CombinedAggregatorError;
 
 soroban_sdk::contractimport!(
-    file = "./protocols/phoenix-contracts/target/wasm32-unknown-unknown/release/phoenix_multihop.optimized.wasm"
+    file = "./protocols/phoenix/target/wasm32-unknown-unknown/release/phoenix_multihop.wasm"
 );
 pub type PhoenixMultihopClient<'a> = Client<'a>;
 
