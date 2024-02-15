@@ -7,8 +7,6 @@ fi
 
 NETWORK="$1"
 echo "----------------------------------------"
-TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
-echo Admin: $TOKEN_ADMIN_ADDRESS
 
 AGGREGATOR_FILE="/workspace/.soroban/aggregator.json"
 CURRENT_AGGREGATOR_JSON=$(cat $AGGREGATOR_FILE)
