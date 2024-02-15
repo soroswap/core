@@ -1,0 +1,3 @@
+[submodule "contracts/aggregator/protocols/phoenix"]
+	path = contracts/aggregator/protocols/phoenix
+	url = https://github.com/Phoenix-Protocol-Group/phoenix-contracts.git
