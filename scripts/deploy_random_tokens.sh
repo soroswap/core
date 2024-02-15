@@ -23,7 +23,7 @@ fi
 if [ -f "$JSON_FILE" ]; then
     JSON_DATA=$(cat "$JSON_FILE")
 else
-    JSON_DATA='[]'
+    JSON_DATA='[]' 
 fi
 
 # Check if the script has run before in this Docker instance
@@ -40,10 +40,16 @@ fi
 TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
 # Arrays of common name syllables/parts
-name_parts=("bel" "nar" "xis" "mik" "tar" "rin" "jas" "kel" "fen" "lor"
-            "ana" "ser" "vin" "zel" "leo" "mia" "ara" "tia" "neo" "kai"
-            "eva" "lio" "ria" "dor" "ael" "nia" "the" "sia" "cal" "ian"
-            "ora" "ron" "lyn" "dan" "gav" "zoe" "axl" "nix" "kye" "rey")
+name_parts=("ath" "bei" "cri" "dyl" "efi" "fro" "gor" "hul" "ivi" "jek"
+ "kal" "luk" "mor" "nep" "ozi" "pam" "qin" "ruk" "syl" "tum"
+ "ujo" "vyn" "wex" "xan" "yel" "zif" "quz" "bam" "jiv" "kod"
+ "piz" "laf" "ryz" "tov" "ned" "giz" "hal" "xer" "fuv" "gip"
+ "vur" "mix" "kob" "jiz" "ram" "ziv" "lur" "fep" "bix" "mop"
+ "kew" "zar" "vex" "dab" "ren" "tux" "roj" "nul" "pev" "diz"
+ "lux" "zur" "wok" "naf" "tev" "zil" "pir" "kup" "hob" "zep"
+ "nil" "laz" "fep" "kut" "rix" "gul" "fij" "vor" "jez" "puq"
+ "mij" "vup" "zat" "qez" "luk" "xeb" "vud" "zod" "hiv" "kez"
+ "zun" "qib" "jux" "luk" "viz" "wuf" "xes" "vum" "zib" "lop")
 
 echo Deploying $N_TOKENS tokens to network $NETWORK
 
@@ -99,13 +105,8 @@ done
 NETWORK_EXISTS=$(echo $JSON_DATA | jq "any(.[]; .network == \"$NETWORK\")")
 
 if [ "$NETWORK_EXISTS" = "true" ]; then
-    if [ "$NETWORK" = "standalone" ] && [ "$FIRST_RUN" = true ]; then
-        # For the first run on standalone, replace the tokens array
-        JSON_DATA=$(echo $JSON_DATA | jq "map(if .network == \"$NETWORK\" then .tokens = $TOKENS_ARRAY else . end)")
-    else
-        # Append new tokens to the existing array
-        JSON_DATA=$(echo $JSON_DATA | jq "map(if .network == \"$NETWORK\" then .tokens += $TOKENS_ARRAY else . end)")
-    fi
+    # replace the tokens array
+    JSON_DATA=$(echo $JSON_DATA | jq "map(if .network == \"$NETWORK\" then .tokens = $TOKENS_ARRAY else . end)")
 else
     # Add a new network object
     NEW_NETWORK_JSON="{\"network\": \"$NETWORK\", \"tokens\": $TOKENS_ARRAY}"
@@ -114,3 +115,5 @@ fi
 
 # Write the updated JSON back to the file
 echo $JSON_DATA | jq '.' > "$JSON_FILE"
+echo Written $JSON_FILE
+echo $(cat $JSON_FILE)
