@@ -29,3 +29,4 @@ git config --global user.name "Contract Addresses Updater"
 git commit -m "data: $DATE updated contract addresses"
 
 git push origin main
+chmod 777 -R /workspace/public/
