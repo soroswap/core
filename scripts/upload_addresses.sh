@@ -14,8 +14,11 @@ git config --global --add safe.directory /workspace
 # Copy files from .soroban to public/
 for FILE in "${FILES[@]}"
 do
+    mkdir "$TARGET_DIR/backup-$DATE" 
+    cp "$TARGET_DIR/$FILE" "$TARGET_DIR/backup-$DATE"
     cp "$SRC_DIR/$FILE" "$TARGET_DIR"
     git add "$TARGET_DIR/$FILE" 
+    git add "$TARGET_DIR/backup-$DATE/$FILE" 
 done
 
 git config --global user.email "you@example.com"
