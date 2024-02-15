@@ -80,6 +80,17 @@ app.get("/api/router", (req, res) => {
   res.status(404).send({ error: "file not found" });
 });
 
+app.get("/api/aggregator", (req, res) => {
+  const aggregatorFile = `${directory}/aggregator.json`;
+
+  if (fs.existsSync(aggregatorFile)) {
+    res.set("Cache-Control", "no-store");
+    return res.sendFile(aggregatorFile);
+  }
+
+  res.status(404).send({ error: "file not found" });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

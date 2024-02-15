@@ -8,7 +8,7 @@ SRC_DIR="/workspace/.soroban"
 TARGET_DIR="/workspace/public"
 
 # File names
-declare -a FILES=("tokens.json" "pairs.json" "factory.json" "router.json" "token_admin_keys.json" "random_tokens.json")
+declare -a FILES=("tokens.json" "pairs.json" "factory.json" "router.json" "token_admin_keys.json" "random_tokens.json", "aggregator.json")
 git config --global --add safe.directory /workspace
 
 # Copy files from .soroban to public/

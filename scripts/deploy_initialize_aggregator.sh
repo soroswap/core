@@ -1,23 +1,5 @@
 #!/bin/bash
 
-# This script is used for setting up and deploying smart contracts to the Soroban network.
-# It should be run from the project root directory.
-#
-# Usage:
-# bash /path_to_script/deploy_contracts.sh <network> <n_tokens> <run_setup>
-#
-# <network>: Name of the Soroban network to connect to.
-# <n_tokens>: The number of tokens (this argument is not used in the script but kept for compatibility).
-# <run_setup>: Set to "false" to skip running the setup script, any other value will run setup.
-#
-# Example:
-# bash /path_to_script/deploy_contracts.sh standalone 5 false
-#
-# Dependencies:
-# - soroban: Make sure the 'soroban' CLI tool is available.
-# - make: Ensure that 'make' is available for building contracts.
-
-# Enable the 'exit immediately' shell option
 set -e
 
 # Accept command-line arguments
@@ -86,14 +68,6 @@ echo "--"
 # Get the token admin address
 TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
 
-# pub fn create_protocols_addresses(test: &SoroswapAggregatorTest) -> Vec<ProtocolAddressPair> {
-#     vec![&test.env,
-#         ProtocolAddressPair {
-#             protocol_id: dex_constants::SOROSWAP,
-#             address: test.router_contract.address.clone(),
-#         },
-#     ]
-# }
 ROUTER_FILE="/workspace/.soroban/router.json"
 # Initialize factory.json if it does not exist
 if [[ ! -f "$ROUTER_FILE" ]]; then
@@ -123,56 +97,44 @@ soroban contract invoke \
 echo "--"
 echo "--"
 
-# # Create the new FACTORY object with the updated factory id and addresses
-# NEW_FACTORY_OBJECT="{ \"network\": \"$NETWORK\", \"factory_id\": \"$AGGREGATOR_ID\", \"factory_address\": \"$FACTORY_ADDRESS\" }"
-# echo "New factory object: $NEW_FACTORY_OBJECT"
-# # NEW_FACTORY_OBJECT="{ \"network\": \"futurenet\", \"factory_id\": \"5adb2e4748f175bcc1ab4e11c0f03bc275701ef556cd9d2b10becb37ea6a33c9\", \"factory_address\": \"CBNNWLSHJDYXLPGBVNHBDQHQHPBHK4A66VLM3HJLCC7MWN7KNIZ4SLNG\"}"
+# Create the new AGGREGATOR object with the updated aggregator id and addresses
+NEW_AGGREGATOR_OBJECT="{ \"network\": \"$NETWORK\", \"aggregator_id\": \"$AGGREGATOR_ID\", \"aggregator_address\": \"$AGGREGATOR_ID\" }"
+echo "New aggregator object: $NEW_AGGREGATOR_OBJECT"
 
-# FACTORY_FILE="/workspace/.soroban/factory.json"
-# # Initialize factory.json if it does not exist
-# if [[ ! -f "$FACTORY_FILE" ]]; then
-#     echo file not found
-#     echo "[]" > "$FACTORY_FILE"
-# fi
-
-
-# CURRENT_FACTORY_JSON=$(cat $FACTORY_FILE)
-# echo "CURRENT_FACTORY_JSON: $CURRENT_FACTORY_JSON"
+AGGREGATOR_FILE="/workspace/.soroban/aggregator.json"
+# Initialize factory.json if it does not exist
+if [[ ! -f "$AGGREGATOR_FILE" ]]; then
+    echo file not found
+    echo "[]" > "$AGGREGATOR_FILE"
+fi
 
 
-# # check if the network already exists in that json
-# exists=$(echo "$CURRENT_FACTORY_JSON" | jq '.[] | select(.network == "'$NETWORK'")')
-# echo "This network already exist in the factory.json? : $exists"
-
-# NEW_FACTORY_JSON="{}"
-# if [[ -n "$exists" ]]; then
-#     # if the network exists, update the factory for that network
-#     echo network exists, replace
-#     NEW_FACTORY_JSON=$(echo "$CURRENT_FACTORY_JSON" | jq '
-#         map(if .network == "'$NETWORK'" then '"$NEW_FACTORY_OBJECT"' else . end)'
-#     )
-# else
-#     # if the network doesn't exist, append the new object to the list
-#     echo network does not exist, append
-#     NEW_FACTORY_JSON=$(echo "$CURRENT_FACTORY_JSON" | jq '. += ['"$NEW_FACTORY_OBJECT"']')
-# fi
-
-# # echo "NEW_FACTORY_JSON: $NEW_FACTORY_JSON"
-# echo "$NEW_FACTORY_JSON" > "$FACTORY_FILE"
-
-# echo "end creating the factory" 
+CURRENT_AGGREGATOR_JSON=$(cat $AGGREGATOR_FILE)
+echo "CURRENT_AGGREGATOR_JSON: $CURRENT_AGGREGATOR_JSON"
 
 
-# # # Save the network and factory information in a JSON file
-# # jq -n \
-# #   --arg network "$NETWORK" \
-# #   --arg factory_id "$AGGREGATOR_ID" \
-# #   --arg factory_address "$FACTORY_ADDRESS" \
-# #   '[{"network": $network, "factory_id": $factory_id, "factory_address": $factory_address}]' \
-# #   > /workspace/.soroban/factory.json
+# check if the network already exists in that json
+exists=$(echo "$CURRENT_AGGREGATOR_JSON" | jq '.[] | select(.network == "'$NETWORK'")')
+echo "This network already exist in the aggregator.json? : $exists"
 
+NEW_AGGREGATOR_JSON="{}"
+if [[ -n "$exists" ]]; then
+    # if the network exists, update the factory for that network
+    echo network exists, replace
+    NEW_AGGREGATOR_JSON=$(echo "$CURRENT_AGGREGATOR_JSON" | jq '
+        map(if .network == "'$NETWORK'" then '"$NEW_AGGREGATOR_OBJECT"' else . end)'
+    )
+else
+    # if the network doesn't exist, append the new object to the list
+    echo network does not exist, append
+    NEW_AGGREGATOR_JSON=$(echo "$CURRENT_AGGREGATOR_JSON" | jq '. += ['"$NEW_AGGREGATOR_OBJECT"']')
+fi
 
+# echo "NEW_AGGREGATOR_JSON: $NEW_AGGREGATOR_JSON"
+echo "$NEW_AGGREGATOR_JSON" > "$AGGREGATOR_FILE"
 
-# # Output the file path and contents
-# echo "Factory information available in /workspace/.soroban/factory.json"
-# cat /workspace/.soroban/factory.json
+echo "end creating the factory" 
+
+# Output the file path and contents
+echo "Aggregator information available in /workspace/.soroban/aggregator.json"
+cat /workspace/.soroban/aggregator.json
