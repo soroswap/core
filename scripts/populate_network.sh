@@ -12,7 +12,7 @@ echo -e "${GREEN}Deploying tokens...${NC}"
 bash /workspace/scripts/deploy_tokens_n_pairs.sh $NETWORK 8
 
 #Step 2: Deploy and Initialize Aggregator
-echo -e "${GREEN}Deploying and initializing factory...${NC}"
+echo -e "${GREEN}Deploying and initializing Aggregator...${NC}"
 bash /workspace/scripts/deploy_initialize_aggregator.sh $NETWORK false
 
 #Step 3: Add Liquidity to multiple pairs
