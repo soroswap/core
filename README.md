@@ -18,7 +18,7 @@ jq, docker, docker-compose, node, yarn
 1.1. Clone this repo
 
 ```
-git clone http://github.com/soroswap/core.git
+git clone --recurse-submodules http://github.com/soroswap/core.git
 ```
 
 1.2 In one terminal: (choose standalone, futurenet or testnet)
@@ -38,6 +38,16 @@ bash scripts/run.sh
 ```
 yarn
 ```
+
+#### Submodule Initialization
+If you find the `contracts/aggregator/protocols/phoenix/` directory empty after cloning the repository, it indicates that the submodules, including Phoenix, have not been initialized. To properly set up the Phoenix submodule, execute the following command from the root of your repository:
+
+```bash
+git submodule update --init
+```
+
+This command initializes and fetches the content of the Phoenix submodule along with any other submodules configured within the repository. It's a crucial step to ensure that all necessary code, including external protocols or contracts, is correctly downloaded and available for use in your local development environment.
+
 
 
 ### 2. Deploy populated network
@@ -65,11 +75,13 @@ This will:
 
 - Build and Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
 
+- Build and Deploy the SoroswapAggregator contract and initialize it with the deployed Router address
+
 - Create 64 Pairs (all combinations between pairs) using the Router contract.
 
 - Create 6 custom liquidity pools.
 
-- Create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`  
+- Create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json`, `.soroban/token_admin_keys.json`, `.soroban/random_tokens.json`, `.soroban/aggregator.json`  
   
 
 This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
@@ -90,7 +102,9 @@ This will serve:
 - Factory addresses http://localhost:8010/api/factory
 - Router addresses http://localhost:8010/api/router
 - Admin keys http://localhost:8010/api/keys
-- Created pairs http://localhost:8010/api/keys
+- Created pairs http://localhost:8010/api/pairs
+- Aggregator addresses http://localhost:8010/api/aggregator
+- Random Tokens http://localhost:8010/api/random_tokens
 
 The created pairs won't be readed by the front-end, however will be useful to debug
 
@@ -111,6 +125,8 @@ https://api.soroswap.finance/api/factory
 https://api.soroswap.finance/api/keys
 https://api.soroswap.finance/api/tokens
 https://api.soroswap.finance/api/pairs
+https://api.soroswap.finance/api/aggregator
+https://api.soroswap.finance/api/random_pairs
 
 #### Note:
 
