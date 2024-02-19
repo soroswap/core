@@ -1,4 +1,5 @@
 use soroban_sdk::{contracttype, Env, Address};
+use crate::models::{ProtocolAddressPair};
 
 #[derive(Clone)]
 #[contracttype]
@@ -27,8 +28,8 @@ pub fn is_initialized(e: &Env) -> bool {
     e.storage().instance().has(&DataKey::Initialized)
 }
 
-pub fn put_protocol_address(e: &Env, protocol_id: i32, address: &Address) {
-    e.storage().instance().set(&DataKey::ProtocolAddress(protocol_id), address);
+pub fn put_protocol_address(e: &Env, pair: ProtocolAddressPair) {
+    e.storage().instance().set(&DataKey::ProtocolAddress(pair.protocol_id), &pair.address);
 }
 
 pub fn has_protocol_address(e: &Env, protocol_id: i32) -> bool {

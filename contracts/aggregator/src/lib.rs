@@ -129,7 +129,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         }
     
         for pair in protocol_addresses.iter() {
-            put_protocol_address(&e, pair.protocol_id, &pair.address);
+            put_protocol_address(&e, pair);
         }
 
         set_admin(&e, admin);
@@ -156,7 +156,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
                 return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol);
             }
             // Proceed to update the protocol address since the id is valid
-            put_protocol_address(&e, pair.protocol_id, &pair.address);
+            put_protocol_address(&e, pair);
         }
     
         // event::protocols_updated(&e);
