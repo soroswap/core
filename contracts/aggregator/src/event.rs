@@ -1,17 +1,20 @@
 //! Definition of the Events used in the contract
 use soroban_sdk::{contracttype, symbol_short, Env, Address, Vec};
+use crate::models::{ProtocolAddressPair, DexDistribution};
 
 // INITIALIZED
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InitializedEvent {
-    pub state: bool
+    pub state: bool,
+    pub protocol_addresses: Vec<ProtocolAddressPair>
 }
 
-pub(crate) fn initialized(e: &Env, state: bool) {
+pub(crate) fn initialized(e: &Env, state: bool, protocol_addresses: Vec<ProtocolAddressPair>) {
     
     let event: InitializedEvent = InitializedEvent {
-        state: state
+        state: state,
+        protocol_addresses,
     };
     e.events().publish(("SoroswapAggregator", symbol_short!("init")), event);
 }
@@ -20,8 +23,8 @@ pub(crate) fn initialized(e: &Env, state: bool) {
 #[contracttype] 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SwapEvent {
-    pub path: Vec<Address>,
-    pub amounts: Vec<i128>,
+    pub amount_in: i128,
+    pub distribution: Vec<DexDistribution>,
     pub to: Address
 }
 
@@ -36,15 +39,33 @@ pub struct SwapEvent {
 /// * `to` - The address where the output tokens will be sent to.
 pub(crate) fn swap(
     e: &Env,
-    path: Vec<Address>,
-    amounts: Vec<i128>,
+    amount_in: i128,
+    distribution: Vec<DexDistribution>,
     to: Address
 ) {
     let event = SwapEvent {
-        path,
-        amounts,
+        amount_in,
+        distribution,
         to,
     };
 
     e.events().publish(("SoroswapAggregator", symbol_short!("swap")), event);
+}
+// UPDATE PROTOCOL EVENT
+#[contracttype] 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct UpdateProtocolsEvent {
+    pub protocol_addresses: Vec<ProtocolAddressPair>
+}
+
+/// Publishes an `UpdateProtocolsEvent` to the event stream.
+pub(crate) fn protocols_updated(
+    e: &Env,
+    protocol_addresses: Vec<ProtocolAddressPair>
+) {
+    let event = UpdateProtocolsEvent {
+        protocol_addresses,
+    };
+
+    e.events().publish(("SoroswapAggregator", symbol_short!("update")), event);
 }

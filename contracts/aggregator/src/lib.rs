@@ -137,7 +137,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
     
         // Mark the contract as initialized
         set_initialized(&e);
-        event::initialized(&e, true);
+        event::initialized(&e, true, protocol_addresses);
         extend_instance_ttl(&e);
         Ok(())
     }
@@ -157,7 +157,8 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
             put_protocol_address(&e, pair);
         }
     
-        // event::protocols_updated(&e);
+        event::protocols_updated(&e, protocol_addresses);
+        extend_instance_ttl(&e);
         Ok(())
     }
 
@@ -209,7 +210,8 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
                 _ => return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol),
             }
         }
-        
+
+        event::swap(&e, amount, distribution, to);
         Ok(total_swapped)
     }
 
