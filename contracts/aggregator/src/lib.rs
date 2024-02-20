@@ -9,7 +9,7 @@ mod storage;
 mod test;
 
 use storage::{put_protocol_address, has_protocol_address, get_protocol_address, extend_instance_ttl, is_initialized, set_initialized, set_admin, get_admin};
-use models::{DexDistribution, ProtocolAddressPair};
+use models::{DexDistribution, ProtocolAddressPair, MAX_DISTRIBUTION_LENGTH};
 pub use error::{SoroswapAggregatorError, CombinedAggregatorError};
 use crate::dex_interfaces::{dex_constants, soroswap_interface, phoenix_interface};
 
@@ -43,11 +43,11 @@ fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
     }
 }
 
-fn is_valid_protocol(protocol_id: i32) -> bool {
+fn is_valid_protocol(protocol_id: i32) -> Result<(), CombinedAggregatorError> {
     match protocol_id {
-        dex_constants::SOROSWAP | dex_constants::PHOENIX => true,
+        dex_constants::SOROSWAP | dex_constants::PHOENIX => Ok(()),
         // Add additional protocols here as needed
-        _ => false,
+        _ => Err(CombinedAggregatorError::AggregatorUnsupportedProtocol),
     }
 }
 
@@ -129,6 +129,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         }
     
         for pair in protocol_addresses.iter() {
+            is_valid_protocol(pair.protocol_id)?;
             put_protocol_address(&e, pair);
         }
 
@@ -151,10 +152,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         // Check if the sender is the admin
         
         for pair in protocol_addresses.iter() {
-            if !is_valid_protocol(pair.protocol_id) {
-                // If the protocol_id is not recognized, return an error
-                return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol);
-            }
+            is_valid_protocol(pair.protocol_id)?;
             // Proceed to update the protocol address since the id is valid
             put_protocol_address(&e, pair);
         }
@@ -165,8 +163,8 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
 
     fn swap(
         e: Env,
-        from_token: Address,
-        dest_token: Address,
+        _from_token: Address,
+        _dest_token: Address,
         amount: i128,
         amount_out_min: i128,
         distribution: Vec<DexDistribution>,
@@ -180,12 +178,22 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
         to.require_auth();
         ensure_deadline(&e, deadline)?;
 
-        let total_parts: i128 = distribution.iter().map(|dist| dist.parts).sum();
+        if distribution.len() > MAX_DISTRIBUTION_LENGTH {
+            return Err(CombinedAggregatorError::AggregatorDistributionLengthExceeded);
+        }
+    
+        let total_parts: i128 = distribution.iter().map(|dist| dist.parts).sum();    
+
+        if total_parts == 0 {
+            return Err(CombinedAggregatorError::AggregatorInvalidTotalParts);
+        }
 
         let mut total_swapped: i128 = 0;
        
         for dist in distribution.iter() {
-            let swap_amount = (amount * dist.parts) / total_parts;
+            let swap_amount = amount.checked_mul(dist.parts)
+                .and_then(|prod| prod.checked_div(total_parts))
+                .ok_or(CombinedAggregatorError::AggregatorArithmeticError)?;
             
             match dist.index {
                 dex_constants::SOROSWAP => {
@@ -195,7 +203,7 @@ impl SoroswapAggregatorTrait for SoroswapAggregator {
                 },
                 dex_constants::PHOENIX => {
                     // Call function to handle swap via Phoenix
-                    let swap_result = phoenix_interface::swap_with_phoenix(&e, &swap_amount, dist.path.clone(), to.clone())?;
+                    let swap_result = phoenix_interface::swap_with_phoenix(&e, &swap_amount, dist.path.clone(), to.clone(), deadline.clone())?;
                     total_swapped += swap_result;
                 },
                 _ => return Err(CombinedAggregatorError::AggregatorUnsupportedProtocol),

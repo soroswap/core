@@ -41,3 +41,5 @@ pub struct ProtocolAddressPair {
     pub protocol_id: i32,
     pub address: Address,
 }
+
+pub const MAX_DISTRIBUTION_LENGTH: u32 = 15;

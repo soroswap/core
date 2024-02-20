@@ -37,6 +37,7 @@ pub fn swap_with_phoenix(
     amount: &i128,
     path: Vec<Address>,
     to: Address,
+    _deadline: u64,
 ) -> Result<i128, CombinedAggregatorError> {
     if !has_protocol_address(e, dex_constants::PHOENIX) {
         return Err(CombinedAggregatorError::AggregatorProtocolAddressNotFound);
