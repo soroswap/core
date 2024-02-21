@@ -226,7 +226,7 @@ echo "Pair Contract address: $PAIR_ADDR"
 echo "Stake Contract address: $STAKE_ADDR"
 echo "Factory Contract address: $FACTORY_ADDR"
 
-NEW_PHOENIX_OBJECT="{ \"network\": \"$NETWORK\", \"multihop_address\": \"$MULTIHOP_ADDR\", \"token_a\": \"$TOKEN_ID1\", \"token_b\": \"$TOKEN_ID2\" }"
+NEW_PHOENIX_OBJECT="{ \"network\": \"$NETWORK\", \"multihop_address\": \"$MULTIHOP_ADDR\", \"factory_address\": \"$FACTORY_ADDR\", \"token_a\": \"$TOKEN_ID1\", \"token_b\": \"$TOKEN_ID2\" }"
 echo "New aggregator object: $NEW_PHOENIX_OBJECT"
 
 PHOENIX_FILE="/workspace/.soroban/phoenix_protocol.json"
