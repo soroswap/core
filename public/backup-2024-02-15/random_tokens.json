@@ -1,0 +1,365 @@
+[
+  {
+    "network": "standalone",
+    "tokens": [
+      {
+        "address": "CBOMAHKNQUAK6NZJ7ISXQN3XCRKZLXUJBY6MKVPU4GQU44UCLPZBQVOG",
+        "name": "xislor",
+        "symbol": "XISL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBMBIICFLMEXG6V4OQKZFERTTNJLXBNDMHBNGXCZ7NS4HUMWDNFXWH6Z",
+        "name": "mikael",
+        "symbol": "MIKA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAOC6TDAA2NDNSHPI43XNRGDKO3HCOMOADGWQ7HX4NO4EK26U46YCTMH",
+        "name": "danria",
+        "symbol": "DANR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDPHUCPVRMRUXAYOQAE6QWSH2T2TWX5VWFE6FVGCJRCAL6PIK4OOUEOU",
+        "name": "tiarin",
+        "symbol": "TIAR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "JAMP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JAMP"
+      },
+      {
+        "asset": "VAXZ:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "VAXZ"
+      },
+      {
+        "asset": "TROM:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "TROM"
+      },
+      {
+        "asset": "CYOK:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "CYOK"
+      }
+    ]
+  },
+  {
+    "network": "testnet",
+    "tokens": [
+      {
+        "address": "CCSNNJRVK7CF33XYUAKAMDGCOOYWI4S4WFJ6LPBIYNIFS5MXTWVQSE45",
+        "name": "lordor",
+        "symbol": "LORD",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBJTGJCCZXZRW5IO7ACVHC4T2FWKTJE7Z2PUGSX7J72UEKJQMJNXFYGJ",
+        "name": "leoaxl",
+        "symbol": "LEOA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDNSZRSBUYD4T234PDC2YAG6PCO6FM6CQ7W5V7YJWT4P6W335POCKOTJ",
+        "name": "aelron",
+        "symbol": "AELR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CADGCWSL4Q2ECP2RVQCOI5PQHT2ICHT2KR4TLXOY32RHYWHKZBQ7PRFU",
+        "name": "anabel",
+        "symbol": "ANAB",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CD7QLTRGHWQSPSRW4VHT43ZWDXW2WDMMISNOMURBR43HBA3XVXRK6AXT",
+        "name": "dordan",
+        "symbol": "DORD",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAJMK7HD4WGMPRRFOM3PPXWV4BWGGIXMTHNGXEQBM2JNLPSGSBBVWCKJ",
+        "name": "axlael",
+        "symbol": "AXLA",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCZZTQRAUTCDXGEBNJAVKVGHPSUZVKZRWEWNEVOXLSDBSITSWZA4AUWP",
+        "name": "keltar",
+        "symbol": "KELT",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCULUIZ234NAPHFJUTBVWW7NPAZVHCJRV5EEEIBA2Y7QHHBPNVLXM45D",
+        "name": "gavlor",
+        "symbol": "GAVL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CACMEUQCEJ2FDZYXO2KEQSJB4LFPXFKKHPM56A2RC4IHFHBLU4OIJPE6",
+        "name": "niaxis",
+        "symbol": "NIAX",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCIOXUSGYNDXU54FZSYXY73NB67UJL6VUBOXOE7HVKAW7TN6YAYYNTGU",
+        "name": "leocal",
+        "symbol": "LEOC",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAO5S2G6LZ5JEWAFSASDWB2773ESFBRKW2NBUYGTWFLMY57WB7WZVYDG",
+        "name": "rinkai",
+        "symbol": "RINK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCUQ6UT2OBHI7HL76FA3X4FZDAUC3MFDV7BBDYTJDFZ3HWDL6YVYIUVP",
+        "name": "lorleo",
+        "symbol": "LORL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CADX3CXZOCM4SSOYOOLZS2MRGYTU35Z4KRZUD5XNL54RE7NZZHFODI2U",
+        "name": "keltia",
+        "symbol": "KELT",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCFS4G7NGCGTV4I6HEVWDWQKDOOWBJXEHW6KP2X47YXN46XDY7WN7FE4",
+        "name": "zelfen",
+        "symbol": "ZELF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CB67O25BTF33IKWXNUFW6467XY7UXWIVYCTQOFUKLAUJVBFC7VT47J7W",
+        "name": "kelneo",
+        "symbol": "KELN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDOJYVSBSMM3HWQ6NF3EAYXKWAMERC5PBCSY3LFRCMHGY2PAPKVC7RN3",
+        "name": "ronfen",
+        "symbol": "RONF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "MILP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "MILP"
+      },
+      {
+        "asset": "MILP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "MILP"
+      },
+      {
+        "asset": "PYRV:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PYRV"
+      },
+      {
+        "asset": "OTZN:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "OTZN"
+      },
+      {
+        "address": "CDS255H73AUFDUXTRSZBHYYVG4BSYWXNJ4I72H4NI5LIGO5K5PBGDJVY",
+        "name": "zelron",
+        "symbol": "ZELR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAWXYPPH47XXRGNNOC3DMCPKECPLLWCE26AWC62DCT2YTFS7JSPRN3J4",
+        "name": "aelfen",
+        "symbol": "AELF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDWAT7YUIQCQWSTKTHY6UNA2SV3ZWG5372BP5DGMBCKG2C27KCPN3ODC",
+        "name": "ronsia",
+        "symbol": "RONS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAA74ZB4KSDZF5NBW4GGUONEMYW75PWJAT3N3A3ETLEAH5MCKVWYWO5H",
+        "name": "tarthe",
+        "symbol": "TART",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "JIXV:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JIXV"
+      },
+      {
+        "asset": "NYLP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "NYLP"
+      },
+      {
+        "asset": "TEZR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "TEZR"
+      },
+      {
+        "asset": "FIZR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "FIZR"
+      },
+      {
+        "address": "CALJRPFXZEHDMHPPQK4L4ZSR7HODZF2H46ICA4SQQQ4AEXIDK2QD3QLV",
+        "name": "gavrey",
+        "symbol": "GAVR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDXICULFCCDS2UEFKKIJ4KWP4R2DCLBPOHESFTJFW255ZTLLEZNVWVXA",
+        "name": "tiaser",
+        "symbol": "TIAS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDXMSZFEBZTVGMKVQPLINWMFWLLZ7JFD6F6CYQ3ASANOKBZBNDK6LXVY",
+        "name": "kyekel",
+        "symbol": "KYEK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CCWOE5S2ZSSTHZLLYQRXRMH5YKMTP57URTCYOLXND6RVKKRIHVATSGVW",
+        "name": "kyefen",
+        "symbol": "KYEF",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "PEQF:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PEQF"
+      },
+      {
+        "asset": "UVIJ:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "UVIJ"
+      },
+      {
+        "asset": "DEXF:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "DEXF"
+      },
+      {
+        "asset": "CYOW:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "CYOW"
+      },
+      {
+        "address": "CAXEM5B4GUUAECPDX5WA5F5SDYDZXWPW2NLAGGL2EAABKOR524JSQ6QX",
+        "name": "riakai",
+        "symbol": "RIAK",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CB4QWLKLZNR7E75TIGYUFKHLHT36G5CDPNON2GQTYTNBTHIECNIN4GK7",
+        "name": "iannix",
+        "symbol": "IANN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBEDCBTNTPYWFKYP3VXOVAJENCV5C6W6HZQRJXVNDAZXQGVSVW2TRMGR",
+        "name": "calnix",
+        "symbol": "CALN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAUPEDRN3X5QXOVNEJZFUJZDZFINQI74YF6XWDW4LJIHDM3R7HUFBNFT",
+        "name": "neozel",
+        "symbol": "NEOZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "KIBP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "KIBP"
+      },
+      {
+        "asset": "PYRO:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "PYRO"
+      },
+      {
+        "asset": "KRAL:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "KRAL"
+      },
+      {
+        "asset": "VOER:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "VOER"
+      }
+    ]
+  },
+  {
+    "network": "testnet-public",
+    "tokens": [
+      {
+        "address": "CA3EYHZY6IKKIT4GCYZHY34AWMVYZVALV7P62NE26Y3FQQ2RXCPHT6XQ",
+        "name": "evasia",
+        "symbol": "EVAS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBSX2S5OMX6RLO3CCE5SVVYVXOZSSJOGV345UKPVE3OZ7M2DY42UZJ5J",
+        "name": "callor",
+        "symbol": "CALL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDSDESUMDSYQ4DZ324ALACTFNIC2MGE6ALSRVJU43JWEN4FDGFICPXLZ",
+        "name": "belzel",
+        "symbol": "BELZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBHGCOK5VDKDKAQKRVVBBCMOROVOD3DBLBF3OHRNF7MV5E6XNW7Y5X4T",
+        "name": "neorey",
+        "symbol": "NEOR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "JIXZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "JIXZ"
+      },
+      {
+        "asset": "MILV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "MILV"
+      },
+      {
+        "asset": "UVIZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "UVIZ"
+      },
+      {
+        "asset": "KULV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "KULV"
+      }
+    ]
+  }
+]

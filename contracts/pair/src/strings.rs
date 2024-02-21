@@ -19,7 +19,7 @@ impl TakeFirstNCharsAndConcat for String {
     fn concat(&self, e: &Env, other: String) -> String {
         let len_0 = self.len() as usize;
         let len_1 = other.len() as usize;
-        let mut slice: [u8; 100] = [0; 100];
+        let mut slice: [u8; 35] = [0; 35];
         let combined_len = len_0 + len_1;
 
         self.copy_into_slice(&mut slice[..len_0]);
