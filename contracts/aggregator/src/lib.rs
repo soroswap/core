@@ -43,6 +43,7 @@ fn check_initialized(e: &Env) -> Result<(), CombinedAggregatorError> {
     }
 }
 
+// TODO: Valid protocols should be in an array, so we can add them after
 fn is_valid_protocol(protocol_id: i32) -> Result<(), CombinedAggregatorError> {
     match protocol_id {
         dex_constants::SOROSWAP | dex_constants::PHOENIX => Ok(()),
@@ -65,6 +66,9 @@ pub trait SoroswapAggregatorTrait {
         e: Env,
         protocol_addresses: Vec<ProtocolAddressPair>,
     ) -> Result<(), CombinedAggregatorError>;
+
+    // TODO: Separate swap in 2 functions: swap_exact_tokens_for_tokens and swap_tokens_for_tokensn
+    
     /// Executes a swap operation distributed across multiple decentralized exchanges (DEXes) as specified
     /// by the `distribution`. Each entry in the distribution details which DEX to use, the path of tokens
     /// for swap (if applicable), and the portion of the total `amount` to swap through that DEX. This 
@@ -88,8 +92,8 @@ pub trait SoroswapAggregatorTrait {
     /// On failure, returns a `CombinedAggregatorError` detailing the cause of the error.
     fn swap(
         e: Env,
-        from_token: Address,
-        dest_token: Address,
+        from_token: Address, // TODO: If we use from_, then we should use to_
+        dest_token: Address,// TODO: If we use dest_, then we should use origin_
         amount: i128,
         amount_out_min: i128,
         distribution: Vec<DexDistribution>,

@@ -82,3 +82,5 @@ echo "end creating the keys"
 echo Fund token-admin account from friendbot
 echo This will fail if the account already exists, but it\' still be fine.
 curl  -X POST "$FRIENDBOT_URL?addr=$TOKEN_ADMIN_ADDRESS"
+echo "==="
+echo "   "
