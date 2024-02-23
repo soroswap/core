@@ -1,13 +1,13 @@
-const express = require("express");
-const fs = require("fs");
+import cors from "cors";
+import express from "express";
+import { existsSync } from "fs";
+import { join } from "path";
 const app = express();
-const cors = require("cors");
 const port = 8010;
-const path = require("path");
 
 const isVercel = process.env.VERCEL === "1";
 const directory = isVercel
-  ? path.join(__dirname, "..", "..", "public")
+  ? join(__dirname, "..", "..", "public")
   : "/workspace/.soroban";
 
 app.use(cors());
@@ -17,8 +17,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/tokens", (req, res) => {
-  const tokensFile = path.join(directory, "tokens.json");
-  if (fs.existsSync(tokensFile)) {
+  const tokensFile = join(directory, "tokens.json");
+  if (existsSync(tokensFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
@@ -27,8 +27,8 @@ app.get("/api/tokens", (req, res) => {
 });
 
 app.get("/api/random_tokens", (req, res) => {
-  const tokensFile = path.join(directory, "random_tokens.json");
-  if (fs.existsSync(tokensFile)) {
+  const tokensFile = join(directory, "random_tokens.json");
+  if (existsSync(tokensFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
@@ -39,7 +39,7 @@ app.get("/api/random_tokens", (req, res) => {
 app.get("/api/factory", (req, res) => {
   const factoryFile = `${directory}/factory.json`;
 
-  if (fs.existsSync(factoryFile)) {
+  if (existsSync(factoryFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(factoryFile);
   }
@@ -50,7 +50,7 @@ app.get("/api/factory", (req, res) => {
 app.get("/api/keys", (req, res) => {
   const keysFile = `${directory}/token_admin_keys.json`;
 
-  if (fs.existsSync(keysFile)) {
+  if (existsSync(keysFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(keysFile);
   }
@@ -61,7 +61,7 @@ app.get("/api/keys", (req, res) => {
 app.get("/api/pairs", (req, res) => {
   const tokensFile = `${directory}/pairs.json`;
 
-  if (fs.existsSync(tokensFile)) {
+  if (existsSync(tokensFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(tokensFile);
   }
@@ -72,7 +72,7 @@ app.get("/api/pairs", (req, res) => {
 app.get("/api/router", (req, res) => {
   const routerFile = `${directory}/router.json`;
 
-  if (fs.existsSync(routerFile)) {
+  if (existsSync(routerFile)) {
     res.set("Cache-Control", "no-store");
     return res.sendFile(routerFile);
   }

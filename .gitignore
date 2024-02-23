@@ -6,4 +6,5 @@ contracts/*/test_snapshots
 .DS_Store
 .soroban
 node_modules/
-
+.env
+/dist
