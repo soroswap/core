@@ -17,16 +17,6 @@ export async function signWithKeypair(
   return tx.toXDR();
 }
 
-// export async function logInvocation(invocation: Promise<ContractResult<any>>) {
-//   console.log('invoking contract...');
-//   const result = await invocation;
-//   console.log('Hash: ', result.hash);
-//   console.log(JSON.stringify(result.resources, null, 2));
-//   console.log(result.toString());
-//   result.unwrap();
-//   console.log();
-// }
-
 export async function invoke(
   operation: string | xdr.Operation,
   source: Keypair,
