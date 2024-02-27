@@ -37,12 +37,10 @@ export async function invokeTransaction(tx: Transaction, source: Keypair, sim: b
   if (SorobanRpc.Api.isSimulationError(simulation_resp)) {
     // No resource estimation available from a simulation error. Allow the response formatter
     // to fetch the error.
-    return simulation_resp;
+    throw new Error(`Simulation error: ${JSON.stringify(simulation_resp)}`);
   } else if (sim) {
     // Only simulate the TX. Assemble the TX to borrow the resource estimation algorithm in
-    // `assembleTransaction` and return the simulation results.
-    const prepped_tx = SorobanRpc.assembleTransaction(tx, simulation_resp).build();
-    return prepped_tx;
+    return simulation_resp;
   }
 
   // assemble and sign the TX
@@ -91,6 +89,17 @@ export async function createTxBuilder(source: Keypair): Promise<TransactionBuild
     throw Error('unable to create txBuilder');
   }
 }
+
+export const getCurrentTimePlusOneHour = () => {
+  // Get the current time in milliseconds
+  const now = Date.now();
+
+  // Add one hour (3600000 milliseconds)
+  const oneHourLater = now + 3600000;
+
+  return oneHourLater;
+};
+
 
 // export async function invokeClassicOp(operation: xdr.Operation<Operation>, source: Keypair) {
 //   console.log('invoking classic op...');

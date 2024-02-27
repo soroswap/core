@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Address, Contract, SorobanRpc, nativeToScVal } from 'stellar-sdk';
+import { Address, Contract, nativeToScVal } from 'stellar-sdk';
 import { fileURLToPath } from 'url';
 import { AddressBook } from '../utils/address_book.js';
 import { bumpContractCode, deploySorobanToken, installContract } from '../utils/contract.js';
@@ -11,7 +11,10 @@ import { invoke } from '../utils/tx.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function deploySorobanTestTokens(numberOfTokens: number, resetTokensBook: boolean) {
+const network = process.argv[2];
+const loadedConfig = config(network);
+
+export async function deploySorobanTestTokens(numberOfTokens: number, resetTokensBook: boolean, tokensBook: TokensBook, addressBook: AddressBook) {
   const fileName = `../../scripts/token_name_ideas.json`;
   // Instaling token contract
   await installContract('token', addressBook, loadedConfig.admin);
@@ -62,16 +65,4 @@ export async function deploySorobanTestTokens(numberOfTokens: number, resetToken
     console.log('🚀 « error:', error);
     
   }
-}
-
-const network = process.argv[2];
-const addressBook = AddressBook.loadFromFile(network);
-const tokensBook = TokensBook.loadFromFile();
-
-const loadedConfig = config(network);
-
-interface RpcNetwork {
-  rpc: SorobanRpc.Server;
-  passphrase: string;
-  opts: { allowHttp: boolean };
 }

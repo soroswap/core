@@ -2,8 +2,11 @@ import { Address, SorobanRpc, nativeToScVal } from 'stellar-sdk';
 import { AddressBook } from '../utils/address_book.js';
 import { airdropAccount, bumpContractCode, bumpContractInstance, deployContract, installContract, invokeContract } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
+import { TokensBook } from '../utils/tokens_book.js';
 import { signWithKeypair } from '../utils/tx.js';
 import { deploySorobanTestTokens } from './deploy_soroban_test_tokens.js';
+import { multiAddLiquidity } from './multi_add_liquidity.js';
+import { setupNativeToken } from './setup_native_token.js';
 
 export async function deployAndInitContracts(addressBook: AddressBook) {
   const signWithAdmin = (txXdr: string) =>
@@ -54,23 +57,21 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
     console.log('-------------------------------------------------------');
     console.log('Deploying new test tokens');
     console.log('-------------------------------------------------------');
-    await deploySorobanTestTokens(8, true);
+    await deploySorobanTestTokens(8, true, tokensBook, addressBook);
+    console.log('-------------------------------------------------------');
+    console.log('Adding Liquidity to multiple paths');
+    console.log('-------------------------------------------------------');
+    await multiAddLiquidity(3, tokensBook, addressBook);
     // Should create liquidity pools with the test tokens...
 
-
-
-    
-    // await tryDeployStellarAsset(
-    //   addressBook,
-    //   loadedConfig.admin,
-    //   new Asset('wBTC', loadedConfig.admin.publicKey())
-    // );
-    // await bumpContractInstance('wBTC', addressBook, loadedConfig.admin);
   }
+
+  await setupNativeToken(tokensBook);
 }
 
 const network = process.argv[2];
 const addressBook = AddressBook.loadFromFile(network);
+const tokensBook = TokensBook.loadFromFile();
 
 const loadedConfig = config(network);
 

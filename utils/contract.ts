@@ -2,7 +2,7 @@
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Address, Contract, Keypair, Operation, StrKey, hash, xdr } from 'stellar-sdk';
+import { Address, Asset, Contract, Keypair, Operation, StrKey, hash, scValToNative, xdr } from 'stellar-sdk';
 import { fileURLToPath } from 'url';
 import { AddressBook } from './address_book.js';
 import { config } from './env_config.js';
@@ -94,40 +94,57 @@ export async function invokeContract(
   const contractInstance = new Contract(contractAddress);
 
   const contractOperation = contractInstance.call(method, ...params);
-  await invoke(
+  return await invoke(
     contractOperation,
     source,
     false,
   );  
 }
 
-// export async function deployStellarAsset(asset: Asset, addressBook: AddressBook, source: Keypair) {
-//   const xdrAsset = asset.toXDRObject();
-//   const networkId = hash(Buffer.from(config.passphrase));
-//   const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
-//     new xdr.HashIdPreimageContractId({
-//       networkId: networkId,
-//       contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
-//     })
-//   );
-//   const contractId = StrKey.encodeContract(hash(preimage.toXDR()));
+export async function invokeCustomContract(
+  contractId: string,
+  method: string,
+  params: xdr.ScVal[],
+  source: Keypair
+) {
+  console.log("Invoking contract: ", contractId, " with method: ", method);
+  const contractInstance = new Contract(contractId);
 
-//   addressBook.setContractId(asset.code, contractId);
-//   const deployFunction = xdr.HostFunction.hostFunctionTypeCreateContract(
-//     new xdr.CreateContractArgs({
-//       contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
-//       executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
-//     })
-//   );
-//   await invokeAndUnwrap(
-//     Operation.invokeHostFunction({
-//       func: deployFunction,
-//       auth: [],
-//     }),
-//     source,
-//     () => undefined
-//   );
-// }
+  const contractOperation = contractInstance.call(method, ...params);
+  return await invoke(
+    contractOperation,
+    source,
+    false,
+  );  
+}
+
+export async function deployStellarAsset(asset: Asset, source: Keypair) {
+  const xdrAsset = asset.toXDRObject();
+  const networkId = hash(Buffer.from(loadedConfig.passphrase));
+  const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
+    new xdr.HashIdPreimageContractId({
+      networkId: networkId,
+      contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
+    })
+  );
+  const contractId = StrKey.encodeContract(hash(preimage.toXDR()));
+  console.log('🚀 « deployed Stellar Asset:', contractId);
+
+  const deployFunction = xdr.HostFunction.hostFunctionTypeCreateContract(
+    new xdr.CreateContractArgs({
+      contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(xdrAsset),
+      executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
+    })
+  );
+  await invoke(
+    Operation.invokeHostFunction({
+      func: deployFunction,
+      auth: [],
+    }),
+    source,
+    false
+  );
+}
 
 export async function bumpContractInstance(
   contractKey: string,
@@ -252,4 +269,22 @@ export async function deploySorobanToken(
   if (result) {
     return contractId;
   }
+}
+
+export async function getTokenBalance(contractId: string, from: string, source: Keypair) {
+
+  const tokenContract = new Contract(contractId);
+  const op = tokenContract.call("balance", new Address(from).toScVal());
+  
+  const result = await invoke(op, source, true);
+  const parsedResult = scValToNative(result.result.retval).toString();
+  
+  if(!parsedResult) {
+      throw new Error("The operation has no result.");
+  }
+  if(parsedResult == 0) {
+      return parsedResult
+  }
+  const resultNumber = parseInt(parsedResult.slice(0, -1));
+  return resultNumber;
 }

@@ -43,17 +43,20 @@ export class TokensBook {
   }
 
   writeToFile() {
-    const filePath = path.join(__dirname, '../../.soroban/',this.fileName);
+    const filePath = path.join(__dirname, '../../.soroban/', this.fileName);
     const fileContent = JSON.stringify(this.networks, null, 2);
     writeFileSync(filePath, fileContent);
   }
 
   addToken(networkName: string, token: Token) {
-    const network = this.networks.find(n => n.network === networkName);
+    const network = this.networks.find(n => n.network === networkName);    
     if (network) {
-      network.tokens.push(token);
+      const tokenExists = network.tokens.some(t => t.address === token.address);
+      
+      if (!tokenExists) {
+        network.tokens.push(token);
+      }
     } else {
-      // If the network does not exist, add a new network with the token
       this.networks.push({
         network: networkName,
         tokens: [token]
