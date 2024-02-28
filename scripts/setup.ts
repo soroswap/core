@@ -5,6 +5,7 @@ import { config } from '../utils/env_config.js';
 import { TokensBook } from '../utils/tokens_book.js';
 import { signWithKeypair } from '../utils/tx.js';
 import { deploySorobanTestTokens } from './deploy_soroban_test_tokens.js';
+import { deployStellarTestTokens } from './deploy_stellar_test_tokens.js';
 import { multiAddLiquidity } from './multi_add_liquidity.js';
 import { setupNativeToken } from './setup_native_token.js';
 
@@ -55,13 +56,17 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
 
   if (network != 'mainnet') {
     console.log('-------------------------------------------------------');
-    console.log('Deploying new test tokens');
+    console.log('Deploying Soroban test tokens');
     console.log('-------------------------------------------------------');
     await deploySorobanTestTokens(8, true, tokensBook, addressBook);
     console.log('-------------------------------------------------------');
     console.log('Adding Liquidity to multiple paths');
     console.log('-------------------------------------------------------');
     await multiAddLiquidity(3, tokensBook, addressBook);
+    console.log('-------------------------------------------------------');
+    console.log('Deploying Stellar Test Tokens');
+    console.log('-------------------------------------------------------');
+    await deployStellarTestTokens(4, false, tokensBook);
     // Should create liquidity pools with the test tokens...
 
   }

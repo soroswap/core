@@ -23,10 +23,10 @@ export async function setupNativeToken(tokensBook: TokensBook) {
       deployStellarAsset(Asset.native(), loadedConfig.admin)
     }
 
-    tokensBook.addToken(network, xlmToken);
+    tokensBook.prependToken(network, xlmToken);
     tokensBook.writeToFile();
   } catch (error) {
-    console.log('🚀 « error:', error);
+    console.log('XLM is probably already deployed on this network', error);
     
   }
 }

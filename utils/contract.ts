@@ -136,7 +136,7 @@ export async function deployStellarAsset(asset: Asset, source: Keypair) {
       executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
     })
   );
-  await invoke(
+  return await invoke(
     Operation.invokeHostFunction({
       func: deployFunction,
       auth: [],

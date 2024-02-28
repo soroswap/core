@@ -64,6 +64,22 @@ export class TokensBook {
     }
   }
 
+  prependToken(networkName: string, token: Token) {
+    const network = this.networks.find(n => n.network === networkName);
+    if (network) {
+      const tokenExists = network.tokens.some(t => t.address === token.address);
+  
+      if (!tokenExists) {
+        network.tokens.unshift(token);
+      }
+    } else {
+      this.networks.push({
+        network: networkName,
+        tokens: [token]
+      });
+    }
+  }
+
   getTokensByNetwork(networkName: string): Token[] | undefined {
     const network = this.networks.find(n => n.network === networkName);
     return network?.tokens;

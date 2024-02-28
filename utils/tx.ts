@@ -37,7 +37,7 @@ export async function invokeTransaction(tx: Transaction, source: Keypair, sim: b
   if (SorobanRpc.Api.isSimulationError(simulation_resp)) {
     // No resource estimation available from a simulation error. Allow the response formatter
     // to fetch the error.
-    throw new Error(`Simulation error: ${JSON.stringify(simulation_resp)}`);
+    throw Error(`Simulation error: ${JSON.stringify(simulation_resp)}`);
   } else if (sim) {
     // Only simulate the TX. Assemble the TX to borrow the resource estimation algorithm in
     return simulation_resp;
