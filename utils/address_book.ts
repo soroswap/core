@@ -23,7 +23,7 @@ export class AddressBook {
    * @returns Contracts object loaded based on the network
    */
   static loadFromFile(network: string) {
-    const fileName = `../../public/${network}.contracts.json`;
+    const fileName = `../../.soroban/${network}.contracts.json`;
     try {
       const contractFile = readFileSync(path.join(__dirname, fileName));
       const contractObj = JSON.parse(contractFile.toString());

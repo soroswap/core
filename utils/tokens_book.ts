@@ -36,7 +36,20 @@ export class TokensBook {
       networks = JSON.parse(fileContent);
     } else {
       // If the file doesn't exist, create a new empty array for networks
-      networks = [];
+      networks = [
+        {
+          network: 'mainnet',
+          tokens: []
+        },
+        {
+          network: 'testnet',
+          tokens: []
+        },
+        {
+          network: 'standalone',
+          tokens: []
+        }
+      ];
     }
 
     return new TokensBook(networks, fileName);

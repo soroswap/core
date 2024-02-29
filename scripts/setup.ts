@@ -4,6 +4,7 @@ import { airdropAccount, bumpContractCode, bumpContractInstance, deployContract,
 import { config } from '../utils/env_config.js';
 import { TokensBook } from '../utils/tokens_book.js';
 import { signWithKeypair } from '../utils/tx.js';
+import { deployRandomTokens } from './deploy_random_tokens.js';
 import { deploySorobanTestTokens } from './deploy_soroban_test_tokens.js';
 import { deployStellarTestTokens } from './deploy_stellar_test_tokens.js';
 import { multiAddLiquidity } from './multi_add_liquidity.js';
@@ -67,8 +68,10 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
     console.log('Deploying Stellar Test Tokens');
     console.log('-------------------------------------------------------');
     await deployStellarTestTokens(4, false, tokensBook);
-    // Should create liquidity pools with the test tokens...
-
+    console.log('-------------------------------------------------------');
+    console.log('Deploying Random tokens for testing');
+    console.log('-------------------------------------------------------');
+    await deployRandomTokens(8, true, addressBook);
   }
 
   await setupNativeToken(tokensBook);
