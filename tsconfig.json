@@ -13,7 +13,7 @@
   },
   "include": [
     "scripts",
-    "dist",
+    "dist", "scripts/deploy_random_tokens.ts", "scripts/deploy_soroban_test_tokens.ts", "scripts/deploy_stellar_test_tokens.ts", "scripts/deploy_token.ts", "scripts/deploy.ts", "scripts/mint_token.ts", "scripts/multi_add_liquidity.ts",
   ],
   "exclude": [
     "scripts/manual_testing/**/*",

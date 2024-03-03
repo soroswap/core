@@ -7,9 +7,8 @@
     "build": "tsc",
     "start": "node scripts/api/server.js",
     "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local",
-    "dev": "bash scripts/network_configs.sh standalone local",
-    "setup": "node dist/scripts/setup.js",
-    "temp-test": "tsc && node dist/scripts/multi_add_liquidity.js"
+    "deploy": "node dist/scripts/deploy.js",
+    "publish": ""
   },
   "license": "MIT",
   "devDependencies": {
