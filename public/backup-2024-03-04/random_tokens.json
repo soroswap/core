@@ -1,0 +1,149 @@
+[
+  {
+    "network": "standalone",
+    "tokens": [
+      {
+        "address": "CA5ZZJ4O5XDBGPUJP6Y5ENKJ2GB2OUVBYJJR5IKMSFAPNMWAUTDXVO6G",
+        "name": "lurlaf",
+        "symbol": "LURL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBPYFDLWMGQDZC6M34ZRMVDEQQPLG25P6XC67BSBLKNU4NSMGGBWAEVB",
+        "name": "tumvur",
+        "symbol": "TUMV",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAFNF7OV5LCA4FG4MI2PDMHJYG6QMGWTKZBBBGDNNPOKEMUKQXVMNVN6",
+        "name": "hivwok",
+        "symbol": "HIVW",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CALYRT7DZ7AFESMRQRDBC4OPI72NS3XP3UVPK4UPY7WH22OPRQXWN2A6",
+        "name": "zivzil",
+        "symbol": "ZIVZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "LAYU:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "LAYU"
+      },
+      {
+        "asset": "FYXR:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "FYXR"
+      },
+      {
+        "asset": "JORP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JORP"
+      },
+      {
+        "asset": "RYAP:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "RYAP"
+      }
+    ]
+  },
+  {
+    "network": "testnet",
+    "tokens": [
+      {
+        "address": "CAL6KNNZM6FN5HF5AS5VTK3STYZP7NEFW2QAKB2VLXOT6W5SDZT5PBVD",
+        "name": "piznul",
+        "symbol": "PIZN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAB63U5X6KEZCGZ5FKEYJ2H5PVHA4RCI2KLCKRIGDPMFMQXQDBOU6AWL",
+        "name": "kewned",
+        "symbol": "KEWN",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CAPY3Q6STA4RPIYE5444MRGILWIG75DPMJQNZSKCOWG7UZVTBJBU4EQL",
+        "name": "pirujo",
+        "symbol": "PIRU",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CABTOTWQTWU42P2W3UDNBAAUKYTUZGAEBDXY7347FVYMA5QP4EHTVQ24",
+        "name": "lukdyl",
+        "symbol": "LUKD",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "LAZT:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "LAZT"
+      },
+      {
+        "asset": "NYLT:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "NYLT"
+      },
+      {
+        "asset": "FYXJ:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "FYXJ"
+      },
+      {
+        "asset": "JAHG:GDCD3DZFH6FNYY4NX2B6MF3TGLX57VKIC4NL6KPRSY6EN5VL5OJ4HGUK",
+        "symbol": "JAHG"
+      }
+    ]
+  },
+  {
+    "network": "testnet-public",
+    "tokens": [
+      {
+        "address": "CA3EYHZY6IKKIT4GCYZHY34AWMVYZVALV7P62NE26Y3FQQ2RXCPHT6XQ",
+        "name": "evasia",
+        "symbol": "EVAS",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBSX2S5OMX6RLO3CCE5SVVYVXOZSSJOGV345UKPVE3OZ7M2DY42UZJ5J",
+        "name": "callor",
+        "symbol": "CALL",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CDSDESUMDSYQ4DZ324ALACTFNIC2MGE6ALSRVJU43JWEN4FDGFICPXLZ",
+        "name": "belzel",
+        "symbol": "BELZ",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "address": "CBHGCOK5VDKDKAQKRVVBBCMOROVOD3DBLBF3OHRNF7MV5E6XNW7Y5X4T",
+        "name": "neorey",
+        "symbol": "NEOR",
+        "logoURI": "",
+        "decimals": 7
+      },
+      {
+        "asset": "JIXZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "JIXZ"
+      },
+      {
+        "asset": "MILV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "MILV"
+      },
+      {
+        "asset": "UVIZ:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "UVIZ"
+      },
+      {
+        "asset": "KULV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
+        "symbol": "KULV"
+      }
+    ]
+  }
+]

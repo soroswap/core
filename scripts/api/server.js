@@ -36,50 +36,6 @@ app.get("/api/random_tokens", (req, res) => {
   res.status(404).send({ error: "file not found" });
 });
 
-app.get("/api/factory", (req, res) => {
-  const factoryFile = `${directory}/factory.json`;
-
-  if (existsSync(factoryFile)) {
-    res.set("Cache-Control", "no-store");
-    return res.sendFile(factoryFile);
-  }
-
-  res.status(404).send({ error: "file not found" });
-});
-
-app.get("/api/keys", (req, res) => {
-  const keysFile = `${directory}/token_admin_keys.json`;
-
-  if (existsSync(keysFile)) {
-    res.set("Cache-Control", "no-store");
-    return res.sendFile(keysFile);
-  }
-
-  res.status(404).send({ error: "file not found" });
-});
-
-app.get("/api/pairs", (req, res) => {
-  const tokensFile = `${directory}/pairs.json`;
-
-  if (existsSync(tokensFile)) {
-    res.set("Cache-Control", "no-store");
-    return res.sendFile(tokensFile);
-  }
-
-  res.status(404).send({ error: "file not found" });
-});
-
-app.get("/api/router", (req, res) => {
-  const routerFile = `${directory}/router.json`;
-
-  if (existsSync(routerFile)) {
-    res.set("Cache-Control", "no-store");
-    return res.sendFile(routerFile);
-  }
-
-  res.status(404).send({ error: "file not found" });
-});
-
 app.get("/api/:network/:contractName", (req, res) => {
   const { network, contractName } = req.params;
   const contractsFile = `${directory}/${network}.contracts.json`;

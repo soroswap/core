@@ -8,7 +8,7 @@
     "start": "node scripts/api/server.js",
     "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local",
     "deploy": "node dist/scripts/deploy.js",
-    "publish": ""
+    "upload": "node dist/scripts/upload_addresses.js"
   },
   "license": "MIT",
   "devDependencies": {

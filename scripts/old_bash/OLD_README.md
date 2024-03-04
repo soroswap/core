@@ -39,13 +39,6 @@ bash scripts/run.sh
 yarn
 ```
 
-1.5 Build contracts
-
-```
-cd /workspace/contracts
-make build
-```
-
 
 ### 2. Deploy populated network
 
@@ -53,24 +46,24 @@ In the same terminal mentioned before, run:
 
 >[!Note]
 >- Accepted values for network are: `standalone | testnet | futurenet`
+>- Accepted values for mode are: `local | public`
   
 
-```bash
-    yarn build
-    # After building you can run:
-    yarn deploy <network>
+```
+
+    bash scripts/populate_network.sh <network> <mode>
 
 ```
 
 
 This will:  
-- Create 8 test tokens (if network is not mainnet).
+- Create 8 test tokens.
 
-- Install the SoroswapPair contract in Soroban.
+- Build and install the SoroswapPair contract in Soroban.
 
-- Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
+- Build and Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
 
-- Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
+- Build and Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
 
 - Create 64 Pairs (all combinations between pairs) using the Router contract.
 
@@ -80,6 +73,8 @@ This will:
   
 
 This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
+
+When selecting mode you can choose between `local` and `public`. This will modify the script that adds liquidity to the pairs. If you choose `local` the script will use the local addresses from `.soroban` folder. If you choose `public` the script will use the public addresses from `./public` folder.
 
 ### 3. (For local development): Serve those .json files
 
@@ -91,10 +86,13 @@ bash scripts/serve_with_docker.sh
 
 This will serve:
 
-- List of tokens at `http://localhost:8010/api/tokens`
-- List of random tokens at `http://localhost:8010/api/random_tokens`
-- Factory address `http://localhost:8010/api/<network>/factory`
-- Factory/Router addresses `http://localhost:8010/api/<network>/router`
+- List of tokens at http://localhost:8010/api/tokens
+- Factory addresses http://localhost:8010/api/factory
+- Router addresses http://localhost:8010/api/router
+- Admin keys http://localhost:8010/api/keys
+- Created pairs http://localhost:8010/api/keys
+
+The created pairs won't be readed by the front-end, however will be useful to debug
 
 ### 4. (For production): Public those .json files and serve them using Vercel
 
@@ -102,14 +100,17 @@ From project root:
 
 ```
 bash scripts/run.sh
-yarn publish <network>
+bash scripts/upload_addresses.sh
 ```
-
-Then you will need to commit this changes to /public directory
 
 Make sure that the origin is the soroswap/core.git ... Otherwise the only thing to do is to update the files on ./public and push them to main.
 
-If everything goes right. Vercel will serve the created .json files
+If everything goes right. Vercel will serve the created .json files in the following API's:
+
+https://api.soroswap.finance/api/factory
+https://api.soroswap.finance/api/keys
+https://api.soroswap.finance/api/tokens
+https://api.soroswap.finance/api/pairs
 
 #### Note:
 
