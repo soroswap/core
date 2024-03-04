@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -42,18 +42,27 @@ export class AddressBook {
    * Write the current address book to a file
    */
   writeToFile() {
+    const dirPath = path.join(__dirname, '../../.soroban/');
+    const filePath = path.join(__dirname, this.fileName);
+
+    if (!existsSync(dirPath)) {
+      mkdirSync(dirPath, { recursive: true });
+    }
+
     const newFile = JSON.stringify(
       this,
       (key, value) => {
         if (value instanceof Map) {
           return Object.fromEntries(value);
-        } else if (key != 'fileName') {
+        } else if (key !== 'fileName') {
+          // Use strict inequality
           return value;
         }
       },
       2
     );
-    writeFileSync(path.join(__dirname, this.fileName), newFile);
+
+    writeFileSync(filePath, newFile);
   }
 
   /**
