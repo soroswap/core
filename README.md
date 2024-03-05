@@ -21,25 +21,33 @@ jq, docker, docker-compose, node, yarn
 git clone http://github.com/soroswap/core.git
 ```
 
-1.2 In one terminal: (choose standalone, futurenet or testnet)
+1.2 Copy the .env.example file to create a new .env file:
+
+```
+cp .env.example .env
+```
+Now, edit the .env file and provide the ADMIN variables. This will be used to deploy the contracts
+
+
+1.3 In one terminal: (choose standalone, futurenet or testnet)
 
 ```
 bash scripts/quickstart.sh standalone # or futurenet or testnet
 ```
 
-1.3. In another terminal
+1.4 In another terminal
 
 ```
 bash scripts/run.sh
 ```
 
-1.4 yarn install
+1.5 yarn install
 
 ```
 yarn
 ```
 
-1.5 Build contracts
+1.6 Build contracts
 
 ```
 cd /workspace/contracts
