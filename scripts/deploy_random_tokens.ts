@@ -23,7 +23,9 @@ function generateRandomName() {
 }
 
 export async function deployRandomTokens(numberOfTokens: number, resetTokensBook: boolean, addressBook: AddressBook) {
-
+  const tokensAdminAccount = loadedConfig.getUser(
+    "TEST_TOKENS_ADMIN_SECRET_KEY",
+  );
   try {
     if (resetTokensBook) {
       randomTokensBook.resetNetworkTokens(network);
@@ -34,12 +36,12 @@ export async function deployRandomTokens(numberOfTokens: number, resetTokensBook
       const symbol = name.substring(0, 4).toUpperCase();
 
       if (i < numberOfTokens / 2) {
-        const deployedToken = await deployToken(name, symbol, '', loadedConfig.admin, addressBook);
+        const deployedToken = await deployToken(name, symbol, '', tokensAdminAccount, addressBook);
         randomTokensBook.addToken(network, deployedToken!);
       } else {
-        const asset = new Asset(symbol, loadedConfig.admin.publicKey());
+        const asset = new Asset(symbol, tokensAdminAccount.publicKey());
         const contractId = asset.contractId(loadedConfig.passphrase);
-        const result = await deployStellarAsset(asset, loadedConfig.admin);
+        const result = await deployStellarAsset(asset, tokensAdminAccount);
   
         const newToken: Token = {
           address: contractId,
