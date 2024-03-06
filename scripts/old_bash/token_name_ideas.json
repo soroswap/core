@@ -1,0 +1,84 @@
+{
+  "tokens": [
+    {
+      "symbol": "XTAR",
+      "name": "Dogstar",
+      "logoURI": "https://www.dogstarcoin.com/assets/img/dogstarcoin-logo.png"
+    },
+    {
+      "symbol": "USDC",
+      "name": "USDCoin",
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+    },
+    {
+      "symbol": "XRP",
+      "name": "Ripple",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/4ab58d77-b70f-4a6c-9944-6f273d549cd5.png"
+    },
+    {
+      "symbol": "ARST",
+      "name": "ArgentinePeso",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/648754b5-f91d-46c4-97f9-557642976a75.png"
+    },
+    {
+      "symbol": "AQUA",
+      "name": "Aquarius",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/1878ee2d-2fd1-4e31-89a7-5a430f1596f8.png"
+    },
+    {
+      "symbol": "EURC",
+      "name": "EURoCoin",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/f8b00dbf-64b3-488f-bcd2-354f29e2cdc8.png"
+    },
+    {
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/c3380651-52e5-4054-9121-a438c60a1ec4.png"
+    },
+    {
+      "symbol": "BRL",
+      "name": "BrazilianReal",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/03e2b3a2-f310-4426-8ff1-ec960b033195.png"
+    },
+    {
+      "symbol": "USDT",
+      "name": "USDTToken",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/de88cd49-1b8e-439d-8dc0-48fb53bde644.png"
+    },
+    {
+      "symbol": "DOGET",
+      "name": "DogeToken",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/a1999544-39c8-4e5c-ada4-9bbaf757a578.png"
+    },
+    {
+      "symbol": "apMATIC",
+      "name": "PolygonMatic",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/d0c45c93-0288-40d2-8df4-7eaa852cb790.png"
+    },
+    {
+      "symbol": "BAT",
+      "name": "BasicAtentionToken",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/088213f4-0ddd-4e1e-b7e2-8cc9f3800700.png"
+    },
+    {
+      "symbol": "ETH",
+      "name": "ETHToken",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/f50535aa-8fcb-487f-912f-96d338b8e610.png"
+    },
+    {
+      "symbol": "SHX",
+      "name": "StrongholdSHx",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/4abc581d-9863-460e-a075-54c8489d2f45.png"
+    },
+    {
+      "symbol": "SCOP",
+      "name": "Scopuly",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/2acf5d09-1764-409a-a9dc-ee7d5f75f147.png"
+    },
+    {
+      "symbol": "RIO",
+      "name": "RealioToken",
+      "logoURI": "https://static.ultrastellar.com/media/assets/img/d1c00cca-e408-47be-82a3-8a1b7a000bb1.png"
+    }
+  ]
+}

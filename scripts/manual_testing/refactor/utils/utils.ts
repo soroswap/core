@@ -1,8 +1,8 @@
-import * as sdk from '@stellar/stellar-sdk'
-import * as path from 'path';
 import axios from "axios";
 import fs from "fs";
-import { testAccount, ApiErrorResponse, tokenContract, tokensFile } from './types'
+import * as path from 'path';
+import * as sdk from 'stellar-sdk';
+import { ApiErrorResponse, testAccount, tokenContract, tokensFile } from './types';
 
 export const colors = {
   red: '\x1b[31m%s\x1b[0m',
