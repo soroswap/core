@@ -3,7 +3,6 @@ import { AddressBook } from '../utils/address_book.js';
 import { airdropAccount, bumpContractCode, bumpContractInstance, deployContract, installContract, invokeContract } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
 import { TokensBook } from '../utils/tokens_book.js';
-import { signWithKeypair } from '../utils/tx.js';
 import { deployRandomTokens } from './deploy_random_tokens.js';
 import { deploySorobanTestTokens } from './deploy_soroban_test_tokens.js';
 import { deployStellarTestTokens } from './deploy_stellar_test_tokens.js';
@@ -11,9 +10,7 @@ import { multiAddLiquidity } from './multi_add_liquidity.js';
 import { setupNativeToken } from './setup_native_token.js';
 
 export async function deployAndInitContracts(addressBook: AddressBook) {
-  const signWithAdmin = (txXdr: string) =>
-    signWithKeypair(txXdr, rpc_network.passphrase, loadedConfig.admin);
-  
+
   await airdropAccount(loadedConfig.admin);
   console.log('-------------------------------------------------------');
   console.log('Installing Soroswap Contracts');
