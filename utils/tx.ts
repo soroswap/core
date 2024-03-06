@@ -37,7 +37,7 @@ export async function invokeTransaction(tx: Transaction, source: Keypair, sim: b
   if (SorobanRpc.Api.isSimulationError(simulation_resp)) {
     // No resource estimation available from a simulation error. Allow the response formatter
     // to fetch the error.
-    throw Error(`Simulation error: ${JSON.stringify(simulation_resp)}`);
+    throw new DetailedSimulationError("Simulation failed due to an error", simulation_resp);
   } else if (sim) {
     // Only simulate the TX. Assemble the TX to borrow the resource estimation algorithm in
     return simulation_resp;
@@ -129,3 +129,14 @@ export const getCurrentTimePlusOneHour = () => {
 //     throw Error('failed to submit classic op TX');
 //   }
 // }
+
+class DetailedSimulationError extends Error {
+  public simulationResp: SorobanRpc.Api.SimulateTransactionResponse;
+
+  constructor(message: string, simulationResp: SorobanRpc.Api.SimulateTransactionResponse) {
+    super(message);
+    this.name = "DetailedSimulationError";
+    this.simulationResp = simulationResp;
+    Object.setPrototypeOf(this, DetailedSimulationError.prototype);
+  }
+}

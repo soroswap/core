@@ -1,22 +1,18 @@
-import { Address, nativeToScVal, xdr } from "stellar-sdk";
+import { Address, Keypair, nativeToScVal, xdr } from "stellar-sdk";
 import { AddressBook } from "../utils/address_book.js";
 import { getTokenBalance, invokeContract } from "../utils/contract.js";
-import { config } from "../utils/env_config.js";
 import { Token, TokensBook } from "../utils/tokens_book.js";
 import { getCurrentTimePlusOneHour } from "../utils/tx.js";
 import { mintToken } from "./mint_token.js";
 
 const network = process.argv[2];
-const loadedConfig = config(network);
 
 export async function multiAddLiquidity(
   numberOfPaths: number,
   tokensBook: TokensBook,
   addressBook: AddressBook,
+  source: Keypair
 ) {
-  const tokensAdminAccount = loadedConfig.getUser(
-    "TEST_TOKENS_ADMIN_SECRET_KEY",
-  );
   const tokens = tokensBook.getTokensByNetwork(network);
   if (!tokens || tokens.length <= 0)
     throw new Error("No tokens found in the tokens book");
@@ -41,8 +37,8 @@ export async function multiAddLiquidity(
         const tokenB = path[i + 1];
 
         // Mint tokens
-        await mintToken(tokenA, 25000000000000, tokensAdminAccount.publicKey());
-        await mintToken(tokenB, 25000000000000, tokensAdminAccount.publicKey());
+        await mintToken(tokenA, 25000000000000, source.publicKey(), source);
+        await mintToken(tokenB, 25000000000000, source.publicKey(), source);
 
         console.log("-------------------------------------------------------");
         console.log("Adding liquidity for pair: ", tokenA, "|", tokenB);
@@ -50,16 +46,16 @@ export async function multiAddLiquidity(
           "TOKEN A Balance:",
           await getTokenBalance(
             tokenA,
-            tokensAdminAccount.publicKey(),
-            tokensAdminAccount,
+            source.publicKey(),
+            source,
           ),
         );
         console.log(
           "TOKEN B Balance:",
           await getTokenBalance(
             tokenB,
-            tokensAdminAccount.publicKey(),
-            tokensAdminAccount,
+            source.publicKey(),
+            source,
           ),
         );
 
@@ -71,7 +67,7 @@ export async function multiAddLiquidity(
           nativeToScVal(1250000000000, { type: "i128" }),
           nativeToScVal(0, { type: "i128" }),
           nativeToScVal(0, { type: "i128" }),
-          new Address(tokensAdminAccount.publicKey()).toScVal(),
+          new Address(source.publicKey()).toScVal(),
           nativeToScVal(getCurrentTimePlusOneHour(), { type: "u64" }),
         ];
 
@@ -80,22 +76,22 @@ export async function multiAddLiquidity(
           addressBook,
           "add_liquidity",
           addLiquidityParams,
-          tokensAdminAccount,
+          source,
         );
         console.log(
           "TOKEN A Balance AFTER:",
           await getTokenBalance(
             tokenA,
-            tokensAdminAccount.publicKey(),
-            tokensAdminAccount,
+            source.publicKey(),
+            source,
           ),
         );
         console.log(
           "TOKEN B Balance AFTER:",
           await getTokenBalance(
             tokenB,
-            tokensAdminAccount.publicKey(),
-            tokensAdminAccount,
+            source.publicKey(),
+            source,
           ),
         );
       }

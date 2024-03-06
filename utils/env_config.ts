@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import * as fs from "fs";
 import path from "path";
-import { Keypair, SorobanRpc } from "stellar-sdk";
+import { Horizon, Keypair, SorobanRpc } from "stellar-sdk";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,6 +11,7 @@ dotenv.config({ path: path.join(__dirname, "../../.env") });
 interface NetworkConfig {
   network: string;
   friendbot_url: string;
+  horizon_rpc_url: string;
   soroban_rpc_url: string;
   soroban_network_passphrase: string;
 }
@@ -23,17 +24,20 @@ interface Config {
 
 class EnvConfig {
   rpc: SorobanRpc.Server;
+  horizonRpc: Horizon.Server;
   passphrase: string;
   friendbot: string | undefined;
   admin: Keypair;
 
   constructor(
     rpc: SorobanRpc.Server,
+    horizonRpc: Horizon.Server,
     passphrase: string,
     friendbot: string | undefined,
     admin: Keypair,
   ) {
     this.rpc = rpc;
+    this.horizonRpc = horizonRpc;
     this.passphrase = passphrase;
     this.friendbot = friendbot;
     this.admin = admin;
@@ -50,7 +54,7 @@ class EnvConfig {
     );
     const configs: Config = JSON.parse(fileContents);
 
-    let rpc_url, friendbot_url, passphrase;
+    let rpc_url, horizon_rpc_url, friendbot_url, passphrase;
     
     const networkConfig = configs.networkConfig.find((config) => config.network === network);
     if (!networkConfig) {
@@ -60,9 +64,11 @@ class EnvConfig {
     if (network === 'mainnet') {
       passphrase = networkConfig.soroban_network_passphrase;
       rpc_url = process.env.MAINNET_RPC_URL;
+      horizon_rpc_url = networkConfig.horizon_rpc_url;
       friendbot_url = undefined;
     } else {
       rpc_url = networkConfig.soroban_rpc_url;
+      horizon_rpc_url = networkConfig.horizon_rpc_url;
       friendbot_url = networkConfig.friendbot_url;
       passphrase = networkConfig.soroban_network_passphrase;
     }
@@ -70,6 +76,7 @@ class EnvConfig {
     const admin = process.env.SOROSWAP_ADMIN_SECRET_KEY;
     if (
       rpc_url === undefined ||
+      horizon_rpc_url === undefined ||
       (network != "mainnet" && friendbot_url === undefined) ||
       passphrase === undefined ||
       admin === undefined
@@ -81,6 +88,7 @@ class EnvConfig {
 
     return new EnvConfig(
       new SorobanRpc.Server(rpc_url, { allowHttp }),
+      new Horizon.Server(horizon_rpc_url, {allowHttp}),
       passphrase,
       friendbot_url,
       Keypair.fromSecret(admin),

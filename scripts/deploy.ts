@@ -11,11 +11,15 @@ import { setupNativeToken } from './setup_native_token.js';
 
 export async function deployAndInitContracts(addressBook: AddressBook) {
 
-  await airdropAccount(loadedConfig.admin);
+  if (network != "mainnet") await airdropAccount(loadedConfig.admin);
+  const account = await loadedConfig.horizonRpc.loadAccount(loadedConfig.admin.publicKey())
+  const balance = account.balances[0].balance
+  console.log('Current Soroswap Admin account balance:', balance);
+  
   console.log('-------------------------------------------------------');
   console.log('Installing Soroswap Contracts');
-  // Soroswap Pair
   console.log('-------------------------------------------------------');
+  // Soroswap Pair
   await installContract('pair', addressBook, loadedConfig.admin);
   await bumpContractCode('pair', addressBook, loadedConfig.admin);
   // Soroswap Factory
@@ -53,40 +57,43 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
   await invokeContract('router', addressBook, 'initialize', routerInitParams, loadedConfig.admin);
 
   if (network != 'mainnet') {
-    await airdropAccount(loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY"));
+    console.log('-------------------------------------------------------');
+    const tokensAdminAccount = loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY");
+    await airdropAccount(tokensAdminAccount);
+    const account = await loadedConfig.horizonRpc.loadAccount(tokensAdminAccount.publicKey())
+    const balance = account.balances[0].balance
+    console.log("Test Tokens Account", tokensAdminAccount.publicKey())
+    console.log('balance:', balance);
+
     console.log('-------------------------------------------------------');
     console.log('Deploying Soroban test tokens');
     console.log('-------------------------------------------------------');
-    await deploySorobanTestTokens(8, true, tokensBook, addressBook);
+    await deploySorobanTestTokens(8, true, tokensBook, addressBook, tokensAdminAccount);
     console.log('-------------------------------------------------------');
     console.log('Adding Liquidity to multiple paths');
     console.log('-------------------------------------------------------');
-    await multiAddLiquidity(3, tokensBook, addressBook);
+    await multiAddLiquidity(3, tokensBook, addressBook, tokensAdminAccount);
     console.log('-------------------------------------------------------');
     console.log('Deploying Stellar Test Tokens');
     console.log('-------------------------------------------------------');
-    await deployStellarTestTokens(4, false, tokensBook);
+    await deployStellarTestTokens(4, false, tokensBook, tokensAdminAccount);
     console.log('-------------------------------------------------------');
     console.log('Deploying Random tokens for testing');
     console.log('-------------------------------------------------------');
-    await deployRandomTokens(8, true, addressBook);
+    await deployRandomTokens(8, true, addressBook, tokensAdminAccount);
   }
 
   console.log('-------------------------------------------------------');
-  console.log('-------------------------------------------------------');
   console.log("Setup Native Token")
+  console.log('-------------------------------------------------------');
   await setupNativeToken(tokensBook);
 }
 
 const network = process.argv[2];
-console.log("🚀 ~ network:", network)
 const addressBook = AddressBook.loadFromFile(network);
-console.log("🚀 ~ addressBook:", addressBook)
 const tokensBook = TokensBook.loadFromFile();
-console.log("🚀 ~ tokensBook:", tokensBook)
 
 const loadedConfig = config(network);
-console.log("🚀 ~ loadedConfig:", loadedConfig)
 
 interface RpcNetwork {
   rpc: SorobanRpc.Server;

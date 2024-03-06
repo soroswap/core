@@ -1,4 +1,4 @@
-import { Asset } from 'stellar-sdk';
+import { Asset, Keypair } from 'stellar-sdk';
 import { AddressBook } from '../utils/address_book.js';
 import { deployStellarAsset } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
@@ -22,10 +22,8 @@ function generateRandomName() {
   return part1 + part2;
 }
 
-export async function deployRandomTokens(numberOfTokens: number, resetTokensBook: boolean, addressBook: AddressBook) {
-  const tokensAdminAccount = loadedConfig.getUser(
-    "TEST_TOKENS_ADMIN_SECRET_KEY",
-  );
+export async function deployRandomTokens(numberOfTokens: number, resetTokensBook: boolean, addressBook: AddressBook, source: Keypair) {
+
   try {
     if (resetTokensBook) {
       randomTokensBook.resetNetworkTokens(network);
@@ -36,12 +34,12 @@ export async function deployRandomTokens(numberOfTokens: number, resetTokensBook
       const symbol = name.substring(0, 4).toUpperCase();
 
       if (i < numberOfTokens / 2) {
-        const deployedToken = await deployToken(name, symbol, '', tokensAdminAccount, addressBook);
+        const deployedToken = await deployToken(name, symbol, '', source, addressBook);
         randomTokensBook.addToken(network, deployedToken!);
       } else {
-        const asset = new Asset(symbol, tokensAdminAccount.publicKey());
+        const asset = new Asset(symbol, source.publicKey());
         const contractId = asset.contractId(loadedConfig.passphrase);
-        const result = await deployStellarAsset(asset, tokensAdminAccount);
+        const result = await deployStellarAsset(asset, source);
   
         const newToken: Token = {
           address: contractId,
