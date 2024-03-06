@@ -56,6 +56,7 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
   await invokeContract('router', addressBook, 'initialize', routerInitParams, loadedConfig.admin);
 
   if (network != 'mainnet') {
+    await airdropAccount(loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY"));
     console.log('-------------------------------------------------------');
     console.log('Deploying Soroban test tokens');
     console.log('-------------------------------------------------------');
