@@ -24,7 +24,7 @@ else
 fi
 
 # Run a new Docker container
-docker run --volume ${currentDir}/:/workspace \
+docker run --volume ${currentDir}:/workspace \
            --name ${containerName} \
            --interactive \
            --publish 8010:8010 \
@@ -39,6 +39,6 @@ docker run --volume ${currentDir}/:/workspace \
 # docker exec --tty --interactive $containerName bash
 
 # Install dependencies
-docker exec $containerName yarn
+docker exec --workdir /workspace/api $containerName  yarn
 # Launch server
-docker exec $containerName node /workspace/scripts/api/server.js
+docker exec --workdir /workspace/api $containerName  node --trace-warnings /workspace/api/server.js
