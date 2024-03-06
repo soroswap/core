@@ -72,14 +72,21 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
     await deployRandomTokens(8, true, addressBook);
   }
 
+  console.log('-------------------------------------------------------');
+  console.log('-------------------------------------------------------');
+  console.log("Setup Native Token")
   await setupNativeToken(tokensBook);
 }
 
 const network = process.argv[2];
+console.log("🚀 ~ network:", network)
 const addressBook = AddressBook.loadFromFile(network);
+console.log("🚀 ~ addressBook:", addressBook)
 const tokensBook = TokensBook.loadFromFile();
+console.log("🚀 ~ tokensBook:", tokensBook)
 
 const loadedConfig = config(network);
+console.log("🚀 ~ loadedConfig:", loadedConfig)
 
 interface RpcNetwork {
   rpc: SorobanRpc.Server;

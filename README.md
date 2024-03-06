@@ -26,7 +26,7 @@ git clone http://github.com/soroswap/core.git
 ```
 cp .env.example .env
 ```
-Now, edit the .env file and provide the ADMIN variables. This will be used to deploy the contracts
+Now, edit the .env file and provide the ADMIN and MAINNET_RPC_URL variables. This will be used to deploy the contracts
 
 
 1.3 In one terminal: (choose standalone, futurenet or testnet)
@@ -72,22 +72,21 @@ In the same terminal mentioned before, run:
 
 
 This will:  
-- Create 8 test tokens (if network is not mainnet).
-
-- Install the SoroswapPair contract in Soroban.
-
-- Deploy the SoroswapFactory contract and initialize it with the installed SoroswapPair WASM.
-
-- Deploy the SoroswapRouter contract and initialize it with the deployed Factoy address.
-
-- Create 64 Pairs (all combinations between pairs) using the Router contract.
-
-- Create 6 custom liquidity pools.
-
-- Create `.soroban/tokens.json`, `.soroban/factory.json`, `.soroban/pairs.json` and `.soroban/token_admin_keys.json`  
-  
-
-This will create the `.soroban` folder with a lot of useful `.json` files with the contract and admin addresses.
+- Install SoroswapPair. 
+- Install SoroswapFactory.
+- Install SoroswapRouter.
+- Deploy and Initialize SoroswapFactory.
+- Deploy and Initialize SoroswapRouter.
+- If network is not Mainnet:
+    - Deploy 8 test tokens
+    - Add liquidity to 3 paths.
+    - Deploy 4 Stellar Test Tokens
+    - Deploy 8 Random Tokens
+- Wrap Native XLM if does not exist.
+- Create:
+    - `.soroban/tokens.json`
+    - `./soroban/<NETWORK>.contracts.json`.
+    - `.soroban/random_tokens.json`
 
 ### 3. (For local development): Serve those .json files
 
