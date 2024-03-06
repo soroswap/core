@@ -26,7 +26,7 @@ git clone http://github.com/soroswap/core.git
 ```
 cp .env.example .env
 ```
-Now, edit the .env file and provide the ADMIN variables. This will be used to deploy the contracts
+Now, edit the .env file and provide the ADMIN and MAINNET_RPC_URL variables. This will be used to deploy the contracts
 
 
 1.3 In one terminal: (choose standalone, futurenet or testnet)

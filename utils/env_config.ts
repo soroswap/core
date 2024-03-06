@@ -48,16 +48,18 @@ class EnvConfig {
     const configs: Config = JSON.parse(fileContents);
 
     let rpc_url, friendbot_url, passphrase;
+    
+    const networkConfig = configs.networkConfig.find((config) => config.network === network);
+    if (!networkConfig) {
+      throw new Error(`Network configuration for '${network}' not found`);
+    }
 
     if (network === 'mainnet') {
-      rpc_url = process.env.RPC_URL;
+      passphrase = networkConfig.soroban_network_passphrase;
+      rpc_url = process.env.MAINNET_RPC_URL;
       friendbot_url = undefined;
-      passphrase = process.env.NETWORK_PASSPHRASE;
     } else {
-      const networkConfig = configs.networkConfig.find((config) => config.network === network);
-      if (!networkConfig) {
-        throw new Error(`Network configuration for '${network}' not found`);
-      }
+      
       rpc_url = networkConfig.soroban_rpc_url;
       friendbot_url = networkConfig.friendbot_url;
       passphrase = networkConfig.soroban_network_passphrase;
@@ -69,7 +71,8 @@ class EnvConfig {
       (network != 'mainnet' && friendbot_url === undefined) ||
       passphrase === undefined ||
       admin === undefined
-    ) {
+      ) {
+      
       throw new Error('Error: Configuration is missing required fields, include <network>');
     }
 
