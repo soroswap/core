@@ -74,6 +74,9 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
     await deployRandomTokens(8, true, addressBook);
   }
 
+  console.log('-------------------------------------------------------');
+  console.log('-------------------------------------------------------');
+  console.log("Setup Native Token")
   await setupNativeToken(tokensBook);
 }
 
