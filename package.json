@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node scripts/api/server.js",
-    "test": "ts-node scripts/manual_testing/refactor/all.ts standalone local",
+    "test": "node dist/scripts/manual_testing/all.js",
     "deploy": "node dist/scripts/deploy.js",
     "upload": "node dist/scripts/upload_addresses.js"
   },
