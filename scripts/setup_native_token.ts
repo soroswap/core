@@ -18,15 +18,14 @@ export async function setupNativeToken(tokensBook: TokensBook) {
       symbol: 'XLM',
       decimals: 7,
     }
-
-    if (network !== 'mainnet') {
-      deployStellarAsset(Asset.native(), loadedConfig.admin)
-    }
-
+    
     tokensBook.prependToken(network, xlmToken);
     tokensBook.writeToFile();
-  } catch (error) {
-    console.log('XLM is probably already deployed on this network', error);
     
+    if (network !== 'mainnet') {
+      await deployStellarAsset(Asset.native(), loadedConfig.admin)
+    }
+  } catch (error) {
+    console.log('😧 XLM is probably already deployed on this network');
   }
 }

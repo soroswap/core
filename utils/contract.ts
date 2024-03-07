@@ -262,7 +262,7 @@ export async function deploySorobanToken(
       func: deployFunction,
       auth: [],
     }),
-    loadedConfig.admin,
+    source,
     false
   );
 
