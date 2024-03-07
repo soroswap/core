@@ -12,8 +12,8 @@ import { setupNativeToken } from './setup_native_token.js';
 export async function deployAndInitContracts(addressBook: AddressBook) {
 
   if (network != "mainnet") await airdropAccount(loadedConfig.admin);
-  const account = await loadedConfig.horizonRpc.loadAccount(loadedConfig.admin.publicKey())
-  const balance = account.balances[0].balance
+  let account = await loadedConfig.horizonRpc.loadAccount(loadedConfig.admin.publicKey())
+  let balance = account.balances[0].balance
   console.log('Current Soroswap Admin account balance:', balance);
   
   console.log('-------------------------------------------------------');
@@ -56,32 +56,31 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
   ];
   await invokeContract('router', addressBook, 'initialize', routerInitParams, loadedConfig.admin);
 
-  if (network != 'mainnet') {
-    console.log('-------------------------------------------------------');
-    const tokensAdminAccount = loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY");
-    await airdropAccount(tokensAdminAccount);
-    const account = await loadedConfig.horizonRpc.loadAccount(tokensAdminAccount.publicKey())
-    const balance = account.balances[0].balance
-    console.log("Test Tokens Account", tokensAdminAccount.publicKey())
-    console.log('balance:', balance);
-
-    console.log('-------------------------------------------------------');
-    console.log('Deploying Soroban test tokens');
-    console.log('-------------------------------------------------------');
-    await deploySorobanTestTokens(8, true, tokensBook, addressBook, tokensAdminAccount);
-    console.log('-------------------------------------------------------');
-    console.log('Adding Liquidity to multiple paths');
-    console.log('-------------------------------------------------------');
-    await multiAddLiquidity(3, tokensBook, addressBook, tokensAdminAccount);
-    console.log('-------------------------------------------------------');
-    console.log('Deploying Stellar Test Tokens');
-    console.log('-------------------------------------------------------');
-    await deployStellarTestTokens(4, false, tokensBook, tokensAdminAccount);
-    console.log('-------------------------------------------------------');
-    console.log('Deploying Random tokens for testing');
-    console.log('-------------------------------------------------------');
-    await deployRandomTokens(8, true, addressBook, tokensAdminAccount);
-  }
+  console.log('-------------------------------------------------------');
+  const tokensAdminAccount = loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY");
+  await airdropAccount(tokensAdminAccount);
+  account = await loadedConfig.horizonRpc.loadAccount(tokensAdminAccount.publicKey())
+  balance = account.balances[0].balance
+  console.log("Test Tokens Account", tokensAdminAccount.publicKey())
+  console.log('balance:', balance);
+  
+  console.log('-------------------------------------------------------');
+  console.log('Deploying Soroban test tokens');
+  console.log('-------------------------------------------------------');
+  await deploySorobanTestTokens(8, true, tokensBook, addressBook, tokensAdminAccount);
+  console.log('-------------------------------------------------------');
+  console.log('Deploying Stellar Test Tokens');
+  console.log('-------------------------------------------------------');
+  await deployStellarTestTokens(4, false, tokensBook, tokensAdminAccount);
+  console.log('-------------------------------------------------------');
+  console.log('Deploying Random tokens for testing');
+  console.log('-------------------------------------------------------');
+  await deployRandomTokens(8, true, addressBook, tokensAdminAccount);
+  
+  console.log('-------------------------------------------------------');
+  console.log('Adding Liquidity to multiple paths');
+  console.log('-------------------------------------------------------');
+  await multiAddLiquidity(3, tokensBook, addressBook, tokensAdminAccount);
 
   console.log('-------------------------------------------------------');
   console.log("Setup Native Token")

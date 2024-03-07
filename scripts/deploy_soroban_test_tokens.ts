@@ -19,7 +19,7 @@ export async function deploySorobanTestTokens(
   addressBook: AddressBook,
   source: Keypair
 ) {
-  const fileName = `../../scripts/token_name_ideas.json`;
+  const fileName = network=='mainnet' ? `../../scripts/token_name_ideas_mainnet.json` : `../../scripts/token_name_ideas.json`;
   try {
     if (resetTokensBook) {
       tokensBook.resetNetworkTokens(network);

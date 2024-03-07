@@ -1,0 +1,79 @@
+{
+  "tokens": [
+    {
+      "symbol": "BLAH",
+      "name": "BlabberCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "YAWN",
+      "name": "Yawnerium",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "ZAP",
+      "name": "ZapatoToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "BEEP",
+      "name": "BoopToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "SNOOZE",
+      "name": "SnoozerCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "GIGGLE",
+      "name": "GigglyCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "HAHA",
+      "name": "HahaToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "LOL",
+      "name": "LaughOutLoudToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "SNORT",
+      "name": "SnortCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "WHEEZE",
+      "name": "Wheezerium",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "CHUCKLE",
+      "name": "ChuckleToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "SMIRK",
+      "name": "SmirkCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "TEEHEE",
+      "name": "TeeHeeToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "GRIN",
+      "name": "GrinToken",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    },
+    {
+      "symbol": "GUFFAW",
+      "name": "GuffawCoin",
+      "logoURI": "https://app.soroswap.finance/unknown-token.png"
+    }
+  ]
+}
