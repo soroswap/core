@@ -1,4 +1,4 @@
-import { Address, nativeToScVal, xdr } from "stellar-sdk";
+import { Address, nativeToScVal, scValToNative, xdr } from "stellar-sdk";
 import { AddressBook } from "../../utils/address_book.js";
 import { getTokenBalance, invokeContract } from "../../utils/contract.js";
 import { colors } from "../../utils/index.js";
@@ -33,12 +33,21 @@ export const removeLiquidity = async (network: string, tokensBook: TokensBook, a
   
     console.log(colors.green, `${token0.symbol}_Balance:`, token0FirstBalance)
     console.log(colors.green, `${token1.symbol}_Balance:`, token1FirstBalance)
+
+    const getPairParams: xdr.ScVal[] = [
+      new Address(token0.address).toScVal(),
+      new Address(token1.address).toScVal()
+    ]
+    let pairAddress = await invokeContract('factory', addressBook, 'get_pair', getPairParams, testAccount)
+    pairAddress = scValToNative(pairAddress.returnValue)
+    
+    const lpBalance = await getTokenBalance(pairAddress, testAccount.publicKey(), testAccount)
   
     console.log(colors.cyan, "Removing liquidity...")
     const removeLiquidityParams: xdr.ScVal[] = [
       new Address(token0.address).toScVal(),
       new Address(token1.address).toScVal(),
-      nativeToScVal(1000, { type: "i128" }),
+      nativeToScVal(lpBalance, { type: "i128" }),
       nativeToScVal(0, { type: "i128" }),
       nativeToScVal(0, { type: "i128" }),
       new Address(testAccount.publicKey()).toScVal(),
