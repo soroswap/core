@@ -26,7 +26,7 @@ git clone http://github.com/soroswap/core.git
 ```
 cp .env.example .env
 ```
-Now, edit the .env file and provide the ADMIN and MAINNET_RPC_URL variables. This will be used to deploy the contracts
+Now, edit the .env file and provide the `SOROSWAP_ADMIN_SECRET_KEY`, `TEST_TOKENS_ADMIN_SECRET_KEY`, `TESTING_ACCOUNT_SECRET_KEY` and `MAINNET_RPC_URL` variables. This will be used to deploy the contracts
 
 
 1.3 In one terminal: (choose standalone, futurenet or testnet)
@@ -231,70 +231,31 @@ Manually update or delete random_tokens.json post-reset on futurenet or testnet.
 # Manual Testing
 
 The following example showcase a local manual testing.
-Make sure you have deployed the contracts to testnet and saved it locally 
+Make sure you have deployed the contracts to the network and saved it locally 
 
 
-We provide code for manual testing of the contracts using `soroban-cli`. This will allow us to play aroung without the need of an User Interface.
+We provide code for manual testing of the contracts using `typescript`. This will allow us to play aroung without the need of an User Interface.
 
 To run all the transsactions we could do on soroswap protocol just run (inside soroban-preview image):
+
 ```bash
 # Usage:
-# ./all.sh [network] [local_or_public]
+# yarn test <network> <public>
 # network: Type of the network to configure (standalone, futurenet, testnet, testnet-public)
-# local_or_public: Type of contract deployment (local or public)
+# public: OPTIONAL: If you type `public` as a 2nd argument, you will run test agains the addresses in the public folder
 
-bash scripts/manual_testing/all.sh testnet local
-
-```
-
-## Running the typescript tests
-
-
-
-**Step 1: Start the development environment**
-
- 1. Start the development environment. This can be done by executing the
-    following command:
-```
-bash scripts/quickstart.sh standalone
-```
-2.  Start the development container. To start the development container, in a new terminal, run the command:
- ```
-bash scripts/run.sh
-```
-
-3.  Deploy the tokens. Once the development container is started, run the command:
-```
-bash scripts/deploy_tokens_n_pairs.sh standalone 8
-```
- >[!TIP]
- >8 is a suggestion, you can put any even number to not to break the pair creation
-
-This will start a standalone development environment with the contracts running.
-
-4. Deploy the API:
-
-To deploy the API, open a new terminal and run the following command:
-
-Bash
-
-```
-scripts/serve_with_docker.sh
+yarn build #optional, if you have already built everything is not needed
+yarn test standalone
 
 ```
 
-This will make the following files available for running tests:
--   List of tokens at http://localhost:8010/api/tokens
--   Router addresses at http://localhost:8010/api/router
-
-
-**Step 2: Run the tests**
-
-This can be done by executing the following command on test environment terminal:
+To run tests against contracts addresses in your local `.soroban` folder, do:
+```bash
+yarn test standalone
 ```
-yarn test
-```
->[!TIP]
->The development container is the one that was opened in step 1.2
 
-This command will run all of the tests for the contracts.
+To run tests agains contracts addresses in the public `public` folder, do:
+```bash
+yarn test public
+```
+

@@ -14,7 +14,4 @@
   "include": [
     "scripts",
   ],
-  "exclude": [
-    "scripts/manual_testing/**/*",
-  ]
 }

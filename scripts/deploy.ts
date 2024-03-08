@@ -1,4 +1,4 @@
-import { Address, SorobanRpc, nativeToScVal } from 'stellar-sdk';
+import { Address, nativeToScVal } from 'stellar-sdk';
 import { AddressBook } from '../utils/address_book.js';
 import { airdropAccount, bumpContractCode, bumpContractInstance, deployContract, installContract, invokeContract } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
@@ -58,7 +58,7 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
 
   console.log('-------------------------------------------------------');
   const tokensAdminAccount = loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY");
-  await airdropAccount(tokensAdminAccount);
+  if (network != "mainnet") await airdropAccount(tokensAdminAccount);
   account = await loadedConfig.horizonRpc.loadAccount(tokensAdminAccount.publicKey())
   balance = account.balances[0].balance
   console.log("Test Tokens Account", tokensAdminAccount.publicKey())
@@ -93,17 +93,6 @@ const addressBook = AddressBook.loadFromFile(network);
 const tokensBook = TokensBook.loadFromFile();
 
 const loadedConfig = config(network);
-
-interface RpcNetwork {
-  rpc: SorobanRpc.Server;
-  passphrase: string;
-  opts: { allowHttp: boolean };
-}
-const rpc_network: RpcNetwork = {
-  rpc: loadedConfig.rpc.serverURL.toString(),
-  passphrase: loadedConfig.passphrase,
-  opts: { allowHttp: true },
-};
 
 await deployAndInitContracts(addressBook);
 addressBook.writeToFile();
