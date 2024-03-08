@@ -26,7 +26,7 @@ git clone http://github.com/soroswap/core.git
 ```
 cp .env.example .env
 ```
-Now, edit the .env file and provide the `SOROSWAP_ADMIN_SECRET_KEY`, `TEST_TOKENS_ADMIN_SECRET_KEY`, `TESTING_ACCOUNT_SECRET_KEY` and MAINNET_RPC_URL variables. This will be used to deploy the contracts
+Now, edit the .env file and provide the `SOROSWAP_ADMIN_SECRET_KEY`, `TEST_TOKENS_ADMIN_SECRET_KEY`, `TESTING_ACCOUNT_SECRET_KEY` and `MAINNET_RPC_URL` variables. This will be used to deploy the contracts
 
 
 1.3 In one terminal: (choose standalone, futurenet or testnet)
@@ -237,12 +237,25 @@ Make sure you have deployed the contracts to the network and saved it locally
 We provide code for manual testing of the contracts using `typescript`. This will allow us to play aroung without the need of an User Interface.
 
 To run all the transsactions we could do on soroswap protocol just run (inside soroban-preview image):
+
 ```bash
 # Usage:
-# yarn test <network>
+# yarn test <network> <public>
 # network: Type of the network to configure (standalone, futurenet, testnet, testnet-public)
+# public: OPTIONAL: If you type `public` as a 2nd argument, you will run test agains the addresses in the public folder
 
 yarn build #optional, if you have already built everything is not needed
 yarn test standalone
 
 ```
+
+To run tests against contracts addresses in your local `.soroban` folder, do:
+```bash
+yarn test standalone
+```
+
+To run tests agains contracts addresses in the public `public` folder, do:
+```bash
+yarn test public
+```
+
