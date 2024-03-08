@@ -20,8 +20,17 @@ const testAll = async() => {
 }
 
 const network = process.argv[2];
-const addressBook = AddressBook.loadFromFile(network);
-const tokensBook = TokensBook.loadFromFile();
+const folder = process.argv[3];
+let addressBook: AddressBook;
+let tokensBook: TokensBook;
+
+if (folder == 'public') {
+    addressBook = AddressBook.loadFromFile(network, folder);
+    tokensBook = TokensBook.loadFromFile(folder);
+} else {
+    addressBook = AddressBook.loadFromFile(network);
+    tokensBook = TokensBook.loadFromFile();
+}
 
 const loadedConfig = config(network);
 

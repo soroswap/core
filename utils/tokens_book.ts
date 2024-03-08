@@ -27,8 +27,8 @@ export class TokensBook {
     this.fileName = fileName;
   }
 
-  static loadFromFile(fileName: string = 'tokens.json') {
-    const filePath = path.join(__dirname, '../../.soroban/', fileName);
+  static loadFromFile(fileName: string = 'tokens.json', folder: string = '.soroban') {
+    const filePath = path.join(__dirname, '../../',folder, fileName);
     let networks: NetworkTokens[];
 
     if (existsSync(filePath)) {
