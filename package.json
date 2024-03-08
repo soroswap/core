@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node scripts/api/server.js",
-    "test": "node dist/scripts/manual_testing/all.js",
-    "deploy": "node dist/scripts/deploy.js",
+    "test": "yarn build && node dist/scripts/manual_testing/all.js",
+    "deploy": "yarn build && node dist/scripts/deploy.js",
     "upload": "node dist/scripts/upload_addresses.js"
   },
   "license": "MIT",
