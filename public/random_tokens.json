@@ -64,59 +64,59 @@
     "network": "testnet",
     "tokens": [
       {
-        "address": "CDXAKVJZXSB4SFE5WUHPZ77GCLBJRRH3LMNYVF5DJQZSDLCHMEEGSSBD",
-        "name": "poepoe",
+        "address": "CBI76RBFHRTQ5FJRE54JFNHAKD6ESXRDVQC3RIP6JGG2P2M2SJRMI7XJ",
+        "name": "szxasd",
         "logoURI": "",
-        "symbol": "POEP",
+        "symbol": "SZXA",
         "decimals": 7
       },
       {
-        "address": "CBLXQ65QREDHMLFPINOUWYRXFRGLR2F5AMMB3H6MUL642I65CFMLBGS7",
-        "name": "estasd",
+        "address": "CDJEM6SDECFEDN7MRVQ47NVXEF6FNLSQAOO43NZT4WKTGGFNZFXHMCVC",
+        "name": "yielup",
         "logoURI": "",
-        "symbol": "ESTA",
+        "symbol": "YIEL",
         "decimals": 7
       },
       {
-        "address": "CAYA5O62A5Z56DLFIKYFEEQQQ6CQFP2FIUVYWAMZTC2UVC3KBUBSPW5U",
-        "name": "poeszx",
+        "address": "CDYNSPOK6WE45ULAALF65AM2LD5BNU2COTJDJN7CEWUEQQZQ5JO7FCYI",
+        "name": "wekrie",
         "logoURI": "",
-        "symbol": "POES",
+        "symbol": "WEKR",
         "decimals": 7
       },
       {
-        "address": "CBOOSRPOWITKK7DW63NXHCDOWWBGZPQE45SS7RF4YWI2GJH63CXCT2GW",
-        "name": "florie",
+        "address": "CCGJKW4HXHPAEN4JFXJLCPP2HP353GRPR2KEBLJU63DTUJ4WLQTDNSFK",
+        "name": "zxaflo",
         "logoURI": "",
-        "symbol": "FLOR",
+        "symbol": "ZXAF",
         "decimals": 7
       },
       {
-        "address": "CAMVRQMQQKHC7HLY6QBCAGVY6F5DTXEIVPXKBPNAGCSGBXEDY4OIO5FQ",
-        "name": "RAIF:GAGMTYLC4ATSXWTRKF4YUTCOL7R3FP75F2A24PE45N24GZBMRNFB2T7C",
+        "address": "CB3WVWIBMMK2SXUIDDGHWT7I5DLKRVQUCS7SAOD4PM3AOPE7DUJHS62S",
+        "name": "ZXAL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "logoURI": "",
-        "symbol": "RAIF",
+        "symbol": "ZXAL",
         "decimals": 7
       },
       {
-        "address": "CA4VW7TJSODEED5EV7FTMRXMKEHL6LTA47SC7UOQHYPRA3EPQYRC4TQE",
-        "name": "YIEY:GAGMTYLC4ATSXWTRKF4YUTCOL7R3FP75F2A24PE45N24GZBMRNFB2T7C",
+        "address": "CASSWJUYANH2F7Z3MF54UD6BRD7THGAXX32M2OK2NU2MHBPRGTLZ5ZKU",
+        "name": "ONYC:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "logoURI": "",
-        "symbol": "YIEY",
+        "symbol": "ONYC",
         "decimals": 7
       },
       {
-        "address": "CB6F7WORRNJTKWDDOOIDEZBYSM77X6ZZUDYXVJX74NTSAKRBUW73PBJH",
-        "name": "FOXW:GAGMTYLC4ATSXWTRKF4YUTCOL7R3FP75F2A24PE45N24GZBMRNFB2T7C",
+        "address": "CCCEETY4NWRWNZDQFLJWZUFNXUDAURRGJ6HUIKFFNHBNNLVJ7YFYVDGY",
+        "name": "KIVD:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "logoURI": "",
-        "symbol": "FOXW",
+        "symbol": "KIVD",
         "decimals": 7
       },
       {
-        "address": "CABKIXQBN7LJIKD2WXBEDCECL6RRYMFAZNOAQUFM55DCYUI3TV6VSKJU",
-        "name": "VOKD:GAGMTYLC4ATSXWTRKF4YUTCOL7R3FP75F2A24PE45N24GZBMRNFB2T7C",
+        "address": "CD5VZPMKZDIFQSJ75CMT3T6SRUHFU2T7ZN5EUFI3MLXMQJYC7ACZO66Z",
+        "name": "PIER:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "logoURI": "",
-        "symbol": "VOKD",
+        "symbol": "PIER",
         "decimals": 7
       }
     ]
@@ -167,6 +167,67 @@
       {
         "asset": "KULV:GAYIZTTI7QKLRKA5GXH5OFFCW3QLU4LNSN5N3XIYXB4P56HHBIXC73X6",
         "symbol": "KULV"
+      }
+    ]
+  },
+  {
+    "network": "mainnet",
+    "tokens": [
+      {
+        "address": "CCNS5IE2V6E5URJUBMYOGBUUV4MQKAWNJZFZOJGFYGVPRHE6P462YS3S",
+        "name": "szxlep",
+        "logoURI": "",
+        "symbol": "SZXL",
+        "decimals": 7
+      },
+      {
+        "address": "CCLEIX2O6V3H76QRO5Z3MEFHOSXHKLVT6722D5SR23ORPCBWUNH6MJDR",
+        "name": "kivpet",
+        "logoURI": "",
+        "symbol": "KIVP",
+        "decimals": 7
+      },
+      {
+        "address": "CDWS2DVBLLKRAF3TFMNV65N22AEDSSUZAPE7NPFBS2LHWFJRM5T3LBUR",
+        "name": "jazrie",
+        "logoURI": "",
+        "symbol": "JAZR",
+        "decimals": 7
+      },
+      {
+        "address": "CDKDYGAP64KA6TRBCTRGIL3S2GM3FOEMVCE3F2KS4XBE6SDQYHMQJIVL",
+        "name": "asdjir",
+        "logoURI": "",
+        "symbol": "ASDJ",
+        "decimals": 7
+      },
+      {
+        "address": "CCACH22R5FNR324CVY7LK6KKQ4OFIRETM3S7GRIN2DBUCTGYEDLTEE6Z",
+        "name": "TEKF:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "logoURI": "",
+        "symbol": "TEKF",
+        "decimals": 7
+      },
+      {
+        "address": "CDWESEKXOJTZW5TFGUIRPMPZ7F245OVV73OL2A57PI7PUW27MD6XHJYG",
+        "name": "ONYP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "logoURI": "",
+        "symbol": "ONYP",
+        "decimals": 7
+      },
+      {
+        "address": "CDTF3GRLM7VSDEG4452DYCZMHAKXDGQUXE6VKY6KZ4GTLMH36FM26MSZ",
+        "name": "ESTD:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "logoURI": "",
+        "symbol": "ESTD",
+        "decimals": 7
+      },
+      {
+        "address": "CAPZOOXP64TKHVI5RJ4EBZQN4FKEWWIJXT43LALBZHYN5A5GGECEPR67",
+        "name": "KIVJ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "logoURI": "",
+        "symbol": "KIVJ",
+        "decimals": 7
       }
     ]
   }
