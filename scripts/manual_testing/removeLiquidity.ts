@@ -16,8 +16,8 @@ export const removeLiquidity = async (network: string, tokensBook: TokensBook, a
 
   try {
     const tokens = tokensBook.getTokensByNetwork(network);
-    const token0: Token = tokens!.find(token => token.symbol === 'BTC')!;
-    const token1: Token = tokens!.find(token => token.symbol === 'EURC')!;
+    const token0: Token = tokens![1];
+    const token1: Token = tokens![7];
   
     console.log(colors.cyan, "Fetching token balances...")
     const token0FirstBalance = await getTokenBalance(
@@ -42,6 +42,7 @@ export const removeLiquidity = async (network: string, tokensBook: TokensBook, a
     pairAddress = scValToNative(pairAddress.returnValue)
     
     const lpBalance = await getTokenBalance(pairAddress, testAccount.publicKey(), testAccount)
+    console.log(colors.green, "LP Balance", lpBalance)
   
     console.log(colors.cyan, "Removing liquidity...")
     const removeLiquidityParams: xdr.ScVal[] = [

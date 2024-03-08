@@ -58,7 +58,7 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
 
   console.log('-------------------------------------------------------');
   const tokensAdminAccount = loadedConfig.getUser("TEST_TOKENS_ADMIN_SECRET_KEY");
-  await airdropAccount(tokensAdminAccount);
+  if (network != "mainnet") await airdropAccount(tokensAdminAccount);
   account = await loadedConfig.horizonRpc.loadAccount(tokensAdminAccount.publicKey())
   balance = account.balances[0].balance
   console.log("Test Tokens Account", tokensAdminAccount.publicKey())

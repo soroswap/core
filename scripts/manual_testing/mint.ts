@@ -12,7 +12,7 @@ export async function mintTokens(network: string, tokensBook: TokensBook, loaded
     const tokensAdmin = loadedConfig.getUser('TEST_TOKENS_ADMIN_SECRET_KEY');
 
     const tokens = tokensBook.getTokensByNetwork(network);
-    const tokensToMint = tokens?.filter(token => token.symbol === 'BTC' || token.symbol === 'EURC') ?? [];
+    const tokensToMint = [tokens![1], tokens![7]];
 
     for (let i = 0; i < tokensToMint.length; i++) {
       const token = tokensToMint[i];
