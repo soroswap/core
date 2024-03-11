@@ -21,23 +21,23 @@ export const addLiquidity = async (network: string, tokensBook: TokensBook, addr
   
     console.log(colors.cyan, "Fetching token balances...")
     const token0FirstBalance = await getTokenBalance(
-      token0.address,
+      token0.contract,
       testAccount.publicKey(),
       testAccount,
     )
     const token1FirstBalance = await getTokenBalance(
-      token1.address,
+      token1.contract,
       testAccount.publicKey(),
       testAccount,
     )
   
-    console.log(colors.green, `${token0.symbol}_Balance:`, token0FirstBalance)
-    console.log(colors.green, `${token1.symbol}_Balance:`, token1FirstBalance)
+    console.log(colors.green, `${token0.code}_Balance:`, token0FirstBalance)
+    console.log(colors.green, `${token1.code}_Balance:`, token1FirstBalance)
   
     console.log(colors.cyan, "Adding liquidity...")
     const addLiquidityParams: xdr.ScVal[] = [
-      new Address(token0.address).toScVal(),
-      new Address(token1.address).toScVal(),
+      new Address(token0.contract).toScVal(),
+      new Address(token1.contract).toScVal(),
       nativeToScVal(25000000000, { type: "i128" }),
       nativeToScVal(25000000000, { type: "i128" }),
       nativeToScVal(0, { type: "i128" }),
@@ -56,17 +56,17 @@ export const addLiquidity = async (network: string, tokensBook: TokensBook, addr
   
     console.log(colors.cyan, "Fetching token balances...")
     const token0LastBalance = await getTokenBalance(
-      token0.address,
+      token0.contract,
       testAccount.publicKey(),
       testAccount,
     )
     const token1LastBalance = await getTokenBalance(
-      token1.address,
+      token1.contract,
       testAccount.publicKey(),
       testAccount,
     )
-    console.log(colors.green, `${token0.symbol}_Balance:`, token0LastBalance)
-    console.log(colors.green, `${token1.symbol}_Balance:`, token1LastBalance)
+    console.log(colors.green, `${token0.code}_Balance:`, token0LastBalance)
+    console.log(colors.green, `${token1.code}_Balance:`, token1LastBalance)
     console.log(colors.green, '- Done. -')
   } catch (error) {
     console.log('😩 > Error Adding Liquidity:', error);

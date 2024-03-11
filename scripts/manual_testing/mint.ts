@@ -16,22 +16,22 @@ export async function mintTokens(network: string, tokensBook: TokensBook, loaded
 
     for (let i = 0; i < tokensToMint.length; i++) {
       const token = tokensToMint[i];
-      console.log(colors.green, `Minting ${token.symbol}`)
+      console.log(colors.green, `Minting ${token.code}`)
       const mintTokensParams: xdr.ScVal[] = [
         new Address(testAccount.publicKey()).toScVal(),
         nativeToScVal(50000000000, { type: 'i128' }),
       ]
   
-      await invokeCustomContract(token.address, 'mint', mintTokensParams, tokensAdmin);
+      await invokeCustomContract(token.contract, 'mint', mintTokensParams, tokensAdmin);
       const tokenBalance = await getTokenBalance(
-        token.address,
+        token.contract,
         testAccount.publicKey(),
         testAccount,
       )
 
       console.log(
         colors.yellow,
-        `${token.symbol} Balance: ${tokenBalance}`
+        `${token.code} Balance: ${tokenBalance}`
       );
       
     }

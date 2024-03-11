@@ -21,22 +21,22 @@ export const swap = async (network: string, tokensBook: TokensBook, addressBook:
   
     console.log(colors.cyan, "Fetching token balances...")
     const token0FirstBalance = await getTokenBalance(
-      token0.address,
+      token0.contract,
       testAccount.publicKey(),
       testAccount,
     )
     const token1FirstBalance = await getTokenBalance(
-      token1.address,
+      token1.contract,
       testAccount.publicKey(),
       testAccount,
     )
   
-    console.log(colors.green, `${token0.symbol}_Balance:`, token0FirstBalance)
-    console.log(colors.green, `${token1.symbol}_Balance:`, token1FirstBalance)
+    console.log(colors.green, `${token0.code}_Balance:`, token0FirstBalance)
+    console.log(colors.green, `${token1.code}_Balance:`, token1FirstBalance)
   
     console.log(colors.cyan, "Swapping tokens...")
   
-    const path = [new Address(token0.address), new Address(token1.address)]
+    const path = [new Address(token0.contract), new Address(token1.contract)]
     const swapParams: xdr.ScVal[] = [
       nativeToScVal(2500000, { type: "i128" }),
       nativeToScVal(0, { type: "i128" }),
@@ -55,17 +55,17 @@ export const swap = async (network: string, tokensBook: TokensBook, addressBook:
   
     console.log(colors.cyan, "Fetching new token balances...")
     const token0LastBalance = await getTokenBalance(
-      token0.address,
+      token0.contract,
       testAccount.publicKey(),
       testAccount,
     )
     const token1LastBalance = await getTokenBalance(
-      token1.address,
+      token1.contract,
       testAccount.publicKey(),
       testAccount,
     )
-    console.log(colors.green, `${token0.symbol}_Balance:`, token0LastBalance)
-    console.log(colors.green, `${token1.symbol}_Balance:`, token1LastBalance)
+    console.log(colors.green, `${token0.code}_Balance:`, token0LastBalance)
+    console.log(colors.green, `${token1.code}_Balance:`, token1LastBalance)
     console.log(colors.green, '- Done. -')
   } catch (error) {
     console.log('😩 > Error Swapping Tokens:', error);

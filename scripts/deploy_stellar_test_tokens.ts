@@ -27,23 +27,30 @@ export async function deployStellarTestTokens(numberOfTokens: number, resetToken
 
     for (let i = 0; i < numberOfTokens; i++) {
       const name = generateRandomName();
+      console.log("🚀 ~ deployStellarTestTokens ~ name:", name)
       const symbol = name.substring(0, 4).toUpperCase();
       const asset = new Asset(symbol, source.publicKey());
       const contractId = asset.contractId(loadedConfig.passphrase);
-      const result = await deployStellarAsset(asset, source);
+      try{
+        const result = await deployStellarAsset(asset, source);
+        const newToken: Token = {
+          name: name,
+          contract: contractId,
+          code: symbol,
+          issuer: asset.issuer,
+          logoURI: '',
+          decimals: 7,
+        }
+    
+        if (result.status === 'SUCCESS') {
+          tokensBook.addToken(network, newToken);
+          console.log(`Token ${symbol} deployed successfully with contractId: ${contractId}!`);
+        }
+      }
+      catch (error) {
+        console.log("Deploying Stellar Asset failed with error: ", error)
+      }
 
-      const newToken: Token = {
-        address: contractId,
-        name: `${asset.code}:${asset.issuer}`,
-        logoURI: '',
-        symbol: symbol,
-        decimals: 7,
-      }
-  
-      if (result.status === 'SUCCESS') {
-        tokensBook.addToken(network, newToken);
-        console.log(`Token ${symbol} deployed successfully with contractId: ${contractId}!`);
-      }
     }
     tokensBook.writeToFile();
   } catch (error) {
