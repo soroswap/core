@@ -38,6 +38,7 @@ export async function deployStellarTestTokens(numberOfTokens: number, resetToken
         logoURI: '',
         symbol: symbol,
         decimals: 7,
+        issuer: asset.issuer
       }
   
       if (result.status === 'SUCCESS') {

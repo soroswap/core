@@ -11,6 +11,7 @@ export interface Token {
   symbol: string;
   logoURI?: string;
   decimals: number;
+  issuer?: string;
 }
 
 interface NetworkTokens {
