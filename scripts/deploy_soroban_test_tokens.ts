@@ -46,6 +46,6 @@ export async function deploySorobanTestTokens(
     }
     tokensBook.writeToFile();
   } catch (error) {
-    console.log("🚀 « error:", error);
+    console.log("🚀 deploySorobanTestTokens: error:", error);
   }
 }

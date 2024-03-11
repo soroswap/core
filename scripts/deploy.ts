@@ -90,7 +90,7 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
 
 const network = process.argv[2];
 const addressBook = AddressBook.loadFromFile(network);
-const tokensBook = TokensBook.loadFromFile();
+const tokensBook = TokensBook.loadFromFile(); // by default .soroban/tokens.json
 
 const loadedConfig = config(network);
 

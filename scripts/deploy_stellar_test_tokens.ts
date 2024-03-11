@@ -54,7 +54,7 @@ export async function deployStellarTestTokens(numberOfTokens: number, resetToken
     }
     tokensBook.writeToFile();
   } catch (error) {
-    console.log('🚀 « error:', error);
+    console.log('🚀 deployStellarTestTokens: error:', error);
     
   }
 }
