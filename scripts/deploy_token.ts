@@ -47,6 +47,6 @@ export async function deployToken(
       throw Error (`Token ${symbol} deployment failed with contractId: ${contractId}!`);
     }
   } catch (error) {
-    console.log('🚀 « error:', error);
+    console.log('🚀 deployToken: error:', error);
   }
 }

@@ -7,7 +7,8 @@ import { deployToken } from './deploy_token.js';
 
 const network = process.argv[2];
 const loadedConfig = config(network);
-const randomTokensBook = TokensBook.loadFromFile("random_tokens.json");
+const randomTokensBook = TokensBook.loadFromFile(".soroban", "random_tokens.json");
+console.log("🚀 ~ randomTokensBook:", randomTokensBook)
 
 const name_parts = [
   "ram", "che", "vok", "rim", "rem", "poe", "vol", "tek", "jir", "fox",
@@ -56,9 +57,10 @@ export async function deployRandomTokens(numberOfTokens: number, resetTokensBook
       }
       console.log(`🚀 Token ${symbol} deployed successfully`);
     }
+    console.log("Will save random tokens")
     randomTokensBook.writeToFile();
   } catch (error) {
-    console.log('🚀 « error:', error);
+    console.log('🚀 deployRandomTokens: error:', error);
     
   }
 }
