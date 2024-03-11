@@ -42,14 +42,14 @@ export async function deployRandomTokens(numberOfTokens: number, resetTokensBook
         const result = await deployStellarAsset(asset, source);
   
         const newToken: Token = {
-          address: contractId,
           name: `${asset.code}:${asset.issuer}`,
-          logoURI: '',
-          symbol: symbol,
-          decimals: 7,
+          contract: contractId,
+          code: symbol,
           issuer: asset.issuer,
+          logoURI: '',
+          decimals: 7,
         }
-    
+        
         if (result.status === 'SUCCESS') {
           randomTokensBook.addToken(network, newToken);
         }

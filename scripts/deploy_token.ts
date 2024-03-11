@@ -34,10 +34,10 @@ export async function deployToken(
     const result = await invoke(contractOperation, source, false);
 
     const newToken: Token = {
-      address: contractId!,
       name: name,
+      contract: contractId!,
+      code: symbol,
       logoURI: logoURI,
-      symbol: symbol,
       decimals: 7,
     }
 

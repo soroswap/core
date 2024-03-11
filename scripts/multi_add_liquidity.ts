@@ -19,8 +19,8 @@ export async function multiAddLiquidity(
 
   try {
     // Generate paths
-    const startAddress = tokens[0].address;
-    const endAddress = tokens[1].address;
+    const startAddress = tokens[0].contract;
+    const endAddress = tokens[1].contract;
 
     const paths = generatePaths(
       tokens,
@@ -109,14 +109,14 @@ function generatePaths(
 ): string[][] {
   // Filter out the start and end tokens from the list to avoid including them as intermediates
   const intermediateTokens = tokens.filter(
-    (token) => token.address !== startAddress && token.address !== endAddress,
+    (token) => token.contract !== startAddress && token.contract !== endAddress,
   );
 
   // Function to generate a path
   const createPath = (intermediates: Token[]): string[] => {
     return [
       startAddress,
-      ...intermediates.map((token) => token.address),
+      ...intermediates.map((token) => token.contract),
       endAddress,
     ];
   };

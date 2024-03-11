@@ -31,17 +31,17 @@ export async function deploySorobanTestTokens(
     const tokenNameIdeas = readFileSync(path.join(__dirname, fileName));
     const tokenNameIdeasObject = JSON.parse(tokenNameIdeas.toString());
     for (let i = 0; i < numberOfTokens; i++) {
-      const token = tokenNameIdeasObject.tokens[i];
+      const tokenIdea = tokenNameIdeasObject.tokens[i];
       const deployedToken = await deployToken(
-        token.name,
-        token.symbol,
-        token.logoURI,
+        tokenIdea.name,
+        tokenIdea.symbol,
+        tokenIdea.logoURI,
         source,
         addressBook,
       );
       tokensBook.addToken(network, deployedToken!);
       console.log(
-        `🚀 Token ${deployedToken?.symbol} deployed successfully, address ${deployedToken?.address}`,
+        `🚀 Token ${deployedToken?.code} deployed successfully, address ${deployedToken?.contract}`,
       );
     }
     tokensBook.writeToFile();

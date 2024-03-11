@@ -1,7 +1,7 @@
 import { Asset } from 'stellar-sdk';
 import { deployStellarAsset } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
-import { TokensBook } from '../utils/tokens_book.js';
+import { TokensBook, Token } from '../utils/tokens_book.js';
 
 const network = process.argv[2];
 const loadedConfig = config(network);
@@ -11,11 +11,11 @@ export async function setupNativeToken(tokensBook: TokensBook) {
     console.log('-------------------------------------------------------');
     console.log('Adding XLM to tokens book');
     console.log('-------------------------------------------------------');
-    const xlmToken = {
-      address: Asset.native().contractId(loadedConfig.passphrase),
+    const xlmToken: Token  = {
       name: 'Stellar Lumens',
+      contract: Asset.native().contractId(loadedConfig.passphrase),
+      code: 'XLM',
       logoURI: 'https://assets.coingecko.com/coins/images/100/standard/Stellar_symbol_black_RGB.png',
-      symbol: 'XLM',
       decimals: 7,
     }
     
