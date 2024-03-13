@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { config } from '../utils/env_config.js';
 import * as StellarSdk from 'stellar-sdk';
+import { TokensBook } from '../utils/tokens_book.js';
 
 export interface TokenType {
   address: string;
@@ -16,16 +17,12 @@ export interface tokensResponse {
 }
 
 export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
-  console.log('Public key: ', loadedConfig.admin.publicKey());
-  console.log('Horizon RPC', loadedConfig.horizonRpc);
-  let source = await loadedConfig.horizonRpc.loadAccount(loadedConfig.admin.publicKey()!);
-  console.log('Source: ', source);
+  let source = await loadedConfig.horizonRpc.loadAccount(process.env.TRUSTLINE_WALLET_PUBLIC_KEY!);
 
   const operation = StellarSdk.Operation.changeTrust({
     source: source.accountId(),
     asset: new StellarSdk.Asset(tokenSymbol, tokenIssuer),
   });
-  console.log('Operation: ', operation);
 
   const txn = new StellarSdk.TransactionBuilder(source, {
     fee: '100',
@@ -36,16 +33,14 @@ export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
     .setTimeout(StellarSdk.TimeoutInfinite)
     .build();
 
-  console.log('Transaction: ', txn);
-
-  txn.sign(loadedConfig.admin);
-
-  console.log('\nTransaction Signed: ', txn);
+  const keyPair = StellarSdk.Keypair.fromSecret(process.env.TRUSTLINE_WALLET_SECRET_KEY!);
+  txn.sign(keyPair);
 
   try {
     let response = await loadedConfig.horizonRpc.submitTransaction(txn);
+    console.log('Trustline set for ', tokenSymbol);
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
   }
 }
@@ -58,14 +53,8 @@ export async function setTrustlines() {
     );
     tokensList = data.tokens;
   } else {
-    const axiosInstance = axios.create({
-      baseURL: 'https://api.soroswap.finance',
-      headers: {
-        'Cache-Control': 'no-cache',
-      },
-    });
-    const { data } = await axiosInstance.get('/api/tokens');
-    tokensList = data.find((item: tokensResponse) => item.network === network).tokens;
+    const tokensBook = TokensBook.loadFromFile(folder);
+    tokensList = tokensBook.getTokensByNetwork(network);
   }
 
   for (const token of tokensList) {
@@ -79,6 +68,11 @@ export async function setTrustlines() {
 }
 
 const network = process.argv[2];
+if (!network) {
+  console.log('Please provide a network as argument. Eg: testnet, standalone');
+  process.exit(1);
+}
+const folder = process.argv[3];
 const loadedConfig = config(network);
 
 setTrustlines();
