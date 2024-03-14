@@ -17,7 +17,10 @@ export interface tokensResponse {
 }
 
 export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
-  let source = await loadedConfig.horizonRpc.loadAccount(process.env.TRUSTLINE_WALLET_PUBLIC_KEY!);
+  const publicKey = StellarSdk.Keypair.fromSecret(
+    process.env.TRUSTLINE_WALLET_SECRET_KEY!
+  ).publicKey();
+  const source = await loadedConfig.horizonRpc.loadAccount(publicKey);
 
   const operation = StellarSdk.Operation.changeTrust({
     source: source.accountId(),
@@ -59,7 +62,7 @@ export async function setTrustlines() {
 
   for (const token of tokensList) {
     if (!token.issuer) {
-      console.log(`No issuer found for ${token.code}`);
+      console.log(`No issuer found for ${token.code}, unable to set trustline.\n`);
     } else {
       console.log(`Setting trustline for ${token.code}`);
       await setTrustline(token.code, token.issuer);
