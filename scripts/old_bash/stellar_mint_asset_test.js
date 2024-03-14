@@ -1,6 +1,6 @@
-var StellarSdk = require('stellar-sdk');
-var fs = require('fs');
-const fetch = require('node-fetch');
+import StellarSdk from 'stellar-sdk';
+import fs from 'fs';
+import fetch from 'node-fetch';
 
 const sorobanDir = "/workspace/.soroban"
 
