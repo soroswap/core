@@ -8,7 +8,8 @@
     "start": "node scripts/api/server.js",
     "test": "yarn build && node dist/scripts/manual_testing/all.js",
     "deploy": "yarn build && node dist/scripts/deploy.js",
-    "upload": "node dist/scripts/upload_addresses.js"
+    "upload": "node dist/scripts/upload_addresses.js",
+    "trustline": "yarn build && node dist/scripts/set_trustlines.js"
   },
   "license": "MIT",
   "devDependencies": {
