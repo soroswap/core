@@ -259,3 +259,23 @@ To run tests agains contracts addresses in the public `public` folder, do:
 yarn test public
 ```
 
+# Set trustlines to all tokens from token-list
+
+You can run the following script to set trustlines to all tokens from the token-list
+
+```bash
+yarn trustline <network> <folder>
+```
+where `network` is the network(it could be mainnet, testnet or standalone) to set the trustlines and `folder` is the folder where the token-list is located (public or .soroban). If you want to set the trustlines to the tokens in the public folder, you can run:
+
+```bash
+yarn trustline testnet public
+```
+
+however, if you use mainnet, folder is not used and the token list is the official soroswap token list.
+
+In order to check the existing trustlines of the token list, you can run:
+
+```bash
+yarn seeTrustline mainnet
+```
