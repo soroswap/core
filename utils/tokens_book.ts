@@ -10,7 +10,7 @@ export interface Token {
   contract: string;
   code: string;
   issuer?: string;
-  logoURI?: string;
+  icon?: string;
   decimals: number;
 }
 
