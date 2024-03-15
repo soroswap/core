@@ -6,28 +6,28 @@
         "name": "florem",
         "contract": "CAJREGCG2ZNHA6JJZH7LA4U7BR6HIKZIWKLXZSZT55CMQA533QNSGLEC",
         "code": "FLOR",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "pilulk",
         "contract": "CDVRLNLH34DUBHKBRNF73YUPG6KQDT2VYLCIFI5JYENRAJLPB3IEO7XJ",
         "code": "PILU",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "piefox",
         "contract": "CDLU6EO6OB7OI3RD26FIMD3IGNXKXXWZXVNCYEIEEBAZP2D4U2CXFQFQ",
         "code": "PIEF",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "asdrem",
         "contract": "CCAZHFG4VKKAEBDQ23UIAWS66RDYMU7XIRELCX5DI3PJ7KH4OF4SUV5F",
         "code": "ASDR",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -35,7 +35,7 @@
         "contract": "CCROTQGKRQ7PQYCJEZUTGBKLRLMONJ2OKTC5SJRLQIIMDLTRAWR7SE4V",
         "code": "WEKJ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -43,7 +43,7 @@
         "contract": "CACIBLXISOU3JYB22V2L6KBMCPDXPVXH5NGFGHQZV6WNZ55JZRCVKB26",
         "code": "ZXAC",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -51,7 +51,7 @@
         "contract": "CA6WZ5BTWML5JIMQAXYCIRFZA7C6NXWSEPEDLWDV6OK4RFAH3UZWXIRO",
         "code": "DASF",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -59,7 +59,7 @@
         "contract": "CB3DZK5AVZIOD3S74CKBUA5AWBUFKY5QL7V4AL2UKY33UG66WWP4BX7B",
         "code": "POES",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       }
     ]
@@ -71,28 +71,28 @@
         "name": "riehel",
         "contract": "CBWSE3I3OUYHJCZGTBHGPNYUNEVADZNNGJ4OMW7UIIYTY2KREE5RGOLL",
         "code": "RIEH",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "trache",
         "contract": "CAGMPORNDZKNVTQ5VCYYA5QSOY2UKTKQRQXKI3DDSSDBUFSLELPSOXDF",
         "code": "TRAC",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "jirfox",
         "contract": "CCLO6Y6UWEODBLFYXDS3WGEG62A3EQBWM2JTL5EKU6XSMKZTUM3SYVR4",
         "code": "JIRF",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "remjir",
         "contract": "CAPXDKJRLNRDIX5F6EJU77CEZMIGO3ANL5QFXCEBKBTDUJYDORKFMOMX",
         "code": "REMJ",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -100,7 +100,7 @@
         "contract": "CAXB3ZD563C7MNXBJAA37KFCNKPNGCSJY7F2T23HGBA4PQPVPJSL74PX",
         "code": "YIED",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -108,7 +108,7 @@
         "contract": "CAW4JAHQEPCYCVA42LGA3E2RCPWNSCIVK2MA44MISFWQL37XHKRWX4X4",
         "code": "VOKY",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -116,7 +116,7 @@
         "contract": "CAX74GH3XV7OA5QAPXPTDQPOSDHUHOW6ZJNDQ2NSRNPE35VYLKFLCLJ7",
         "code": "MUYJ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -124,7 +124,7 @@
         "contract": "CCM74PBKLEDRDEYVXT6DNPNSWMYCEWWQLX4P666RO5JA6HRTXME2ZGQQ",
         "code": "JAZZ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       }
     ]
@@ -136,28 +136,28 @@
         "name": "ramlup",
         "contract": "CDB5PXUPTQ3L4R7TNYJAO3VKRK4UZDBYKBE4EIBAOXCFQGAGWDM2QZOG",
         "code": "RAML",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "remvol",
         "contract": "CDZ5GQOG6UDW7WJSK2YE53ZWAIDNCDMJZCCD5JL6ZNAXXGAZ6E7BXI4J",
         "code": "REMV",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "rimpoe",
         "contract": "CBO7ESWHJFCRNYJTTUINUYR7LQGGDGAYRGEW6EOF635B34JRGYH47NAS",
         "code": "RIMP",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
         "name": "szxpoe",
         "contract": "CAETVD2QS335COAGC7YNREOLOFKS26WHSXM2LE4YXJYXEIT7K2IPFZXO",
         "code": "SZXP",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -165,7 +165,7 @@
         "contract": "CBWYN6AJY26W2V3LZUWIUZCWCLV7DQ2RV3NJBSV6TMUNUHSXQDLEPIKF",
         "code": "REMV",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -173,7 +173,7 @@
         "contract": "CDCAKSXFWRFM4F7HTDUK6OXQPAULO7MGP4VSVMQQGYRZUGMABT7XIBWU",
         "code": "ASDL",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -181,7 +181,7 @@
         "contract": "CCN5WJT6UNILCU4QH7G3GAHDRTZJ5HHPRDH2AHREC3JAK6JGL2ET2CMT",
         "code": "ONYL",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       },
       {
@@ -189,7 +189,7 @@
         "contract": "CABG7IDC3GPKVRZEQWELDXTNGJAEKYGYPVNE5C5VRCTUX27RZYC4RBLE",
         "code": "ZXAF",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "logoURI": "",
+        "icon": "",
         "decimals": 7
       }
     ]

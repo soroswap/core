@@ -35,7 +35,7 @@ export async function deploySorobanTestTokens(
       const deployedToken = await deployToken(
         tokenIdea.name,
         tokenIdea.symbol,
-        tokenIdea.logoURI,
+        tokenIdea.icon,
         source,
         addressBook,
       );

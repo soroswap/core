@@ -14,7 +14,7 @@ import { invoke } from '../utils/tx.js';
 export async function deployToken(
   name: string,
   symbol: string,
-  logoURI: string,
+  icon: string,
   source: Keypair,
   addressBook: AddressBook,
 ) {
@@ -37,7 +37,7 @@ export async function deployToken(
       name: name,
       contract: contractId!,
       code: symbol,
-      logoURI: logoURI,
+      icon: icon,
       decimals: 7,
     }
 

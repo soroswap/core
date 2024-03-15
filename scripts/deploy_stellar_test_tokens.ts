@@ -38,7 +38,7 @@ export async function deployStellarTestTokens(numberOfTokens: number, resetToken
           contract: contractId,
           code: symbol,
           issuer: asset.issuer,
-          logoURI: '',
+          icon: '',
           decimals: 7,
         }
     

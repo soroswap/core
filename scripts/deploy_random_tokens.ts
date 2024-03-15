@@ -47,7 +47,7 @@ export async function deployRandomTokens(numberOfTokens: number, resetTokensBook
           contract: contractId,
           code: symbol,
           issuer: asset.issuer,
-          logoURI: '',
+          icon: '',
           decimals: 7,
         }
         
