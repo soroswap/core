@@ -9,7 +9,8 @@
     "test": "yarn build && node dist/scripts/manual_testing/all.js",
     "deploy": "yarn build && node dist/scripts/deploy.js",
     "upload": "node dist/scripts/upload_addresses.js",
-    "trustline": "yarn build && node dist/scripts/set_trustlines.js"
+    "trustline": "yarn build && node dist/scripts/set_trustlines.js",
+    "seeTrustline": "yarn build && node dist/scripts/see_trustlines.js"
   },
   "license": "MIT",
   "devDependencies": {
