@@ -16,7 +16,10 @@ export interface tokensResponse {
   tokens: TokenType[];
 }
 
-export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
+const MAX_TRIES = 10;
+const INITIAL_FEE = 100;
+
+export async function setTrustline(tokenSymbol: string, tokenIssuer: string, tries: number = 1) {
   const publicKey = StellarSdk.Keypair.fromSecret(
     process.env.TRUSTLINE_WALLET_SECRET_KEY!
   ).publicKey();
@@ -28,7 +31,7 @@ export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
   });
 
   const txn = new StellarSdk.TransactionBuilder(source, {
-    fee: '100',
+    fee: Number(INITIAL_FEE * tries).toString(),
     timebounds: { minTime: 0, maxTime: 0 },
     networkPassphrase: loadedConfig.passphrase,
   })
@@ -44,7 +47,15 @@ export async function setTrustline(tokenSymbol: string, tokenIssuer: string) {
     console.log('Trustline set for ', tokenSymbol);
     return response;
   } catch (error: any) {
-    console.log(error);
+    if (tries < MAX_TRIES) {
+      console.log('Error trying to set trustline for ', tokenSymbol);
+      console.log(error);
+      console.log('Retrying...');
+      await setTrustline(tokenSymbol, tokenIssuer, tries + 1);
+    } else {
+      console.log('Max tries reached for ', tokenSymbol), '. Unable to set trustline.';
+      console.log(error);
+    }
   }
 }
 
