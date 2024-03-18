@@ -1,11 +1,11 @@
-# Soroswap core Smart Contracts.
-
-Make sure to compile contracts in the right order: token, pair, factory, library, router. If you just do `cd contracts && make build`, this will be done in the correct order ;)
+# Soroswap.Finance core Smart Contracts.
 
 Check the documentation in
 
 - https://github.com/soroswap/docs/
 - https://docs.soroswap.finance/
+
+Find the Audit Report by [OtterSec](https://osec.io/) in [./audits/2024-02-22_soroswap_ottersec_audit.pdf](audits/2024-02-22_soroswap_ottersec_audit.pdf)
 
 ## TLDR;
 
