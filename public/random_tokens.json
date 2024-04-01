@@ -1,7 +1,7 @@
 [
   {
     "network": "mainnet",
-    "tokens": [
+    "assets": [
       {
         "name": "florem",
         "contract": "CAJREGCG2ZNHA6JJZH7LA4U7BR6HIKZIWKLXZSZT55CMQA533QNSGLEC",
@@ -66,7 +66,7 @@
   },
   {
     "network": "testnet",
-    "tokens": [
+    "assets": [
       {
         "name": "riehel",
         "contract": "CBWSE3I3OUYHJCZGTBHGPNYUNEVADZNNGJ4OMW7UIIYTY2KREE5RGOLL",
@@ -131,7 +131,7 @@
   },
   {
     "network": "standalone",
-    "tokens": [
+    "assets": [
       {
         "name": "ramlup",
         "contract": "CDB5PXUPTQ3L4R7TNYJAO3VKRK4UZDBYKBE4EIBAOXCFQGAGWDM2QZOG",
