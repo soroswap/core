@@ -7,16 +7,18 @@ const __dirname = path.dirname(__filename);
 
 export interface Token {
   name: string;
-  contract: string;
   code: string;
   issuer?: string;
+  contract: string;
+  org?: string;
+  domain?: string;
   icon?: string;
   decimals: number;
 }
 
 interface NetworkTokens {
   network: string;
-  tokens: Token[];
+  assets: Token[];
 }
 
 export class TokensBook {
@@ -40,15 +42,15 @@ export class TokensBook {
       networks = [
         {
           network: 'mainnet',
-          tokens: []
+          assets: []
         },
         {
           network: 'testnet',
-          tokens: []
+          assets: []
         },
         {
           network: 'standalone',
-          tokens: []
+          assets: []
         }
       ];
     }
@@ -62,51 +64,51 @@ export class TokensBook {
     writeFileSync(filePath, fileContent);
   }
 
-  addToken(networkName: string, token: Token) {
+  addToken(networkName: string, asset: Token) {
     const network = this.networks.find(n => n.network === networkName);    
     if (network) {
-      const tokenExists = network.tokens.some(t => t.contract === token.contract);
+      const tokenExists = network.assets.some(t => t.contract === asset.contract);
       
       if (!tokenExists) {
-        network.tokens.push(token);
+        network.assets.push(asset);
       }
     } else {
       this.networks.push({
         network: networkName,
-        tokens: [token]
+        assets: [asset]
       });
     }
   }
 
-  prependToken(networkName: string, token: Token) {
+  prependToken(networkName: string, asset: Token) {
     const network = this.networks.find(n => n.network === networkName);
     if (network) {
-      const tokenExists = network.tokens.some(t => t.contract === token.contract);
+      const tokenExists = network.assets.some(t => t.contract === asset.contract);
   
       if (!tokenExists) {
-        network.tokens.unshift(token);
+        network.assets.unshift(asset);
       }
     } else {
       this.networks.push({
         network: networkName,
-        tokens: [token]
+        assets: [asset]
       });
     }
   }
 
   getTokensByNetwork(networkName: string): Token[] | undefined {
     const network = this.networks.find(n => n.network === networkName);
-    return network?.tokens;
+    return network?.assets;
   }
 
   resetNetworkTokens(networkName: string) {
     const networkIndex = this.networks.findIndex(n => n.network === networkName);
     if (networkIndex !== -1) {
-      this.networks[networkIndex].tokens = [];
+      this.networks[networkIndex].assets = [];
     } else {
       this.networks.push({
         network: networkName,
-        tokens: []
+        assets: []
       });
     }
   }
