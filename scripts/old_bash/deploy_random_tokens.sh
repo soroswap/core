@@ -15,7 +15,7 @@ GENERATED_STELLAR_ASSETS="/workspace/.soroban/generated_stellar_assets.json"
 # Validate the input arguments
 if [ -z "$NETWORK" ]; then
     echo "Error: Network name must be provided."
-    echo "Usage: bash /workspace/scripts/deploy_random_tokens.sh <network> <number_of_tokens(optional)>"
+    echo "Usage: bash /workspace/scripts/old_bash/deploy_random_tokens.sh <network> <number_of_tokens(optional)>"
     exit 1
 fi
 
@@ -38,6 +38,10 @@ fi
 
 # Get the token admin address
 TOKEN_ADMIN_ADDRESS="$(soroban keys address token-admin)"
+
+# Display TOKEN_ADMIN_ADDRESS in magenta color
+echo -e "\e[35mTOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS\e[0m"
+
 
 # Arrays of common name syllables/parts
 name_parts=("ath" "bei" "cri" "dyl" "efi" "fro" "gor" "hul" "ivi" "jek"
@@ -81,20 +85,20 @@ do
       --name "$NAME" \
       --symbol "$SYMBOL"
 
-    TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_ID)"
+    TOKEN_ADDRESS="$(node /workspace/scripts/old_bash/address_workaround.js $TOKEN_ID)"
 
     TOKEN_JSON="{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}"
     TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$TOKEN_JSON]")
     echo $TOKEN_JSON
 done
 
-node /workspace/scripts/issue_stellar_assets.js $NETWORK $N_TOKENS
+node /workspace/scripts/old_bash/issue_stellar_assets.js $NETWORK $N_TOKENS
 GENERATED_ASSETS_JSON=$(jq '.tokens' "$GENERATED_STELLAR_ASSETS")
 for ((i=1; i<=N_TOKENS; i++)) do
     ASSET_SYMBOL=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].symbol")
     ASSET_NAME=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].asset")
 
-    node /workspace/scripts/stellar_mint_asset_test.js $NETWORK $ASSET_NAME
+    node /workspace/scripts/old_bash/stellar_mint_asset_test.js $NETWORK $ASSET_NAME
 
     ASSET_JSON="{\"asset\": \"$ASSET_NAME\", \"symbol\": \"$ASSET_SYMBOL\"}"
     TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$ASSET_JSON]")
