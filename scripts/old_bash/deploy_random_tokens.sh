@@ -81,20 +81,20 @@ do
       --name "$NAME" \
       --symbol "$SYMBOL"
 
-    TOKEN_ADDRESS="$(node /workspace/scripts/address_workaround.js $TOKEN_ID)"
+    TOKEN_ADDRESS="$(node /workspace/scripts/old_bash/address_workaround.js $TOKEN_ID)"
 
     TOKEN_JSON="{\"address\": \"$TOKEN_ADDRESS\", \"name\": \"$NAME\", \"symbol\": \"$SYMBOL\", \"logoURI\": \"$LOGO\", \"decimals\": $DECIMAL}"
     TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$TOKEN_JSON]")
     echo $TOKEN_JSON
 done
 
-node /workspace/scripts/issue_stellar_assets.js $NETWORK $N_TOKENS
+node /workspace/scripts/old_bash/issue_stellar_assets.js $NETWORK $N_TOKENS
 GENERATED_ASSETS_JSON=$(jq '.tokens' "$GENERATED_STELLAR_ASSETS")
 for ((i=1; i<=N_TOKENS; i++)) do
     ASSET_SYMBOL=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].symbol")
     ASSET_NAME=$(echo "$GENERATED_ASSETS_JSON" | jq -r ".[$i-1].asset")
 
-    node /workspace/scripts/stellar_mint_asset_test.js $NETWORK $ASSET_NAME
+    node /workspace/scripts/old_bash/stellar_mint_asset_test.js $NETWORK $ASSET_NAME
 
     ASSET_JSON="{\"asset\": \"$ASSET_NAME\", \"symbol\": \"$ASSET_SYMBOL\"}"
     TOKENS_ARRAY=$(echo $TOKENS_ARRAY | jq ". += [$ASSET_JSON]")

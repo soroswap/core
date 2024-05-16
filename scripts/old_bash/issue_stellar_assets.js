@@ -1,6 +1,6 @@
-var SorobanClient = require('soroban-client');
-var StellarSdk = require('stellar-sdk');
-var fs = require('fs');
+import SorobanClient from 'soroban-client';
+import StellarSdk from 'stellar-sdk';
+import fs from 'fs';
 
 const sorobanDir = "/workspace/.soroban"
 
@@ -44,9 +44,10 @@ function generateRandomName() {
 }
 
 function getAdminKeys() {
-  let adminKeys = fs.readFileSync(`${sorobanDir}/token_admin_keys.json`, 'utf8');
+ /*  let adminKeys = fs.readFileSync(`${sorobanDir}/token_admin_keys.json`, 'utf8');
   adminKeys = JSON.parse(adminKeys)
-  return adminKeys.find((a) => a.network == network)
+  return adminKeys.find((a) => a.network == network) */
+  return {admin_public: 'GDH5MXPBAZ3CO2HN6RSI3UGPOOLXY7LCIMC74AZZYKGAOTFNFS5HSNGJ', admin_secret: 'SAJDYNEMNXJ7L75T35WDSHFAB76Q6C65QNHPQBZZ2WMEI4DRWIWCZDT7'}
 }
 
 function createToken(name, issuerPublicKey) {
