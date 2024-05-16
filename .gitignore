@@ -8,3 +8,4 @@ contracts/*/test_snapshots
 node_modules/
 .env
 /dist
+/scripts/test.ts

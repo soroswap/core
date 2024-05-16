@@ -1,4 +1,4 @@
-import { Address, nativeToScVal, xdr } from "stellar-sdk";
+import { Address, nativeToScVal, xdr } from "@stellar/stellar-sdk";
 import { getTokenBalance, invokeCustomContract } from "../../utils/contract.js";
 import { colors } from "../../utils/index.js";
 import { TokensBook } from "../../utils/tokens_book.js";

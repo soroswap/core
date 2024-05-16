@@ -1,8 +1,8 @@
 // import { randomBytes } from 'crypto';
+import { Address, Asset, Contract, Keypair, Operation, StrKey, hash, scValToNative, xdr } from '@stellar/stellar-sdk';
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Address, Asset, Contract, Keypair, Operation, StrKey, hash, scValToNative, xdr } from 'stellar-sdk';
 import { fileURLToPath } from 'url';
 import { AddressBook } from './address_book.js';
 import { config } from './env_config.js';

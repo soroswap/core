@@ -1,6 +1,6 @@
 {
-    "previewHash": "20.2.0@sha256:7315e09645c1a4f5460790e90a72c99752d879e286581e1f46191229c735d6e7",
-    "quickstartHash": "soroban-dev@sha256:64b2d14b8a531c534560e287768846f538b2f063fc776aa9ca016c788e86c782",
+    "previewHash": "21.0.1@sha256:55c0cdfdc62f5daee50c33e3f7bcf43987a8c45a1ecd634bd27088aba1b6af75",
+    "quickstartHash": "latest@sha256:b7f5a1b2c8ec06cb30a1b79b377ad2bc762cf8cb69ce1fcf7b91185b2acd8a15",
     "networkConfig": [
         {
             "network": "mainnet",
@@ -23,13 +23,13 @@
             "network": "testnet",
             "friendbot_url": "https://friendbot.stellar.org/",
             "horizon_rpc_url": "https://horizon-testnet.stellar.org",
-            "soroban_rpc_url": "https://soroban-testnet.stellar.org/",
+            "soroban_rpc_url": "https://testnet.stellar.validationcloud.io/v1/Mewk7YPYiUy3wAlDNlQsIhwxbdumICRYrz2tXS2vOck",
             "soroban_network_passphrase": "Test SDF Network ; September 2015"
         },    {
             "network": "testnet-public",
             "friendbot_url": "https://friendbot.stellar.org/",
             "horizon_rpc_url": "https://horizon-testnet.stellar.org",
-            "soroban_rpc_url": "https://soroban-testnet.stellar.org/",
+            "soroban_rpc_url": "https://testnet.stellar.validationcloud.io/v1/Mewk7YPYiUy3wAlDNlQsIhwxbdumICRYrz2tXS2vOck",
             "soroban_network_passphrase": "Test SDF Network ; September 2015"
         },
         {

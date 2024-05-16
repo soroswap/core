@@ -1,4 +1,4 @@
-import { Address, Keypair, nativeToScVal, xdr } from 'stellar-sdk';
+import { Address, Keypair, nativeToScVal, xdr } from '@stellar/stellar-sdk';
 import { invokeCustomContract } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
 
