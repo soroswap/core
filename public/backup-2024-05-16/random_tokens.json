@@ -68,61 +68,61 @@
     "network": "testnet",
     "assets": [
       {
-        "name": "cheasd",
-        "contract": "CBMZZIOVTWM6DVC455DWRXVR6JMPSI27N3K6VQALOSU4GA52SLXQGYXM",
-        "code": "CHEA",
+        "name": "riehel",
+        "contract": "CBWSE3I3OUYHJCZGTBHGPNYUNEVADZNNGJ4OMW7UIIYTY2KREE5RGOLL",
+        "code": "RIEH",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "pilpil",
-        "contract": "CB5RTIUIZQGLK3PDP5HQYSSYGMCQDQZ7BHX3EBVVI54Q3POP6JYUUCM5",
-        "code": "PILP",
+        "name": "trache",
+        "contract": "CAGMPORNDZKNVTQ5VCYYA5QSOY2UKTKQRQXKI3DDSSDBUFSLELPSOXDF",
+        "code": "TRAC",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "florem",
-        "contract": "CAJO43VOTMIGFYFJEYSID5X5A24A6FYK35JYC7LGF2L2IZTM3UWWQMJB",
-        "code": "FLOR",
+        "name": "jirfox",
+        "contract": "CCLO6Y6UWEODBLFYXDS3WGEG62A3EQBWM2JTL5EKU6XSMKZTUM3SYVR4",
+        "code": "JIRF",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "junpie",
-        "contract": "CA2Z6HJRTHA3FOGFSEURKZHQVVYIT5MCDJPUXNVBP2YODV67JUHD6VUO",
-        "code": "JUNP",
+        "name": "remjir",
+        "contract": "CAPXDKJRLNRDIX5F6EJU77CEZMIGO3ANL5QFXCEBKBTDUJYDORKFMOMX",
+        "code": "REMJ",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "KIVL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CAIIJT2B3J74ISR4Q62CXSWKGXZACZ6AWK7ZAC7SL2KQURSDG3LVX37F",
-        "code": "KIVL",
+        "name": "YIED:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CAXB3ZD563C7MNXBJAA37KFCNKPNGCSJY7F2T23HGBA4PQPVPJSL74PX",
+        "code": "YIED",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "CHEL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CA7IJWQCOOL53FTOP4SUZ62P4CS3LHJYGE4CKGLX74WGLWHWT7XXX5JV",
-        "code": "CHEL",
+        "name": "VOKY:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CAW4JAHQEPCYCVA42LGA3E2RCPWNSCIVK2MA44MISFWQL37XHKRWX4X4",
+        "code": "VOKY",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "ULKP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CC4DDR5YH7RAN2XQOVT6EON7F3QRPTFXCWKRBOU6UOXZDDIW7TEXQSDT",
-        "code": "ULKP",
+        "name": "MUYJ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CAX74GH3XV7OA5QAPXPTDQPOSDHUHOW6ZJNDQ2NSRNPE35VYLKFLCLJ7",
+        "code": "MUYJ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "TROV:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CAJURM2Z2UT3KGCPYLBP3NRNV46435GJVQ3KOIVY4OBVA542VG3BAFQN",
-        "code": "TROV",
+        "name": "JAZZ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCM74PBKLEDRDEYVXT6DNPNSWMYCEWWQLX4P666RO5JA6HRTXME2ZGQQ",
+        "code": "JAZZ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
@@ -133,62 +133,62 @@
     "network": "standalone",
     "assets": [
       {
-        "name": "voldox",
-        "contract": "CAFGISDIWWO5DYUUUUOAHMV5TLBWUDKPFKCKZTYP5IIZJFNOZ5DPXX6G",
-        "code": "VOLD",
+        "name": "ramlup",
+        "contract": "CDB5PXUPTQ3L4R7TNYJAO3VKRK4UZDBYKBE4EIBAOXCFQGAGWDM2QZOG",
+        "code": "RAML",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "raiulk",
-        "contract": "CA55KEXXKLRRQSIBIKME4CLYC2MBCJKQC5ATHWISZ5IE73PDQPUGDGFY",
-        "code": "RAIU",
+        "name": "remvol",
+        "contract": "CDZ5GQOG6UDW7WJSK2YE53ZWAIDNCDMJZCCD5JL6ZNAXXGAZ6E7BXI4J",
+        "code": "REMV",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "ferfel",
-        "contract": "CCO2NP7KDPL4JDKIZXKO2ZA67P3KZ7MPY2O7NBSZBGZ2B7P4DTLUJSYG",
-        "code": "FERF",
+        "name": "rimpoe",
+        "contract": "CBO7ESWHJFCRNYJTTUINUYR7LQGGDGAYRGEW6EOF635B34JRGYH47NAS",
+        "code": "RIMP",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "chedox",
-        "contract": "CA6RBC6PDTI7K563B32ENJ5DIGJS5J6DH66KG5KOFFS6XJ5YTPNM2VKN",
-        "code": "CHED",
+        "name": "szxpoe",
+        "contract": "CAETVD2QS335COAGC7YNREOLOFKS26WHSXM2LE4YXJYXEIT7K2IPFZXO",
+        "code": "SZXP",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "TEKL:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
-        "contract": "CAIRS7ORP72AKIAKI6W6UL32SCAU6CEROP2PBIVLILET63CRXBLMKREA",
-        "code": "TEKL",
-        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "name": "REMV:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBWYN6AJY26W2V3LZUWIUZCWCLV7DQ2RV3NJBSV6TMUNUHSXQDLEPIKF",
+        "code": "REMV",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "CHER:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
-        "contract": "CBE5EEYY7F73XA564URS43SKSZ67AE4WFLDMO53VSSGK7YY3FZ43MAVB",
-        "code": "CHER",
-        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "name": "ASDL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CDCAKSXFWRFM4F7HTDUK6OXQPAULO7MGP4VSVMQQGYRZUGMABT7XIBWU",
+        "code": "ASDL",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "CHEZ:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
-        "contract": "CDSDODRXTGLLNDLEVNBYHQCFBQSUJGIZYMZYUGEBZ4YRR5EEMHCFFSKW",
-        "code": "CHEZ",
-        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "name": "ONYL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCN5WJT6UNILCU4QH7G3GAHDRTZJ5HHPRDH2AHREC3JAK6JGL2ET2CMT",
+        "code": "ONYL",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "PIER:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
-        "contract": "CAYV3BQ7ADKPS6BAWFYLLOFAHSTEUH3WLXGLRR4PPHLFJIT3KUHNUHX4",
-        "code": "PIER",
-        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "name": "ZXAF:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CABG7IDC3GPKVRZEQWELDXTNGJAEKYGYPVNE5C5VRCTUX27RZYC4RBLE",
+        "code": "ZXAF",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       }
