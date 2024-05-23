@@ -1,5 +1,5 @@
 var SorobanClient = require('soroban-client');
-var StellarSdk = require('stellar-sdk');
+var StellarSdk = require('@stellar/stellar-sdk');
 var fs = require('fs');
 
 const sorobanDir = "/workspace/.soroban"

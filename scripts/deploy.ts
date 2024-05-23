@@ -1,4 +1,4 @@
-import { Address, nativeToScVal } from 'stellar-sdk';
+import { Address, nativeToScVal } from '@stellar/stellar-sdk';
 import { AddressBook } from '../utils/address_book.js';
 import { airdropAccount, bumpContractCode, bumpContractInstance, deployContract, installContract, invokeContract } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';

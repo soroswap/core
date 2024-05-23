@@ -1,7 +1,7 @@
+import { Horizon, Keypair, SorobanRpc } from "@stellar/stellar-sdk";
 import dotenv from "dotenv";
 import * as fs from "fs";
 import path from "path";
-import { Horizon, Keypair, SorobanRpc } from "stellar-sdk";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);

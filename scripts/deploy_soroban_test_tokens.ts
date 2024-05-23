@@ -1,6 +1,6 @@
+import { Keypair } from "@stellar/stellar-sdk";
 import { readFileSync } from "fs";
 import path from "path";
-import { Keypair } from "stellar-sdk";
 import { fileURLToPath } from "url";
 import { AddressBook } from "../utils/address_book.js";
 import { bumpContractCode, installContract } from "../utils/contract.js";

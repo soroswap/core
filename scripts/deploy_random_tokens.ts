@@ -1,4 +1,4 @@
-import { Asset, Keypair } from 'stellar-sdk';
+import { Asset, Keypair } from '@stellar/stellar-sdk';
 import { AddressBook } from '../utils/address_book.js';
 import { deployStellarAsset } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';

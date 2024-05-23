@@ -1,4 +1,4 @@
-import { Asset } from 'stellar-sdk';
+import { Asset } from '@stellar/stellar-sdk';
 import { deployStellarAsset } from '../utils/contract.js';
 import { config } from '../utils/env_config.js';
 import { Token, TokensBook } from '../utils/tokens_book.js';

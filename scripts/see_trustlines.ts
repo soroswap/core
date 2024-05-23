@@ -1,6 +1,6 @@
+import * as StellarSdk from '@stellar/stellar-sdk';
 import axios from 'axios';
 import { config } from '../utils/env_config.js';
-import * as StellarSdk from 'stellar-sdk';
 import { TokensBook } from '../utils/tokens_book.js';
 
 
