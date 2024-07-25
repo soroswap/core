@@ -1,5 +1,5 @@
 {
-    "previewHash": "21.0.1@sha256:55c0cdfdc62f5daee50c33e3f7bcf43987a8c45a1ecd634bd27088aba1b6af75",
+    "previewHash": "21.0.1-scout-audit@sha256:b2345967694194c07bc35e03f584788eff95e973659daa3f8ce324fdc621ca13",
     "quickstartHash": "latest@sha256:b7f5a1b2c8ec06cb30a1b79b377ad2bc762cf8cb69ce1fcf7b91185b2acd8a15",
     "networkConfig": [
         {

@@ -21,7 +21,7 @@ fn pair_salt(e: &Env, token_a: Address, token_b: Address) -> BytesN<32> {
     salt.append(&token_b.clone().to_xdr(e));
 
     // Hash the salt using SHA256 to generate a new BytesN<32> value
-    e.crypto().sha256(&salt)
+    e.crypto().sha256(&salt).into()
 }
 
 /// Sorts two token addresses in a consistent order.
