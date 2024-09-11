@@ -14,7 +14,7 @@ jobs:
       release_description: 'soroswap token contract release'
       relative_path: './contracts/token'
       package: 'token'
-      make_target: './contracts/token/Makefile'
+      make_target: './Makefile'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs: []
