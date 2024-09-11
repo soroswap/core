@@ -13,7 +13,7 @@ jobs:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap token contract release'
       relative_path: './contracts/token'
-      package: 'token'
+      package: 'soroban-token-contract'
       make_target: './Makefile'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
