@@ -12,9 +12,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap token contract release'
-      relative_path: '../contracts/token'
+      relative_path: '["../../contracts/token"]'
       package: 'token'
-      make_target: '../contracts/token/Makefile'
+      make_target: '["../../contracts/token/Makefile"]'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs: []
@@ -23,9 +23,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap pair contract release'
-      relative_path: '../contracts/pair'
+      relative_path: '["../../contracts/pair"]'
       package: 'pairs'
-      make_target: '../contracts/pair/Makefile'
+      make_target: '["../../contracts/pair/Makefile"]'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs: [release-soroswap-token]
@@ -34,9 +34,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}                      # use git tag as unique release name
       release_description: 'soroswap factory contract release'  # some boring placeholder text to attach
-      relative_path: '../contracts/factory'                    # relative path to your really awesome contract
+      relative_path: '["../../contracts/factory"]'                    # relative path to your really awesome contract
       package: 'factory'                               # package name to build
-      make_target: '../contracts/factory/Makefile'                 # make target to invoke
+      make_target: '["../../contracts/factory/Makefile"]'                 # make target to invoke
     secrets:  # the authentication token will be automatically created by GitHub
       release_token: ${{ secrets.GITHUB_TOKEN }}                # don't modify this line
     needs: [release-soroswap-token, release-soroswap-pair]
@@ -45,9 +45,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap library contract release'
-      relative_path: '../contracts/library'
+      relative_path: '["../../contracts/library"]'
       package: 'library'
-      make_target: '../contracts/library/Makefile'
+      make_target: '["../../contracts/library/Makefile"]'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
@@ -56,9 +56,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap router contract release'
-      relative_path: '../contracts/router'
+      relative_path: '["../../contracts/router"]'
       package: 'router'
-      make_target: '../contracts/router/Makefile'
+      make_target: '["../../contracts/router/Makefile"]'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
