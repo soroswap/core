@@ -11,7 +11,9 @@ permissions:
   pull-requests: write 
   repository-projects: write
   packages: write
-  
+defaults:
+  run:
+    working-directory: ./
   
 jobs:
   release-soroswap-token:
