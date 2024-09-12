@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   release-soroswap-token:
-    runs-on: ubuntu-latest
     needs: []
+    runs-on: ubuntu-latest
     steps:
       - name: Create release
         uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
@@ -33,8 +33,8 @@ jobs:
           name: soroswap-token
           path: ./contracts/token/target
   release-soroswap-pair:
-    runs-on: ubuntu-latest
     needs: [release-soroswap-token]
+    runs-on: ubuntu-latest
     steps:
       - name: Download soroswap token artifact
         uses: actions/download-artifact@v3
@@ -59,8 +59,8 @@ jobs:
           path: ./contracts/pair/target
 
   release-soroswap-factory:
-    runs-on: ubuntu-latest
     needs: [release-soroswap-token, release-soroswap-pair]
+    runs-on: ubuntu-latest
     steps:
       - name: Download soroswap token artifact
         uses: actions/download-artifact@v3
@@ -90,27 +90,27 @@ jobs:
           name: soroswap-factory
           path: ./contracts/factory/target
     
-  release-soroswap-library:
-    uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
-    with:
-      release_name: ${{ github.ref_name }}
-      release_description: 'soroswap library contract release'
-      relative_path: './contracts/library'
-      package: 'soroswap-library'
-      make_target: './Makefile'
-    secrets:
-      release_token: ${{ secrets.GITHUB_TOKEN }}
-    needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
-  release-soroswap-router:
-    uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
-    with:
-      release_name: ${{ github.ref_name }}
-      release_description: 'soroswap router contract release'
-      relative_path: './contracts/router'
-      package: 'soroswap-router'
-      make_target: './Makefile'
-    secrets:
-      release_token: ${{ secrets.GITHUB_TOKEN }}
-    needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
+  ##release-soroswap-library:
+  ##  needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
+  ##  uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
+  ##  with:
+  ##    release_name: ${{ github.ref_name }}
+  ##    release_description: 'soroswap library contract release'
+  ##    relative_path: './contracts/library'
+  ##    package: 'soroswap-library'
+  ##    make_target: './Makefile'
+  ##  secrets:
+  ##    release_token: ${{ secrets.GITHUB_TOKEN }}
+  ##release-soroswap-router:
+  ##  needs:  [release-soroswap-token, release-soroswap-pair, release-soroswap-factory]
+  ##  uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
+  ##  with:
+  ##    release_name: ${{ github.ref_name }}
+  ##    release_description: 'soroswap router contract release'
+  ##    relative_path: './contracts/router'
+  ##    package: 'soroswap-router'
+  ##    make_target: './Makefile'
+  ##  secrets:
+  ##    release_token: ${{ secrets.GITHUB_TOKEN }}
   
     
