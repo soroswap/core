@@ -6,6 +6,13 @@ on:
         description: 'Unique name for the release'
         required: true
         type: string
+permissions:
+  contents: write
+  pull-requests: write 
+  repository-projects: write
+  packages: write
+  
+  
 jobs:
   release-soroswap-token:
     uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@main
