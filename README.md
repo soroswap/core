@@ -117,8 +117,10 @@ From project root:
 
 ```
 bash scripts/run.sh
-yarn publish <network>
+yarn upload <network>
 ```
+
+This will backup current public files and copy your .soroban files into the public folder
 
 Then you will need to commit this changes to /public directory
 
