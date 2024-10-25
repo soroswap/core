@@ -32,9 +32,9 @@ jobs:
     with:
       release_name: ${{ github.ref_name }}
       release_description: 'soroswap pair contract release'
-      relative_path: './contracts'
+      relative_path: './contracts/pair'
       package: 'soroswap-pair'
-      make_target: './pair/Makefile'
+      make_target: './Makefile'
     secrets:
       release_token: ${{ secrets.GITHUB_TOKEN }}
     needs: [release-soroswap-token]
