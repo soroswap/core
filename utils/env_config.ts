@@ -1,12 +1,12 @@
-import { Horizon, Keypair, SorobanRpc } from "@stellar/stellar-sdk";
-import dotenv from "dotenv";
-import * as fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { Horizon, Keypair, rpc } from '@stellar/stellar-sdk';
+import dotenv from 'dotenv';
+import * as fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 interface NetworkConfig {
   network: string;
@@ -23,18 +23,18 @@ interface Config {
 }
 
 class EnvConfig {
-  rpc: SorobanRpc.Server;
+  rpc: rpc.Server;
   horizonRpc: Horizon.Server;
   passphrase: string;
   friendbot: string | undefined;
   admin: Keypair;
 
   constructor(
-    rpc: SorobanRpc.Server,
+    rpc: rpc.Server,
     horizonRpc: Horizon.Server,
     passphrase: string,
     friendbot: string | undefined,
-    admin: Keypair,
+    admin: Keypair
   ) {
     this.rpc = rpc;
     this.horizonRpc = horizonRpc;
@@ -48,14 +48,11 @@ class EnvConfig {
    * @returns Environment config
    */
   static loadFromFile(network: string): EnvConfig {
-    const fileContents = fs.readFileSync(
-      path.join(__dirname, "../../configs.json"),
-      "utf8",
-    );
+    const fileContents = fs.readFileSync(path.join(__dirname, '../../configs.json'), 'utf8');
     const configs: Config = JSON.parse(fileContents);
 
     let rpc_url, horizon_rpc_url, friendbot_url, passphrase;
-    
+
     const networkConfig = configs.networkConfig.find((config) => config.network === network);
     if (!networkConfig) {
       throw new Error(`Network configuration for '${network}' not found`);
@@ -77,21 +74,21 @@ class EnvConfig {
     if (
       rpc_url === undefined ||
       horizon_rpc_url === undefined ||
-      (network != "mainnet" && friendbot_url === undefined) ||
+      (network != 'mainnet' && friendbot_url === undefined) ||
       passphrase === undefined ||
       admin === undefined
-      ) {
+    ) {
       throw new Error('Error: Configuration is missing required fields, include <network>');
     }
 
-    const allowHttp = network === "standalone";
+    const allowHttp = network === 'standalone';
 
     return new EnvConfig(
-      new SorobanRpc.Server(rpc_url, { allowHttp }),
-      new Horizon.Server(horizon_rpc_url, {allowHttp}),
+      new rpc.Server(rpc_url, { allowHttp }),
+      new Horizon.Server(horizon_rpc_url, { allowHttp }),
       passphrase,
       friendbot_url,
-      Keypair.fromSecret(admin),
+      Keypair.fromSecret(admin)
     );
   }
 
