@@ -17,13 +17,13 @@ mod pair {
 
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm"
     );
     e.deployer().upload_contract_wasm(WASM)
 }
 
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 
@@ -35,20 +35,24 @@ use factory::SoroswapFactoryClient;
 
 
 fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
-    TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
+    TokenClient::new(
+        e,
+        &e.register_stellar_asset_contract_v2(admin.clone())
+            .address(),
+    )
 }
 
 
 fn create_soroswap_factory<'a>(e: & Env, setter: & Address) -> SoroswapFactoryClient<'a> {
     let pair_hash = pair_contract_wasm(&e);  
-    let factory_address = &e.register_contract_wasm(None, factory::WASM);
+    let factory_address = &e.register(factory::WASM, ());
     let factory = SoroswapFactoryClient::new(e, factory_address); 
     factory.initialize(&setter, &pair_hash);
     factory
 }
 
 fn create_soroswap_library_contract<'a>(e: &Env) -> SoroswapLibraryClient<'a> {
-    SoroswapLibraryClient::new(e, &e.register_contract(None, SoroswapLibrary {}))
+    SoroswapLibraryClient::new(e, &e.register(SoroswapLibrary, ()))
 }
 
 // Extended test with factory and a pair
