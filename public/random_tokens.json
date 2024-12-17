@@ -7,61 +7,61 @@
     "network": "testnet",
     "assets": [
       {
-        "name": "lepweb",
-        "contract": "CBV7LEQAGUFPPCJ4EVYWCBJGQYL44CQN3JWNBGSLGWN23WCRAEU7Q7AS",
-        "code": "LEPW",
+        "name": "flomuy",
+        "contract": "CBK4QYRRLV4UVATTJBLDMM67IVSVMGUWVQLS7JOJSHCX5VP5L3LFIXUU",
+        "code": "FLOM",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "riedox",
-        "contract": "CBGIEETONKSV2AWRGR4DWAMY4V3G3G7SPERQFGL46ZN4G2RK5LJ5WMYX",
-        "code": "RIED",
+        "name": "vokpil",
+        "contract": "CDHCADYN6HSBIV4RBGXP2RICXBHRYNFPMUOZJCFE3NNBDZGZORLJ24KI",
+        "code": "VOKP",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "dasjaz",
-        "contract": "CDGPDA4UPFEE3L564BHDUFPFVOBOFHYBDW5CMWIHVT6Z4B44HABL7AJF",
-        "code": "DASJ",
+        "name": "tektek",
+        "contract": "CCFZD4F7N2XOJXS5QA5BUHBCFLYTS5LXCW6HQLRU52YQIBX5RD7XN6KH",
+        "code": "TEKT",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "juntek",
-        "contract": "CBZ5Y3BF3HWSZAZFTT4VW3A3NC6BBYPDRJZ2VYTEZSQO7XYFUGRWAMOS",
-        "code": "JUNT",
+        "name": "floweb",
+        "contract": "CAS6Z7WVISHMAHF4EVV2ZFDLZEULC323AUCKYHHD2ZWXFE2ICIMGJ3KC",
+        "code": "FLOW",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "RIMR:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CBCO7TOFQBL3E7P2PYQSTS6HLZWTF3M4NUSNN6IXBZ2UU65IM5VCZU5D",
-        "code": "RIMR",
+        "name": "RAMU:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CA33UZBQXIRYWLNM24Y6QFLSXC4BXD5UZFSF5CATF5Y6CTKQOOFUKSZ6",
+        "code": "RAMU",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "JIRP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CBUML34AWJWWR7ZH6QEFHRVLBRRX72CTBTUTXFLWYZOXPXSTMTHKQG5H",
-        "code": "JIRP",
+        "name": "JAZZ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCM74PBKLEDRDEYVXT6DNPNSWMYCEWWQLX4P666RO5JA6HRTXME2ZGQQ",
+        "code": "JAZZ",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "MUYT:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CBNFADXT5LKZNUXOSRWLESXOXZCAAKIRSS2OLN6CWCWU6DUT227N3QJN",
-        "code": "MUYT",
+        "name": "VOLF:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCSWZHE3HNY3OA5WUOSI2XKVQF4RIRSQC6LWR47A5JW6SD4HZMQ7JG7F",
+        "code": "VOLF",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "ASDJ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CDHD7KKSS4CJR7M7J6Z6WRQ3NOTJIM5AZ4ZCPFWNE6TM7CGX5XC24AQP",
-        "code": "ASDJ",
+        "name": "CHEP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CD5D6L7NLIM7UUHG2DA3V2OPKS5PZWRLES5AWNZ6PT6PLQBOMO6J2RMS",
+        "code": "CHEP",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7

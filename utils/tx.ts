@@ -1,8 +1,8 @@
-import { Account, Keypair, SorobanRpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
+import { Account, Keypair, rpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 import { config } from './env_config.js';
 
-type txResponse = SorobanRpc.Api.SendTransactionResponse | SorobanRpc.Api.GetTransactionResponse;
-type txStatus = SorobanRpc.Api.SendTransactionStatus | SorobanRpc.Api.GetTransactionStatus;
+type txResponse = rpc.Api.SendTransactionResponse | rpc.Api.GetTransactionResponse;
+type txStatus = rpc.Api.SendTransactionStatus | rpc.Api.GetTransactionStatus;
 
 const network = process.argv[2];
 const loadedConfig = config(network);
@@ -34,10 +34,10 @@ export async function invoke(
 export async function invokeTransaction(tx: Transaction, source: Keypair, sim: boolean) {
   // simulate the TX
   const simulation_resp = await loadedConfig.rpc.simulateTransaction(tx);
-  if (SorobanRpc.Api.isSimulationError(simulation_resp)) {
+  if (rpc.Api.isSimulationError(simulation_resp)) {
     // No resource estimation available from a simulation error. Allow the response formatter
     // to fetch the error.
-    throw new DetailedSimulationError("Simulation failed due to an error", simulation_resp);
+    throw new DetailedSimulationError('Simulation failed due to an error', simulation_resp);
   } else if (sim) {
     // Only simulate the TX. Assemble the TX to borrow the resource estimation algorithm in
     return simulation_resp;
@@ -53,7 +53,7 @@ export async function invokeTransaction(tx: Transaction, source: Keypair, sim: b
       txResources.writeBytes()
     )
     .build();
-  const assemble_tx = SorobanRpc.assembleTransaction(tx, simulation_resp);
+  const assemble_tx = rpc.assembleTransaction(tx, simulation_resp);
   sim_tx_data.resourceFee(
     xdr.Int64.fromString((Number(sim_tx_data.resourceFee().toString()) + 100000).toString())
   );
@@ -100,7 +100,6 @@ export const getCurrentTimePlusOneHour = () => {
   return oneHourLater;
 };
 
-
 // export async function invokeClassicOp(operation: xdr.Operation<Operation>, source: Keypair) {
 //   console.log('invoking classic op...');
 //   const txBuilder = await createTxBuilder(source);
@@ -131,11 +130,11 @@ export const getCurrentTimePlusOneHour = () => {
 // }
 
 class DetailedSimulationError extends Error {
-  public simulationResp: SorobanRpc.Api.SimulateTransactionResponse;
+  public simulationResp: rpc.Api.SimulateTransactionResponse;
 
-  constructor(message: string, simulationResp: SorobanRpc.Api.SimulateTransactionResponse) {
+  constructor(message: string, simulationResp: rpc.Api.SimulateTransactionResponse) {
     super(message);
-    this.name = "DetailedSimulationError";
+    this.name = 'DetailedSimulationError';
     this.simulationResp = simulationResp;
     Object.setPrototypeOf(this, DetailedSimulationError.prototype);
   }

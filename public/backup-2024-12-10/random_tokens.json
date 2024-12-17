@@ -1,0 +1,75 @@
+[
+  {
+    "network": "mainnet",
+    "assets": []
+  },
+  {
+    "network": "testnet",
+    "assets": [
+      {
+        "name": "lepweb",
+        "contract": "CBV7LEQAGUFPPCJ4EVYWCBJGQYL44CQN3JWNBGSLGWN23WCRAEU7Q7AS",
+        "code": "LEPW",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "riedox",
+        "contract": "CBGIEETONKSV2AWRGR4DWAMY4V3G3G7SPERQFGL46ZN4G2RK5LJ5WMYX",
+        "code": "RIED",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "dasjaz",
+        "contract": "CDGPDA4UPFEE3L564BHDUFPFVOBOFHYBDW5CMWIHVT6Z4B44HABL7AJF",
+        "code": "DASJ",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "juntek",
+        "contract": "CBZ5Y3BF3HWSZAZFTT4VW3A3NC6BBYPDRJZ2VYTEZSQO7XYFUGRWAMOS",
+        "code": "JUNT",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "RIMR:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBCO7TOFQBL3E7P2PYQSTS6HLZWTF3M4NUSNN6IXBZ2UU65IM5VCZU5D",
+        "code": "RIMR",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "JIRP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBUML34AWJWWR7ZH6QEFHRVLBRRX72CTBTUTXFLWYZOXPXSTMTHKQG5H",
+        "code": "JIRP",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "MUYT:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBNFADXT5LKZNUXOSRWLESXOXZCAAKIRSS2OLN6CWCWU6DUT227N3QJN",
+        "code": "MUYT",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "ASDJ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CDHD7KKSS4CJR7M7J6Z6WRQ3NOTJIM5AZ4ZCPFWNE6TM7CGX5XC24AQP",
+        "code": "ASDJ",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      }
+    ]
+  },
+  {
+    "network": "standalone",
+    "assets": []
+  }
+]
