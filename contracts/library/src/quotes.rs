@@ -1,5 +1,5 @@
 use soroban_sdk::{Address, Env, Vec};
-use crate::reserves::{get_reserves};
+use crate::reserves::{get_reserves_with_factory};
 use crate::error::SoroswapLibraryError;
 use crate::math::CheckedCeilingDiv;
 
@@ -98,7 +98,7 @@ pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Addr
     amounts.push_back(amount_in);
 
     for i in 0..path.len() - 1 {
-        let (reserve_in, reserve_out) = get_reserves(e.clone(), factory.clone(), path.get(i).unwrap(), path.get(i+1).unwrap())?;
+        let (reserve_in, reserve_out) = get_reserves_with_factory(e.clone(), factory.clone(), path.get(i).unwrap(), path.get(i+1).unwrap())?;
         amounts.push_back(get_amount_out(amounts.get(i).unwrap(), reserve_in, reserve_out)?);
     }
 
@@ -126,7 +126,7 @@ pub fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Addr
     amounts.push_front(amount_out);
 
     for i in (1..path.len()).rev() {
-        let (reserve_in, reserve_out) = get_reserves(e.clone(), factory.clone(), path.get(i-1).unwrap(), path.get(i).unwrap())?;
+        let (reserve_in, reserve_out) = get_reserves_with_factory(e.clone(), factory.clone(), path.get(i-1).unwrap(), path.get(i).unwrap())?;
         let new_amount = get_amount_in(amounts.get(0).unwrap(), reserve_in, reserve_out)?;
         amounts.push_front(new_amount);
     }

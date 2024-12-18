@@ -1,6 +1,6 @@
 [package]
 name = "soroswap-library"
-version = "1.0.22"
+version = "2.0.0"
 description = "Library that enables efficient and optimized code execution across different contracts on the Soroswap.Finance protocol"
 homepage = "https://github.com/soroswap/core/tree/main/contracts/library"
 repository = "https://github.com/soroswap/core/tree/main/contracts/library"
@@ -16,7 +16,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 soroban-sdk = "22.0.0-rc.2.1"
-num-integer = { version = "0.1.45", default-features = false, features = ["i128"] }
+num-integer = { version = "0.1.45", default-features = false, features = ["i128"] } 
 
 [dev-dependencies]
 soroban-sdk = { version = "22.0.0-rc.2.1", features = ["testutils"] }

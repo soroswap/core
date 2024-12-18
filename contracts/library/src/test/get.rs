@@ -167,3 +167,18 @@ fn get_amounts_in_invalid_path() {
     let result = test.contract.try_get_amounts_in(&test.factory.address, &1, &path);
     assert_eq!(result, Err(Ok(SoroswapLibraryError::InvalidPath)));
 }
+
+#[test]
+fn get_reserves_with_pair() {
+    let test = SoroswapLibraryTest::setup();
+    
+    // Make real pair quotes:
+    let amount_0: i128 = 123456789;
+    let amount_1: i128 = 987654321;
+    
+    //  Add Liquidity:
+    test.token_0.transfer(&test.user, &test.pair.address, &amount_0);
+    test.token_1.transfer(&test.user, &test.pair.address, &amount_1);
+    test.pair.deposit(&test.user);
+    assert_eq!(test.pair.get_reserves(), (amount_0, amount_1));
+}

@@ -17,7 +17,8 @@ pub use tokens::{
     pair_for
 };
 pub use reserves::{
-    get_reserves
+    get_reserves_with_factory,
+    get_reserves_with_pair
 };
 pub use quotes::{
     quote, 
@@ -73,7 +74,21 @@ pub trait SoroswapLibraryTrait {
     /// # Returns
     ///
     /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError>;
+    fn get_reserves_with_factory(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError>;
+
+    /// Fetches and sorts the reserves for a pair of tokens knowing the pair address
+    ///
+    /// # Arguments
+    ///
+    /// * `e` - The environment.
+    /// * `pair` - The pair address.
+    /// * `token_a` - The address of the first token.
+    /// * `token_b` - The address of the second token.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn get_reserves_with_pair(e: Env, pair: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError>;
 
     /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
     ///
@@ -186,7 +201,7 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     }
 
 
-    /// Fetches and sorts the reserves for a pair of tokens.
+    /// Fetches and sorts the reserves for a pair of tokens using the factory address.
     ///
     /// # Arguments
     ///
@@ -198,8 +213,25 @@ impl SoroswapLibraryTrait for SoroswapLibrary {
     /// # Returns
     ///
     /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
-    fn get_reserves(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError> {
-        get_reserves(e, factory, token_a, token_b)
+    fn get_reserves_with_factory(e: Env,factory: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError> {
+        get_reserves_with_factory(e, factory, token_a, token_b)
+
+    }
+
+    /// Fetches and sorts the reserves for a pair of tokens using the pair address.
+    ///
+    /// # Arguments
+    ///
+    /// * `e` - The environment.
+    /// * `pair` - The pair address.
+    /// * `token_a` - The address of the first token.
+    /// * `token_b` - The address of the second token.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Result<(i128, i128), SoroswapLibraryError>` where `Ok` contains a tuple of sorted reserves, and `Err` indicates an error such as identical tokens or an issue with sorting.
+    fn get_reserves_with_pair(e: Env,pair: Address, token_a: Address, token_b: Address) -> Result<(i128, i128), SoroswapLibraryError> {
+        get_reserves_with_pair(e, pair, token_a, token_b)
 
     }
 
