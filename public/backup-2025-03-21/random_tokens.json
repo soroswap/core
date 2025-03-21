@@ -1,0 +1,75 @@
+[
+  {
+    "network": "mainnet",
+    "assets": []
+  },
+  {
+    "network": "testnet",
+    "assets": [
+      {
+        "name": "flomuy",
+        "contract": "CBK4QYRRLV4UVATTJBLDMM67IVSVMGUWVQLS7JOJSHCX5VP5L3LFIXUU",
+        "code": "FLOM",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "vokpil",
+        "contract": "CDHCADYN6HSBIV4RBGXP2RICXBHRYNFPMUOZJCFE3NNBDZGZORLJ24KI",
+        "code": "VOKP",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "tektek",
+        "contract": "CCFZD4F7N2XOJXS5QA5BUHBCFLYTS5LXCW6HQLRU52YQIBX5RD7XN6KH",
+        "code": "TEKT",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "floweb",
+        "contract": "CAS6Z7WVISHMAHF4EVV2ZFDLZEULC323AUCKYHHD2ZWXFE2ICIMGJ3KC",
+        "code": "FLOW",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "RAMU:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CA33UZBQXIRYWLNM24Y6QFLSXC4BXD5UZFSF5CATF5Y6CTKQOOFUKSZ6",
+        "code": "RAMU",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "JAZZ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCM74PBKLEDRDEYVXT6DNPNSWMYCEWWQLX4P666RO5JA6HRTXME2ZGQQ",
+        "code": "JAZZ",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "VOLF:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCSWZHE3HNY3OA5WUOSI2XKVQF4RIRSQC6LWR47A5JW6SD4HZMQ7JG7F",
+        "code": "VOLF",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "CHEP:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CD5D6L7NLIM7UUHG2DA3V2OPKS5PZWRLES5AWNZ6PT6PLQBOMO6J2RMS",
+        "code": "CHEP",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      }
+    ]
+  },
+  {
+    "network": "standalone",
+    "assets": []
+  }
+]
