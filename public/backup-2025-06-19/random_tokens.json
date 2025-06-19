@@ -1,0 +1,136 @@
+[
+  {
+    "network": "mainnet",
+    "assets": []
+  },
+  {
+    "network": "testnet",
+    "assets": [
+      {
+        "name": "estfox",
+        "contract": "CC5M7CUDKAQU6V2R2L7Z2LJYBQOGY2GOX3GXGJPJ6S37Q62XLKI4CUC3",
+        "code": "ESTF",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "muywek",
+        "contract": "CAS5B74JEO5FITLH3OQ6AO2WQAVZXFLOHR2RBDB55VG2CC6EAME5BPPI",
+        "code": "MUYW",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "rimfel",
+        "contract": "CCF5XSOR33WGVZQZ3GYWZSHFAONUYRYSIK5523NHLL5AVSX264IIVCLI",
+        "code": "RIMF",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "wekulk",
+        "contract": "CAYYYF6WSC7K7RTH26OEYEYUWTAFJ254TIER3UIFUQZKDN4JCBL7GTY6",
+        "code": "WEKU",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "VOKV:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBDTI6E7WVBZKJ2MVDEUNHYZEGECMEYG3TGDSZ2IVRYO7RWAK7LOUJ25",
+        "code": "VOKV",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "DOXR:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CDPPLGJ5W3TE6RCB5WPWCFTEJK426WLL66BS356Y3L7BKAOI7HFKBCGW",
+        "code": "DOXR",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "QWAT:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CDWUCF2N6OETITDHV4UV2ZPI3MEALTCL7QIYPSGBI2PXIKBB6LT4QGOU",
+        "code": "QWAT",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "KIVW:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CAHO75GNPRSSW5R6WYSRLV3QJSS7GI7CWONWS2ANZ2EQEVAR5RPQ6TF3",
+        "code": "KIVW",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      }
+    ]
+  },
+  {
+    "network": "standalone",
+    "assets": [
+      {
+        "name": "voldox",
+        "contract": "CAFGISDIWWO5DYUUUUOAHMV5TLBWUDKPFKCKZTYP5IIZJFNOZ5DPXX6G",
+        "code": "VOLD",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "raiulk",
+        "contract": "CA55KEXXKLRRQSIBIKME4CLYC2MBCJKQC5ATHWISZ5IE73PDQPUGDGFY",
+        "code": "RAIU",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "ferfel",
+        "contract": "CCO2NP7KDPL4JDKIZXKO2ZA67P3KZ7MPY2O7NBSZBGZ2B7P4DTLUJSYG",
+        "code": "FERF",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "chedox",
+        "contract": "CA6RBC6PDTI7K563B32ENJ5DIGJS5J6DH66KG5KOFFS6XJ5YTPNM2VKN",
+        "code": "CHED",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "TEKL:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "contract": "CAIRS7ORP72AKIAKI6W6UL32SCAU6CEROP2PBIVLILET63CRXBLMKREA",
+        "code": "TEKL",
+        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "CHER:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "contract": "CBE5EEYY7F73XA564URS43SKSZ67AE4WFLDMO53VSSGK7YY3FZ43MAVB",
+        "code": "CHER",
+        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "CHEZ:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "contract": "CDSDODRXTGLLNDLEVNBYHQCFBQSUJGIZYMZYUGEBZ4YRR5EEMHCFFSKW",
+        "code": "CHEZ",
+        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "PIER:GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "contract": "CAYV3BQ7ADKPS6BAWFYLLOFAHSTEUH3WLXGLRR4PPHLFJIT3KUHNUHX4",
+        "code": "PIER",
+        "issuer": "GDLZVVPPOYLH4FZBYF5V6AGHOS5EEIPYLRCPAB6ERAQGPF5EX6YD3ZLP",
+        "icon": "",
+        "decimals": 7
+      }
+    ]
+  }
+]
