@@ -23,13 +23,13 @@
             "network": "testnet",
             "friendbot_url": "https://friendbot.stellar.org/",
             "horizon_rpc_url": "https://horizon-testnet.stellar.org",
-            "soroban_rpc_url": "https://testnet.stellar.validationcloud.io/v1/Mewk7YPYiUy3wAlDNlQsIhwxbdumICRYrz2tXS2vOck",
+            "soroban_rpc_url": "https://soroban-testnet.stellar.org",
             "soroban_network_passphrase": "Test SDF Network ; September 2015"
         },    {
             "network": "testnet-public",
             "friendbot_url": "https://friendbot.stellar.org/",
             "horizon_rpc_url": "https://horizon-testnet.stellar.org",
-            "soroban_rpc_url": "https://testnet.stellar.validationcloud.io/v1/Mewk7YPYiUy3wAlDNlQsIhwxbdumICRYrz2tXS2vOck",
+            "soroban_rpc_url": "https://soroban-testnet.stellar.org",
             "soroban_network_passphrase": "Test SDF Network ; September 2015"
         },
         {

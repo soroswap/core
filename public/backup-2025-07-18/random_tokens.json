@@ -1,0 +1,75 @@
+[
+  {
+    "network": "mainnet",
+    "assets": []
+  },
+  {
+    "network": "testnet",
+    "assets": [
+      {
+        "name": "remtek",
+        "contract": "CAESH7TRWE7T5YNT3IIJXTUJU6THS5R2UA7V3FPTNLKRLMCRVTIUQXCZ",
+        "code": "REMT",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "webdox",
+        "contract": "CB7JTA2ONPE5UY4I2FSXJTEL43PYVNWBTOH4VBND4ARYT22XT4ESCKFY",
+        "code": "WEBD",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "vokszx",
+        "contract": "CDQDN4DRAZRZ7TK6NCWGFE3ANWL4RL7WRDJZAXTU3WAPT5SEZPVPKKSY",
+        "code": "VOKS",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "rimvbs",
+        "contract": "CCRCBS3Q4F7FRB5BV7C5SVEZRTWV7NNZKEB2D34A7AQ42CDVXC4KZE3G",
+        "code": "RIMV",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "PILS:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBWYG4CPC5DIRJO4HFYQ6OOIXROD5675KYIATGSEYYOCTYKJUBOL2BPE",
+        "code": "PILS",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "RAMJ:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CCXLPCVVHSUBYZ7BP3MW4ZWTQBCPCIBZYRRQV5BJ3M54X456OAURF4M6",
+        "code": "RAMJ",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "ASDD:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBBJ6XSR7263HK5XLBN3OTPPDR4NFHUFTOFWLSNYCAGXPIX2KWP2LPLD",
+        "code": "ASDD",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      },
+      {
+        "name": "DOXT:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CDPWOEPHOQEF6I7VOONE2NK2IRU7TNLMB3MJPBR5BEDJS7FTCL64SG5Y",
+        "code": "DOXT",
+        "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "icon": "",
+        "decimals": 7
+      }
+    ]
+  },
+  {
+    "network": "standalone",
+    "assets": []
+  }
+]

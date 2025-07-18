@@ -26,7 +26,7 @@ export async function deploySorobanTestTokens(
     }
     // Instaling token contract
     await installContract("token", addressBook, source);
-    await bumpContractCode("token", addressBook, source);
+    // await bumpContractCode("token", addressBook, source);
 
     const tokenNameIdeas = readFileSync(path.join(__dirname, fileName));
     const tokenNameIdeasObject = JSON.parse(tokenNameIdeas.toString());

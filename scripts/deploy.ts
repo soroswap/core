@@ -21,21 +21,21 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
   console.log('-------------------------------------------------------');
   // Soroswap Pair
   await installContract('pair', addressBook, loadedConfig.admin);
-  await bumpContractCode('pair', addressBook, loadedConfig.admin);
+  // await bumpContractCode('pair', addressBook, loadedConfig.admin);
   // Soroswap Factory
   console.log('-------------------------------------------------------');
   await installContract('factory', addressBook, loadedConfig.admin);
-  await bumpContractCode('factory', addressBook, loadedConfig.admin);
+  // await bumpContractCode('factory', addressBook, loadedConfig.admin);
   // Soroswap Router
   console.log('-------------------------------------------------------');
   await installContract('router', addressBook, loadedConfig.admin);
-  await bumpContractCode('router', addressBook, loadedConfig.admin);
+  // await bumpContractCode('router', addressBook, loadedConfig.admin);
 
   console.log('-------------------------------------------------------');
   console.log('Deploying and Initializing Soroswap Factory');
   console.log('-------------------------------------------------------');
   await deployContract('factory', 'factory', addressBook, loadedConfig.admin);
-  await bumpContractInstance('factory', addressBook, loadedConfig.admin);
+  // await bumpContractInstance('factory', addressBook, loadedConfig.admin);
   
   // Initializing Soroswap Factory
   const factoryInitParams = [
@@ -48,7 +48,7 @@ export async function deployAndInitContracts(addressBook: AddressBook) {
   console.log('Deploying and Initializing Soroswap Router');
   console.log('-------------------------------------------------------');
   await deployContract('router', 'router', addressBook, loadedConfig.admin);
-  await bumpContractInstance('router', addressBook, loadedConfig.admin);
+  // await bumpContractInstance('router', addressBook, loadedConfig.admin);
 
   // Initializing Soroswap Router
   const routerInitParams = [
