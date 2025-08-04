@@ -1,8 +1,8 @@
-use soroban_sdk::{Address, vec, Vec};
+use soroban_sdk::{vec, Address, Vec};
 
-use crate::test::{SoroswapRouterTest, create_token_contract};
-use crate::test::add_liquidity::add_liquidity;
 use crate::error::CombinedRouterError;
+use crate::test::add_liquidity::add_liquidity;
+use crate::test::{create_token_contract, SoroswapRouterTest};
 
 #[test]
 fn swap_exact_tokens_for_tokens_not_initialized() {
@@ -11,17 +11,14 @@ fn swap_exact_tokens_for_tokens_not_initialized() {
     let path: Vec<Address> = Vec::new(&test.env);
 
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &0,            // amount_in
-        &0,            // amount_out_min
-        &path,         // path
-        &test.user,    // to
-        &0,            // deadline
+        &0,         // amount_in
+        &0,         // amount_out_min
+        &path,      // path
+        &test.user, // to
+        &0,         // deadline
     );
 
-    assert_eq!(
-        result,
-        Err(Ok(CombinedRouterError::RouterNotInitialized))
-    );
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterNotInitialized)));
 }
 
 #[test]
@@ -33,11 +30,11 @@ fn swap_exact_tokens_for_tokens_amount_in_negative() {
     let path: Vec<Address> = Vec::new(&test.env);
 
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &-1,           // amount_in
-        &0,            // amount_out_min
-        &path,         // path
-        &test.user,    // to
-        &0,            // deadline
+        &-1,        // amount_in
+        &0,         // amount_out_min
+        &path,      // path
+        &test.user, // to
+        &0,         // deadline
     );
 
     assert_eq!(
@@ -55,11 +52,11 @@ fn swap_exact_tokens_for_tokens_amount_out_min_negative() {
     let path: Vec<Address> = Vec::new(&test.env);
 
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &0,            // amount_in
-        &-1,           // amount_out_min
-        &path,         // path
-        &test.user,    // to
-        &0,            // deadline
+        &0,         // amount_in
+        &-1,        // amount_out_min
+        &path,      // path
+        &test.user, // to
+        &0,         // deadline
     );
 
     assert_eq!(
@@ -75,19 +72,15 @@ fn swap_exact_tokens_for_tokens_expired() {
     let path: Vec<Address> = Vec::new(&test.env);
 
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &0,            // amount_in
-        &0,            // amount_out_min
-        &path,         // path
-        &test.user,    // to
-        &0,            // deadline
+        &0,         // amount_in
+        &0,         // amount_out_min
+        &path,      // path
+        &test.user, // to
+        &0,         // deadline
     );
 
-    assert_eq!(
-        result,
-        Err(Ok(CombinedRouterError::RouterDeadlineExpired))
-    );
+    assert_eq!(result, Err(Ok(CombinedRouterError::RouterDeadlineExpired)));
 }
-
 
 #[test]
 fn try_swap_exact_tokens_for_tokens_invalid_path() {
@@ -96,16 +89,14 @@ fn try_swap_exact_tokens_for_tokens_invalid_path() {
     let deadline: u64 = test.env.ledger().timestamp() + 1000;
     let path: Vec<Address> = vec![&test.env, test.token_0.address.clone()];
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &0,        // amount_in
-        &0,        // amount_out_min
-        &path,     // path
+        &0,         // amount_in
+        &0,         // amount_out_min
+        &path,      // path
         &test.user, // to
-        &deadline, // deadline
+        &deadline,  // deadline
     );
     assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInvalidPath)));
 }
-
-
 
 #[test]
 // Panics because LP does not exist; here panics with a Error(Storage, MissingValue)
@@ -114,18 +105,19 @@ fn try_swap_exact_tokens_for_tokens_invalid_path() {
 fn swap_exact_tokens_for_tokens_pair_does_not_exist() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
     path.push_back(test.token_1.address.clone());
 
     test.contract.swap_exact_tokens_for_tokens(
-        &0, //amount_in
-        &0,  // amount_out_min
-        &path, // path
+        &0,         //amount_in
+        &0,         // amount_out_min
+        &path,      // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline,
+    ); // deadline
 }
 
 #[test]
@@ -145,16 +137,17 @@ fn try_swap_exact_tokens_for_tokens_insufficient_input_amount() {
 
     test.env.budget().reset_unlimited();
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &0,        // amount_in
-        &0,        // amount_out_min
-        &path,     // path
+        &0,         // amount_in
+        &0,         // amount_out_min
+        &path,      // path
         &test.user, // to
-        &deadline, // deadline
+        &deadline,  // deadline
     );
-    assert_eq!(result, Err(Ok(CombinedRouterError::LibraryInsufficientInputAmount)));
+    assert_eq!(
+        result,
+        Err(Ok(CombinedRouterError::LibraryInsufficientInputAmount))
+    );
 }
-
-
 
 #[test]
 fn swap_exact_tokens_for_tokens_insufficient_output_amount() {
@@ -179,11 +172,11 @@ fn swap_exact_tokens_for_tokens_insufficient_output_amount() {
 
     test.env.budget().reset_unlimited();
     let result = test.contract.try_swap_exact_tokens_for_tokens(
-        &amount_in,       // amount_in
-        &(expected_amount_out + 1),  // amount_out_min
-        &path,            // path
-        &test.user,       // to
-        &deadline,        // deadline
+        &amount_in,                 // amount_in
+        &(expected_amount_out + 1), // amount_out_min
+        &path,                      // path
+        &test.user,                 // to
+        &deadline,                  // deadline
     );
 
     assert_eq!(
@@ -192,13 +185,11 @@ fn swap_exact_tokens_for_tokens_insufficient_output_amount() {
     );
 }
 
-
-
 #[test]
 fn swap_exact_tokens_for_tokens_enough_output_amount() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -217,26 +208,23 @@ fn swap_exact_tokens_for_tokens_enough_output_amount() {
 
     test.env.budget().reset_unlimited();
     let executed_amounts = test.contract.swap_exact_tokens_for_tokens(
-        &amount_in, //amount_in
-        &(expected_amount_out),  // amount_out_min
-        &path, // path
-        &test.user, // to
-        &deadline); // deadline
+        &amount_in,             //amount_in
+        &(expected_amount_out), // amount_out_min
+        &path,                  // path
+        &test.user,             // to
+        &deadline,
+    ); // deadline
 
     assert_eq!(executed_amounts.get(0).unwrap(), amount_in);
     assert_eq!(executed_amounts.get(1).unwrap(), expected_amount_out);
-    
 }
-
-
-
 
 #[test]
 fn swap_exact_tokens_for_tokens_2_hops() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
     let initial_user_balance = 10_000_000_000_000_000_000;
 
     let token_2 = create_token_contract(&test.env, &test.admin);
@@ -247,33 +235,31 @@ fn swap_exact_tokens_for_tokens_2_hops() {
     test.contract.add_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
-        &amount_0, //     amount_a_desired: i128,
-        &amount_1, //     amount_b_desired: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &deadline//     deadline: u64,
+        &amount_0,             //     amount_a_desired: i128,
+        &amount_1,             //     amount_b_desired: i128,
+        &0,                    //     amount_a_min: i128,
+        &0,                    //     amount_b_min: i128,
+        &test.user,            //     to: Address,
+        &deadline,             //     deadline: u64,
     );
 
     let amount_2: i128 = 8_000_000_000;
 
     test.contract.add_liquidity(
         &test.token_1.address, //     token_a: Address,
-        &token_2.address, //     token_b: Address,
-        &amount_1, //     amount_a_desired: i128,
-        &amount_2, //     amount_b_desired: i128,
-        &0, //     amount_a_min: i128,
-        &0 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &deadline//     deadline: u64,
+        &token_2.address,      //     token_b: Address,
+        &amount_1,             //     amount_a_desired: i128,
+        &amount_2,             //     amount_b_desired: i128,
+        &0,                    //     amount_a_min: i128,
+        &0,                    //     amount_b_min: i128,
+        &test.user,            //     to: Address,
+        &deadline,             //     deadline: u64,
     );
-    
-    
+
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
     path.push_back(test.token_1.address.clone());
     path.push_back(token_2.address.clone());
-
 
     let amount_in = 123_456_789;
     // fee = 123456789 * 3 /1000 =  370370,367 = 370371
@@ -287,17 +273,26 @@ fn swap_exact_tokens_for_tokens_2_hops() {
 
     let executed_amounts = test.contract.swap_exact_tokens_for_tokens(
         &amount_in, //amount_in
-        &0,  // amount_out_min
-        &path, // path
+        &0,         // amount_out_min
+        &path,      // path
         &test.user, // to
-        &deadline); // deadline
+        &deadline,
+    ); // deadline
 
     assert_eq!(executed_amounts.get(0).unwrap(), amount_in);
     assert_eq!(executed_amounts.get(1).unwrap(), first_out);
     assert_eq!(executed_amounts.get(2).unwrap(), expected_amount_out);
-    
-    assert_eq!(test.token_0.balance(&test.user), initial_user_balance - amount_0 - amount_in);
-    assert_eq!(test.token_1.balance(&test.user), initial_user_balance - amount_1*2);
-    assert_eq!(token_2.balance(&test.user), initial_user_balance -amount_2 + expected_amount_out);
-}
 
+    assert_eq!(
+        test.token_0.balance(&test.user),
+        initial_user_balance - amount_0 - amount_in
+    );
+    assert_eq!(
+        test.token_1.balance(&test.user),
+        initial_user_balance - amount_1 * 2
+    );
+    assert_eq!(
+        token_2.balance(&test.user),
+        initial_user_balance - amount_2 + expected_amount_out
+    );
+}

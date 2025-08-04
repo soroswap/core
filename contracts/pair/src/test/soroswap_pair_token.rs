@@ -1,7 +1,7 @@
 #![cfg(test)]
 extern crate std;
-use crate::test::{SoroswapPairTest, deposit::add_liquidity  };
 use crate::soroswap_pair_token::{SoroswapPairToken, SoroswapPairTokenClient};
+use crate::test::{deposit::add_liquidity, SoroswapPairTest};
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation},
@@ -16,8 +16,12 @@ fn test() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
-    
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -111,7 +115,11 @@ fn test_burn() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
 
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -176,7 +184,11 @@ fn transfer_insufficient_balance() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
 
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -199,8 +211,12 @@ fn transfer_from_insufficient_allowance() {
     let user1 = test.user.clone();
     let user2 = Address::generate(&test.env);
     let user3 = Address::generate(&test.env);
-    
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0 = 2000;
     let amount_1 = 2000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -224,7 +240,12 @@ fn test_zero_allowance() {
     let spender = Address::generate(&test.env);
     let from = Address::generate(&test.env);
 
-    let token_client = SoroswapPairTokenClient::new(&test.env, &test.env.register_contract(&test.contract.address, SoroswapPairToken {}));
+    let token_client = SoroswapPairTokenClient::new(
+        &test.env,
+        &test
+            .env
+            .register_contract(&test.contract.address, SoroswapPairToken {}),
+    );
 
     test.contract.transfer_from(&spender, &from, &spender, &0);
     assert!(token_client.get_allowance(&from, &spender).is_none());

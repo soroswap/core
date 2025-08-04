@@ -1,16 +1,11 @@
 extern crate std;
-use crate::test::{SoroswapFactoryTest};
+use crate::test::SoroswapFactoryTest;
 use soroban_sdk::{
-    IntoVal,
-    testutils::{
-        AuthorizedInvocation,
-        AuthorizedFunction
-    },
-    Symbol
+    testutils::{AuthorizedFunction, AuthorizedInvocation},
+    IntoVal, Symbol,
 };
 //use super::*; // Import the necessary modules and types
-use soroswap_factory_interface::{FactoryError};
-
+use soroswap_factory_interface::FactoryError;
 
 #[test]
 fn not_yet_initialized_fee_to() {
@@ -43,7 +38,9 @@ fn not_yet_initialized_all_pairs_length() {
 #[test]
 fn not_yet_initialized_get_pair() {
     let test = SoroswapFactoryTest::setup();
-    let res = test.contract.try_get_pair(&test.token_0.address, &test.token_1.address);
+    let res = test
+        .contract
+        .try_get_pair(&test.token_0.address, &test.token_1.address);
     assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
@@ -78,7 +75,9 @@ fn not_yet_initialized_set_fees_enabled() {
 #[test]
 fn not_yet_initialized_create_pair() {
     let test = SoroswapFactoryTest::setup();
-    let res = test.contract.try_create_pair(&test.token_0.address, &test.token_1.address);
+    let res = test
+        .contract
+        .try_create_pair(&test.token_0.address, &test.token_1.address);
     assert_eq!(res, Err(Ok(FactoryError::NotInitialized)));
 }
 
@@ -108,10 +107,10 @@ fn initialize_basic_info() {
     test.contract.set_fee_to_setter(&test.user);
 
     assert_eq!(
-         test.env.auths(),
-         std::vec![(
-             test.admin.clone(),
-             AuthorizedInvocation {
+        test.env.auths(),
+        std::vec![(
+            test.admin.clone(),
+            AuthorizedInvocation {
                 function: AuthorizedFunction::Contract((
                     test.contract.address.clone(),
                     Symbol::new(&test.env, "set_fee_to_setter"),
@@ -119,12 +118,11 @@ fn initialize_basic_info() {
                 )),
                 sub_invocations: std::vec![]
             }
-         )]
+        )]
     );
 
     assert_eq!(test.contract.fee_to_setter(), test.user);
     assert_ne!(test.contract.fee_to_setter(), test.admin);
-
 
     test.contract.set_fee_to(&test.user);
 
@@ -133,15 +131,15 @@ fn initialize_basic_info() {
         std::vec![(
             test.user.clone(),
             AuthorizedInvocation {
-               function: AuthorizedFunction::Contract((
-                   test.contract.address.clone(),
-                   Symbol::new(&test.env, "set_fee_to"),
-                   (test.user.clone(),).into_val(&test.env)
-               )),
-               sub_invocations: std::vec![]
-           }
+                function: AuthorizedFunction::Contract((
+                    test.contract.address.clone(),
+                    Symbol::new(&test.env, "set_fee_to"),
+                    (test.user.clone(),).into_val(&test.env)
+                )),
+                sub_invocations: std::vec![]
+            }
         )]
-   );
+    );
 
     assert_eq!(test.contract.fee_to(), test.user);
     assert_ne!(test.contract.fee_to(), test.admin);
@@ -153,16 +151,15 @@ fn initialize_basic_info() {
         std::vec![(
             test.user.clone(),
             AuthorizedInvocation {
-               function: AuthorizedFunction::Contract((
-                   test.contract.address.clone(),
-                   Symbol::new(&test.env, "set_fees_enabled"),
-                   (true,).into_val(&test.env)
-               )),
-               sub_invocations: std::vec![]
-           }
+                function: AuthorizedFunction::Contract((
+                    test.contract.address.clone(),
+                    Symbol::new(&test.env, "set_fees_enabled"),
+                    (true,).into_val(&test.env)
+                )),
+                sub_invocations: std::vec![]
+            }
         )]
-   );
-
+    );
 
     assert_eq!(test.contract.fees_enabled(), true);
 
@@ -173,16 +170,15 @@ fn initialize_basic_info() {
         std::vec![(
             test.user.clone(),
             AuthorizedInvocation {
-               function: AuthorizedFunction::Contract((
-                   test.contract.address.clone(),
-                   Symbol::new(&test.env, "set_fees_enabled"),
-                   (false,).into_val(&test.env)
-               )),
-               sub_invocations: std::vec![]
-           }
+                function: AuthorizedFunction::Contract((
+                    test.contract.address.clone(),
+                    Symbol::new(&test.env, "set_fees_enabled"),
+                    (false,).into_val(&test.env)
+                )),
+                sub_invocations: std::vec![]
+            }
         )]
-   );
+    );
 
     assert_eq!(test.contract.fees_enabled(), false);
 }
-

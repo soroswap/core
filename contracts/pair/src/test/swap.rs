@@ -1,9 +1,8 @@
 use crate::test::deposit::add_liquidity;
-use crate::test::{SoroswapPairTest};
-use soroban_sdk::{testutils::{Ledger}};
 use crate::test::pair::SoroswapPairError;
+use crate::test::SoroswapPairTest;
+use soroban_sdk::testutils::Ledger;
 
-    
 #[test]
 // #[should_panic(expected = "SoroswapPair: not yet initialized")]
 fn try_swap_not_yet_initialized() {
@@ -16,11 +15,18 @@ fn try_swap_not_yet_initialized() {
 #[test]
 // #[should_panic(expected = "SoroswapPair: insufficient output amount")]
 fn try_swap_amounts_zero() {
-    let test = SoroswapPairTest::setup();    
+    let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let result = test.contract.try_swap(&0, &0, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientOutputAmount)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapInsufficientOutputAmount))
+    );
 }
 
 #[test]
@@ -28,9 +34,16 @@ fn try_swap_amounts_zero() {
 fn try_swap_amount_0_negative() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let result = test.contract.try_swap(&-1, &1, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported))
+    );
 }
 
 #[test]
@@ -38,9 +51,16 @@ fn try_swap_amount_0_negative() {
 fn try_swap_amount_1_negative() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let result = test.contract.try_swap(&1, &-1, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapNegativesOutNotSupported))
+    );
 }
 
 #[test]
@@ -48,9 +68,16 @@ fn try_swap_amount_1_negative() {
 fn try_swap_no_liquidity() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let result = test.contract.try_swap(&1, &1, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientLiquidity)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapInsufficientLiquidity))
+    );
 }
 
 #[test]
@@ -58,7 +85,11 @@ fn try_swap_no_liquidity() {
 fn try_swap_to_token_0() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -71,7 +102,11 @@ fn try_swap_to_token_0() {
 fn try_swap_to_token_1() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
@@ -79,18 +114,24 @@ fn try_swap_to_token_1() {
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapInvalidTo)));
 }
 
-
 #[test]
 // #[should_panic(expected = "SoroswapPair: insufficient input amount")]
 fn try_swap_token_0_insufficient_input() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&1000, &0, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientInputAmount)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapInsufficientInputAmount))
+    );
 }
 
 #[test]
@@ -98,12 +139,19 @@ fn try_swap_token_0_insufficient_input() {
 fn try_swap_token_1_insufficient_input() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
     let result = test.contract.try_swap(&0, &1000, &test.user);
-    assert_eq!(result, Err(Ok(SoroswapPairError::SwapInsufficientInputAmount)));
+    assert_eq!(
+        result,
+        Err(Ok(SoroswapPairError::SwapInsufficientInputAmount))
+    );
 }
 
 #[test]
@@ -111,11 +159,16 @@ fn try_swap_token_1_insufficient_input() {
 fn try_swap_token_0_low_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
-    test.token_0.transfer(&test.user, &test.contract.address, &1);
+    test.token_0
+        .transfer(&test.user, &test.contract.address, &1);
     let result = test.contract.try_swap(&0, &1000, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }
@@ -125,29 +178,36 @@ fn try_swap_token_0_low_sent() {
 fn try_swap_token_1_low_sent() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
     add_liquidity(&test, &amount_0, &amount_1);
-    test.token_1.transfer(&test.user, &test.contract.address, &1);
+    test.token_1
+        .transfer(&test.user, &test.contract.address, &1);
     let result = test.contract.try_swap(&1000, &0, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }
-
-
 
 #[test]
 fn swap_token_0() {
     let test = SoroswapPairTest::setup();
     // TODO: Get rid of this hack?
     test.env.budget().reset_unlimited();
-    
+
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     add_liquidity(&test, &amount_0, &amount_1);
 
     let init_time = 12345;
@@ -159,33 +219,61 @@ fn swap_token_0() {
     let expected_output_amount_1: i128 = 16624979;
 
     // The user sends the token first:
-    test.token_0.transfer(&test.user, &test.contract.address, &swap_amount_0);
+    test.token_0
+        .transfer(&test.user, &test.contract.address, &swap_amount_0);
 
-    test.contract.swap(&0, &expected_output_amount_1, &test.user);
-    
-    assert_eq!(test.contract.get_reserves(),
-        (amount_0.checked_add(swap_amount_0).unwrap(),
-        amount_1.checked_sub(expected_output_amount_1).unwrap()));
+    test.contract
+        .swap(&0, &expected_output_amount_1, &test.user);
 
-    assert_eq!(test.token_0.balance(&test.contract.address), amount_0.checked_add(swap_amount_0).unwrap());
-    assert_eq!(test.token_1.balance(&test.contract.address), amount_1.checked_sub(expected_output_amount_1).unwrap());
-    assert_eq!(test.token_0.balance(&test.user), original_0.checked_sub(amount_0).unwrap().checked_sub(swap_amount_0).unwrap());
-    assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap().checked_add(expected_output_amount_1).unwrap());
+    assert_eq!(
+        test.contract.get_reserves(),
+        (
+            amount_0.checked_add(swap_amount_0).unwrap(),
+            amount_1.checked_sub(expected_output_amount_1).unwrap()
+        )
+    );
 
+    assert_eq!(
+        test.token_0.balance(&test.contract.address),
+        amount_0.checked_add(swap_amount_0).unwrap()
+    );
+    assert_eq!(
+        test.token_1.balance(&test.contract.address),
+        amount_1.checked_sub(expected_output_amount_1).unwrap()
+    );
+    assert_eq!(
+        test.token_0.balance(&test.user),
+        original_0
+            .checked_sub(amount_0)
+            .unwrap()
+            .checked_sub(swap_amount_0)
+            .unwrap()
+    );
+    assert_eq!(
+        test.token_1.balance(&test.user),
+        original_1
+            .checked_sub(amount_1)
+            .unwrap()
+            .checked_add(expected_output_amount_1)
+            .unwrap()
+    );
 }
-
 
 #[test]
 fn swap_token_1() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    
+
     let original_0: i128 = test.token_0.balance(&test.user);
     let original_1: i128 = test.token_1.balance(&test.user);
 
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     add_liquidity(&test, &amount_0, &amount_1);
     let init_time = 12345;
     test.env.ledger().with_mut(|li| {
@@ -196,19 +284,44 @@ fn swap_token_1() {
     let expected_output_amount_0: i128 = 4533054;
 
     // The user sends the token first:
-    test.token_1.transfer(&test.user, &test.contract.address, &swap_amount_1);
+    test.token_1
+        .transfer(&test.user, &test.contract.address, &swap_amount_1);
 
-    test.contract.swap(&expected_output_amount_0, &0, &test.user);
-    
-    assert_eq!(test.contract.get_reserves(),
-        (amount_0.checked_sub(expected_output_amount_0).unwrap(),
-        amount_1.checked_add(swap_amount_1).unwrap()));
+    test.contract
+        .swap(&expected_output_amount_0, &0, &test.user);
 
-    assert_eq!(test.token_0.balance(&test.contract.address), amount_0.checked_sub(expected_output_amount_0).unwrap());
-    assert_eq!(test.token_1.balance(&test.contract.address), amount_1.checked_add(swap_amount_1).unwrap());
-    assert_eq!(test.token_0.balance(&test.user), original_0.checked_sub(amount_0).unwrap().checked_add(expected_output_amount_0).unwrap());
-    assert_eq!(test.token_1.balance(&test.user), original_1.checked_sub(amount_1).unwrap().checked_sub(swap_amount_1).unwrap());
+    assert_eq!(
+        test.contract.get_reserves(),
+        (
+            amount_0.checked_sub(expected_output_amount_0).unwrap(),
+            amount_1.checked_add(swap_amount_1).unwrap()
+        )
+    );
 
+    assert_eq!(
+        test.token_0.balance(&test.contract.address),
+        amount_0.checked_sub(expected_output_amount_0).unwrap()
+    );
+    assert_eq!(
+        test.token_1.balance(&test.contract.address),
+        amount_1.checked_add(swap_amount_1).unwrap()
+    );
+    assert_eq!(
+        test.token_0.balance(&test.user),
+        original_0
+            .checked_sub(amount_0)
+            .unwrap()
+            .checked_add(expected_output_amount_0)
+            .unwrap()
+    );
+    assert_eq!(
+        test.token_1.balance(&test.user),
+        original_1
+            .checked_sub(amount_1)
+            .unwrap()
+            .checked_sub(swap_amount_1)
+            .unwrap()
+    );
 }
 
 #[test]
@@ -216,10 +329,14 @@ fn swap_token_1() {
 fn try_swap_token_1_optimal_plus_1() {
     let test = SoroswapPairTest::setup();
     test.env.budget().reset_unlimited();
-    
+
     let amount_0: i128 = 50_000_000;
     let amount_1: i128 = 100_000_000;
-    test.contract.initialize(&test.factory.address, &test.token_0.address, &test.token_1.address);
+    test.contract.initialize(
+        &test.factory.address,
+        &test.token_0.address,
+        &test.token_1.address,
+    );
     add_liquidity(&test, &amount_0, &amount_1);
     let init_time = 12345;
     test.env.ledger().with_mut(|li| {
@@ -230,8 +347,11 @@ fn try_swap_token_1_optimal_plus_1() {
     let expected_output_amount_0: i128 = 4533054 + 1;
 
     // The user sends the token first:
-    test.token_1.transfer(&test.user, &test.contract.address, &swap_amount_1);
+    test.token_1
+        .transfer(&test.user, &test.contract.address, &swap_amount_1);
 
-    let result = test.contract.try_swap(&expected_output_amount_0, &0, &test.user);
+    let result = test
+        .contract
+        .try_swap(&expected_output_amount_0, &0, &test.user);
     assert_eq!(result, Err(Ok(SoroswapPairError::SwapKConstantNotMet)));
 }

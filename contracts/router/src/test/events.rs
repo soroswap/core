@@ -1,19 +1,11 @@
-use soroban_sdk::{
-    testutils::{Events, Ledger},
-    vec, 
-    IntoVal, 
-    symbol_short,
-    Vec,
-    Address};
-use crate::test::{SoroswapRouterTest};
+use crate::event::{AddLiquidityEvent, InitializedEvent, RemoveLiquidityEvent, SwapEvent};
 use crate::test::add_liquidity::add_liquidity;
-use crate::event::{
-    InitializedEvent,
-    AddLiquidityEvent,
-    RemoveLiquidityEvent,
-    SwapEvent
+use crate::test::SoroswapRouterTest;
+use soroban_sdk::{
+    symbol_short,
+    testutils::{Events, Ledger},
+    vec, Address, IntoVal, Vec,
 };
-
 
 #[test]
 fn initialized_event() {
@@ -23,7 +15,7 @@ fn initialized_event() {
     let initialized_event = test.env.events().all().last().unwrap();
 
     let expected_initialized_event: InitializedEvent = InitializedEvent {
-        factory: test.factory.address.clone()
+        factory: test.factory.address.clone(),
     };
 
     assert_eq!(
@@ -38,9 +30,7 @@ fn initialized_event() {
         ]
     );
 
-    let false_initialized_event: InitializedEvent = InitializedEvent {
-        factory: test.user,
-    };
+    let false_initialized_event: InitializedEvent = InitializedEvent { factory: test.user };
 
     assert_ne!(
         vec![&test.env, initialized_event.clone()],
@@ -53,7 +43,6 @@ fn initialized_event() {
             ),
         ]
     );
-
 
     // Wront symbol_short
     assert_ne!(
@@ -80,10 +69,7 @@ fn initialized_event() {
             ),
         ]
     );
-
 }
-
-
 
 #[test]
 fn add_liquidity_event() {
@@ -93,11 +79,11 @@ fn add_liquidity_event() {
     let amount_0: i128 = 1_000_000_000_000_000_000;
     let amount_1: i128 = 4_000_000_000_000_000_000;
 
-    let (deposited_amount_0, 
-        deposited_amount_1, 
-        received_liquidity) =add_liquidity(&test, &amount_0, &amount_1);
-    let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
-
+    let deterministic_pair_address = test
+        .contract
+        .router_pair_for(&test.token_0.address, &test.token_1.address);
+    let (deposited_amount_0, deposited_amount_1, received_liquidity) =
+        add_liquidity(&test, &amount_0, &amount_1);
 
     let add_liquidity_event = test.env.events().all().last().unwrap();
 
@@ -172,9 +158,6 @@ fn add_liquidity_event() {
     );
 }
 
-
-
-
 #[test]
 fn remove_liquidity_event() {
     let test = SoroswapRouterTest::setup();
@@ -191,10 +174,11 @@ fn remove_liquidity_event() {
     let amount_1: i128 = 20_000_000_000;
     // let expected_liquidity: i128 = 14142134623;//14142135623,7 - 1000;
 
-    let (_deposited_amount_0, 
-        _deposited_amount_1, 
-        received_liquidity) = add_liquidity(&test, &amount_0, &amount_1);
-
+    let deterministic_pair_address = test
+        .contract
+        .router_pair_for(&test.token_0.address, &test.token_1.address);
+    let (_deposited_amount_0, _deposited_amount_1, received_liquidity) =
+        add_liquidity(&test, &amount_0, &amount_1);
 
     // let expected_to_remove_0 = (amount_0*expected_liquidity) / expected_total_liquidity;
     // let expected_to_remove_1 = (amount_1*expected_liquidity) / expected_total_liquidity;
@@ -208,14 +192,12 @@ fn remove_liquidity_event() {
     test.contract.remove_liquidity(
         &test.token_0.address, //     token_a: Address,
         &test.token_1.address, //     token_b: Address,
-        &received_liquidity, //     liquidity: i128,
+        &received_liquidity,   //     liquidity: i128,
         &expected_to_remove_0, //     amount_a_min: i128,
-        &expected_to_remove_1 , //     amount_b_min: i128,
-        &test.user, //     to: Address,
-        &desired_deadline//     deadline: u64,
+        &expected_to_remove_1, //     amount_b_min: i128,
+        &test.user,            //     to: Address,
+        &desired_deadline,     //     deadline: u64,
     );
-    let deterministic_pair_address = test.contract.router_pair_for(&test.token_0.address, &test.token_1.address);
-
 
     let remove_liquidity_event = test.env.events().all().last().unwrap();
 
@@ -245,7 +227,7 @@ fn remove_liquidity_event() {
         token_a: test.token_0.address.clone(),
         token_b: test.token_1.address.clone(),
         pair: deterministic_pair_address.clone(),
-        amount_a: (expected_to_remove_0.clone()+1),
+        amount_a: (expected_to_remove_0.clone() + 1),
         amount_b: expected_to_remove_1.clone(),
         liquidity: received_liquidity,
         to: test.user.clone(),
@@ -290,13 +272,11 @@ fn remove_liquidity_event() {
     );
 }
 
-
-
 #[test]
 fn swap_exact_tokens_for_tokens_event() {
     let test = SoroswapRouterTest::setup();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -314,11 +294,12 @@ fn swap_exact_tokens_for_tokens_event() {
 
     test.env.budget().reset_unlimited();
     let executed_amounts = test.contract.swap_exact_tokens_for_tokens(
-        &amount_in, //amount_in
-        &(expected_amount_out),  // amount_out_min
-        &path, // path
-        &test.user, // to
-        &deadline); // deadline
+        &amount_in,             //amount_in
+        &(expected_amount_out), // amount_out_min
+        &path,                  // path
+        &test.user,             // to
+        &deadline,
+    ); // deadline
 
     assert_eq!(executed_amounts.get(0).unwrap(), amount_in);
     assert_eq!(executed_amounts.get(1).unwrap(), expected_amount_out);
@@ -343,11 +324,9 @@ fn swap_exact_tokens_for_tokens_event() {
         ]
     );
 
-
     let mut false_path: Vec<Address> = Vec::new(&test.env);
     false_path.push_back(test.token_1.address.clone());
     false_path.push_back(test.token_0.address.clone());
-
 
     let false_swap_event: SwapEvent = SwapEvent {
         path: false_path.clone(),
@@ -392,17 +371,14 @@ fn swap_exact_tokens_for_tokens_event() {
             ),
         ]
     );
-    
 }
-
-
 
 #[test]
 fn swap_tokens_for_exact_tokens_event() {
     let test = SoroswapRouterTest::setup();
     test.env.budget().reset_unlimited();
     test.contract.initialize(&test.factory.address);
-    let deadline: u64 = test.env.ledger().timestamp() + 1000;  
+    let deadline: u64 = test.env.ledger().timestamp() + 1000;
 
     let mut path: Vec<Address> = Vec::new(&test.env);
     path.push_back(test.token_0.address.clone());
@@ -414,14 +390,19 @@ fn swap_tokens_for_exact_tokens_event() {
     add_liquidity(&test, &amount_0, &amount_1);
 
     let expected_amount_out = 5_000_000;
-    let amount_in_should = test.contract.router_get_amounts_in(&expected_amount_out, &path).get(0).unwrap();
+    let amount_in_should = test
+        .contract
+        .router_get_amounts_in(&expected_amount_out, &path)
+        .get(0)
+        .unwrap();
 
     let executed_amounts = test.contract.swap_tokens_for_exact_tokens(
         &expected_amount_out, //amount_out
         &(amount_in_should),  // amount_in_max
-        &path, // path
-        &test.user, // to
-        &deadline); // deadline
+        &path,                // path
+        &test.user,           // to
+        &deadline,
+    ); // deadline
 
     let swap_event = test.env.events().all().last().unwrap();
 
@@ -443,11 +424,9 @@ fn swap_tokens_for_exact_tokens_event() {
         ]
     );
 
-
     let mut false_path: Vec<Address> = Vec::new(&test.env);
     false_path.push_back(test.token_1.address.clone());
     false_path.push_back(test.token_0.address.clone());
-
 
     let false_swap_event: SwapEvent = SwapEvent {
         path: false_path.clone(),

@@ -1,4 +1,4 @@
-use soroban_sdk::{Env, String}; 
+use soroban_sdk::{Env, String};
 
 pub trait TakeFirstNCharsAndConcat {
     fn take_first_n_chars(&self, e: &Env, n: usize) -> String;
@@ -7,7 +7,6 @@ pub trait TakeFirstNCharsAndConcat {
 
 impl TakeFirstNCharsAndConcat for String {
     fn take_first_n_chars(&self, e: &Env, n: usize) -> String {
-
         let len = self.len() as usize;
         let mut slice: [u8; 100] = [0; 100];
         let min_len = len.min(n);

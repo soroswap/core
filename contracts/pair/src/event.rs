@@ -1,5 +1,5 @@
 //! Definition of the Events used in the contract
-use soroban_sdk::{contracttype, symbol_short, Env, Address};
+use soroban_sdk::{contracttype, symbol_short, Address, Env};
 
 // DEPOSIT EVENT
 #[contracttype]
@@ -14,25 +14,25 @@ pub struct DepositEvent {
 }
 
 pub(crate) fn deposit(
-    e: &Env, 
+    e: &Env,
     to: Address,
     amount_0: i128,
     amount_1: i128,
     liquidity: i128,
     new_reserve_0: i128,
-    new_reserve_1: i128) {
-    
+    new_reserve_1: i128,
+) {
     let event: DepositEvent = DepositEvent {
         to: to,
         amount_0: amount_0,
         amount_1: amount_1,
         liquidity: liquidity,
         new_reserve_0: new_reserve_0,
-        new_reserve_1: new_reserve_1
+        new_reserve_1: new_reserve_1,
     };
-    e.events().publish(("SoroswapPair", symbol_short!("deposit")), event);
+    e.events()
+        .publish(("SoroswapPair", symbol_short!("deposit")), event);
 }
-
 
 // SWAP EVENT
 
@@ -61,11 +61,11 @@ pub(crate) fn swap(
         amount_0_out: amount_0_out,
         amount_1_out: amount_1_out,
     };
-    e.events().publish(("SoroswapPair", symbol_short!("swap")), event);
+    e.events()
+        .publish(("SoroswapPair", symbol_short!("swap")), event);
 }
 
 // WITHDRAW EVENT
-
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -95,7 +95,8 @@ pub(crate) fn withdraw(
         new_reserve_0: new_reserve_0,
         new_reserve_1: new_reserve_1,
     };
-    e.events().publish(("SoroswapPair", symbol_short!("withdraw")), event);
+    e.events()
+        .publish(("SoroswapPair", symbol_short!("withdraw")), event);
 }
 
 // SYNC EVENT
@@ -112,9 +113,9 @@ pub(crate) fn sync(e: &Env, new_reserve_0: i128, new_reserve_1: i128) {
         new_reserve_0: new_reserve_0,
         new_reserve_1: new_reserve_1,
     };
-    e.events().publish(("SoroswapPair", symbol_short!("sync")), event);
+    e.events()
+        .publish(("SoroswapPair", symbol_short!("sync")), event);
 }
-
 
 // SKIM EVENT
 
@@ -130,5 +131,6 @@ pub(crate) fn skim(e: &Env, skimmed_0: i128, skimmed_1: i128) {
         skimmed_0: skimmed_0,
         skimmed_1: skimmed_1,
     };
-    e.events().publish(("SoroswapPair", symbol_short!("skim")), event);
+    e.events()
+        .publish(("SoroswapPair", symbol_short!("skim")), event);
 }

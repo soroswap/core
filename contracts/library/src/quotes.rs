@@ -1,8 +1,7 @@
-use soroban_sdk::{Address, Env, Vec};
-use crate::reserves::{get_reserves_with_factory};
 use crate::error::SoroswapLibraryError;
 use crate::math::CheckedCeilingDiv;
-
+use crate::reserves::get_reserves_with_factory;
+use soroban_sdk::{Address, Env, Vec};
 
 /// Given some amount of an asset and pair reserves, returns an equivalent amount of the other asset.
 ///
@@ -15,14 +14,22 @@ use crate::math::CheckedCeilingDiv;
 /// # Returns
 ///
 /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated equivalent amount, and `Err` indicates an error such as insufficient amount or liquidity
-pub fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, SoroswapLibraryError> {
+pub fn quote(
+    amount_a: i128,
+    reserve_a: i128,
+    reserve_b: i128,
+) -> Result<i128, SoroswapLibraryError> {
     if amount_a <= 0 {
         return Err(SoroswapLibraryError::InsufficientAmount);
     }
     if reserve_a <= 0 || reserve_b <= 0 {
         return Err(SoroswapLibraryError::InsufficientLiquidity);
     }
-    Ok(amount_a.checked_mul(reserve_b).ok_or(SoroswapLibraryError::InsufficientLiquidity)?.checked_div(reserve_a).ok_or(SoroswapLibraryError::InsufficientLiquidity)?)
+    Ok(amount_a
+        .checked_mul(reserve_b)
+        .ok_or(SoroswapLibraryError::InsufficientLiquidity)?
+        .checked_div(reserve_a)
+        .ok_or(SoroswapLibraryError::InsufficientLiquidity)?)
 }
 
 /// Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset.
@@ -36,7 +43,11 @@ pub fn quote(amount_a: i128, reserve_a: i128, reserve_b: i128) -> Result<i128, S
 /// # Returns
 ///
 /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the calculated maximum output amount, and `Err` indicates an error such as insufficient input amount or liquidity.
-pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
+pub fn get_amount_out(
+    amount_in: i128,
+    reserve_in: i128,
+    reserve_out: i128,
+) -> Result<i128, SoroswapLibraryError> {
     if amount_in <= 0 {
         return Err(SoroswapLibraryError::InsufficientInputAmount);
     }
@@ -44,7 +55,9 @@ pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> R
         return Err(SoroswapLibraryError::InsufficientLiquidity);
     }
 
-    let fee = (amount_in.checked_mul(3).unwrap()).checked_ceiling_div(1000).unwrap();
+    let fee = (amount_in.checked_mul(3).unwrap())
+        .checked_ceiling_div(1000)
+        .unwrap();
 
     let amount_in_less_fee = amount_in.checked_sub(fee).unwrap();
     let numerator = amount_in_less_fee.checked_mul(reserve_out).unwrap();
@@ -65,16 +78,32 @@ pub fn get_amount_out(amount_in: i128, reserve_in: i128, reserve_out: i128) -> R
 /// # Returns
 ///
 /// Returns `Result<i128, SoroswapLibraryError>` where `Ok` contains the required input amount, and `Err` indicates an error such as insufficient output amount or liquidity.
-pub fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> Result<i128, SoroswapLibraryError> {
+pub fn get_amount_in(
+    amount_out: i128,
+    reserve_in: i128,
+    reserve_out: i128,
+) -> Result<i128, SoroswapLibraryError> {
     if amount_out <= 0 {
         return Err(SoroswapLibraryError::InsufficientOutputAmount);
     }
     if reserve_in <= 0 || reserve_out <= 0 {
         return Err(SoroswapLibraryError::InsufficientLiquidity);
     }
-    let numerator = reserve_in.checked_mul(amount_out).unwrap().checked_mul(1000).unwrap();
-    let denominator = reserve_out.checked_sub(amount_out).unwrap().checked_mul(997).unwrap();
-    Ok(numerator.checked_ceiling_div(denominator).unwrap().checked_add(1).unwrap())
+    let numerator = reserve_in
+        .checked_mul(amount_out)
+        .unwrap()
+        .checked_mul(1000)
+        .unwrap();
+    let denominator = reserve_out
+        .checked_sub(amount_out)
+        .unwrap()
+        .checked_mul(997)
+        .unwrap();
+    Ok(numerator
+        .checked_ceiling_div(denominator)
+        .unwrap()
+        .checked_add(1)
+        .unwrap())
 }
 
 /// Performs chained getAmountOut calculations on any number of pairs.
@@ -89,7 +118,12 @@ pub fn get_amount_in(amount_out: i128, reserve_in: i128, reserve_out: i128) -> R
 /// # Returns
 ///
 /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+pub fn get_amounts_out(
+    e: Env,
+    factory: Address,
+    amount_in: i128,
+    path: Vec<Address>,
+) -> Result<Vec<i128>, SoroswapLibraryError> {
     if path.len() < 2 {
         return Err(SoroswapLibraryError::InvalidPath);
     }
@@ -98,8 +132,17 @@ pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Addr
     amounts.push_back(amount_in);
 
     for i in 0..path.len() - 1 {
-        let (reserve_in, reserve_out) = get_reserves_with_factory(e.clone(), factory.clone(), path.get(i).unwrap(), path.get(i+1).unwrap())?;
-        amounts.push_back(get_amount_out(amounts.get(i).unwrap(), reserve_in, reserve_out)?);
+        let (reserve_in, reserve_out) = get_reserves_with_factory(
+            e.clone(),
+            factory.clone(),
+            path.get(i).unwrap(),
+            path.get(i + 1).unwrap(),
+        )?;
+        amounts.push_back(get_amount_out(
+            amounts.get(i).unwrap(),
+            reserve_in,
+            reserve_out,
+        )?);
     }
 
     Ok(amounts)
@@ -117,7 +160,12 @@ pub fn get_amounts_out(e: Env, factory: Address, amount_in: i128, path: Vec<Addr
 /// # Returns
 ///
 /// Returns `Result<Vec<i128>, SoroswapLibraryError>` where `Ok` contains a vector of calculated amounts, and `Err` indicates an error such as an invalid path.
-pub fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Address>) -> Result<Vec<i128>, SoroswapLibraryError> {
+pub fn get_amounts_in(
+    e: Env,
+    factory: Address,
+    amount_out: i128,
+    path: Vec<Address>,
+) -> Result<Vec<i128>, SoroswapLibraryError> {
     if path.len() < 2 {
         return Err(SoroswapLibraryError::InvalidPath);
     }
@@ -126,7 +174,12 @@ pub fn get_amounts_in(e: Env, factory: Address, amount_out: i128, path: Vec<Addr
     amounts.push_front(amount_out);
 
     for i in (1..path.len()).rev() {
-        let (reserve_in, reserve_out) = get_reserves_with_factory(e.clone(), factory.clone(), path.get(i-1).unwrap(), path.get(i).unwrap())?;
+        let (reserve_in, reserve_out) = get_reserves_with_factory(
+            e.clone(),
+            factory.clone(),
+            path.get(i - 1).unwrap(),
+            path.get(i).unwrap(),
+        )?;
         let new_amount = get_amount_in(amounts.get(0).unwrap(), reserve_in, reserve_out)?;
         amounts.push_front(new_amount);
     }

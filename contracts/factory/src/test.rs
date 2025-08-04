@@ -1,15 +1,13 @@
 #![cfg(test)]
 extern crate std;
-use soroban_sdk::{testutils::{Address as _},
-    Address, 
-    BytesN, 
-    Env,
-    String};
-use crate::{SoroswapFactoryClient};
+use crate::SoroswapFactoryClient;
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env, String};
 
 // **** TOKEN CONTRACT ****
 mod token {
-    soroban_sdk::contractimport!(file = "../token/target/wasm32v1-none/release/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(
+        file = "../token/target/wasm32v1-none/release/soroban_token_contract.wasm"
+    );
     pub type TokenClient<'a> = Client<'a>;
 }
 use token::TokenClient;
@@ -24,9 +22,7 @@ fn create_token_contract<'a>(e: &Env) -> TokenClient<'a> {
 
 //  **** PAIR WASM ****
 fn pair_token_wasm(e: &Env) -> BytesN<32> {
-    soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm"
-    );
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
     e.deployer().upload_contract_wasm(WASM)
 }
 
@@ -37,13 +33,12 @@ mod pair {
 }
 use pair::SoroswapPairClient;
 
-
-//  **** FACTORY CONTRACT (TO BE TESTED) **** 
-fn create_factory_contract<'a>(e: & Env) -> SoroswapFactoryClient<'a> {
-    let factory = SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
+//  **** FACTORY CONTRACT (TO BE TESTED) ****
+fn create_factory_contract<'a>(e: &Env) -> SoroswapFactoryClient<'a> {
+    let factory =
+        SoroswapFactoryClient::new(e, &e.register_contract(None, crate::SoroswapFactory {}));
     factory
 }
-
 
 // THE TEST
 pub struct SoroswapFactoryTest<'a> {
@@ -60,7 +55,6 @@ pub struct SoroswapFactoryTest<'a> {
 
 impl<'a> SoroswapFactoryTest<'a> {
     fn setup() -> Self {
-
         let env = Env::default();
         env.mock_all_auths();
         let admin = Address::generate(&env);
@@ -77,18 +71,36 @@ impl<'a> SoroswapFactoryTest<'a> {
             std::mem::swap(&mut token_2, &mut token_3);
         }
 
-        token_0.initialize(&admin, &7, &String::from_str(&env, "Token 0"), &String::from_str(&env, "TOKEN0"));
-        token_1.initialize(&admin, &7, &String::from_str(&env, "Token 1"), &String::from_str(&env, "TOKEN1"));
-        token_2.initialize(&admin, &7, &String::from_str(&env, "Token 2"), &String::from_str(&env, "TOKEN2"));
-        token_3.initialize(&admin, &7, &String::from_str(&env, "Token 3"), &String::from_str(&env, "TOKEN3"));
+        token_0.initialize(
+            &admin,
+            &7,
+            &String::from_str(&env, "Token 0"),
+            &String::from_str(&env, "TOKEN0"),
+        );
+        token_1.initialize(
+            &admin,
+            &7,
+            &String::from_str(&env, "Token 1"),
+            &String::from_str(&env, "TOKEN1"),
+        );
+        token_2.initialize(
+            &admin,
+            &7,
+            &String::from_str(&env, "Token 2"),
+            &String::from_str(&env, "TOKEN2"),
+        );
+        token_3.initialize(
+            &admin,
+            &7,
+            &String::from_str(&env, "Token 3"),
+            &String::from_str(&env, "TOKEN3"),
+        );
 
-        
-        let pair_wasm = pair_token_wasm(&env);  
+        let pair_wasm = pair_token_wasm(&env);
         let contract = create_factory_contract(&env);
 
         // TODO: Get rid of this hack?
         env.budget().reset_unlimited();
-    
 
         SoroswapFactoryTest {
             env,
@@ -104,9 +116,9 @@ impl<'a> SoroswapFactoryTest<'a> {
     }
 }
 
-mod initialize;
-mod fee_to_setter;
-mod pairs;
 mod events;
+mod fee_to_setter;
+mod initialize;
+mod pairs;
 
 pub mod deterministic;

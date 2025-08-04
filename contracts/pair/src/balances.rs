@@ -1,8 +1,7 @@
-use soroban_sdk::{Address, Env}; 
-use crate::{soroswap_pair_token::{SoroswapPairToken}, any_token};
 use crate::storage::*;
+use crate::{any_token, soroswap_pair_token::SoroswapPairToken};
 use soroban_sdk::token::Interface;
-
+use soroban_sdk::{Address, Env};
 
 pub fn get_balance(e: &Env, contract_id: Address) -> i128 {
     // How many "contract_id" tokens does this contract holds?

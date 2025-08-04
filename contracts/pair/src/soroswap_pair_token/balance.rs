@@ -1,4 +1,6 @@
-use crate::soroswap_pair_token::storage_types::{DataKey, BALANCE_BUMP_AMOUNT, BALANCE_LIFETIME_THRESHOLD};
+use crate::soroswap_pair_token::storage_types::{
+    DataKey, BALANCE_BUMP_AMOUNT, BALANCE_LIFETIME_THRESHOLD,
+};
 use soroban_sdk::{Address, Env};
 
 pub fn read_balance(e: &Env, addr: Address) -> i128 {
@@ -24,7 +26,8 @@ fn write_balance(e: &Env, addr: Address, amount: i128) {
 pub fn receive_balance(e: &Env, addr: Address, amount: i128) {
     let balance = read_balance(e, addr.clone());
 
-    let new_balance = balance.checked_add(amount)
+    let new_balance = balance
+        .checked_add(amount)
         .expect("Integer overflow occurred while adding balance.");
 
     write_balance(e, addr, new_balance);
