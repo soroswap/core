@@ -81,7 +81,7 @@ fn add_liquidity_amounts(
         factory_client.create_pair(&token_a, &token_b);
     }
 
-    let (reserve_a, reserve_b) = soroswap_library::get_reserves(
+    let (reserve_a, reserve_b) = soroswap_library::get_reserves_with_factory(
         e.clone(),
         factory.clone(),
         token_a.clone(),

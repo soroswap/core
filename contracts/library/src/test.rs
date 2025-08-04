@@ -5,25 +5,25 @@ use soroban_sdk::{Env, BytesN, Address, testutils::Address as _};
 use crate::{SoroswapLibrary, SoroswapLibraryClient};
 
 mod token {
-    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32v1-none/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 
 mod pair {
-    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
     pub type SoroswapPairClient<'a> = Client<'a>;
 }
 
 
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm"
+        file = "../pair/target/wasm32v1-none/release/soroswap_pair.optimized.wasm"
     );
     e.deployer().upload_contract_wasm(WASM)
 }
 
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm");
+    soroban_sdk::contractimport!(file = "../factory/target/wasm32v1-none/release/soroswap_factory.optimized.wasm");
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 

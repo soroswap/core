@@ -9,7 +9,7 @@ use crate::{SoroswapFactoryClient};
 
 // **** TOKEN CONTRACT ****
 mod token {
-    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(file = "../token/target/wasm32v1-none/release/soroban_token_contract.wasm");
     pub type TokenClient<'a> = Client<'a>;
 }
 use token::TokenClient;
@@ -25,14 +25,14 @@ fn create_token_contract<'a>(e: &Env) -> TokenClient<'a> {
 //  **** PAIR WASM ****
 fn pair_token_wasm(e: &Env) -> BytesN<32> {
     soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+        file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm"
     );
     e.deployer().upload_contract_wasm(WASM)
 }
 
 // **** TOKEN CONTRACT ****
 mod pair {
-    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
     pub type SoroswapPairClient<'a> = Client<'a>;
 }
 use pair::SoroswapPairClient;

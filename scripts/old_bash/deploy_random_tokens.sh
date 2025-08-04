@@ -64,7 +64,7 @@ do
     # Extract the first 4 letters of the name for the shorter version and uppercase
     SYMBOL=$(echo ${NAME:0:4} | tr '[:lower:]' '[:upper:]')
 
-    TOKEN_WASM="/workspace/contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm"
+    TOKEN_WASM="/workspace/contracts/token/target/wasm32v1-none/release/soroban_token_contract.optimized.wasm"
 
     TOKEN_ID="$(
       soroban contract deploy --network $NETWORK --source token-admin \

@@ -10,11 +10,11 @@ import { createTxBuilder, invoke, invokeTransaction } from './tx.js';
 
 // Relative paths from __dirname
 const CONTRACT_REL_PATH: object = {
-  pair: '../../contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm',
+  pair: '../../contracts/pair/target/wasm32v1-none/release/soroswap_pair.optimized.wasm',
   factory:
-    '../../contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm',
-  router: '../../contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm',
-  token: '../../contracts/token/target/wasm32-unknown-unknown/release/soroban_token_contract.optimized.wasm',
+    '../../contracts/factory/target/wasm32v1-none/release/soroswap_factory.optimized.wasm',
+  router: '../../contracts/router/target/wasm32v1-none/release/soroswap_router.optimized.wasm',
+  token: '../../contracts/token/target/wasm32v1-none/release/soroban_token_contract.optimized.wasm',
 };
 
 const network = process.argv[2];
