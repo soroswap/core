@@ -1,23 +1,21 @@
 //! Definition of the Events used in the contract
-use soroban_sdk::{contracttype, symbol_short, Env, Address, Vec};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Vec};
 
 // INITIALIZED
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct InitializedEvent {
-    pub factory: Address
+    pub factory: Address,
 }
 
 pub(crate) fn initialized(e: &Env, factory: Address) {
-    
-    let event: InitializedEvent = InitializedEvent {
-        factory: factory
-    };
-    e.events().publish(("SoroswapRouter", symbol_short!("init")), event);
+    let event: InitializedEvent = InitializedEvent { factory: factory };
+    e.events()
+        .publish(("SoroswapRouter", symbol_short!("init")), event);
 }
 
 // ADD LIQUIDITY EVENT
-#[contracttype] 
+#[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AddLiquidityEvent {
     pub token_a: Address,
@@ -26,13 +24,13 @@ pub struct AddLiquidityEvent {
     pub amount_a: i128,
     pub amount_b: i128,
     pub liquidity: i128,
-    pub to: Address
+    pub to: Address,
 }
 
 /// Publishes an `AddLiquidityEvent` to the event stream.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `e` - An instance of the `Env` struct.
 /// * `token_a` - The address of the first token in the liquidity pair.
 /// * `token_b` - The address of the second token in the liquidity pair.
@@ -61,13 +59,12 @@ pub(crate) fn add_liquidity(
         to,
     };
 
-    e.events().publish(("SoroswapRouter", symbol_short!("add")), event);
+    e.events()
+        .publish(("SoroswapRouter", symbol_short!("add")), event);
 }
 
- 
-
 // REMOVE LIQUIDITY EVENT
-#[contracttype] 
+#[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RemoveLiquidityEvent {
     pub token_a: Address,
@@ -76,14 +73,13 @@ pub struct RemoveLiquidityEvent {
     pub amount_a: i128,
     pub amount_b: i128,
     pub liquidity: i128,
-    pub to: Address
+    pub to: Address,
 }
 
-
 /// Publishes an `RemoveLiquidityEvent` to the event stream.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `e` - An instance of the `Env` struct.
 /// * `token_a` - The address of the first token in the liquidity pair.
 /// * `token_b` - The address of the second token in the liquidity pair.
@@ -112,40 +108,31 @@ pub(crate) fn remove_liquidity(
         to,
     };
 
-    e.events().publish(("SoroswapRouter", symbol_short!("remove")), event);
+    e.events()
+        .publish(("SoroswapRouter", symbol_short!("remove")), event);
 }
 
-
-
 // SWAP EVENT
-#[contracttype] 
+#[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SwapEvent {
     pub path: Vec<Address>,
     pub amounts: Vec<i128>,
-    pub to: Address
+    pub to: Address,
 }
 
 /// Publishes an `SwapEvent` to the event stream.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `e` - An instance of the `Env` struct.
-/// * `path` - A vector representing the trading route, where the first element is the input token 
+/// * `path` - A vector representing the trading route, where the first element is the input token
 ///            and the last is the output token. Intermediate elements represent pairs to trade through.
 /// * `amounts` - A vector containing the amounts of tokens traded at each step of the trading route.
 /// * `to` - The address where the output tokens will be sent to.
-pub(crate) fn swap(
-    e: &Env,
-    path: Vec<Address>,
-    amounts: Vec<i128>,
-    to: Address
-) {
-    let event = SwapEvent {
-        path,
-        amounts,
-        to,
-    };
+pub(crate) fn swap(e: &Env, path: Vec<Address>, amounts: Vec<i128>, to: Address) {
+    let event = SwapEvent { path, amounts, to };
 
-    e.events().publish(("SoroswapRouter", symbol_short!("swap")), event);
+    e.events()
+        .publish(("SoroswapRouter", symbol_short!("swap")), event);
 }

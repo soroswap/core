@@ -1,10 +1,8 @@
 // Import necessary types from the Soroban SDK
 #![allow(unused)]
-use soroban_sdk::{contracttype, contracterror, xdr::ToXdr, Address, Bytes, BytesN, Env};
+use soroban_sdk::{contracterror, contracttype, xdr::ToXdr, Address, Bytes, BytesN, Env};
 
-soroban_sdk::contractimport!(
-    file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
-);
+soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -13,7 +11,6 @@ pub enum PairError {
     /// SoroswapFactory: token_a and token_b have identical addresses
     CreatePairIdenticalTokens = 901,
 }
-
 
 #[contracttype]
 #[derive(Clone)]
@@ -38,7 +35,7 @@ impl Pair {
         salt.append(&self.1.clone().to_xdr(e));
 
         // Hash the salt using SHA256 to generate a new BytesN<32> value
-        e.crypto().sha256(&salt)
+        e.crypto().sha256(&salt).into()
     }
 
     pub fn token_0(&self) -> &Address {

@@ -41,7 +41,7 @@ https://github.com/Uniswap/v2-periphery/blob/master/contracts/libraries/UniswapV
 
 ## WASM
 
-The WASM target wasm32-unknown-unknown is supported.
+The WASM target wasm32v1-none is supported.
 
 ## Contributions
 

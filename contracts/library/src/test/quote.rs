@@ -1,5 +1,5 @@
-use crate::test::{SoroswapLibraryTest};
 use crate::error::SoroswapLibraryError;
+use crate::test::SoroswapLibraryTest;
 
 #[test]
 fn quote_insufficient_amount() {
@@ -25,6 +25,6 @@ fn quote_insufficient_liquidity_1() {
 #[test]
 fn quote() {
     let test = SoroswapLibraryTest::setup();
-    assert_eq!(2,test.contract.quote(&1, &100, &200));
-    assert_eq!(1,test.contract.quote(&2, &200, &100));
+    assert_eq!(2, test.contract.quote(&1, &100, &200));
+    assert_eq!(1, test.contract.quote(&2, &200, &100));
 }
