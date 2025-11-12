@@ -1,5 +1,5 @@
 # Soroswap.Finance core Smart Contracts.
-
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/soroswap/core)
 Soroswap.Finance is live on **Mainnet**
 - Deployer Address: [`GAYPUMZFDKUEUJ4LPTHVXVG2GD5B6AV5GGLYDMSZXCSI4QILQKSY25JI`](https://stellar.expert/explorer/public/account/GAYPUMZFDKUEUJ4LPTHVXVG2GD5B6AV5GGLYDMSZXCSI4QILQKSY25JI)
 - SoroswapFactory: `CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2`
