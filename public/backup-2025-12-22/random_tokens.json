@@ -7,61 +7,61 @@
     "network": "testnet",
     "assets": [
       {
-        "name": "ulkwek",
-        "contract": "CAT5LVARRSDJGFHYA6NKZ4JLXTBJTVRZQRCOEK72ENW6COGPZJFJUZMQ",
-        "code": "ULKW",
+        "name": "kivszx",
+        "contract": "CAP7PHAN6QWF46DEUCBAIDAIVTFDSJAYJDOVYTB3BW35QVGZAEN75PKA",
+        "code": "KIVS",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "volvok",
-        "contract": "CCN65IVRTYROTAJLNLWS2KPZTKH3MUZGPNLGZRCOHKAAZAW6OXXTOYDF",
-        "code": "VOLV",
+        "name": "vokdox",
+        "contract": "CCGNJM4QYTVRFAZEIXOE2OSO22YATE6BON7XBOHY6CDL4H77UNRAJF64",
+        "code": "VOKD",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "trovok",
-        "contract": "CB7DIN7BSDUBABMO4MHAISPO6NIV7UXXUXWR3ODMH4IUK3VZLVZU5OEY",
-        "code": "TROV",
+        "name": "floyie",
+        "contract": "CAG6QPQCBPZKINDFUE6OIM3QVLIN7H7JKBAIURMSH4ACTPUZ3RBDTMO4",
+        "code": "FLOY",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "ramjun",
-        "contract": "CDXHI266H5MOP3PTGMEPB2FPYBHQS223IB5RP6PUKO62QYQNZLQKQ3TN",
-        "code": "RAMJ",
+        "name": "lupfox",
+        "contract": "CAISGEYEDOXJBQIXIM7PALBDOUETQROTUHXATWQZIJZAWGQ6JDA24NV7",
+        "code": "LUPF",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "PILD:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CDOE7CS35BJPWB3SWPMJIYTQIW4INAPM4ORKM4MBWEGISDBGISAG74IW",
-        "code": "PILD",
+        "name": "CHEF:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CAM3L2WZGZDBADBKEJFUWAPASPILCDSO2MNDO2U6JMELLHCTF37SQ764",
+        "code": "CHEF",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "HELL:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CBBAEB5PNNZOWF2XJD6MCFFLRNZXLSESSOUM6EKVCJA5OSPIGGIPE2WL",
-        "code": "HELL",
+        "name": "RAIW:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBCSFQ3J2C6Y3B5ELTHB3ERVZUQ5EBAK3J3EZ6YNYWB4ZV7SHITUMR7E",
+        "code": "RAIW",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "ASDE:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CBSUPZUWWNSJ6RJBMSOQ6RF23LCU3IYJYI3CH7AVM3F3TIJ2JADA2KUX",
-        "code": "ASDE",
+        "name": "CHER:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CBFJ53ELZ2YLEQQWHVRMQH2TUHYC2O544B4KQH36ZA72OYFRYQHS6QMG",
+        "code": "CHER",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
       },
       {
-        "name": "PIED:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
-        "contract": "CCLDM52UQMSZG5DC32HRBJNHUEL3GMPP37T5KOPCGGDPGNKQF6CFQBRW",
-        "code": "PIED",
+        "name": "ONYR:GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
+        "contract": "CA4S6P7ILJHKSQKRBXFPW4UUYYYR2IKEFOU2LQ7KVDPCJTTQ3MKZTVL2",
+        "code": "ONYR",
         "issuer": "GCPJFNZAARY3Z2AM7RVXDZDLPOEBT4QHTQXFOFKMZHLV7PPDKE2M67Q6",
         "icon": "",
         "decimals": 7
