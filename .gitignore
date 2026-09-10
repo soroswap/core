@@ -9,3 +9,6 @@ node_modules/
 .env
 /dist
 /scripts/test.ts
+
+!contracts/factory/target/wasm32v1-none/release/soroswap_factory.optimized.wasm
+!contracts/pair/target/wasm32v1-none/release/soroswap_pair.optimized.wasm

@@ -6,7 +6,7 @@ echo "TOKEN_ADMIN_ADDRESS: $TOKEN_ADMIN_ADDRESS"
 
 ROUTER_CONTRACT="CCSP6PGXMA26QRCOCVPILATP2MTY75HGQDVEAB3CYCUAMKFGBIGCD5CQ"
 
-ROUTER_WASM="/workspace/contracts/router/target/wasm32-unknown-unknown/release/soroswap_router.optimized.wasm"
+ROUTER_WASM="/workspace/contracts/router/target/wasm32v1-none/release/soroswap_router.optimized.wasm"
 
 NETWORK="standalone"
 

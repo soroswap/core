@@ -4,7 +4,7 @@ use soroban_sdk::{self, contracterror};
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum SoroswapLibraryError {
-    /// SoroswapLibrary: insufficient amount 
+    /// SoroswapLibrary: insufficient amount
     InsufficientAmount = 301,
 
     /// SoroswapLibrary: insufficient liquidity

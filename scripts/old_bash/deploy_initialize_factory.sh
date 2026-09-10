@@ -64,8 +64,8 @@ echo "--"
 echo "--"
 
 # Define the paths to the compiled WASM files
-FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.optimized.wasm"
-PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.optimized.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32v1-none/release/soroswap_factory.optimized.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32v1-none/release/soroswap_pair.optimized.wasm"
 TOKEN_WASM="/workspace/contracts/token/soroban_token_contract.optimized.wasm"
 
 # Install the Pair contract WASM

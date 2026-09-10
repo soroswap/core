@@ -1,52 +1,46 @@
 #![cfg(test)]
 extern crate std;
 use crate::{SoroswapRouter, SoroswapRouterClient};
-use soroban_sdk::{
-    Env, 
-    BytesN, 
-    Address, 
-    testutils::{
-        Address as _,
-    },
-};
+use soroban_sdk::{testutils::Address as _, Address, BytesN, Env};
 
 // Token Contract
 mod token {
-    soroban_sdk::contractimport!(file = "../token/target/wasm32-unknown-unknown/release/soroban_token_contract.wasm");
+    soroban_sdk::contractimport!(
+        file = "../token/target/wasm32v1-none/release/soroban_token_contract.wasm"
+    );
     pub type TokenClient<'a> = Client<'a>;
 }
 use token::TokenClient;
 
-pub fn create_token_contract<'a>(e: &Env, admin: & Address) -> TokenClient<'a> {
+pub fn create_token_contract<'a>(e: &Env, admin: &Address) -> TokenClient<'a> {
     TokenClient::new(&e, &e.register_stellar_asset_contract(admin.clone()))
 }
 
 // Pair Contract
 mod pair {
-    soroban_sdk::contractimport!(file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm");
-   pub type SoroswapPairClient<'a> = Client<'a>;
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
+    pub type SoroswapPairClient<'a> = Client<'a>;
 }
 use pair::SoroswapPairClient;
 
-
 fn pair_contract_wasm(e: &Env) -> BytesN<32> {
-    soroban_sdk::contractimport!(
-        file = "../pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
-    );
+    soroban_sdk::contractimport!(file = "../pair/target/wasm32v1-none/release/soroswap_pair.wasm");
     e.deployer().upload_contract_wasm(WASM)
 }
 
 // SoroswapFactory Contract
 mod factory {
-    soroban_sdk::contractimport!(file = "../factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm");
+    soroban_sdk::contractimport!(
+        file = "../factory/target/wasm32v1-none/release/soroswap_factory.wasm"
+    );
     pub type SoroswapFactoryClient<'a> = Client<'a>;
 }
 use factory::SoroswapFactoryClient;
 
-fn create_soroswap_factory<'a>(e: & Env, setter: & Address) -> SoroswapFactoryClient<'a> {
-    let pair_hash = pair_contract_wasm(&e);  
+fn create_soroswap_factory<'a>(e: &Env, setter: &Address) -> SoroswapFactoryClient<'a> {
+    let pair_hash = pair_contract_wasm(&e);
     let factory_address = &e.register_contract_wasm(None, factory::WASM);
-    let factory = SoroswapFactoryClient::new(e, factory_address); 
+    let factory = SoroswapFactoryClient::new(e, factory_address);
     factory.initialize(&setter, &pair_hash);
     factory
 }
@@ -65,12 +59,11 @@ pub struct SoroswapRouterTest<'a> {
     token_1: TokenClient<'a>,
     factory: SoroswapFactoryClient<'a>,
     user: Address,
-    admin: Address
+    admin: Address,
 }
 
 impl<'a> SoroswapRouterTest<'a> {
     fn setup() -> Self {
-
         let env = Env::default();
         env.mock_all_auths();
         let contract = create_soroswap_router(&env);
@@ -97,12 +90,11 @@ impl<'a> SoroswapRouterTest<'a> {
             token_1,
             factory,
             user,
-            admin
+            admin,
         }
     }
 
     fn setup_deducted_reserve() -> Self {
-
         let env = Env::default();
         env.mock_all_auths();
         let contract = create_soroswap_router(&env);
@@ -116,7 +108,7 @@ impl<'a> SoroswapRouterTest<'a> {
         if &token_1.address < &token_0.address {
             std::mem::swap(&mut token_0, &mut token_1);
         }
-        
+
         let initial_user_balance = 24_995_705_032_704;
 
         token_0.mint(&user, &initial_user_balance);
@@ -131,23 +123,21 @@ impl<'a> SoroswapRouterTest<'a> {
             token_1,
             factory,
             user,
-            admin
+            admin,
         }
     }
 }
 
 // Test mods:
 
-pub mod initialize;
 pub mod add_liquidity;
+pub mod initialize;
 //pub mod swap;
-pub mod remove_liquidity;
-pub mod library_functions;
-pub mod swap_tokens_for_exact_tokens;
-pub mod swap_exact_tokens_for_tokens;
 pub mod events;
+pub mod library_functions;
+pub mod remove_liquidity;
+pub mod swap_exact_tokens_for_tokens;
+pub mod swap_tokens_for_exact_tokens;
 
 // BUDGET TEST MOD
 mod budget;
-
-

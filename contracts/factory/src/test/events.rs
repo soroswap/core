@@ -1,13 +1,9 @@
-use soroban_sdk::{testutils::{Events}, vec, IntoVal, symbol_short};
-use soroban_sdk::{xdr::{ToXdr}, Bytes}; // For determinisitic address
-use crate::test::{SoroswapFactoryTest};
 use crate::event::{
-    InitializedEvent,
-    NewPairEvent,
-    FeeToSettedEvent,
-    NewSetterEvent,
-    NewFeesEnabledEvent};
-
+    FeeToSettedEvent, InitializedEvent, NewFeesEnabledEvent, NewPairEvent, NewSetterEvent,
+};
+use crate::test::SoroswapFactoryTest;
+use soroban_sdk::{symbol_short, testutils::Events, vec, IntoVal};
+use soroban_sdk::{xdr::ToXdr, Bytes}; // For determinisitic address
 
 #[test]
 fn initialized_event() {
@@ -17,7 +13,7 @@ fn initialized_event() {
     let initialized_event = test.env.events().all().last().unwrap();
 
     let expected_initialized_event: InitializedEvent = InitializedEvent {
-        setter: test.admin.clone()
+        setter: test.admin.clone(),
     };
 
     assert_eq!(
@@ -32,9 +28,7 @@ fn initialized_event() {
         ]
     );
 
-    let false_initialized_event: InitializedEvent = InitializedEvent {
-        setter: test.user,
-    };
+    let false_initialized_event: InitializedEvent = InitializedEvent { setter: test.user };
 
     assert_ne!(
         vec![&test.env, initialized_event.clone()],
@@ -47,7 +41,6 @@ fn initialized_event() {
             ),
         ]
     );
-
 
     // Wront symbol_short
     assert_ne!(
@@ -74,22 +67,25 @@ fn initialized_event() {
             ),
         ]
     );
-
 }
-
 
 #[test]
 fn new_pair_event() {
     let test = SoroswapFactoryTest::setup();
     test.contract.initialize(&test.admin, &test.pair_wasm);
-    test.contract.create_pair(&test.token_0.address, &test.token_1.address);
+    test.contract
+        .create_pair(&test.token_0.address, &test.token_1.address);
 
     // Calculating pair address:
     let mut salt = Bytes::new(&test.env);
-    salt.append(&test.token_0.address.clone().to_xdr(&test.env)); 
+    salt.append(&test.token_0.address.clone().to_xdr(&test.env));
     salt.append(&test.token_1.address.clone().to_xdr(&test.env));
-    let bytes_n_32_salt=test.env.crypto().sha256(&salt);
-    let deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), bytes_n_32_salt.clone()).deployed_address();
+    let bytes_n_32_salt = test.env.crypto().sha256(&salt);
+    let deterministic_pair_address = test
+        .env
+        .deployer()
+        .with_address(test.contract.address.clone(), bytes_n_32_salt.clone())
+        .deployed_address();
 
     let new_pair_event = test.env.events().all().last().unwrap();
 
@@ -131,7 +127,6 @@ fn new_pair_event() {
         ]
     );
 
-
     // Wront symbol_short
     assert_ne!(
         vec![&test.env, new_pair_event.clone()],
@@ -159,14 +154,18 @@ fn new_pair_event() {
     );
 
     // new pair
-    test.contract.create_pair(&test.token_2.address, &test.token_3.address);
+    test.contract
+        .create_pair(&test.token_2.address, &test.token_3.address);
     // Calculating pair address:
     let mut new_salt = Bytes::new(&test.env);
-    new_salt.append(&test.token_2.address.clone().to_xdr(&test.env)); 
+    new_salt.append(&test.token_2.address.clone().to_xdr(&test.env));
     new_salt.append(&test.token_3.address.clone().to_xdr(&test.env));
-    let new_bytes_n_32_salt=test.env.crypto().sha256(&new_salt);
-    let new_deterministic_pair_address = test.env.deployer().with_address(test.contract.address.clone(), new_bytes_n_32_salt.clone()).deployed_address();
-
+    let new_bytes_n_32_salt = test.env.crypto().sha256(&new_salt);
+    let new_deterministic_pair_address = test
+        .env
+        .deployer()
+        .with_address(test.contract.address.clone(), new_bytes_n_32_salt.clone())
+        .deployed_address();
 
     let new_expected_new_pair_event: NewPairEvent = NewPairEvent {
         token_0: test.token_2.address.clone(),
@@ -188,7 +187,6 @@ fn new_pair_event() {
         ]
     );
 }
-
 
 #[test]
 fn fee_to_event() {
@@ -234,7 +232,6 @@ fn fee_to_event() {
         ]
     );
 
-
     // Wrong symbol_short
     assert_ne!(
         vec![&test.env, fee_to_event.clone()],
@@ -260,9 +257,7 @@ fn fee_to_event() {
             ),
         ]
     );
-
 }
-
 
 #[test]
 fn setter_event() {
@@ -306,7 +301,6 @@ fn setter_event() {
         ]
     );
 
-
     // Wrong symbol_short
     assert_ne!(
         vec![&test.env, new_setter_event.clone()],
@@ -332,9 +326,7 @@ fn setter_event() {
             ),
         ]
     );
-
 }
-
 
 #[test]
 fn fees_enabled_event() {
@@ -344,9 +336,8 @@ fn fees_enabled_event() {
 
     let fees_enabled_event = test.env.events().all().last().unwrap();
 
-    let expected_fees_enabled_event: NewFeesEnabledEvent = NewFeesEnabledEvent {
-        fees_enabled: true,
-    };
+    let expected_fees_enabled_event: NewFeesEnabledEvent =
+        NewFeesEnabledEvent { fees_enabled: true };
 
     assert_eq!(
         vec![&test.env, fees_enabled_event.clone()],
@@ -376,7 +367,6 @@ fn fees_enabled_event() {
         ]
     );
 
-
     // Wrong symbol_short
     assert_ne!(
         vec![&test.env, fees_enabled_event.clone()],
@@ -402,5 +392,4 @@ fn fees_enabled_event() {
             ),
         ]
     );
-
 }

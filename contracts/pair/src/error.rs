@@ -21,7 +21,6 @@ pub enum SoroswapPairError {
     /// SoroswapPair: insufficient liquidity minted while doing deposit
     DepositInsufficientLiquidityMinted = 107,
     /// SoroswapPair: insufficient output amount while doing deposDepositit
-
     SwapInsufficientOutputAmount = 108,
     /// SoroswapPair: negatives amounts out dont supported while doing swap
     SwapNegativesOutNotSupported = 109,
@@ -46,5 +45,3 @@ pub enum SoroswapPairError {
     /// SoroswapPair: OVERFLOW while updating
     UpdateOverflow = 118,
 }
-
-

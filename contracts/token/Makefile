@@ -6,9 +6,9 @@ test: build
 	cargo test
 
 build:
-	soroban contract build
-	@ls -l target/wasm32-unknown-unknown/release/*.wasm
-	soroban contract optimize --wasm target/wasm32-unknown-unknown/release/soroban_token_contract.wasm
+	stellar contract build
+	@ls -l target/wasm32v1-none/release/*.wasm
+	stellar contract optimize --wasm target/wasm32v1-none/release/soroban_token_contract.wasm
 
 
 fmt:

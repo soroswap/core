@@ -1,9 +1,7 @@
-use soroban_sdk::{Address, testutils::Address as _};
+use soroban_sdk::{testutils::Address as _, Address};
 
 use crate::error::CombinedRouterError;
 use crate::test::SoroswapRouterTest;
-
-
 
 #[test]
 fn test_initialize_and_get_factory() {

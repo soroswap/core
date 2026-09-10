@@ -70,7 +70,7 @@ mkdir -p .soroban
 echo "--"
 echo "--"
 
-PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+PAIR_WASM="/workspace/contracts/pair/target/wasm32v1-none/release/soroswap_pair.wasm"
 TOKEN_WASM="token/soroban_token_contract.wasm"
 #TOKEN_WASM="soroban_token_spec.wasm"
 
@@ -172,8 +172,8 @@ echo Build the SoroswapPair and SoroswapFactory contract
   cd pair
   make build
   cd ..
-  FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
-  PAIR_WASM="/workspace/contracts/pair/target/wasm32-unknown-unknown/release/soroswap_pair.wasm"
+  FACTORY_WASM="/workspace/contracts/factory/target/wasm32v1-none/release/soroswap_factory.wasm"
+  PAIR_WASM="/workspace/contracts/pair/target/wasm32v1-none/release/soroswap_pair.wasm"
   echo "--"
   echo "--"
 

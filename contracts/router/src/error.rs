@@ -1,6 +1,5 @@
 use soroban_sdk::{self, contracterror};
-use soroswap_library::{SoroswapLibraryError};
-
+use soroswap_library::SoroswapLibraryError;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -14,7 +13,7 @@ pub enum SoroswapRouterError {
 
     /// SoroswapRouter: deadline expired
     DeadlineExpired = 403,
-    
+
     /// SoroswapRouter: already initialized
     InitializeAlreadyInitialized = 404,
 
@@ -32,9 +31,7 @@ pub enum SoroswapRouterError {
 
     /// SoroswapRouter: pair does not exist
     PairDoesNotExist = 409,
-
 }
-
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -62,12 +59,22 @@ pub enum CombinedRouterError {
 impl From<SoroswapLibraryError> for CombinedRouterError {
     fn from(err: SoroswapLibraryError) -> Self {
         match err {
-            SoroswapLibraryError::InsufficientAmount => CombinedRouterError::LibraryInsufficientAmount,
-            SoroswapLibraryError::InsufficientLiquidity => CombinedRouterError::LibraryInsufficientLiquidity,
-            SoroswapLibraryError::InsufficientInputAmount => CombinedRouterError::LibraryInsufficientInputAmount,
-            SoroswapLibraryError::InsufficientOutputAmount => CombinedRouterError::LibraryInsufficientOutputAmount,
+            SoroswapLibraryError::InsufficientAmount => {
+                CombinedRouterError::LibraryInsufficientAmount
+            }
+            SoroswapLibraryError::InsufficientLiquidity => {
+                CombinedRouterError::LibraryInsufficientLiquidity
+            }
+            SoroswapLibraryError::InsufficientInputAmount => {
+                CombinedRouterError::LibraryInsufficientInputAmount
+            }
+            SoroswapLibraryError::InsufficientOutputAmount => {
+                CombinedRouterError::LibraryInsufficientOutputAmount
+            }
             SoroswapLibraryError::InvalidPath => CombinedRouterError::LibraryInvalidPath,
-            SoroswapLibraryError::SortIdenticalTokens => CombinedRouterError::LibrarySortIdenticalTokens,
+            SoroswapLibraryError::SortIdenticalTokens => {
+                CombinedRouterError::LibrarySortIdenticalTokens
+            }
         }
     }
 }
@@ -76,13 +83,25 @@ impl From<SoroswapRouterError> for CombinedRouterError {
     fn from(err: SoroswapRouterError) -> Self {
         match err {
             SoroswapRouterError::NotInitialized => CombinedRouterError::RouterNotInitialized,
-            SoroswapRouterError::NegativeNotAllowed => CombinedRouterError::RouterNegativeNotAllowed,
+            SoroswapRouterError::NegativeNotAllowed => {
+                CombinedRouterError::RouterNegativeNotAllowed
+            }
             SoroswapRouterError::DeadlineExpired => CombinedRouterError::RouterDeadlineExpired,
-            SoroswapRouterError::InitializeAlreadyInitialized => CombinedRouterError::RouterInitializeAlreadyInitialized,
-            SoroswapRouterError::InsufficientAAmount => CombinedRouterError::RouterInsufficientAAmount,
-            SoroswapRouterError::InsufficientBAmount => CombinedRouterError::RouterInsufficientBAmount,
-            SoroswapRouterError::InsufficientOutputAmount => CombinedRouterError::RouterInsufficientOutputAmount,
-            SoroswapRouterError::ExcessiveInputAmount => CombinedRouterError::RouterExcessiveInputAmount,
+            SoroswapRouterError::InitializeAlreadyInitialized => {
+                CombinedRouterError::RouterInitializeAlreadyInitialized
+            }
+            SoroswapRouterError::InsufficientAAmount => {
+                CombinedRouterError::RouterInsufficientAAmount
+            }
+            SoroswapRouterError::InsufficientBAmount => {
+                CombinedRouterError::RouterInsufficientBAmount
+            }
+            SoroswapRouterError::InsufficientOutputAmount => {
+                CombinedRouterError::RouterInsufficientOutputAmount
+            }
+            SoroswapRouterError::ExcessiveInputAmount => {
+                CombinedRouterError::RouterExcessiveInputAmount
+            }
             SoroswapRouterError::PairDoesNotExist => CombinedRouterError::RouterPairDoesNotExist,
         }
     }

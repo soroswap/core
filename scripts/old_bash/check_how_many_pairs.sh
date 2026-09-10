@@ -27,7 +27,7 @@ fi
 ARGS="--network $NETWORK --source token-admin"
 
 # Define the path to the compiled Soroban Factory Contract WebAssembly (WASM) file
-FACTORY_WASM="/workspace/contracts/factory/target/wasm32-unknown-unknown/release/soroswap_factory.wasm"
+FACTORY_WASM="/workspace/contracts/factory/target/wasm32v1-none/release/soroswap_factory.wasm"
 
 # Extract the factory ID from the JSON file using 'jq'
 # The '.factory' syntax specifies the 'factory' key in the JSON file

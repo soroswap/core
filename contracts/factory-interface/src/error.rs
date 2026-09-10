@@ -21,4 +21,3 @@ pub enum FactoryError {
     /// SoroswapFactory: index does not exist
     IndexDoesNotExist = 206,
 }
-

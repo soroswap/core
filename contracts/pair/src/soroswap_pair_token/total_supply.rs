@@ -1,4 +1,4 @@
-use soroban_sdk::{Env};
+use soroban_sdk::Env;
 
 use crate::soroswap_pair_token::storage_types::DataKey;
 
@@ -14,7 +14,8 @@ pub fn write_total_supply(e: &Env, id: &i128) {
 
 pub fn increase_total_supply(e: &Env, amount: i128) {
     let total_supply = read_total_supply(&e);
-    let new_total_supply = total_supply.checked_add(amount)
+    let new_total_supply = total_supply
+        .checked_add(amount)
         .expect("Integer overflow occurred while increasing total supply.");
     write_total_supply(&e, &new_total_supply);
 }
@@ -24,7 +25,8 @@ pub fn decrease_total_supply(e: &Env, amount: i128) {
     if total_supply < amount {
         panic!("insufficient total supply");
     }
-    let new_total_supply = total_supply.checked_sub(amount)
+    let new_total_supply = total_supply
+        .checked_sub(amount)
         .expect("Integer underflow occurred while decreasing total supply.");
     write_total_supply(&e, &new_total_supply);
 }
