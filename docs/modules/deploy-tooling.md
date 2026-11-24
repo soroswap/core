@@ -2,7 +2,7 @@
 
 > **Living document.** Read this before modifying the module. Update it in the same change whenever the scripts, the yarn commands, the address book format, or the required env vars change.
 
-**Source:** `scripts/`, `utils/`, `configs.json`, `tsconfig.json` · **Last verified:** 2026-09-06
+**Source:** `scripts/`, `utils/`, `configs.json`, `tsconfig.json` · **Last verified:** 2026-11-24
 
 ## Purpose
 
@@ -56,7 +56,8 @@ Contracts are built separately with `make build` in `contracts/` (`contracts/Mak
 
 ## Dependencies
 
-- `@stellar/stellar-sdk` 14 (`package.json:29`) plus `cors`, `date-fns`, `dotenv`, `express`, `soroban-client` and `vercel` (`package.json:28`).
+- `@stellar/stellar-sdk` 17.4.0 (`package.json:29`) plus `axios` 1.20.0 for the token list fetch in the trustline scripts (`package.json:30`), `cors`, `date-fns`, `dotenv`, `express` and `vercel` (`package.json:28`). `axios` is pinned to the exact version the SDK depends on, so the lockfile has one copy.
+- Node 22.12.0 or later, the SDK's `engines.node`. The `soroban-preview` image pinned in `configs.json:2` ships Node 20.18.0, where `yarn` fails the engine check; inside the container run `nvm install 22 && corepack enable` first (`README.md:52`).
 - Env vars, read by name only: `SOROSWAP_ADMIN_SECRET_KEY` (`utils/env_config.ts:73`), `TEST_TOKENS_ADMIN_SECRET_KEY` (`scripts/deploy.ts:60`), `TESTING_ACCOUNT_SECRET_KEY` (`scripts/manual_testing/all.ts:11`), `TRUSTLINE_WALLET_SECRET_KEY` (`scripts/set_trustlines.ts:24`), `MAINNET_RPC_URL` (`utils/env_config.ts:63`). Template at `.env.example`.
 - Docker images pinned by digest in `configs.json:2` and `:3`, consumed by `scripts/quickstart.sh:3` and `scripts/run.sh:1`.
 - External: the Soroswap token list at `https://raw.githubusercontent.com/soroswap/token-list/main/tokenList.json` (`scripts/set_trustlines.ts:66`, `scripts/see_trustlines.ts:41`).
@@ -68,10 +69,14 @@ Contracts are built separately with `make build` in `contracts/` (`contracts/Mak
 - `AddressBook.loadFromFile` takes a folder argument so you can read `public/`, but `writeToFile` is hardcoded to `.soroban/` (`utils/address_book.ts:45`). You cannot write back to `public/` except through `yarn upload`.
 - `installContract` and `deployContract` need `*.optimized.wasm` (`utils/contract.ts:12`), which only exists after `soroban contract optimize` has run. `make build` does it per contract; a bare `cargo build` does not.
 - `scripts/deploy.ts:14` and `:61` airdrop only when the network is not mainnet. A mainnet run assumes both accounts are already funded.
-- The whole test token, random token and liquidity seeding block runs unconditionally in `deployAndInitContracts` (`scripts/deploy.ts:70` to `:83`), including on mainnet. The README claims it is skipped for mainnet (`README.md:88`); the code does not skip it.
+- The whole test token, random token and liquidity seeding block runs unconditionally in `deployAndInitContracts` (`scripts/deploy.ts:70` to `:83`), including on mainnet. The README claims it is skipped for mainnet (`README.md:91`); the code does not skip it.
 - `.soroban/` and `.env` are gitignored (`.gitignore:7`, `:9`). Deployment output is only durable once `yarn upload` copies it into `public/` and it is committed.
 - Never put secret keys into `configs.json` or `public/`. Only `.env` holds them.
+- `invokeTransaction` simulates with `useUpgradedAuth` set to `false` (`utils/tx.ts:38`), so RPC records legacy CAP-71 v1 auth entries as on SDK 14. SDK 17 defaults to v2. The flag becomes a no-op once protocol 28 makes v2 mandatory.
+- SDK 17 returns `Uint8Array` from `hash()` and `Transaction.hash()`. The hex strings used for the address book and for polling `getTransaction` go through `xdr.encodeBytes(..., 'hex')` (`utils/contract.ts:31`, `utils/tx.ts:65`); `.toString('hex')` on a `Uint8Array` silently returns comma-joined decimals.
+- `bumpContractInstance` and `bumpContractCode` (`utils/contract.ts:150`, `:188`) have no live caller; every call in `scripts/` is commented out. On SDK 14 they threw at encode time because `ext` was built as the wrong union.
+- `scripts/old_bash/*.js` use `require()` inside a `"type": "module"` package (`package.json:5`), so they cannot run, and `soroban-client`, which three of them load, is no longer a dependency.
 
 ## Testing
 
-There is no unit test suite here. `yarn test <network> [public]` runs `scripts/manual_testing/all.ts` end to end against a real network: mint, add liquidity, swap, remove liquidity (`scripts/manual_testing/all.ts:16`). Passing `public` as the second argument reads addresses from `public/` instead of `.soroban/` (`scripts/manual_testing/all.ts:27`). Note `README.md:191` documents `bash scripts/manual_testing/all.sh`, a file that does not exist; the current entry point is the yarn script.
+There is no unit test suite here. `yarn test <network> [public]` runs `scripts/manual_testing/all.ts` end to end against a real network: mint, add liquidity, swap, remove liquidity (`scripts/manual_testing/all.ts:16`). Passing `public` as the second argument reads addresses from `public/` instead of `.soroban/` (`scripts/manual_testing/all.ts:27`). Note `README.md:194` documents `bash scripts/manual_testing/all.sh`, a file that does not exist; the current entry point is the yarn script.

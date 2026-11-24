@@ -34,9 +34,9 @@ Commands verified in the repo. Do not invent variants.
 
 - Build all contracts: `make build` from `contracts/` (`contracts/Makefile:8`). Per contract: `make build` in that directory, which also runs `soroban contract optimize` (`contracts/pair/Makefile:11`).
 - Test all contracts: `make test` from `contracts/` (`contracts/Makefile:13`), which builds first. Per contract: `make test`, that is `cargo test` (`contracts/factory/Makefile:5`).
-- Budget profiling: `cargo test budget -- --nocapture` from `contracts/router` (`README.md:179`), running `contracts/router/src/test/budget.rs`.
+- Budget profiling: `cargo test budget -- --nocapture` from `contracts/router` (`README.md:182`), running `contracts/router/src/test/budget.rs`.
 - Local network: `bash scripts/quickstart.sh standalone|futurenet|testnet` then `bash scripts/run.sh` (`README.md:43`, `:49`), which shells into the pinned `soroban-preview` container.
-- Node deps: `yarn` at the repo root, and separately inside `api/` (`scripts/serve_with_docker.sh:42`).
+- Node deps: `yarn` at the repo root, and separately inside `api/` (`scripts/serve_with_docker.sh:42`). The root tooling needs Node 22.12.0 or later for `@stellar/stellar-sdk` 17.4.0 (`package.json:29`). The pinned `soroban-preview` container ships Node 20.18.0, so run `nvm install 22 && corepack enable` in it before `yarn` (`README.md:52`).
 - Deploy: `yarn deploy <network>` (`package.json:10`), which is `yarn build && node dist/scripts/deploy.js`. Networks: `mainnet`, `standalone`, `futurenet`, `testnet`, `testnet-public` (`configs.json:4`).
 - Publish addresses: `yarn upload <network>` (`package.json:11`), then commit `public/`.
 - End to end manual test: `yarn test <network> [public]` (`package.json:9`).
@@ -59,7 +59,7 @@ Commands verified in the repo. Do not invent variants.
 - Contracts import each other's built WASM at compile time (`contracts/router/src/factory.rs:2`, `contracts/pair/src/lib.rs:20`). Build order matters, and the router and library need the `*.optimized.wasm` outputs.
 - The pair never pulls tokens. `deposit`, `swap` and `withdraw` assume the caller already transferred value in and have **no** `require_auth`. Go through the router.
 - `initialize` on both the factory (`contracts/factory/src/lib.rs:178`) and the router (`contracts/router/src/lib.rs:390`) is unauthenticated. First caller wins, and neither address can be changed afterwards.
-- README drift: it claims test token and liquidity seeding is skipped on mainnet (`README.md:88`), but `scripts/deploy.ts:70` runs it unconditionally. It documents `bash scripts/manual_testing/all.sh` (`README.md:191`), which does not exist. Its "SorobanExp" link for the factory (`README.md:8`) points at the router address. Verify README claims against the code before relying on them.
+- README drift: it claims test token and liquidity seeding is skipped on mainnet (`README.md:91`), but `scripts/deploy.ts:70` runs it unconditionally. It documents `bash scripts/manual_testing/all.sh` (`README.md:194`), which does not exist. Its "SorobanExp" link for the factory (`README.md:8`) points at the router address. Verify README claims against the code before relying on them.
 - Never commit `.env`, secret keys or mnemonics. `.soroban/` and `.env` are gitignored (`.gitignore:7`, `:9`); `public/` is committed on purpose.
 
 ## Cross-repo dependencies
@@ -75,7 +75,7 @@ Outbound:
 
 Inbound:
 
-- **this repo -> Vercel address API**: `public/*.contracts.json`, `public/tokens.json` and `public/random_tokens.json` are served as an HTTP address registry for consumers outside this repo. Evidence `api/server.js:40`, `vercel.json:16`, `README.md:109`. The repo records no consumer, so which Soroswap or PaltaLabs services read it **cannot be verified from this repo**. No reference to an aggregator, SDK, API or DeFindex repo exists in this source tree.
+- **this repo -> Vercel address API**: `public/*.contracts.json`, `public/tokens.json` and `public/random_tokens.json` are served as an HTTP address registry for consumers outside this repo. Evidence `api/server.js:40`, `vercel.json:16`, `README.md:112`. The repo records no consumer, so which Soroswap or PaltaLabs services read it **cannot be verified from this repo**. No reference to an aggregator, SDK, API or DeFindex repo exists in this source tree.
 
 ## Module Documentation Convention (MANDATORY)
 

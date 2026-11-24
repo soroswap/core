@@ -53,13 +53,13 @@ Pair addresses are not recorded here. They are derived deterministically, see `c
 
 ## Gotchas and invariants
 
-- **`public/` is committed on purpose.** `README.md:125` states the files must be committed for Vercel to serve them. Editing `public/` by hand desynchronizes it from `.soroban/`; use `yarn upload <network>`.
+- **`public/` is committed on purpose.** `README.md:128` states the files must be committed for Vercel to serve them. Editing `public/` by hand desynchronizes it from `.soroban/`; use `yarn upload <network>`.
 - `/api/:network/:contractName` reads only the `ids` map, never `hashes` (`api/server.js:48`). There is no route that exposes WASM hashes.
 - Local mode is hardcoded to `/workspace/.soroban` (`api/server.js:11`), so running `node api/server.js` on a host machine serves 404s for everything.
 - Both `package.json:8` and `api/package.json:5` define `"start": "node scripts/api/server.js"`, a path that does not exist. The real entry point is `api/server.js`.
-- `README.md:111` documents `/api/<network>/factory` and `/api/<network>/router`; those work because `factory` and `router` are the keys in the `ids` map, not because the route special cases them.
+- `README.md:114` documents `/api/<network>/factory` and `/api/<network>/router`; those work because `factory` and `router` are the keys in the `ids` map, not because the route special cases them.
 - `vercel.json:3` still carries the placeholder name `my-express-api`.
 
 ## Testing
 
-No tests. Verify by starting the container with `bash scripts/serve_with_docker.sh` and requesting the four routes on port 8010 (`README.md:104`).
+No tests. Verify by starting the container with `bash scripts/serve_with_docker.sh` and requesting the four routes on port 8010 (`README.md:107`).

@@ -51,7 +51,10 @@ bash scripts/run.sh
 
 1.5 yarn install
 
+The TypeScript tooling needs Node 22.12.0 or later (`@stellar/stellar-sdk` 17). The pinned `soroban-preview` image ships Node 20.18.0, where `yarn` fails on the engine check, so switch the container shell to Node 22 first (once per shell):
+
 ```
+nvm install 22 && corepack enable
 yarn
 ```
 
