@@ -14,7 +14,7 @@ export async function signWithKeypair(
 ): Promise<string> {
   const tx = new Transaction(txXdr, passphrase);
   tx.sign(source);
-  return tx.toXDR();
+  return tx.toXdr();
 }
 
 export async function invoke(
@@ -24,7 +24,7 @@ export async function invoke(
 ): Promise<any> {
   const txBuilder = await createTxBuilder(source);
   if (typeof operation === 'string') {
-    operation = xdr.Operation.fromXDR(operation, 'base64');
+    operation = xdr.Operation.fromXdr(operation, 'base64');
   }
   txBuilder.addOperation(operation);
   const tx = txBuilder.build();
@@ -33,7 +33,9 @@ export async function invoke(
 
 export async function invokeTransaction(tx: Transaction, source: Keypair, sim: boolean) {
   // simulate the TX
-  const simulation_resp = await loadedConfig.rpc.simulateTransaction(tx);
+  // SDK 17 asks RPC for CAP-71 v2 auth entries by default. Pin the legacy format so the
+  // recorded auth entries, and therefore the signed transaction, stay as on SDK 14.
+  const simulation_resp = await loadedConfig.rpc.simulateTransaction(tx, undefined, undefined, false);
   if (rpc.Api.isSimulationError(simulation_resp)) {
     // No resource estimation available from a simulation error. Allow the response formatter
     // to fetch the error.
@@ -59,7 +61,8 @@ export async function invokeTransaction(tx: Transaction, source: Keypair, sim: b
   // );
   const prepped_tx = assemble_tx.build();
   prepped_tx.sign(source);
-  const tx_hash = prepped_tx.hash().toString('hex');
+  // hash() returns a Uint8Array since SDK 17, whose toString() ignores 'hex'
+  const tx_hash = xdr.encodeBytes(prepped_tx.hash(), 'hex');
 
   console.log('submitting tx...');
   let response: txResponse = await loadedConfig.rpc.sendTransaction(prepped_tx);

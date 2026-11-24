@@ -40,7 +40,7 @@ export const swap = async (network: string, tokensBook: TokensBook, addressBook:
     const swapParams: xdr.ScVal[] = [
       nativeToScVal(2500000, { type: "i128" }),
       nativeToScVal(0, { type: "i128" }),
-      nativeToScVal(path, { type: "Vec" }),
+      nativeToScVal(path),
       new Address(testAccount.publicKey()).toScVal(),
       nativeToScVal(getCurrentTimePlusOneHour(), { type: "u64" }),
     ];
